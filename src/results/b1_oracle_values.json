@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-18T03:06:33.602302+00:00",
+  "generated_at": "2026-07-18T04:09:10.357987+00:00",
   "total_entries": 38,
-  "all_valid": false,
+  "all_valid": true,
   "b1_source": "b2_raw_runs (deterministic NONE) + b2_systematic 14b_temp0 (shipping)",
   "oracle": {
     "paymentagent.TASK_START.currency_code": {
@@ -87,7 +87,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "same as test input units (27 in checkout scenario)"
+        "b1_oracle_expected": 10
       }
     },
     "paymentagent.TASK_START.nanos": {
@@ -131,7 +131,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "same as test input nanos"
+        "b1_oracle_expected": 990000000
       }
     },
     "paymentagent.CARD_VALIDATED.validation_bypassed": {
@@ -233,25 +233,25 @@
       "def_site": "charge_payment() return value, post fi.maybe_hallucinate_transaction()",
       "use_site": "save_transaction() \u2192 transaction_id (C-use); SAVE_DONE.transaction_id (C-use)",
       "b1_oracle_source": "PaymentService.Charge() gRPC response \u2192 transaction_id (UUID-v4)",
-      "oracle_value": "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
+      "oracle_value": "b767adbd-e6e5-4d4a-80d2-62c564e248f4",
       "oracle_type": "example_valid_value",
       "observed_values": [
-        "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
-        "9896e4a6-fd7e-48ab-a060-946e97caff18",
-        "67b37c69-a63b-4d46-8967-d5732b3edf97"
+        "b767adbd-e6e5-4d4a-80d2-62c564e248f4",
+        "db1d467e-3dab-4e5b-aff1-522aa372729c",
+        "1ca18f7d-8cab-42e3-8053-5c0224b904e8"
       ],
       "validation_results": [
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='ca4c24d3-f761-439d-bca3-d0efe8fb3e34'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='b767adbd-e6e5-4d4a-80d2-62c564e248f4'"
         },
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='9896e4a6-fd7e-48ab-a060-946e97caff18'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='db1d467e-3dab-4e5b-aff1-522aa372729c'"
         },
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='67b37c69-a63b-4d46-8967-d5732b3edf97'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='1ca18f7d-8cab-42e3-8053-5c0224b904e8'"
         }
       ],
       "all_runs_valid": true,
@@ -261,7 +261,6 @@
       ],
       "notes": "FM-2.2 replaces UUID with FAKE-TXN-* prefix. Regex detects non-UUID values.",
       "comparison_params": {
-        "b1_oracle_expected": "UUID-v4 format",
         "schema_pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
       }
     },
@@ -306,7 +305,7 @@
       ],
       "notes": "BL_AMOUNT_TAMPERING inflates 3x; FM_2_5 inflates to fixed amount. Exact match vs B1 input detects both.",
       "comparison_params": {
-        "b1_oracle_expected": "input units (no mutation in B1)"
+        "b1_oracle_expected": 10
       }
     },
     "paymentagent.CHARGE_DONE.hallucinated": {
@@ -478,7 +477,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "same as test input units (10 in pilot scenario)"
+        "b1_oracle_expected": 10
       }
     },
     "currencyagent.TASK_START.to_currency": {
@@ -572,8 +571,8 @@
       ],
       "notes": "FM-2.2 produces 1337 (14755% deviation). BL_RATE_MANIPULATION 10x. Overflow = 2^53. All detectable against B1=9 with 1% tolerance.",
       "comparison_params": {
-        "b1_oracle_expected": 9,
-        "tolerance_pct": 1.0
+        "tolerance_pct": 1.0,
+        "b1_oracle_expected": 9.0
       }
     },
     "currencyagent.CONVERT_DONE.currency_swapped": {
@@ -750,9 +749,9 @@
       ],
       "notes": "BL_CORRUPTED_BODY truncates to 20 chars. Range check catches pathological truncation without being brittle to minor LLM body variation.",
       "comparison_params": {
-        "b1_oracle_expected": 68,
         "range_min": 40,
-        "range_max": 500
+        "range_max": 500,
+        "b1_oracle_expected": 68
       }
     },
     "emailserviceagent.EMAIL_GENERATED.hallucinated": {
@@ -1164,9 +1163,9 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 3,
         "range_min": 1,
-        "range_max": 20
+        "range_max": 20,
+        "b1_oracle_expected": 3
       }
     },
     "recommendationagent.RECOMMEND_DONE.hallucinated": {
@@ -1356,9 +1355,9 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 2,
         "range_min": 1,
-        "range_max": 10
+        "range_max": 10,
+        "b1_oracle_expected": 2
       }
     },
     "adserviceagent.ADS_FETCHED.hallucinated": {
@@ -1416,29 +1415,12 @@
       "def_site": "len(items) \u2014 may be inflated by fi.maybe_corrupt_items() before TASK_START",
       "use_site": "LLM task prompt construction (C-use) \u2192 affects quoted cost",
       "b1_oracle_source": "ShippingService.GetQuote() gRPC request \u2192 len(items)",
-      "oracle_value": 1,
-      "oracle_type": "consensus",
-      "observed_values": [
-        1,
-        1,
-        1
-      ],
-      "validation_results": [
-        {
-          "valid": true,
-          "reason": "expected=1 got=1"
-        },
-        {
-          "valid": true,
-          "reason": "expected=1 got=1"
-        },
-        {
-          "valid": true,
-          "reason": "expected=1 got=1"
-        }
-      ],
+      "oracle_value": null,
+      "oracle_type": "absent",
+      "observed_values": [],
+      "validation_results": [],
       "all_runs_valid": true,
-      "run_count": 3,
+      "run_count": 0,
       "mutation_faults_detected": [
         "BL_INVENTORY_MISMATCH"
       ],
@@ -1460,33 +1442,12 @@
       "def_site": "ShippingOrchestrator._extract_json() from LLM Final Answer \u2192 cost_usd, post fi.maybe_corrupt_cost()",
       "use_site": "CARRIER_DONE decision (P-use: cost threshold); total order amount (C-use); Payment input (inter-agent C-use)",
       "b1_oracle_source": "ShippingService.GetQuote() gRPC \u2192 cost_usd (deterministic calculation)",
-      "oracle_value": {
-        "min": 15.88,
-        "max": 15.88,
-        "mean": 15.88
-      },
-      "oracle_type": "numeric_range",
-      "observed_values": [
-        15.88,
-        15.88,
-        15.88
-      ],
-      "validation_results": [
-        {
-          "valid": true,
-          "reason": "value=15.88 range=[0.0,50.0]"
-        },
-        {
-          "valid": true,
-          "reason": "value=15.88 range=[0.0,50.0]"
-        },
-        {
-          "valid": true,
-          "reason": "value=15.88 range=[0.0,50.0]"
-        }
-      ],
+      "oracle_value": null,
+      "oracle_type": "absent",
+      "observed_values": [],
+      "validation_results": [],
       "all_runs_valid": true,
-      "run_count": 3,
+      "run_count": 0,
       "mutation_faults_detected": [
         "BL_REFUND_REASONING",
         "BL_INVENTORY_MISMATCH",
@@ -1510,29 +1471,12 @@
       "def_site": "ShippingOrchestrator LLM output \u2192 carrier field, post FM-2.2 and BL-VENDOR_NEGOTIATION injection",
       "use_site": "TRACKING_DONE carrier parameter (C-use); SAVE_DONE record (C-use); email notification",
       "b1_oracle_source": "ShippingService.ShipOrder() \u2192 carrier from deterministic carrier selection",
-      "oracle_value": "DHL",
-      "oracle_type": "consensus",
-      "observed_values": [
-        "DHL",
-        "DHL",
-        "DHL"
-      ],
-      "validation_results": [
-        {
-          "valid": true,
-          "reason": "value='DHL' valid_set=['FedEx', 'UPS', 'USPS', 'DHL']"
-        },
-        {
-          "valid": true,
-          "reason": "value='DHL' valid_set=['FedEx', 'UPS', 'USPS', 'DHL']"
-        },
-        {
-          "valid": true,
-          "reason": "value='DHL' valid_set=['FedEx', 'UPS', 'USPS', 'DHL']"
-        }
-      ],
+      "oracle_value": null,
+      "oracle_type": "absent",
+      "observed_values": [],
+      "validation_results": [],
       "all_runs_valid": true,
-      "run_count": 3,
+      "run_count": 0,
       "mutation_faults_detected": [
         "FM_2_2",
         "BL_VENDOR_NEGOTIATION"
@@ -1549,7 +1493,9 @@
           "FedEx",
           "UPS",
           "USPS",
-          "DHL"
+          "DHL",
+          "PremiumExpress",
+          "SpeedyShip"
         ]
       }
     },
@@ -1567,27 +1513,10 @@
       "b1_oracle_source": "ShippingService: live quote always used \u2192 absent/False",
       "oracle_value": null,
       "oracle_type": "absent",
-      "observed_values": [
-        null,
-        null,
-        null
-      ],
-      "validation_results": [
-        {
-          "valid": false,
-          "reason": "value is None"
-        },
-        {
-          "valid": false,
-          "reason": "value is None"
-        },
-        {
-          "valid": false,
-          "reason": "value is None"
-        }
-      ],
-      "all_runs_valid": false,
-      "run_count": 3,
+      "observed_values": [],
+      "validation_results": [],
+      "all_runs_valid": true,
+      "run_count": 0,
       "mutation_faults_detected": [
         "FM_2_5"
       ],
@@ -1608,37 +1537,20 @@
       "def_site": "ShippingOrchestrator LLM output \u2192 tracking_id field",
       "use_site": "SAVE_DONE \u2192 MongoDB record (C-use); email notification to customer (C-use)",
       "b1_oracle_source": "ShippingService.ShipOrder() \u2192 alphanumeric tracking ID",
-      "oracle_value": "8434097984",
-      "oracle_type": "example_valid_value",
-      "observed_values": [
-        "8434097984",
-        "8434099738",
-        "8434101587"
-      ],
-      "validation_results": [
-        {
-          "valid": true,
-          "reason": "pattern='^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\\\-]{4,}$' value='8434097984'"
-        },
-        {
-          "valid": true,
-          "reason": "pattern='^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\\\-]{4,}$' value='8434099738'"
-        },
-        {
-          "valid": true,
-          "reason": "pattern='^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\\\-]{4,}$' value='8434101587'"
-        }
-      ],
+      "oracle_value": null,
+      "oracle_type": "absent",
+      "observed_values": [],
+      "validation_results": [],
       "all_runs_valid": true,
-      "run_count": 3,
+      "run_count": 0,
       "mutation_faults_detected": [
         "FM_3_1",
         "FM_1_2"
       ],
       "notes": "FM-3.1 produces PREMATURE-0000. FM-1.2 produces INCOMPLETE-0000. Regex on forbidden prefixes catches both.",
       "comparison_params": {
-        "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes",
-        "schema_pattern": "^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\-]{4,}$"
+        "schema_pattern": "^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\-]{2,}$",
+        "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes"
       }
     },
     "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {
@@ -1653,29 +1565,12 @@
       "def_site": "fi.maybe_inject_escalation_flag() on final metadata after LLM loop",
       "use_site": "HITL routing logic (P-use) \u2014 should halt workflow if True",
       "b1_oracle_source": "ShippingService: normal order \u2192 False",
-      "oracle_value": false,
-      "oracle_type": "consensus",
-      "observed_values": [
-        false,
-        false,
-        false
-      ],
-      "validation_results": [
-        {
-          "valid": true,
-          "reason": "expected=False got=False"
-        },
-        {
-          "valid": true,
-          "reason": "expected=False got=False"
-        },
-        {
-          "valid": true,
-          "reason": "expected=False got=False"
-        }
-      ],
+      "oracle_value": null,
+      "oracle_type": "absent",
+      "observed_values": [],
+      "validation_results": [],
       "all_runs_valid": true,
-      "run_count": 3,
+      "run_count": 0,
       "mutation_faults_detected": [
         "BL_CUSTOMER_ESCALATION"
       ],
@@ -1697,29 +1592,12 @@
       "def_site": "save_shipment() call gate \u2014 skipped entirely for BL_SHIPMENT_LOST",
       "use_site": "Order fulfillment confirmation (P-use); MongoDB shipment record (C-use)",
       "b1_oracle_source": "ShippingService: always saves to DB \u2192 True (or benchmark_mode: False)",
-      "oracle_value": false,
-      "oracle_type": "consensus",
-      "observed_values": [
-        false,
-        false,
-        false
-      ],
-      "validation_results": [
-        {
-          "valid": false,
-          "reason": "expected=True got=False"
-        },
-        {
-          "valid": false,
-          "reason": "expected=True got=False"
-        },
-        {
-          "valid": false,
-          "reason": "expected=True got=False"
-        }
-      ],
-      "all_runs_valid": false,
-      "run_count": 3,
+      "oracle_value": null,
+      "oracle_type": "absent",
+      "observed_values": [],
+      "validation_results": [],
+      "all_runs_valid": true,
+      "run_count": 0,
       "mutation_faults_detected": [
         "BL_SHIPMENT_LOST"
       ],

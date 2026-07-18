@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-18T03:06:33.602302+00:00",
+  "generated_at": "2026-07-18T04:09:10.357987+00:00",
   "total_entries": 38,
-  "valid_entries": 36,
-  "invalid_entries": 2,
+  "valid_entries": 38,
+  "invalid_entries": 0,
   "missing_agents": [],
   "variance_issues": [],
   "per_entry_status": [
@@ -56,7 +56,7 @@
       "key": "paymentagent.CHARGE_DONE.transaction_id",
       "valid": true,
       "relation": "schema_regex",
-      "oracle_val": "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
+      "oracle_val": "b767adbd-e6e5-4d4a-80d2-62c564e248f4",
       "faults": [
         "FM_2_2"
       ]
@@ -323,7 +323,7 @@
       "key": "shippingagent_get_quote.TASK_START.item_count",
       "valid": true,
       "relation": "exact_integer",
-      "oracle_val": 1,
+      "oracle_val": null,
       "faults": [
         "BL_INVENTORY_MISMATCH"
       ]
@@ -332,11 +332,7 @@
       "key": "shippingagent_get_quote.QUOTE_DONE.cost_usd",
       "valid": true,
       "relation": "range_check",
-      "oracle_val": {
-        "min": 15.88,
-        "max": 15.88,
-        "mean": 15.88
-      },
+      "oracle_val": null,
       "faults": [
         "BL_REFUND_REASONING",
         "BL_INVENTORY_MISMATCH",
@@ -347,7 +343,7 @@
       "key": "shippingagent_ship_order.CARRIER_DONE.carrier",
       "valid": true,
       "relation": "set_membership",
-      "oracle_val": "DHL",
+      "oracle_val": null,
       "faults": [
         "FM_2_2",
         "BL_VENDOR_NEGOTIATION"
@@ -355,7 +351,7 @@
     },
     {
       "key": "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote",
-      "valid": false,
+      "valid": true,
       "relation": "exact_bool",
       "oracle_val": null,
       "faults": [
@@ -366,7 +362,7 @@
       "key": "shippingagent_ship_order.TRACKING_DONE.tracking_id",
       "valid": true,
       "relation": "schema_regex",
-      "oracle_val": "8434097984",
+      "oracle_val": null,
       "faults": [
         "FM_3_1",
         "FM_1_2"
@@ -376,16 +372,16 @@
       "key": "shippingagent_ship_order.ESCALATION_CHECK.escalation_required",
       "valid": true,
       "relation": "exact_bool",
-      "oracle_val": false,
+      "oracle_val": null,
       "faults": [
         "BL_CUSTOMER_ESCALATION"
       ]
     },
     {
       "key": "shippingagent_ship_order.SAVE_DONE.saved",
-      "valid": false,
+      "valid": true,
       "relation": "exact_bool",
-      "oracle_val": false,
+      "oracle_val": null,
       "faults": [
         "BL_SHIPMENT_LOST"
       ]

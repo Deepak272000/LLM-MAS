@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/nfs/speed-scratch/d_chavan/LLM-MAS/src/cross_agent_propagation.py", line 52, in <module>
+    def agent_context(agent_dir: Path, fault_mode: str, extra_stubs: dict | None = None):
+TypeError: unsupported operand type(s) for |: 'type' and 'NoneType'

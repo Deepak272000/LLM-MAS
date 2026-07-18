@@ -1,0 +1,2 @@
+/local/data/slurm/var/spool/job970046/slurm_script: line 10: .venv/bin/activate: No such file or directory
+/local/data/slurm/var/spool/job970046/slurm_script: line 11: pip: command not found

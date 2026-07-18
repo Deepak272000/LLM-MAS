@@ -1,0 +1,10 @@
+[FAULT FM_3_1] Premature termination — returning before charge
+[LKW RIP] {'reachability': ['TASK_START', 'FINAL_ANSWER'], 'infection_point': 'FINAL_ANSWER', 'propagation_depth': 3, 'missing_steps': ['CARD_VALIDATED', 'CHARGE_DONE', 'SAVE_DONE']}
+[FAULT FM_2_2] Hallucinated transaction_id: FAKE-TXN-D5AA7D1D
+[FAULT FM_2_5] Amount tampered: 10.990000000 → 30.990000000
+[FAULT FM_1_2] Validation bypassed for card ending 1111
+[FAULT BL_TRANSACTION_LOST] Save bypassed — transaction not persisted
+[FAULT BL_DOUBLE_CHARGE] Injecting double-charge marker
+[FAULT BL_AMOUNT_TAMPERING] Amount tampered: 10.990000000 → 30.990000000
+[FAULT BL_CARD_DECLINED] Forcing card decline on valid card
+[PaymentAgent] Payment failed: Payment declined by issuer (fault injection)

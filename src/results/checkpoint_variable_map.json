@@ -1,0 +1,739 @@
+{
+  "_meta": {
+    "description": "LKW (Laski-Korel-Weyuker) data-flow checkpoint variable mapping for all agents in LLM-MAS.",
+    "lkw_reference": "Laski and Korel (1983), Weyuker (1988) — data-flow testing criteria.",
+    "criterion_used": "All-Uses (All-P-Uses + All-C-Uses): every def-use pair must be exercised by at least one test path.",
+    "variable_types": {
+      "C-use": "Computation use — variable used in an assignment or passed as argument",
+      "P-use": "Predicate use — variable used in a boolean condition / control flow decision"
+    },
+    "comparison_relations": {
+      "exact_string":          "String equality. Used for categorical fields with finite known values.",
+      "exact_bool":            "Boolean equality. Used for flag fields.",
+      "exact_integer":         "Integer equality. Used for deterministic counts with no LLM variance.",
+      "numeric_tolerance_pct": "Absolute percent deviation <= tolerance_pct. Used for amounts with LLM rounding.",
+      "set_equality":          "Unordered set equality of ID lists. Order-independent membership check.",
+      "set_membership":        "Observed value must be a member of the declared valid_set.",
+      "schema_regex":          "Observed string must match the declared regex pattern.",
+      "range_check":           "Observed numeric value must satisfy min <= value <= max.",
+      "non_negative_float":    "Observed value >= 0.0 (no known upper bound)."
+    },
+    "b1_oracle_note": "B1 oracle values are captured from the original deterministic gRPC microservices (not agent wrappers). For agents with no gRPC equivalent (AdService, Recommendation in USE_LLM=false mode), B1 = pilot B2-NONE run (zero-variance deterministic baseline).",
+    "generated_from_source": true
+  },
+
+  "checkpoints": [
+
+    {
+      "agent": "paymentagent",
+      "checkpoint": "TASK_START",
+      "purpose": "Record inputs arriving at the agent — the def point for all downstream variables.",
+      "observed_variables": [
+        {
+          "field": "currency_code",
+          "type": "string",
+          "def_site": "PaymentAgent.run() input parameter",
+          "use_site": "charge_payment() → amount.currency_code (C-use); validation logic (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use", "P-use"],
+          "b1_oracle_source": "PaymentService.Charge() gRPC request → amount.currency_code",
+          "b1_oracle_expected": "USD",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": []
+        },
+        {
+          "field": "units",
+          "type": "integer",
+          "def_site": "PaymentAgent.run() input parameter (may be mutated by maybe_tamper_amount before CARD_VALIDATED)",
+          "use_site": "charge_payment() → amount.units (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "PaymentService.Charge() gRPC request → amount.units",
+          "b1_oracle_expected": "same as test input units (27 in checkout scenario)",
+          "comparison_relation": "exact_integer",
+          "mutation_faults_detected": ["FM_2_5", "BL_AMOUNT_TAMPERING"]
+        },
+        {
+          "field": "nanos",
+          "type": "integer",
+          "def_site": "PaymentAgent.run() input parameter",
+          "use_site": "charge_payment() → amount.nanos (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "PaymentService.Charge() gRPC request → amount.nanos",
+          "b1_oracle_expected": "same as test input nanos",
+          "comparison_relation": "exact_integer",
+          "mutation_faults_detected": ["FM_2_5", "BL_AMOUNT_TAMPERING"]
+        }
+      ]
+    },
+
+    {
+      "agent": "paymentagent",
+      "checkpoint": "CARD_VALIDATED",
+      "purpose": "Confirm card passed validation and record whether amount was tampered before the charge call.",
+      "observed_variables": [
+        {
+          "field": "validation_bypassed",
+          "type": "boolean",
+          "def_site": "fi.maybe_bypass_validation() → _bypass_validation flag passed to charge_payment()",
+          "use_site": "charge_payment() validation gate (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "PaymentService.Charge(): validation always runs → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_1_2"]
+        },
+        {
+          "field": "amount_tampered",
+          "type": "boolean",
+          "def_site": "fi.maybe_tamper_amount() modifies units/nanos before this checkpoint",
+          "use_site": "CHARGE_DONE.units_charged (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "PaymentService.Charge(): no tampering → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_2_5", "BL_AMOUNT_TAMPERING"]
+        }
+      ]
+    },
+
+    {
+      "agent": "paymentagent",
+      "checkpoint": "CHARGE_DONE",
+      "purpose": "Primary fault detection point: transaction ID validity and charge amount correctness.",
+      "observed_variables": [
+        {
+          "field": "transaction_id",
+          "type": "string",
+          "def_site": "charge_payment() return value, post fi.maybe_hallucinate_transaction()",
+          "use_site": "save_transaction() → transaction_id (C-use); SAVE_DONE.transaction_id (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "PaymentService.Charge() gRPC response → transaction_id (UUID-v4)",
+          "b1_oracle_expected": "UUID-v4 format",
+          "comparison_relation": "schema_regex",
+          "schema_pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "mutation_faults_detected": ["FM_2_2"],
+          "notes": "FM-2.2 replaces UUID with FAKE-TXN-* prefix. Regex detects non-UUID values."
+        },
+        {
+          "field": "units_charged",
+          "type": "integer",
+          "def_site": "units variable after maybe_tamper_amount() — used in charge_payment() call",
+          "use_site": "save_transaction() → units field (C-use)",
+          "lkw_criterion": "All-DU-Paths",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "PaymentService.Charge(): charge amount = requested amount",
+          "b1_oracle_expected": "input units (no mutation in B1)",
+          "comparison_relation": "exact_integer",
+          "mutation_faults_detected": ["FM_2_5", "BL_AMOUNT_TAMPERING"],
+          "notes": "BL_AMOUNT_TAMPERING inflates 3x; FM_2_5 inflates to fixed amount. Exact match vs B1 input detects both."
+        },
+        {
+          "field": "hallucinated",
+          "type": "boolean",
+          "def_site": "fi.maybe_hallucinate_transaction() sets result.hallucinated",
+          "use_site": "LKW trace consumer (P-use in deviation check)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "PaymentService: no hallucination → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_2_2"]
+        }
+      ]
+    },
+
+    {
+      "agent": "paymentagent",
+      "checkpoint": "SAVE_DONE",
+      "purpose": "Confirm persistence occurred and detect silent save-skip or double-charge.",
+      "observed_variables": [
+        {
+          "field": "saved",
+          "type": "boolean",
+          "def_site": "fi.maybe_skip_save() gate — True if save_transaction() was called",
+          "use_site": "caller determines whether order was persisted (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "PaymentService: always saves → True",
+          "b1_oracle_expected": true,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_TRANSACTION_LOST"]
+        },
+        {
+          "field": "double_charge",
+          "type": "boolean",
+          "def_site": "fi.maybe_inject_double_charge() on save_payload",
+          "use_site": "LKW trace consumer (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "PaymentService: no duplication → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_DOUBLE_CHARGE"]
+        }
+      ]
+    },
+
+    {
+      "agent": "currencyagent",
+      "checkpoint": "TASK_START",
+      "purpose": "Record conversion request inputs — def point for currency pair and amount.",
+      "observed_variables": [
+        {
+          "field": "units",
+          "type": "integer",
+          "def_site": "CurrencyAgent.run() input parameter",
+          "use_site": "client.convert() → units arg (C-use), after maybe_tamper_amount()",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "CurrencyService.Convert() gRPC request → units",
+          "b1_oracle_expected": "same as test input units (10 in pilot scenario)",
+          "comparison_relation": "exact_integer",
+          "mutation_faults_detected": ["FM_2_5"]
+        },
+        {
+          "field": "to_currency",
+          "type": "string",
+          "def_site": "CurrencyAgent.run() input parameter",
+          "use_site": "client.convert() → to_code arg (C-use), after maybe_swap_currency()",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "CurrencyService.Convert() gRPC request → to_code",
+          "b1_oracle_expected": "EUR",
+          "b1_oracle_note": "Pilot scenario: USD→EUR. Checkout scenario uses USD→USD — override per test.",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": ["FM_1_2"]
+        }
+      ]
+    },
+
+    {
+      "agent": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "purpose": "Primary fault detection point: converted amount validity after all injection.",
+      "observed_variables": [
+        {
+          "field": "units_out",
+          "type": "integer",
+          "def_site": "client.convert() return value → data.units, post all fault injections",
+          "use_site": "PaymentAgent.run() → units parameter (inter-agent C-use); FINAL_ANSWER.result (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "CurrencyService.Convert() gRPC response → units",
+          "b1_oracle_expected": 9,
+          "b1_oracle_notes": "Mock: 10 USD → 9 EUR. B1 = 9. FM-2.2 hallucination → 1337.",
+          "comparison_relation": "numeric_tolerance_pct",
+          "tolerance_pct": 1.0,
+          "mutation_faults_detected": ["FM_2_2", "FM_2_5", "BL_RATE_MANIPULATION", "BL_STALE_RATE", "BL_CONVERSION_OVERFLOW"],
+          "notes": "FM-2.2 produces 1337 (14755% deviation). BL_RATE_MANIPULATION 10x. Overflow = 2^53. All detectable against B1=9 with 1% tolerance."
+        },
+        {
+          "field": "currency_swapped",
+          "type": "boolean",
+          "def_site": "fi.maybe_swap_currency() applied to to_currency before gRPC call",
+          "use_site": "FINAL_ANSWER.result.currency_code (C-use), caller selects display currency",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "CurrencyService: requested currency = returned currency → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_1_2"]
+        }
+      ]
+    },
+
+    {
+      "agent": "emailserviceagent",
+      "checkpoint": "TASK_START",
+      "purpose": "Record recipient and order ID — def point for email address and order context.",
+      "observed_variables": [
+        {
+          "field": "email",
+          "type": "string",
+          "def_site": "task_start_node() state.request.email",
+          "use_site": "send_via_microservice_node() → EmailServiceClient.send_confirmation_email() (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "EmailService.SendOrderConfirmation() gRPC request → email",
+          "b1_oracle_expected": "customer@example.com",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": ["FM_2_5"]
+        }
+      ]
+    },
+
+    {
+      "agent": "emailserviceagent",
+      "checkpoint": "EMAIL_GENERATED",
+      "purpose": "Confirm email content was generated correctly before send.",
+      "observed_variables": [
+        {
+          "field": "email_type",
+          "type": "string",
+          "def_site": "generate_email_content() return → result.email_type, post fi.maybe_wrong_email_type()",
+          "use_site": "Template selection logic in email service (P-use); send payload (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use", "C-use"],
+          "b1_oracle_source": "EmailService: always order_confirmation for checkout flow",
+          "b1_oracle_expected": "order_confirmation",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": ["FM_1_2"]
+        },
+        {
+          "field": "body_len",
+          "type": "integer",
+          "def_site": "len(state.body) after fi.maybe_corrupt_body() truncation",
+          "use_site": "send_via_microservice_node() → body field (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "EmailService: full body length. Pilot B1 = 68 chars.",
+          "b1_oracle_expected": 68,
+          "comparison_relation": "range_check",
+          "range_min": 40,
+          "range_max": 500,
+          "mutation_faults_detected": ["BL_CORRUPTED_BODY"],
+          "notes": "BL_CORRUPTED_BODY truncates to 20 chars. Range check catches pathological truncation without being brittle to minor LLM body variation."
+        },
+        {
+          "field": "hallucinated",
+          "type": "boolean",
+          "def_site": "fi.maybe_hallucinate_email() → result.hallucinated",
+          "use_site": "send payload — phishing/malicious content reaches recipient (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "EmailService: legitimate content → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_2_2"]
+        }
+      ]
+    },
+
+    {
+      "agent": "emailserviceagent",
+      "checkpoint": "EMAIL_SENT",
+      "purpose": "Confirm delivery occurred and detect silent send-skip.",
+      "observed_variables": [
+        {
+          "field": "status",
+          "type": "string",
+          "def_site": "EmailServiceClient.send_confirmation_email() → result.status",
+          "use_site": "Caller determines delivery success (P-use); FINAL_ANSWER.status (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use", "C-use"],
+          "b1_oracle_source": "EmailService.SendOrderConfirmation() → status = 'sent'",
+          "b1_oracle_expected": "sent",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": ["BL_SEND_SKIPPED"]
+        },
+        {
+          "field": "send_skipped",
+          "type": "boolean",
+          "def_site": "fi.maybe_skip_send() gate",
+          "use_site": "LKW trace consumer (P-use in test oracle)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "EmailService: always sends → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_SEND_SKIPPED"]
+        }
+      ]
+    },
+
+    {
+      "agent": "productcatalogagent",
+      "checkpoint": "TASK_START",
+      "purpose": "Record query and action — def point for routing and product lookup.",
+      "observed_variables": [
+        {
+          "field": "action",
+          "type": "string",
+          "def_site": "ProductCatalogAgent.run() routing logic (pre-fault injection)",
+          "use_site": "gRPC dispatch branch (P-use): list_products vs get_product vs search_products",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "ProductCatalogService: action derived from query — 'list_products' for standard checkout",
+          "b1_oracle_expected": "list_products",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": ["FM_1_2"]
+        }
+      ]
+    },
+
+    {
+      "agent": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "purpose": "Primary fault detection point: product list validity after all injection.",
+      "observed_variables": [
+        {
+          "field": "product_ids",
+          "type": "list[string]",
+          "def_site": "data = client.list_products/get_product/search after all fi.maybe_* injections",
+          "use_site": "RecommendationAgent._fetch() → product_ids (inter-agent C-use); caller product rendering",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "ProductCatalogService.ListProducts() gRPC → product ids",
+          "b1_oracle_expected": ["PROD-001", "PROD-002"],
+          "comparison_relation": "set_equality",
+          "mutation_faults_detected": ["FM_2_2", "BL_PRODUCT_MISSING", "BL_DUPLICATE_PRODUCT"],
+          "notes": "FM-2.2 replaces with HALLUCINATED-001. BL_PRODUCT_MISSING clears to []. BL_DUPLICATE_PRODUCT adds duplicate. Set equality detects all three."
+        },
+        {
+          "field": "count",
+          "type": "integer",
+          "def_site": "len(data) after all injections",
+          "use_site": "Caller checks non-empty (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "ProductCatalogService.ListProducts() → len(products)",
+          "b1_oracle_expected": 2,
+          "comparison_relation": "exact_integer",
+          "mutation_faults_detected": ["BL_PRODUCT_MISSING", "BL_DUPLICATE_PRODUCT", "FM_2_2"]
+        },
+        {
+          "field": "price_manipulated",
+          "type": "boolean",
+          "def_site": "fi.maybe_manipulate_prices() on returned product dicts",
+          "use_site": "CurrencyAgent input → units/nanos for conversion (inter-agent C-use)",
+          "lkw_criterion": "All-DU-Paths",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "ProductCatalogService: prices unchanged → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_PRICE_MANIPULATION"],
+          "notes": "BL_PRICE_MANIPULATION inflates price 10x; propagates silently to currency conversion and charge amount."
+        }
+      ]
+    },
+
+    {
+      "agent": "recommendationagent",
+      "checkpoint": "TASK_START",
+      "purpose": "Record user_id and input product_ids — def point for personalization context.",
+      "observed_variables": [
+        {
+          "field": "user_id",
+          "type": "string",
+          "def_site": "RecommendationAgent._fetch() input parameter",
+          "use_site": "client.list_recommendations() → user_id arg (C-use), after maybe_swap_user_id()",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "RecommendationService.ListRecommendations() gRPC request → user_id",
+          "b1_oracle_expected": "user-abc123",
+          "comparison_relation": "exact_string",
+          "mutation_faults_detected": ["FM_2_5"]
+        }
+      ]
+    },
+
+    {
+      "agent": "recommendationagent",
+      "checkpoint": "RECOMMEND_DONE",
+      "purpose": "Primary fault detection point: recommended ID set validity.",
+      "observed_variables": [
+        {
+          "field": "count",
+          "type": "integer",
+          "def_site": "len(recommended_ids) after all fi.maybe_* injections",
+          "use_site": "Caller checks non-empty (P-use); rendering logic (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use", "C-use"],
+          "b1_oracle_source": "RecommendationService.ListRecommendations() → len(product_ids) = 3",
+          "b1_oracle_expected": 3,
+          "comparison_relation": "range_check",
+          "range_min": 1,
+          "range_max": 20,
+          "mutation_faults_detected": ["BL_EMPTY_RECS", "FM_3_1"]
+        },
+        {
+          "field": "hallucinated",
+          "type": "boolean",
+          "def_site": "fi.maybe_hallucinate_recs() on client result",
+          "use_site": "ProductCatalogAgent lookup for recommended items (inter-agent C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "RecommendationService: real IDs only → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_2_2"],
+          "notes": "FM-2.2 replaces real IDs with HALLUCINATED-001/002/003. Downstream ProductCatalog resolution silently fails on phantom IDs."
+        },
+        {
+          "field": "injection",
+          "type": "boolean",
+          "def_site": "fi.maybe_inject_sponsored() prepends sponsored IDs",
+          "use_site": "Caller renders injected sponsored content (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "RecommendationService: no injection → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_INJECTION_RECS"]
+        }
+      ]
+    },
+
+    {
+      "agent": "adserviceagent",
+      "checkpoint": "CONTEXT_EXTRACTED",
+      "purpose": "Record extracted category keys — def point for ad lookup query.",
+      "observed_variables": [
+        {
+          "field": "context_keys",
+          "type": "list[string]",
+          "def_site": "prepare_agent_input() → context_keys, post fi.maybe_tamper_context() and fi.maybe_swap_category()",
+          "use_site": "AdServiceClient.get_ads() → context_keys arg (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "AdService.GetAds() input: categories extracted from instruction",
+          "b1_oracle_expected": ["clothing"],
+          "comparison_relation": "set_equality",
+          "mutation_faults_detected": ["FM_2_5", "FM_1_2"],
+          "notes": "FM-2.5 replaces with nonexistent_category_xyz. FM-1.2 swaps to electronics. Both detectable by set_equality against b1_oracle_expected."
+        }
+      ]
+    },
+
+    {
+      "agent": "adserviceagent",
+      "checkpoint": "ADS_FETCHED",
+      "purpose": "Primary fault detection point: ad list integrity and URL validity.",
+      "observed_variables": [
+        {
+          "field": "count",
+          "type": "integer",
+          "def_site": "len(ads) after all fi.maybe_* injections",
+          "use_site": "Caller renders ads (P-use: non-empty check); frontend display (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use", "C-use"],
+          "b1_oracle_source": "AdService.GetAds() → len(ads) = 2 for 'clothing' category",
+          "b1_oracle_expected": 2,
+          "comparison_relation": "range_check",
+          "range_min": 1,
+          "range_max": 10,
+          "mutation_faults_detected": ["BL_EMPTY_ADS", "BL_DUPLICATE_ADS", "BL_AD_INJECTION"]
+        },
+        {
+          "field": "hallucinated",
+          "type": "boolean",
+          "def_site": "fi.maybe_hallucinate_ads() replaces real ads with phishing entries",
+          "use_site": "Frontend renders redirect_url to user (C-use) — security impact",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "AdService: legitimate ads only → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_2_2"]
+        }
+      ]
+    },
+
+    {
+      "agent": "shippingagent_get_quote",
+      "checkpoint": "TASK_START",
+      "purpose": "Record shipping request inputs before LLM ReAct loop executes.",
+      "observed_variables": [
+        {
+          "field": "item_count",
+          "type": "integer",
+          "def_site": "len(items) — may be inflated by fi.maybe_corrupt_items() before TASK_START",
+          "use_site": "LLM task prompt construction (C-use) → affects quoted cost",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "ShippingService.GetQuote() gRPC request → len(items)",
+          "b1_oracle_expected": 1,
+          "comparison_relation": "exact_integer",
+          "mutation_faults_detected": ["BL_INVENTORY_MISMATCH"],
+          "notes": "BL_INVENTORY_MISMATCH doubles quantities. item_count at TASK_START reflects pre-LLM inflation."
+        }
+      ]
+    },
+
+    {
+      "agent": "shippingagent_get_quote",
+      "checkpoint": "QUOTE_DONE",
+      "purpose": "LLM-produced shipping cost — primary detection point for quote manipulation and LLM reasoning failures.",
+      "observed_variables": [
+        {
+          "field": "cost_usd",
+          "type": "float",
+          "def_site": "ShippingOrchestrator._extract_json() from LLM Final Answer → cost_usd, post fi.maybe_corrupt_cost()",
+          "use_site": "CARRIER_DONE decision (P-use: cost threshold); total order amount (C-use); Payment input (inter-agent C-use)",
+          "lkw_criterion": "All-DU-Paths",
+          "use_type": ["P-use", "C-use"],
+          "b1_oracle_source": "ShippingService.GetQuote() gRPC → cost_usd (deterministic calculation)",
+          "b1_oracle_expected_range": [4.0, 15.0],
+          "comparison_relation": "range_check",
+          "range_min": 0.0,
+          "range_max": 50.0,
+          "comparison_secondary": "non_negative_float",
+          "mutation_faults_detected": ["BL_REFUND_REASONING", "BL_INVENTORY_MISMATCH", "FM_2_5"],
+          "notes": "BL_REFUND_REASONING forces cost_usd = -0.0 (IEEE-754 negative zero). range_check min=0 catches negative. BL_INVENTORY_MISMATCH inflates cost due to doubled item count."
+        }
+      ]
+    },
+
+    {
+      "agent": "shippingagent_ship_order",
+      "checkpoint": "CARRIER_DONE",
+      "purpose": "LLM-selected carrier — detection point for hallucinated or injected carrier substitution.",
+      "observed_variables": [
+        {
+          "field": "carrier",
+          "type": "string",
+          "def_site": "ShippingOrchestrator LLM output → carrier field, post FM-2.2 and BL-VENDOR_NEGOTIATION injection",
+          "use_site": "TRACKING_DONE carrier parameter (C-use); SAVE_DONE record (C-use); email notification",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "ShippingService.ShipOrder() → carrier from deterministic carrier selection",
+          "b1_oracle_expected_set": ["FedEx", "UPS", "USPS", "DHL"],
+          "comparison_relation": "set_membership",
+          "valid_set": ["FedEx", "UPS", "USPS", "DHL"],
+          "mutation_faults_detected": ["FM_2_2", "BL_VENDOR_NEGOTIATION"],
+          "notes": "FM-2.2 inserts SpeedyShip (not in valid_set). BL_VENDOR_NEGOTIATION forces PremiumExpress. Note: PremiumExpress is in the validator's allowed set for boundary_contract but represents a business fault."
+        },
+        {
+          "field": "ignored_downstream_quote",
+          "type": "boolean",
+          "def_site": "FM-2.5 stale cost injection — carrier selected with stale $4.99 instead of live quote",
+          "use_site": "SAVE_DONE cost_usd record (C-use) — wrong cost persisted",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "ShippingService: live quote always used → absent/False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["FM_2_5"]
+        }
+      ]
+    },
+
+    {
+      "agent": "shippingagent_ship_order",
+      "checkpoint": "TRACKING_DONE",
+      "purpose": "LLM-generated tracking ID — detection point for premature/incomplete termination.",
+      "observed_variables": [
+        {
+          "field": "tracking_id",
+          "type": "string",
+          "def_site": "ShippingOrchestrator LLM output → tracking_id field",
+          "use_site": "SAVE_DONE → MongoDB record (C-use); email notification to customer (C-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["C-use"],
+          "b1_oracle_source": "ShippingService.ShipOrder() → alphanumeric tracking ID",
+          "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes",
+          "comparison_relation": "schema_regex",
+          "schema_pattern": "^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\-]{4,}$",
+          "mutation_faults_detected": ["FM_3_1", "FM_1_2"],
+          "notes": "FM-3.1 produces PREMATURE-0000. FM-1.2 produces INCOMPLETE-0000. Regex on forbidden prefixes catches both."
+        }
+      ]
+    },
+
+    {
+      "agent": "shippingagent_ship_order",
+      "checkpoint": "ESCALATION_CHECK",
+      "purpose": "Post-loop metadata injection check — detects silent high-risk order bypass.",
+      "observed_variables": [
+        {
+          "field": "escalation_required",
+          "type": "boolean",
+          "def_site": "fi.maybe_inject_escalation_flag() on final metadata after LLM loop",
+          "use_site": "HITL routing logic (P-use) — should halt workflow if True",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "ShippingService: normal order → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_CUSTOMER_ESCALATION"]
+        }
+      ]
+    },
+
+    {
+      "agent": "shippingagent_ship_order",
+      "checkpoint": "SAVE_DONE",
+      "purpose": "Confirm shipment was persisted — ABSENCE of this checkpoint = BL_SHIPMENT_LOST.",
+      "observed_variables": [
+        {
+          "field": "saved",
+          "type": "boolean",
+          "def_site": "save_shipment() call gate — skipped entirely for BL_SHIPMENT_LOST",
+          "use_site": "Order fulfillment confirmation (P-use); MongoDB shipment record (C-use)",
+          "lkw_criterion": "All-DU-Paths",
+          "use_type": ["P-use", "C-use"],
+          "b1_oracle_source": "ShippingService: always saves to DB → True (or benchmark_mode: False)",
+          "b1_oracle_expected": true,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_SHIPMENT_LOST"],
+          "notes": "BL_SHIPMENT_LOST = checkpoint ABSENT entirely (not just saved=False). Detection = SAVE_DONE in steps_lost list, not data comparison."
+        }
+      ]
+    }
+  ],
+
+  "inter_agent_handoffs": [
+    {
+      "from_agent": "currencyagent",
+      "from_checkpoint": "CONVERT_DONE",
+      "from_field": "units_out",
+      "to_agent": "paymentagent",
+      "to_checkpoint": "TASK_START",
+      "to_field": "units",
+      "propagation_risk": "HIGH — FM-2.2 hallucination of 1337 EUR causes 14755% financial overcharge in PaymentAgent",
+      "detection_gap": "PaymentAgent has no cross-validation of received amount against CurrencyAgent output. Infection propagates silently (P=True, no step lost).",
+      "lkw_criterion": "All-Uses (inter-agent C-use path)"
+    },
+    {
+      "from_agent": "productcatalogagent",
+      "from_checkpoint": "CATALOG_DONE",
+      "from_field": "product_ids",
+      "to_agent": "recommendationagent",
+      "to_checkpoint": "TASK_START",
+      "to_field": "product_ids",
+      "propagation_risk": "MEDIUM — FM-2.2 phantom product IDs cause recommendations for non-existent items",
+      "detection_gap": "RecommendationAgent accepts any string list without catalog ID validation. Phantom IDs pass through undetected.",
+      "lkw_criterion": "All-Uses (inter-agent C-use path)"
+    },
+    {
+      "from_agent": "shippingagent_get_quote",
+      "from_checkpoint": "QUOTE_DONE",
+      "from_field": "cost_usd",
+      "to_agent": "paymentagent",
+      "to_checkpoint": "TASK_START",
+      "to_field": "units",
+      "propagation_risk": "HIGH — corrupted cost_usd (negative, inflated, stale) flows into payment charge amount",
+      "detection_gap": "PaymentAgent does not validate charge amount against shipping quote. BL_REFUND_REASONING negative cost absorbed silently.",
+      "lkw_criterion": "All-Uses (inter-agent C-use path)"
+    },
+    {
+      "from_agent": "shippingagent_ship_order",
+      "from_checkpoint": "TRACKING_DONE",
+      "from_field": "tracking_id",
+      "to_agent": "emailserviceagent",
+      "to_checkpoint": "TASK_START",
+      "to_field": "order_id (indirectly)",
+      "propagation_risk": "MEDIUM — PREMATURE/INCOMPLETE tracking IDs reach email and customer notification",
+      "detection_gap": "EmailServiceAgent does not validate tracking_id format. Faulty tracking ID sent to customer.",
+      "lkw_criterion": "All-Uses (inter-agent C-use path)"
+    }
+  ],
+
+  "b1_oracle_mapping_summary": {
+    "description": "For each agent, the corresponding original gRPC microservice that provides B1 ground truth.",
+    "services": [
+      {"agent": "currencyagent",        "b1_service": "src/currencyservice/",        "grpc_method": "CurrencyService.Convert",              "b1_available": true},
+      {"agent": "paymentagent",          "b1_service": "src/paymentservice/",         "grpc_method": "PaymentService.Charge",                "b1_available": true},
+      {"agent": "productcatalogagent",   "b1_service": "src/productcatalogservice/",  "grpc_method": "ProductCatalogService.ListProducts",   "b1_available": true},
+      {"agent": "emailserviceagent",     "b1_service": "src/emailservice/",           "grpc_method": "EmailService.SendOrderConfirmation",   "b1_available": true},
+      {"agent": "recommendationagent",   "b1_service": "src/recommendationservice/",  "grpc_method": "RecommendationService.ListRecommendations", "b1_available": true},
+      {"agent": "adserviceagent",        "b1_service": "src/adservice/",             "grpc_method": "AdService.GetAds",                     "b1_available": true},
+      {"agent": "shippingagent",         "b1_service": "src/shippingservice/",        "grpc_method": "ShippingService.GetQuote + ShipOrder", "b1_available": true, "notes": "Original shippingservice is the deterministic non-LLM version"}
+    ]
+  }
+}

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-18T00:52:37.150955+00:00",
+  "generated_at": "2026-07-18T01:26:49.795826+00:00",
   "results": [
     {
       "fault_mode": "NONE",
-      "elapsed_ms": 0.7,
+      "elapsed_ms": 7.8,
       "steps_reached": [
         "TASK_START",
         "CARD_VALIDATED",
@@ -15,12 +15,12 @@
       "infection_point": null,
       "propagation_depth": 0,
       "success": true,
-      "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+      "transaction_id": "67b37c69-a63b-4d46-8967-d5732b3edf97",
       "error": null,
       "lkw": [
         {
           "step": "TASK_START",
-          "timestamp": "2026-07-18T00:52:37.149903+00:00",
+          "timestamp": "2026-07-18T01:26:49.794255+00:00",
           "fault_mode": "NONE",
           "data": {
             "currency_code": "USD",
@@ -32,7 +32,7 @@
         },
         {
           "step": "CARD_VALIDATED",
-          "timestamp": "2026-07-18T00:52:37.149999+00:00",
+          "timestamp": "2026-07-18T01:26:49.794433+00:00",
           "fault_mode": "NONE",
           "data": {
             "card_last4": "1111",
@@ -42,10 +42,10 @@
         },
         {
           "step": "CHARGE_DONE",
-          "timestamp": "2026-07-18T00:52:37.150010+00:00",
+          "timestamp": "2026-07-18T01:26:49.794454+00:00",
           "fault_mode": "NONE",
           "data": {
-            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+            "transaction_id": "67b37c69-a63b-4d46-8967-d5732b3edf97",
             "hallucinated": false,
             "units_charged": 10,
             "nanos_charged": 990000000
@@ -53,22 +53,22 @@
         },
         {
           "step": "SAVE_DONE",
-          "timestamp": "2026-07-18T00:52:37.150053+00:00",
+          "timestamp": "2026-07-18T01:26:49.794539+00:00",
           "fault_mode": "NONE",
           "data": {
             "saved": true,
-            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+            "transaction_id": "67b37c69-a63b-4d46-8967-d5732b3edf97",
             "save_skipped": false,
             "double_charge": false
           }
         },
         {
           "step": "FINAL_ANSWER",
-          "timestamp": "2026-07-18T00:52:37.150059+00:00",
+          "timestamp": "2026-07-18T01:26:49.794559+00:00",
           "fault_mode": "NONE",
           "data": {
             "success": true,
-            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8"
+            "transaction_id": "67b37c69-a63b-4d46-8967-d5732b3edf97"
           }
         }
       ]

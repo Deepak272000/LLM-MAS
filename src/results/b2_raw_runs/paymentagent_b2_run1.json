@@ -4,7 +4,7 @@
   "lkw": [
     {
       "step": "TASK_START",
-      "timestamp": "2026-07-18T00:52:36.228679+00:00",
+      "timestamp": "2026-07-18T01:26:49.038959+00:00",
       "fault_mode": "NONE",
       "data": {
         "currency_code": "USD",
@@ -16,7 +16,7 @@
     },
     {
       "step": "CARD_VALIDATED",
-      "timestamp": "2026-07-18T00:52:36.228772+00:00",
+      "timestamp": "2026-07-18T01:26:49.039149+00:00",
       "fault_mode": "NONE",
       "data": {
         "card_last4": "1111",
@@ -26,10 +26,10 @@
     },
     {
       "step": "CHARGE_DONE",
-      "timestamp": "2026-07-18T00:52:36.228782+00:00",
+      "timestamp": "2026-07-18T01:26:49.039170+00:00",
       "fault_mode": "NONE",
       "data": {
-        "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a",
+        "transaction_id": "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
         "hallucinated": false,
         "units_charged": 10,
         "nanos_charged": 990000000
@@ -37,22 +37,22 @@
     },
     {
       "step": "SAVE_DONE",
-      "timestamp": "2026-07-18T00:52:36.228825+00:00",
+      "timestamp": "2026-07-18T01:26:49.039252+00:00",
       "fault_mode": "NONE",
       "data": {
         "saved": true,
-        "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a",
+        "transaction_id": "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
         "save_skipped": false,
         "double_charge": false
       }
     },
     {
       "step": "FINAL_ANSWER",
-      "timestamp": "2026-07-18T00:52:36.228831+00:00",
+      "timestamp": "2026-07-18T01:26:49.039271+00:00",
       "fault_mode": "NONE",
       "data": {
         "success": true,
-        "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a"
+        "transaction_id": "ca4c24d3-f761-439d-bca3-d0efe8fb3e34"
       }
     }
   ],

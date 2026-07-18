@@ -146,5 +146,6 @@
       "criterion": "exact_match",
       "note": "exact match required"
     }
-  }
+  },
+  "shippingservice": {}
 }

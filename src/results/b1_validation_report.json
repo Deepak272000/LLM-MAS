@@ -1,0 +1,394 @@
+{
+  "generated_at": "2026-07-18T03:06:33.602302+00:00",
+  "total_entries": 38,
+  "valid_entries": 36,
+  "invalid_entries": 2,
+  "missing_agents": [],
+  "variance_issues": [],
+  "per_entry_status": [
+    {
+      "key": "paymentagent.TASK_START.currency_code",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "USD",
+      "faults": []
+    },
+    {
+      "key": "paymentagent.TASK_START.units",
+      "valid": true,
+      "relation": "exact_integer",
+      "oracle_val": 10,
+      "faults": [
+        "FM_2_5",
+        "BL_AMOUNT_TAMPERING"
+      ]
+    },
+    {
+      "key": "paymentagent.TASK_START.nanos",
+      "valid": true,
+      "relation": "exact_integer",
+      "oracle_val": 990000000,
+      "faults": [
+        "FM_2_5",
+        "BL_AMOUNT_TAMPERING"
+      ]
+    },
+    {
+      "key": "paymentagent.CARD_VALIDATED.validation_bypassed",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "paymentagent.CARD_VALIDATED.amount_tampered",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_2_5",
+        "BL_AMOUNT_TAMPERING"
+      ]
+    },
+    {
+      "key": "paymentagent.CHARGE_DONE.transaction_id",
+      "valid": true,
+      "relation": "schema_regex",
+      "oracle_val": "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
+      "faults": [
+        "FM_2_2"
+      ]
+    },
+    {
+      "key": "paymentagent.CHARGE_DONE.units_charged",
+      "valid": true,
+      "relation": "exact_integer",
+      "oracle_val": 10,
+      "faults": [
+        "FM_2_5",
+        "BL_AMOUNT_TAMPERING"
+      ]
+    },
+    {
+      "key": "paymentagent.CHARGE_DONE.hallucinated",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_2_2"
+      ]
+    },
+    {
+      "key": "paymentagent.SAVE_DONE.saved",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": true,
+      "faults": [
+        "BL_TRANSACTION_LOST"
+      ]
+    },
+    {
+      "key": "paymentagent.SAVE_DONE.double_charge",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "BL_DOUBLE_CHARGE"
+      ]
+    },
+    {
+      "key": "currencyagent.TASK_START.units",
+      "valid": true,
+      "relation": "exact_integer",
+      "oracle_val": 10,
+      "faults": [
+        "FM_2_5"
+      ]
+    },
+    {
+      "key": "currencyagent.TASK_START.to_currency",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "EUR",
+      "faults": [
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "currencyagent.CONVERT_DONE.units_out",
+      "valid": true,
+      "relation": "numeric_tolerance_pct",
+      "oracle_val": {
+        "min": 9.0,
+        "max": 9.0,
+        "mean": 9.0
+      },
+      "faults": [
+        "FM_2_2",
+        "FM_2_5",
+        "BL_RATE_MANIPULATION",
+        "BL_STALE_RATE",
+        "BL_CONVERSION_OVERFLOW"
+      ]
+    },
+    {
+      "key": "currencyagent.CONVERT_DONE.currency_swapped",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "emailserviceagent.TASK_START.email",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "customer@example.com",
+      "faults": [
+        "FM_2_5"
+      ]
+    },
+    {
+      "key": "emailserviceagent.EMAIL_GENERATED.email_type",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "order_confirmation",
+      "faults": [
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "emailserviceagent.EMAIL_GENERATED.body_len",
+      "valid": true,
+      "relation": "range_check",
+      "oracle_val": {
+        "min": 68.0,
+        "max": 68.0,
+        "mean": 68.0
+      },
+      "faults": [
+        "BL_CORRUPTED_BODY"
+      ]
+    },
+    {
+      "key": "emailserviceagent.EMAIL_GENERATED.hallucinated",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_2_2"
+      ]
+    },
+    {
+      "key": "emailserviceagent.EMAIL_SENT.status",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "sent",
+      "faults": [
+        "BL_SEND_SKIPPED"
+      ]
+    },
+    {
+      "key": "emailserviceagent.EMAIL_SENT.send_skipped",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "BL_SEND_SKIPPED"
+      ]
+    },
+    {
+      "key": "productcatalogagent.TASK_START.action",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "list_products",
+      "faults": [
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "productcatalogagent.CATALOG_DONE.product_ids",
+      "valid": true,
+      "relation": "set_equality",
+      "oracle_val": [
+        "['PROD-001', 'PROD-002']"
+      ],
+      "faults": [
+        "FM_2_2",
+        "BL_PRODUCT_MISSING",
+        "BL_DUPLICATE_PRODUCT"
+      ]
+    },
+    {
+      "key": "productcatalogagent.CATALOG_DONE.count",
+      "valid": true,
+      "relation": "exact_integer",
+      "oracle_val": 2,
+      "faults": [
+        "BL_PRODUCT_MISSING",
+        "BL_DUPLICATE_PRODUCT",
+        "FM_2_2"
+      ]
+    },
+    {
+      "key": "productcatalogagent.CATALOG_DONE.price_manipulated",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "BL_PRICE_MANIPULATION"
+      ]
+    },
+    {
+      "key": "recommendationagent.TASK_START.user_id",
+      "valid": true,
+      "relation": "exact_string",
+      "oracle_val": "user-abc123",
+      "faults": [
+        "FM_2_5"
+      ]
+    },
+    {
+      "key": "recommendationagent.RECOMMEND_DONE.count",
+      "valid": true,
+      "relation": "range_check",
+      "oracle_val": {
+        "min": 3.0,
+        "max": 3.0,
+        "mean": 3.0
+      },
+      "faults": [
+        "BL_EMPTY_RECS",
+        "FM_3_1"
+      ]
+    },
+    {
+      "key": "recommendationagent.RECOMMEND_DONE.hallucinated",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_2_2"
+      ]
+    },
+    {
+      "key": "recommendationagent.RECOMMEND_DONE.injection",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "BL_INJECTION_RECS"
+      ]
+    },
+    {
+      "key": "adserviceagent.CONTEXT_EXTRACTED.context_keys",
+      "valid": true,
+      "relation": "set_equality",
+      "oracle_val": [
+        "['clothing']"
+      ],
+      "faults": [
+        "FM_2_5",
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "adserviceagent.ADS_FETCHED.count",
+      "valid": true,
+      "relation": "range_check",
+      "oracle_val": {
+        "min": 2.0,
+        "max": 2.0,
+        "mean": 2.0
+      },
+      "faults": [
+        "BL_EMPTY_ADS",
+        "BL_DUPLICATE_ADS",
+        "BL_AD_INJECTION"
+      ]
+    },
+    {
+      "key": "adserviceagent.ADS_FETCHED.hallucinated",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "FM_2_2"
+      ]
+    },
+    {
+      "key": "shippingagent_get_quote.TASK_START.item_count",
+      "valid": true,
+      "relation": "exact_integer",
+      "oracle_val": 1,
+      "faults": [
+        "BL_INVENTORY_MISMATCH"
+      ]
+    },
+    {
+      "key": "shippingagent_get_quote.QUOTE_DONE.cost_usd",
+      "valid": true,
+      "relation": "range_check",
+      "oracle_val": {
+        "min": 15.88,
+        "max": 15.88,
+        "mean": 15.88
+      },
+      "faults": [
+        "BL_REFUND_REASONING",
+        "BL_INVENTORY_MISMATCH",
+        "FM_2_5"
+      ]
+    },
+    {
+      "key": "shippingagent_ship_order.CARRIER_DONE.carrier",
+      "valid": true,
+      "relation": "set_membership",
+      "oracle_val": "DHL",
+      "faults": [
+        "FM_2_2",
+        "BL_VENDOR_NEGOTIATION"
+      ]
+    },
+    {
+      "key": "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote",
+      "valid": false,
+      "relation": "exact_bool",
+      "oracle_val": null,
+      "faults": [
+        "FM_2_5"
+      ]
+    },
+    {
+      "key": "shippingagent_ship_order.TRACKING_DONE.tracking_id",
+      "valid": true,
+      "relation": "schema_regex",
+      "oracle_val": "8434097984",
+      "faults": [
+        "FM_3_1",
+        "FM_1_2"
+      ]
+    },
+    {
+      "key": "shippingagent_ship_order.ESCALATION_CHECK.escalation_required",
+      "valid": true,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "BL_CUSTOMER_ESCALATION"
+      ]
+    },
+    {
+      "key": "shippingagent_ship_order.SAVE_DONE.saved",
+      "valid": false,
+      "relation": "exact_bool",
+      "oracle_val": false,
+      "faults": [
+        "BL_SHIPMENT_LOST"
+      ]
+    }
+  ]
+}

@@ -834,45 +834,78 @@ def _load_b1_thresholds():
 
 def compute_deviation_from_b1(all_runs):
     """
-    Compare B2 checkout per-agent LKW sequences against B1 baselines.
-    Returns a deviation report per agent per model config.
+    Compare B2 checkout per-agent LKW traces against B1 oracle using
+    per-variable comparison relations (not naive sequence matching).
+    Loads b1_oracle_values.json produced by b1_oracle_runner.py.
     """
-    b1 = _load_b1_thresholds()
-    # Map b2_baseline_runner agent names to systematic runner names
-    name_map = {
-        "paymentagent":        "payment",
-        "currencyagent":       "currency",
-        "emailserviceagent":   "email",
-        "productcatalogagent": "productcatalog",
-        "shippingservice":     "ship_order",
+    # Agent name mapping: systematic runner short names → oracle full names
+    SYS_TO_ORACLE = {
+        "productcatalog": "productcatalogagent",
+        "currency":       "currencyagent",
+        "payment":        "paymentagent",
+        "email":          "emailserviceagent",
+        "shipping_quote": "shippingagent_get_quote",
+        "ship_order":     "shippingagent_ship_order",
     }
 
+    try:
+        sys.path.insert(0, str(SRC))
+        from b1_oracle_runner import load_oracle, compare_lkw_trace_to_oracle
+        oracle = load_oracle()
+        oracle_available = True
+    except Exception as exc:
+        print(f"  [deviation] Oracle not available ({exc}); falling back to sequence check")
+        oracle_available = False
+        oracle = {}
+
     deviation = {}
+
     for run in all_runs:
         label = run["model_label"]
         if label not in deviation:
             deviation[label] = {}
-        for agent, lkw in run["per_agent_lkw"].items():
-            if agent not in deviation[label]:
-                deviation[label][agent] = {"sequence_deviations": 0, "total_runs": 0}
-            deviation[label][agent]["total_runs"] += 1
-            steps_got      = [cp["step"] for cp in lkw]
-            b1_agent_name  = {v: k for k, v in name_map.items()}.get(agent, agent)
-            b1_entry       = b1.get(b1_agent_name, {})
-            expected_steps = b1_entry.get("expected_checkpoint_sequence",
-                                          B1_EXPECTED_STEPS.get(agent, []))
-            if steps_got != expected_steps:
-                deviation[label][agent]["sequence_deviations"] += 1
-            deviation[label][agent]["last_steps"] = steps_got
 
-    # Compute deviation rate per label/agent
+        for sys_agent, lkw in run["per_agent_lkw"].items():
+            if sys_agent not in deviation[label]:
+                deviation[label][sys_agent] = {
+                    "total_runs":         0,
+                    "runs_with_deviation": 0,
+                    "variable_deviations": {},   # field → count of deviating runs
+                    "sequence_deviations": 0,    # fallback
+                }
+            d = deviation[label][sys_agent]
+            d["total_runs"] += 1
+
+            if oracle_available:
+                oracle_agent = SYS_TO_ORACLE.get(sys_agent, sys_agent)
+                results = compare_lkw_trace_to_oracle(oracle_agent, lkw, oracle)
+                any_deviation = any(r["deviation"] for r in results)
+                if any_deviation:
+                    d["runs_with_deviation"] += 1
+                for r in results:
+                    fld = r["key"].split(".", 2)[-1]  # "agent.checkpoint.field" → "checkpoint.field"
+                    if fld not in d["variable_deviations"]:
+                        d["variable_deviations"][fld] = {"deviating_runs": 0, "severity": "none"}
+                    if r["deviation"]:
+                        d["variable_deviations"][fld]["deviating_runs"] += 1
+                        d["variable_deviations"][fld]["severity"] = r.get("deviation_severity", "data")
+            else:
+                # Fallback: sequence check
+                steps_got = [cp["step"] for cp in lkw]
+                expected  = B1_EXPECTED_STEPS.get(sys_agent, [])
+                if steps_got != expected:
+                    d["sequence_deviations"] += 1
+                    d["runs_with_deviation"] += 1
+
+            d["last_steps"] = [cp["step"] for cp in lkw]
+
+    # Compute rates
     for label in deviation:
         for agent in deviation[label]:
             d = deviation[label][agent]
-            d["deviation_rate"] = (
-                round(d["sequence_deviations"] / d["total_runs"], 4)
-                if d["total_runs"] > 0 else 0.0
-            )
+            n = d["total_runs"]
+            d["deviation_rate"] = round(d["runs_with_deviation"] / n, 4) if n > 0 else 0.0
+
     return deviation
 
 

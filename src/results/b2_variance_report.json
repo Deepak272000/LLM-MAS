@@ -63,19 +63,19 @@
       "CHARGE_DONE": {
         "values": [
           {
-            "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a",
+            "transaction_id": "2d2d5024-9e3e-49ea-8cc9-3be865cf6dec",
             "hallucinated": false,
             "units_charged": 10,
             "nanos_charged": 990000000
           },
           {
-            "transaction_id": "db1d467e-3dab-4e5b-aff1-522aa372729c",
+            "transaction_id": "c97e04a7-38e6-4814-ae0c-dc70ebe7fa5d",
             "hallucinated": false,
             "units_charged": 10,
             "nanos_charged": 990000000
           },
           {
-            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+            "transaction_id": "2232ae63-aa69-4a84-b305-fbc19529242c",
             "hallucinated": false,
             "units_charged": 10,
             "nanos_charged": 990000000
@@ -89,19 +89,19 @@
         "values": [
           {
             "saved": true,
-            "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a",
+            "transaction_id": "2d2d5024-9e3e-49ea-8cc9-3be865cf6dec",
             "save_skipped": false,
             "double_charge": false
           },
           {
             "saved": true,
-            "transaction_id": "db1d467e-3dab-4e5b-aff1-522aa372729c",
+            "transaction_id": "c97e04a7-38e6-4814-ae0c-dc70ebe7fa5d",
             "save_skipped": false,
             "double_charge": false
           },
           {
             "saved": true,
-            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+            "transaction_id": "2232ae63-aa69-4a84-b305-fbc19529242c",
             "save_skipped": false,
             "double_charge": false
           }
@@ -114,15 +114,15 @@
         "values": [
           {
             "success": true,
-            "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a"
+            "transaction_id": "2d2d5024-9e3e-49ea-8cc9-3be865cf6dec"
           },
           {
             "success": true,
-            "transaction_id": "db1d467e-3dab-4e5b-aff1-522aa372729c"
+            "transaction_id": "c97e04a7-38e6-4814-ae0c-dc70ebe7fa5d"
           },
           {
             "success": true,
-            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8"
+            "transaction_id": "2232ae63-aa69-4a84-b305-fbc19529242c"
           }
         ],
         "type": "struct",
@@ -164,7 +164,7 @@
         "note": "exact match required"
       }
     },
-    "timestamp": "2026-07-18T00:52:37.202038+00:00"
+    "timestamp": "2026-07-18T01:25:09.930583+00:00"
   },
   "currencyagent": {
     "agent": "currencyagent",
@@ -302,7 +302,7 @@
         "note": "exact match required"
       }
     },
-    "timestamp": "2026-07-18T00:52:38.237213+00:00"
+    "timestamp": "2026-07-18T01:25:10.739934+00:00"
   },
   "emailserviceagent": {
     "agent": "emailserviceagent",
@@ -437,7 +437,7 @@
         "note": "exact match required"
       }
     },
-    "timestamp": "2026-07-18T00:52:40.265172+00:00"
+    "timestamp": "2026-07-18T01:25:11.742171+00:00"
   },
   "productcatalogagent": {
     "agent": "productcatalogagent",
@@ -562,7 +562,7 @@
         "note": "exact match required"
       }
     },
-    "timestamp": "2026-07-18T00:52:40.842618+00:00"
+    "timestamp": "2026-07-18T01:25:12.230353+00:00"
   },
   "recommendationagent": {
     "agent": "recommendationagent",
@@ -684,7 +684,7 @@
         "note": "exact match required"
       }
     },
-    "timestamp": "2026-07-18T00:52:41.440959+00:00"
+    "timestamp": "2026-07-18T01:25:12.718291+00:00"
   },
   "adserviceagent": {
     "agent": "adserviceagent",
@@ -846,6 +846,23 @@
         "note": "exact match required"
       }
     },
-    "timestamp": "2026-07-18T00:52:42.025646+00:00"
+    "timestamp": "2026-07-18T01:25:13.207733+00:00"
+  },
+  "shippingservice": {
+    "agent": "shippingservice",
+    "use_llm": true,
+    "model": "qwen2.5-coder:14b",
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 0,
+    "errors": [
+      "run 1: ShippingService B2 helper exited 1: vice_b2_helper.py\", line 58, in <module>\n    asyncio.run(main())\n  File \"/usr/lib64/python3.9/asyncio/runners.py\", line 44, in run\n    return loop.run_until_complete(main)\n  File \"/usr/lib64/python3.9/asyncio/base_events.py\", line 647, in run_until_complete\n    return future.result()\n  File \"/nfs/speed-scratch/d_chavan/LLM-MAS/src/shippingservice_b2_helper.py\", line 40, in main\n    result = await orch.ship_order(**PAYLOAD)\nTypeError: ship_order() got an unexpected keyword argument 'destination'\n",
+      "run 2: ShippingService B2 helper exited 1: vice_b2_helper.py\", line 58, in <module>\n    asyncio.run(main())\n  File \"/usr/lib64/python3.9/asyncio/runners.py\", line 44, in run\n    return loop.run_until_complete(main)\n  File \"/usr/lib64/python3.9/asyncio/base_events.py\", line 647, in run_until_complete\n    return future.result()\n  File \"/nfs/speed-scratch/d_chavan/LLM-MAS/src/shippingservice_b2_helper.py\", line 40, in main\n    result = await orch.ship_order(**PAYLOAD)\nTypeError: ship_order() got an unexpected keyword argument 'destination'\n",
+      "run 3: ShippingService B2 helper exited 1: vice_b2_helper.py\", line 58, in <module>\n    asyncio.run(main())\n  File \"/usr/lib64/python3.9/asyncio/runners.py\", line 44, in run\n    return loop.run_until_complete(main)\n  File \"/usr/lib64/python3.9/asyncio/base_events.py\", line 647, in run_until_complete\n    return future.result()\n  File \"/nfs/speed-scratch/d_chavan/LLM-MAS/src/shippingservice_b2_helper.py\", line 40, in main\n    result = await orch.ship_order(**PAYLOAD)\nTypeError: ship_order() got an unexpected keyword argument 'destination'\n"
+    ],
+    "b2_type": "live_llm_variance",
+    "variance": {},
+    "equivalence_thresholds": {},
+    "timestamp": "2026-07-18T01:25:14.242421+00:00"
   }
 }

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-18T00:52:40.224771+00:00",
+  "generated_at": "2026-07-18T01:26:51.661075+00:00",
   "results": [
     {
       "fault_mode": "NONE",
-      "elapsed_ms": 0.1,
+      "elapsed_ms": 0.2,
       "steps_reached": [
         "TASK_START",
         "EMAIL_GENERATED",

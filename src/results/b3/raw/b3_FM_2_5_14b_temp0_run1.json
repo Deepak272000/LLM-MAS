@@ -1,0 +1,317 @@
+{
+  "run_idx": 1,
+  "fault_mode": "FM_2_5",
+  "fault_category": "general",
+  "fault_agent": "all",
+  "model_label": "14b_temp0",
+  "model": "qwen2.5-coder:14b",
+  "temperature": 0.0,
+  "status": "TP",
+  "elapsed_ms": 18590.9,
+  "mutation": {
+    "terminated_mutant": true,
+    "live_mutant": false,
+    "infection_agent": "currency",
+    "infection_checkpoint": "TASK_START",
+    "infection_field": "to_currency",
+    "propagation_path": [
+      "payment",
+      "ship_order",
+      "email"
+    ],
+    "propagation_depth": 3,
+    "total_deviating_agents": 4,
+    "per_agent": {
+      "productcatalog": {
+        "any_deviation": false,
+        "deviating_fields": [],
+        "deviating_detail": []
+      },
+      "currency": {
+        "any_deviation": true,
+        "deviating_fields": [
+          "to_currency",
+          "units_out"
+        ],
+        "deviating_detail": [
+          {
+            "field": "to_currency",
+            "b1_value": "USD",
+            "observed": "USD",
+            "severity": "data",
+            "reason": "expected='EUR' got='USD'",
+            "detects": [
+              "FM_1_2"
+            ]
+          },
+          {
+            "field": "units_out",
+            "b1_value": {
+              "min": 19.0,
+              "max": 19.0,
+              "mean": 19.0
+            },
+            "observed": 19,
+            "severity": "data",
+            "reason": "expected=9 got=19 dev=111.11% tol=1.0%",
+            "detects": [
+              "FM_2_2",
+              "FM_2_5",
+              "BL_RATE_MANIPULATION",
+              "BL_STALE_RATE",
+              "BL_CONVERSION_OVERFLOW"
+            ]
+          }
+        ]
+      },
+      "shipping_quote": {
+        "any_deviation": false,
+        "deviating_fields": [],
+        "deviating_detail": []
+      },
+      "payment": {
+        "any_deviation": true,
+        "deviating_fields": [
+          "amount_tampered"
+        ],
+        "deviating_detail": [
+          {
+            "field": "amount_tampered",
+            "b1_value": false,
+            "observed": true,
+            "severity": "data",
+            "reason": "expected=False got=True",
+            "detects": [
+              "FM_2_5",
+              "BL_AMOUNT_TAMPERING"
+            ]
+          }
+        ]
+      },
+      "ship_order": {
+        "any_deviation": true,
+        "deviating_fields": [
+          "ignored_downstream_quote",
+          "saved"
+        ],
+        "deviating_detail": [
+          {
+            "field": "ignored_downstream_quote",
+            "b1_value": null,
+            "observed": true,
+            "severity": "data",
+            "reason": "expected=False got=True",
+            "detects": [
+              "FM_2_5"
+            ]
+          },
+          {
+            "field": "saved",
+            "b1_value": false,
+            "observed": false,
+            "severity": "data",
+            "reason": "expected=True got=False",
+            "detects": [
+              "BL_SHIPMENT_LOST"
+            ]
+          }
+        ]
+      },
+      "email": {
+        "any_deviation": true,
+        "deviating_fields": [
+          "email",
+          "email_type",
+          "body_len",
+          "hallucinated",
+          "status",
+          "send_skipped"
+        ],
+        "deviating_detail": [
+          {
+            "field": "email",
+            "b1_value": null,
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
+          },
+          {
+            "field": "email_type",
+            "b1_value": null,
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
+          },
+          {
+            "field": "body_len",
+            "b1_value": null,
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
+          },
+          {
+            "field": "hallucinated",
+            "b1_value": null,
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
+          },
+          {
+            "field": "status",
+            "b1_value": null,
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
+          },
+          {
+            "field": "send_skipped",
+            "b1_value": null,
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
+          }
+        ]
+      }
+    }
+  },
+  "rip": {
+    "productcatalog": {
+      "R": true,
+      "I": true,
+      "P": false,
+      "infection_point": "CATALOG_DONE",
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CATALOG_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "currency": {
+      "R": true,
+      "I": true,
+      "P": false,
+      "infection_point": "CONVERT_DONE",
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "shipping_quote": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "QUOTE_DONE",
+        "FINAL_ANSWER",
+        "SAVE_DONE"
+      ],
+      "steps_lost": []
+    },
+    "payment": {
+      "R": true,
+      "I": true,
+      "P": false,
+      "infection_point": "CARD_VALIDATED",
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "ship_order": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "RECOVERY_ACTION",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": []
+    },
+    "email": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "EMAIL_GENERATED",
+        "EMAIL_SENT"
+      ]
+    }
+  },
+  "checkout_errors": {},
+  "steps_per_agent": {
+    "productcatalog": [
+      "TASK_START",
+      "CATALOG_DONE",
+      "FINAL_ANSWER"
+    ],
+    "currency": [
+      "TASK_START",
+      "CONVERT_DONE",
+      "FINAL_ANSWER"
+    ],
+    "shipping_quote": [
+      "TASK_START",
+      "QUOTE_DONE",
+      "FINAL_ANSWER",
+      "SAVE_DONE"
+    ],
+    "payment": [
+      "TASK_START",
+      "CARD_VALIDATED",
+      "CHARGE_DONE",
+      "SAVE_DONE",
+      "FINAL_ANSWER"
+    ],
+    "ship_order": [
+      "TASK_START",
+      "FINAL_ANSWER",
+      "QUOTE_DONE",
+      "BOUNDARY_CHECK",
+      "CARRIER_DONE",
+      "BOUNDARY_CHECK",
+      "RECOVERY_ACTION",
+      "TRACKING_DONE",
+      "ESCALATION_CHECK",
+      "SAVE_DONE"
+    ],
+    "email": [
+      "TASK_START",
+      "FINAL_ANSWER"
+    ]
+  }
+}

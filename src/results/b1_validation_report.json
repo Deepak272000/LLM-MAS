@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-18T04:09:10.357987+00:00",
+  "generated_at": "2026-07-18T04:29:22.741820+00:00",
   "total_entries": 38,
-  "valid_entries": 38,
-  "invalid_entries": 0,
+  "valid_entries": 26,
+  "invalid_entries": 12,
   "missing_agents": [],
   "variance_issues": [],
   "per_entry_status": [
@@ -17,7 +17,7 @@
       "key": "paymentagent.TASK_START.units",
       "valid": true,
       "relation": "exact_integer",
-      "oracle_val": 10,
+      "oracle_val": 34,
       "faults": [
         "FM_2_5",
         "BL_AMOUNT_TAMPERING"
@@ -56,7 +56,7 @@
       "key": "paymentagent.CHARGE_DONE.transaction_id",
       "valid": true,
       "relation": "schema_regex",
-      "oracle_val": "b767adbd-e6e5-4d4a-80d2-62c564e248f4",
+      "oracle_val": "879fc83f-54f2-4180-b049-0e6bf5572b5e",
       "faults": [
         "FM_2_2"
       ]
@@ -65,7 +65,7 @@
       "key": "paymentagent.CHARGE_DONE.units_charged",
       "valid": true,
       "relation": "exact_integer",
-      "oracle_val": 10,
+      "oracle_val": 34,
       "faults": [
         "FM_2_5",
         "BL_AMOUNT_TAMPERING"
@@ -102,28 +102,28 @@
       "key": "currencyagent.TASK_START.units",
       "valid": true,
       "relation": "exact_integer",
-      "oracle_val": 10,
+      "oracle_val": 19,
       "faults": [
         "FM_2_5"
       ]
     },
     {
       "key": "currencyagent.TASK_START.to_currency",
-      "valid": true,
+      "valid": false,
       "relation": "exact_string",
-      "oracle_val": "EUR",
+      "oracle_val": "USD",
       "faults": [
         "FM_1_2"
       ]
     },
     {
       "key": "currencyagent.CONVERT_DONE.units_out",
-      "valid": true,
+      "valid": false,
       "relation": "numeric_tolerance_pct",
       "oracle_val": {
-        "min": 9.0,
-        "max": 9.0,
-        "mean": 9.0
+        "min": 19.0,
+        "max": 19.0,
+        "mean": 19.0
       },
       "faults": [
         "FM_2_2",
@@ -144,58 +144,54 @@
     },
     {
       "key": "emailserviceagent.TASK_START.email",
-      "valid": true,
+      "valid": false,
       "relation": "exact_string",
-      "oracle_val": "customer@example.com",
+      "oracle_val": null,
       "faults": [
         "FM_2_5"
       ]
     },
     {
       "key": "emailserviceagent.EMAIL_GENERATED.email_type",
-      "valid": true,
+      "valid": false,
       "relation": "exact_string",
-      "oracle_val": "order_confirmation",
+      "oracle_val": null,
       "faults": [
         "FM_1_2"
       ]
     },
     {
       "key": "emailserviceagent.EMAIL_GENERATED.body_len",
-      "valid": true,
+      "valid": false,
       "relation": "range_check",
-      "oracle_val": {
-        "min": 68.0,
-        "max": 68.0,
-        "mean": 68.0
-      },
+      "oracle_val": null,
       "faults": [
         "BL_CORRUPTED_BODY"
       ]
     },
     {
       "key": "emailserviceagent.EMAIL_GENERATED.hallucinated",
-      "valid": true,
+      "valid": false,
       "relation": "exact_bool",
-      "oracle_val": false,
+      "oracle_val": null,
       "faults": [
         "FM_2_2"
       ]
     },
     {
       "key": "emailserviceagent.EMAIL_SENT.status",
-      "valid": true,
+      "valid": false,
       "relation": "exact_string",
-      "oracle_val": "sent",
+      "oracle_val": null,
       "faults": [
         "BL_SEND_SKIPPED"
       ]
     },
     {
       "key": "emailserviceagent.EMAIL_SENT.send_skipped",
-      "valid": true,
+      "valid": false,
       "relation": "exact_bool",
-      "oracle_val": false,
+      "oracle_val": null,
       "faults": [
         "BL_SEND_SKIPPED"
       ]
@@ -211,10 +207,10 @@
     },
     {
       "key": "productcatalogagent.CATALOG_DONE.product_ids",
-      "valid": true,
+      "valid": false,
       "relation": "set_equality",
       "oracle_val": [
-        "['PROD-001', 'PROD-002']"
+        "['PROD-001']"
       ],
       "faults": [
         "FM_2_2",
@@ -224,9 +220,9 @@
     },
     {
       "key": "productcatalogagent.CATALOG_DONE.count",
-      "valid": true,
+      "valid": false,
       "relation": "exact_integer",
-      "oracle_val": 2,
+      "oracle_val": 1,
       "faults": [
         "BL_PRODUCT_MISSING",
         "BL_DUPLICATE_PRODUCT",
@@ -323,7 +319,7 @@
       "key": "shippingagent_get_quote.TASK_START.item_count",
       "valid": true,
       "relation": "exact_integer",
-      "oracle_val": null,
+      "oracle_val": 1,
       "faults": [
         "BL_INVENTORY_MISMATCH"
       ]
@@ -332,7 +328,11 @@
       "key": "shippingagent_get_quote.QUOTE_DONE.cost_usd",
       "valid": true,
       "relation": "range_check",
-      "oracle_val": null,
+      "oracle_val": {
+        "min": 15.88,
+        "max": 15.88,
+        "mean": 15.88
+      },
       "faults": [
         "BL_REFUND_REASONING",
         "BL_INVENTORY_MISMATCH",
@@ -343,7 +343,7 @@
       "key": "shippingagent_ship_order.CARRIER_DONE.carrier",
       "valid": true,
       "relation": "set_membership",
-      "oracle_val": null,
+      "oracle_val": "DHL",
       "faults": [
         "FM_2_2",
         "BL_VENDOR_NEGOTIATION"
@@ -351,7 +351,7 @@
     },
     {
       "key": "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote",
-      "valid": true,
+      "valid": false,
       "relation": "exact_bool",
       "oracle_val": null,
       "faults": [
@@ -362,7 +362,7 @@
       "key": "shippingagent_ship_order.TRACKING_DONE.tracking_id",
       "valid": true,
       "relation": "schema_regex",
-      "oracle_val": null,
+      "oracle_val": "8434097984",
       "faults": [
         "FM_3_1",
         "FM_1_2"
@@ -372,16 +372,16 @@
       "key": "shippingagent_ship_order.ESCALATION_CHECK.escalation_required",
       "valid": true,
       "relation": "exact_bool",
-      "oracle_val": null,
+      "oracle_val": false,
       "faults": [
         "BL_CUSTOMER_ESCALATION"
       ]
     },
     {
       "key": "shippingagent_ship_order.SAVE_DONE.saved",
-      "valid": true,
+      "valid": false,
       "relation": "exact_bool",
-      "oracle_val": null,
+      "oracle_val": false,
       "faults": [
         "BL_SHIPMENT_LOST"
       ]

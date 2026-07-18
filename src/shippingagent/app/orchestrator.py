@@ -53,7 +53,7 @@ from agents.quote_agent import QuoteAgent
 from agents.carrier_agent import CarrierSelectionAgent
 from agents.tracking_agent import TrackingAgent
 from repository import save_quote, save_shipment
-from config import LLAMA_BASE_URL, LLAMA_MODEL
+from config import LLAMA_BASE_URL, LLAMA_MODEL, LLAMA_TEMPERATURE
 import fault_injection as fi
 
 try:
@@ -254,7 +254,7 @@ class ShippingOrchestrator:
             "model":       self.model,
             "messages":    messages,
             "max_tokens":  MAX_TOKENS,
-            "temperature": 0.0,
+            "temperature": LLAMA_TEMPERATURE,
         }
         if stop:
             payload["stop"] = stop

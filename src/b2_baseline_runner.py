@@ -184,8 +184,8 @@ config_mock.LLAMA_BASE_URL = ollama_url + "/v1"
 config_mock.LLAMA_MODEL    = model
 sys.modules["config"] = config_mock
 
-from app.fault_injection import clear_lkw, get_lkw
-from app.orchestrator   import ShippingOrchestrator
+# LKWCheckpoint is defined in orchestrator.py — import after path is set
+from app.orchestrator import ShippingOrchestrator
 
 PAYLOAD = {
     "destination": "123 Main St, Montreal, QC H3A 0A1, Canada",
@@ -194,19 +194,22 @@ PAYLOAD = {
 }
 
 async def main():
-    clear_lkw()
     orch = ShippingOrchestrator()
     with patch("app.orchestrator.save_shipment", new_callable=AsyncMock) as ms, \\
          patch("app.orchestrator.save_quote",    new_callable=AsyncMock) as mq:
         ms.return_value = "b2-ship-id"
         mq.return_value = "b2-quote-id"
-        await orch.ship_order(**PAYLOAD)
-    trace = get_lkw()
+        result = await orch.ship_order(**PAYLOAD)
+
+    # LKW trace is returned as result["_lkw"]["checkpoints"]
+    lkw_dict = result.get("_lkw", {})
+    trace = lkw_dict.get("checkpoints", [])
+
     out = {
-        "fault_mode": "NONE",
-        "lkw":        trace,
+        "fault_mode":    "NONE",
+        "lkw":           trace,
         "steps_reached": [c["step"] for c in trace],
-        "timestamp":  datetime.now(timezone.utc).isoformat(),
+        "timestamp":     datetime.now(timezone.utc).isoformat(),
     }
     out_path = SRC / "results" / "shippingservice_b2_run.json"
     out_path.parent.mkdir(exist_ok=True)
@@ -221,8 +224,8 @@ asyncio.run(main())
 
 def run_shipping_none_once() -> list[dict]:
     """Run the shipping B2 helper as a subprocess and return the LKW trace."""
-    if not SHIPPING_B2_HELPER.exists():
-        _write_shipping_helper()
+    # Always regenerate the helper to pick up any fixes
+    _write_shipping_helper()
 
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"

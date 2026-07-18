@@ -1,4 +1,5 @@
 import importlib
+from typing import Optional
 from app.grpc_client import ProductCatalogGrpcClient
 import app.fault_injection as fi
 
@@ -21,7 +22,7 @@ client = ProductCatalogGrpcClient()
 
 
 class ProductCatalogAgent:
-    def run(self, query: str, product_ids=None, handoff_contract: dict | None = None):
+    def run(self, query: str, product_ids=None, handoff_contract: Optional[dict] = None):
         fi.clear_lkw()
         q = query.lower().strip()
         action = "get_product" if product_ids else (

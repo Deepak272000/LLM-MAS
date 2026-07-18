@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 from app.repository import save_transaction
 from app.tools import charge_payment, CreditCardError
 import app.fault_injection as fi
@@ -30,7 +31,7 @@ class PaymentAgent:
         credit_card_cvv: int = 0,
         credit_card_expiration_year: int = 0,
         credit_card_expiration_month: int = 0,
-        handoff_contract: dict | None = None,
+        handoff_contract: Optional[dict] = None,
     ):
         logger.info(f"[PaymentAgent] Received query: {query}")
         lkw = fi.LKWCheckpoint()

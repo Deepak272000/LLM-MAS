@@ -1,4 +1,5 @@
 import importlib
+from typing import Optional
 from app.grpc_client import RecommendationGrpcClient
 import app.fault_injection as fi
 
@@ -20,7 +21,7 @@ client = RecommendationGrpcClient()
 
 class RecommendationAgent:
     def _fetch(self, user_id: str, product_ids: list[str], action: str,
-               handoff_contract: dict | None = None) -> dict:
+               handoff_contract: Optional[dict] = None) -> dict:
         fi.clear_lkw()
         fi.record_checkpoint("TASK_START", {
             "user_id": user_id,
@@ -110,7 +111,7 @@ class RecommendationAgent:
         }
 
     def get_recommendations(self, user_id: str, product_ids: list[str],
-                            handoff_contract: dict | None = None) -> dict:
+                            handoff_contract: Optional[dict] = None) -> dict:
         """Fetch recommended product IDs for a user given their current product context."""
         action = "get_recommendations"
         if fi.FAULT_MODE == "FM_1_2":
@@ -118,7 +119,7 @@ class RecommendationAgent:
         return self._fetch(user_id, product_ids, action, handoff_contract=handoff_contract)
 
     def explain_recommendations(self, user_id: str, product_ids: list[str],
-                                handoff_contract: dict | None = None) -> dict:
+                                handoff_contract: Optional[dict] = None) -> dict:
         """
         Fetch recommendations and return raw data so the LLM node can
         generate a human-readable explanation downstream.

@@ -1,5 +1,6 @@
 import logging
 import importlib
+from typing import Optional
 from app.grpc_client import CurrencyGrpcClient
 import app.fault_injection as fi
 
@@ -27,7 +28,7 @@ class CurrencyAgent:
     def run(self, query: str, action: str = "get_supported_currencies",
             from_currency: str = "USD", units: int = 0,
             nanos: int = 0, to_currency: str = "EUR",
-            handoff_contract: dict | None = None):
+            handoff_contract: Optional[dict] = None):
 
         logger.info(f"CurrencyAgent.run called | action={action} | query='{query}'")
         lkw = fi.LKWCheckpoint()

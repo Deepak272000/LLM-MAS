@@ -189,9 +189,14 @@ sys.modules["config"] = config_mock
 from app.orchestrator import ShippingOrchestrator
 
 PAYLOAD = {
-    "destination": "123 Main St, Montreal, QC H3A 0A1, Canada",
-    "items":       [{"product_id": "PROD-001", "quantity": 2, "weight_kg": 1.5}],
-    "item_count":  2,
+    "address": {
+        "street_address": "123 Main St",
+        "city":           "Montreal",
+        "state":          "QC",
+        "country":        "Canada",
+        "zip_code":       "H3A 0A1",
+    },
+    "items": [{"product_id": "PROD-001", "quantity": 2, "weight_kg": 1.5}],
 }
 
 async def main():

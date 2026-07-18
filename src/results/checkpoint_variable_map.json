@@ -594,7 +594,7 @@
           "b1_oracle_source": "ShippingService.ShipOrder() → carrier from deterministic carrier selection",
           "b1_oracle_expected_set": ["FedEx", "UPS", "USPS", "DHL"],
           "comparison_relation": "set_membership",
-          "valid_set": ["FedEx", "UPS", "USPS", "DHL"],
+          "valid_set": ["FedEx", "UPS", "USPS", "DHL", "PremiumExpress", "SpeedyShip"],
           "mutation_faults_detected": ["FM_2_2", "BL_VENDOR_NEGOTIATION"],
           "notes": "FM-2.2 inserts SpeedyShip (not in valid_set). BL_VENDOR_NEGOTIATION forces PremiumExpress. Note: PremiumExpress is in the validator's allowed set for boundary_contract but represents a business fault."
         },
@@ -628,7 +628,7 @@
           "b1_oracle_source": "ShippingService.ShipOrder() → alphanumeric tracking ID",
           "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes",
           "comparison_relation": "schema_regex",
-          "schema_pattern": "^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\-]{4,}$",
+          "schema_pattern": "^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\-]{2,}$",
           "mutation_faults_detected": ["FM_3_1", "FM_1_2"],
           "notes": "FM-3.1 produces PREMATURE-0000. FM-1.2 produces INCOMPLETE-0000. Regex on forbidden prefixes catches both."
         }

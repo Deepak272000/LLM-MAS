@@ -152,8 +152,12 @@ MOCK_PRODUCT = {
     "id": "PROD-001", "name": "Sunglasses",
     "price_usd": {"currency_code": "USD", "units": 19, "nanos": 990000000},
 }
+MOCK_PRODUCT_2 = {
+    "id": "PROD-002", "name": "Candle Holder",
+    "price_usd": {"currency_code": "USD", "units": 12, "nanos": 500000000},
+}
 mock_client = MagicMock()
-mock_client.list_products.return_value = [MOCK_PRODUCT]
+mock_client.list_products.return_value = [MOCK_PRODUCT, MOCK_PRODUCT_2]
 mock_client.get_product.return_value = MOCK_PRODUCT
 mock_client.search_products.return_value = [MOCK_PRODUCT]
 agent_mod.client = mock_client

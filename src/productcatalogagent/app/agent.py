@@ -87,6 +87,14 @@ class ProductCatalogAgent:
                 "detail": boundary["detail"],
                 "violations": boundary["violations"],
             })
+            recovery = boundary.get("recovery") or {}
+            if recovery.get("action") == "fallback_to_last_known_good":
+                corrected = recovery.get("corrected_payload")
+                if isinstance(corrected, list):
+                    fi.record_checkpoint("RECOVERY_ACTION", recovery)
+                    corrected_set = set(corrected)
+                    data = [item for item in data if isinstance(item, dict) and item.get("id") in corrected_set]
+                    observed_ids = [item.get("id") for item in data]
 
         fi.record_checkpoint("CATALOG_DONE", {
             "action": action,

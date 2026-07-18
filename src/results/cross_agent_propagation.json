@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-13T23:08:46.913099+00:00",
+  "generated_at": "2026-07-17T00:18:33.976104+00:00",
   "chains": [
     {
       "chain": "A",
@@ -10,6 +10,8 @@
       "propagated_units": 1337,
       "overcharge_eur": 1328,
       "overcharge_pct": 14755.6,
+      "charge_blocked": true,
+      "prevented_loss_eur": 1328,
       "boundary_contract": {
         "boundary": "currency_to_payment",
         "alert": true,
@@ -25,31 +27,20 @@
             "type": "delta",
             "value": 1328
           }
-        ]
+        ],
+        "recovery": {
+          "action": "block_and_request_hitl",
+          "should_continue": false,
+          "requires_hitl": true,
+          "reason": "financial amount mismatch must not be auto-corrected before charge"
+        }
       },
       "signal_escape": true,
       "hop1_rip": {
         "reachability": [
           "TASK_START",
           "BOUNDARY_CHECK",
-          "CONVERT_DONE",
-          "FINAL_ANSWER"
-        ],
-        "infection_point": "CONVERT_DONE",
-        "boundary_alert_steps": [
-          "currency_to_payment"
-        ],
-        "boundary_alert_point": "currency_to_payment",
-        "propagation_depth": 0,
-        "missing_steps": []
-      },
-      "hop2_rip": {
-        "reachability": [
-          "TASK_START",
-          "BOUNDARY_CHECK",
-          "CARD_VALIDATED",
-          "CHARGE_DONE",
-          "SAVE_DONE",
+          "RECOVERY_ACTION",
           "FINAL_ANSWER"
         ],
         "infection_point": null,
@@ -57,20 +48,39 @@
           "currency_to_payment"
         ],
         "boundary_alert_point": "currency_to_payment",
-        "propagation_depth": 0,
-        "missing_steps": []
+        "propagation_depth": 1,
+        "missing_steps": [
+          "CONVERT_DONE"
+        ]
       },
-      "hop1_infection": "CONVERT_DONE",
+      "hop2_rip": {
+        "reachability": [
+          "TASK_START",
+          "BOUNDARY_CHECK",
+          "RECOVERY_ACTION",
+          "FINAL_ANSWER"
+        ],
+        "infection_point": null,
+        "boundary_alert_steps": [
+          "currency_to_payment"
+        ],
+        "boundary_alert_point": "currency_to_payment",
+        "propagation_depth": 3,
+        "missing_steps": [
+          "CARD_VALIDATED",
+          "CHARGE_DONE",
+          "SAVE_DONE"
+        ]
+      },
+      "hop1_infection": null,
       "hop2_infection": null,
       "hop2_steps": [
         "TASK_START",
         "BOUNDARY_CHECK",
-        "CARD_VALIDATED",
-        "CHARGE_DONE",
-        "SAVE_DONE",
+        "RECOVERY_ACTION",
         "FINAL_ANSWER"
       ],
-      "finding": "FM-2.2 hallucination propagates silently across agent boundary; PaymentAgent is fault-free but charges inflated amount"
+      "finding": "FM-2.2 hallucination reaches the payment boundary; the recovery policy blocks the unsafe charge and escalates to HITL"
     },
     {
       "chain": "B",
@@ -80,8 +90,9 @@
       "baseline_product_ids": [
         "PROD-001"
       ],
-      "propagated_product_ids": [
-        "HALLUCINATED-001"
+      "propagated_product_ids": [],
+      "recovered_product_ids": [
+        "PROD-001"
       ],
       "baseline_recs": [
         "PROD-042",
@@ -100,38 +111,38 @@
         "expected": [
           "PROD-001"
         ],
-        "observed": [
-          "HALLUCINATED-001"
-        ],
+        "observed": [],
         "difference": {
           "missing": [
             "PROD-001"
           ],
-          "extra": [
-            "HALLUCINATED-001"
-          ]
+          "extra": []
         },
-        "detail": "missing=['PROD-001'], extra=['HALLUCINATED-001']",
+        "detail": "missing=['PROD-001'], extra=[]",
         "violations": [
           {
             "type": "missing_items",
             "items": [
               "PROD-001"
             ]
-          },
-          {
-            "type": "extra_items",
-            "items": [
-              "HALLUCINATED-001"
-            ]
           }
-        ]
+        ],
+        "recovery": {
+          "action": "fallback_to_last_known_good",
+          "should_continue": true,
+          "requires_hitl": false,
+          "reason": "invalid product IDs can be replaced with the last validated catalog payload",
+          "corrected_payload": [
+            "PROD-001"
+          ]
+        }
       },
       "signal_escape": true,
       "hop1_rip": {
         "reachability": [
           "TASK_START",
           "BOUNDARY_CHECK",
+          "RECOVERY_ACTION",
           "CATALOG_DONE",
           "FINAL_ANSWER"
         ],
@@ -147,6 +158,7 @@
         "reachability": [
           "TASK_START",
           "BOUNDARY_CHECK",
+          "RECOVERY_ACTION",
           "RECOMMEND_DONE",
           "FINAL_ANSWER"
         ],
@@ -159,10 +171,11 @@
       "hop2_steps": [
         "TASK_START",
         "BOUNDARY_CHECK",
+        "RECOVERY_ACTION",
         "RECOMMEND_DONE",
         "FINAL_ANSWER"
       ],
-      "finding": "FM-2.2 phantom product ID propagates silently to recommender; no structural step loss at hop 2; garbage-in garbage-out"
+      "finding": "FM-2.2 phantom product ID reaches the recommendation boundary; the recovery policy falls back to the last validated product context"
     }
   ],
   "summary": {

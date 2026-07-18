@@ -38,15 +38,15 @@ ${API_TIMEOUT}             5
 ${RETRY_COUNT}             3
 
 # Expected Products (from products.json)
-@{EXPECTED_PRODUCTS}       Vintage Typewriter
-...                        Vintage Camera Lens
-...                        Vintage Record Player
-...                        Film Camera
-...                        Vintage Lamp
-...                        Terrarium
-...                        City Bike
-...                        Air Plant
-...                        Barista Kit
+@{EXPECTED_PRODUCTS}       Sunglasses
+...                        Tank Top
+...                        Watch
+...                        Loafers
+...                        Hairdryer
+...                        Candle Holder
+...                        Salt & Pepper Shakers
+...                        Bamboo Glass Jar
+...                        Mug
 
 # Test Credit Card
 ${TEST_CARD_NUMBER}        4432-8015-6152-0454

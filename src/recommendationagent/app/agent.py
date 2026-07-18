@@ -51,7 +51,14 @@ class RecommendationAgent:
                 "difference": boundary["difference"],
                 "detail": boundary["detail"],
                 "violations": boundary["violations"],
+                "recovery": boundary.get("recovery"),
             })
+            recovery = boundary.get("recovery") or {}
+            if recovery.get("action") == "fallback_to_last_known_good":
+                corrected = recovery.get("corrected_payload")
+                if isinstance(corrected, list):
+                    fi.record_checkpoint("RECOVERY_ACTION", recovery)
+                    product_ids = corrected
 
         # FM_3_1: premature termination
         early = fi.maybe_premature_termination()

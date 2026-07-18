@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Keywords for shopping cart operations
 Library          Browser
-Resource         common_keywords.robot
+Resource         ../resources/common_keywords.robot
 
 *** Keywords ***
 Add Product To Cart

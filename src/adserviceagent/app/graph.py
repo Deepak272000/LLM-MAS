@@ -156,6 +156,11 @@ def ad_lookup_node(state: AdAgentState) -> AdAgentState:
             "detail": boundary["detail"],
             "violations": boundary["violations"],
         })
+        recovery = boundary.get("recovery") or {}
+        if recovery.get("action") == "fallback_to_last_known_good":
+            corrected = recovery.get("corrected_payload", [])
+            fi.record_checkpoint("RECOVERY_ACTION", recovery)
+            state["ads"] = corrected if isinstance(corrected, list) else []
 
     fi.record_checkpoint("ADS_FETCHED", {
         "count": len(ads),

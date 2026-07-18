@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-13T23:10:45.981040+00:00",
+  "generated_at": "2026-07-17T00:18:35.549777+00:00",
   "sources": {
     "root_hitl": "E:\\Summer ai Agent Project\\LLM-MAS\\src\\results\\hitl_classification_report.json",
     "shipping_hitl": "E:\\Summer ai Agent Project\\LLM-MAS\\src\\shippingservice\\hitl_classification_report.json",
@@ -120,6 +120,21 @@
         ]
       },
       {
+        "group": "boundary_recovery.py",
+        "python_files": 1,
+        "boundary_files": 0,
+        "analysis_files": 0,
+        "boundary_marker_total": 0,
+        "marker_counts": {
+          "BOUNDARY_CHECK": 0,
+          "boundary_contract": 0,
+          "handoff_contract": 0,
+          "failure_class": 0,
+          "rip_summary": 0
+        },
+        "files": []
+      },
+      {
         "group": "boundary_validation.py",
         "python_files": 1,
         "boundary_files": 1,
@@ -141,9 +156,9 @@
         "python_files": 1,
         "boundary_files": 1,
         "analysis_files": 1,
-        "boundary_marker_total": 13,
+        "boundary_marker_total": 15,
         "marker_counts": {
-          "BOUNDARY_CHECK": 2,
+          "BOUNDARY_CHECK": 4,
           "boundary_contract": 7,
           "handoff_contract": 4,
           "failure_class": 0,
@@ -230,17 +245,19 @@
       {
         "group": "live_boundary_demo.py",
         "python_files": 1,
-        "boundary_files": 0,
-        "analysis_files": 0,
-        "boundary_marker_total": 0,
+        "boundary_files": 1,
+        "analysis_files": 1,
+        "boundary_marker_total": 2,
         "marker_counts": {
           "BOUNDARY_CHECK": 0,
-          "boundary_contract": 0,
+          "boundary_contract": 2,
           "handoff_contract": 0,
           "failure_class": 0,
-          "rip_summary": 0
+          "rip_summary": 1
         },
-        "files": []
+        "files": [
+          "live_boundary_demo.py"
+        ]
       },
       {
         "group": "loadgenerator",
@@ -439,6 +456,23 @@
           "rip_summary": 0
         },
         "files": []
+      },
+      {
+        "group": "test_recovery_wiring.py",
+        "python_files": 1,
+        "boundary_files": 1,
+        "analysis_files": 0,
+        "boundary_marker_total": 10,
+        "marker_counts": {
+          "BOUNDARY_CHECK": 0,
+          "boundary_contract": 5,
+          "handoff_contract": 5,
+          "failure_class": 0,
+          "rip_summary": 0
+        },
+        "files": [
+          "test_recovery_wiring.py"
+        ]
       }
     ],
     "boundary_proxy_groups": {
@@ -452,6 +486,7 @@
       "currencyagent",
       "emailservice",
       "emailserviceagent",
+      "live_boundary_demo.py",
       "paymentagent",
       "productcatalogagent",
       "productcatalogservice",
@@ -460,7 +495,8 @@
       "repo_hitl_audit.py",
       "shippingagent",
       "shippingservice",
-      "shoppingassistantservice"
+      "shoppingassistantservice",
+      "test_recovery_wiring.py"
     ],
     "groups_without_boundary_flags": []
   },

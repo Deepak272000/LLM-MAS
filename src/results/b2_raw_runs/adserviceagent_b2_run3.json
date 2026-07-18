@@ -1,0 +1,60 @@
+{
+  "agent": "adserviceagent",
+  "run": 3,
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "fault_mode": "NONE",
+      "data": {
+        "instruction": "show me some clothing ads",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CONTEXT_EXTRACTED",
+      "fault_mode": "NONE",
+      "data": {
+        "context_keys": [
+          "clothing"
+        ],
+        "context_tampered": false,
+        "category_swapped": false
+      }
+    },
+    {
+      "step": "ADS_FETCHED",
+      "fault_mode": "NONE",
+      "data": {
+        "count": 2,
+        "observed_ads": [
+          {
+            "redirect_url": "https://shop.example.com/hats",
+            "text": "Buy stylish hats!"
+          },
+          {
+            "redirect_url": "https://shop.example.com/shoes",
+            "text": "New shoe collection"
+          }
+        ],
+        "hallucinated": false,
+        "empty_ads": false,
+        "injected": false,
+        "wrong_url": false,
+        "duplicated": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "fault_mode": "NONE",
+      "data": {
+        "ads_count": 2
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CONTEXT_EXTRACTED",
+    "ADS_FETCHED",
+    "FINAL_ANSWER"
+  ]
+}

@@ -64,7 +64,27 @@ class PaymentAgent:
                 "difference": boundary["difference"],
                 "detail": boundary["detail"],
                 "violations": boundary["violations"],
+                "recovery": boundary.get("recovery"),
             })
+            recovery = boundary.get("recovery") or {}
+            if recovery.get("action") == "block_and_request_hitl":
+                lkw.record("RECOVERY_ACTION", recovery)
+                lkw.record("FINAL_ANSWER", {
+                    "blocked": True,
+                    "reason": recovery.get("reason"),
+                    "requires_hitl": recovery.get("requires_hitl", True),
+                })
+                logger.warning("[PaymentAgent] Boundary recovery blocked unsafe charge: %s", recovery.get("reason"))
+                return {
+                    "mode": "agent",
+                    "action": "charge",
+                    "data": {
+                        "blocked": True,
+                        "requires_hitl": recovery.get("requires_hitl", True),
+                        "reason": recovery.get("reason"),
+                    },
+                    "lkw": lkw.checkpoints,
+                }
 
         # FM_3_1: premature termination before any charge
         early = fi.maybe_premature_termination()

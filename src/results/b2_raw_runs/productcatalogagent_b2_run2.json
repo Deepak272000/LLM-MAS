@@ -1,0 +1,50 @@
+{
+  "agent": "productcatalogagent",
+  "run": 2,
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-18T00:52:40.626397+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "query": "list all products",
+        "product_ids": null,
+        "action": "list_products",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CATALOG_DONE",
+      "timestamp": "2026-07-18T00:52:40.626457+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "action": "list_products",
+        "count": 2,
+        "product_ids": [
+          "PROD-001",
+          "PROD-002"
+        ],
+        "hallucinated": false,
+        "query_tampered": false,
+        "action_swapped": false,
+        "products_missing": false,
+        "price_manipulated": false,
+        "duplicated": false,
+        "category_wrong": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-18T00:52:40.626469+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "count": 2
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CATALOG_DONE",
+    "FINAL_ANSWER"
+  ]
+}

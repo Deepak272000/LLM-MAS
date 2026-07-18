@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_EVENTS = ROOT / "results" / "boundary_events.jsonl"
+DEFAULT_RECOVERY_SUMMARY = ROOT / "results" / "recovery_demo_summary.json"
 
 
 def load_events(path: Path) -> list[dict]:
@@ -34,6 +35,15 @@ def load_events(path: Path) -> list[dict]:
     return events
 
 
+def load_recovery_summary() -> dict:
+    if not DEFAULT_RECOVERY_SUMMARY.exists():
+        return {}
+    try:
+        return json.loads(DEFAULT_RECOVERY_SUMMARY.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
 def _short(value) -> str:
     text = json.dumps(value, ensure_ascii=False) if isinstance(value, (dict, list)) else str(value)
     if len(text) > 180:
@@ -43,25 +53,42 @@ def _short(value) -> str:
 
 def render_page(path: Path) -> str:
     events = load_events(path)
+    recovery_summary = load_recovery_summary()
     alerts = sum(1 for event in events if event.get("alert"))
     clean = len(events) - alerts
     rows = []
     for event in reversed(events[-100:]):
         status = event.get("status", "")
         alert = "YES" if event.get("alert") else "no"
+        recovery = event.get("recovery") or {}
         rows.append(
             "<tr>"
             f"<td>{html.escape(str(event.get('timestamp', '')))}</td>"
             f"<td><code>{html.escape(str(event.get('boundary', '')))}</code></td>"
             f"<td class='{status}'>{html.escape(status)}</td>"
             f"<td class='alert-{str(bool(event.get('alert'))).lower()}'>{alert}</td>"
+            f"<td><code>{html.escape(str(recovery.get('action', 'n/a')))}</code></td>"
             f"<td>{_short(event.get('expected'))}</td>"
             f"<td>{_short(event.get('observed'))}</td>"
             f"<td>{_short(event.get('difference'))}</td>"
             f"<td>{_short(event.get('violations'))}</td>"
             "</tr>"
         )
-    body = "\n".join(rows) or "<tr><td colspan='8'>No boundary events yet. Run live_boundary_demo.py.</td></tr>"
+    body = "\n".join(rows) or "<tr><td colspan='9'>No boundary events yet. Run live_boundary_demo.py.</td></tr>"
+    recovery_rows = []
+    for case in recovery_summary.get("cases", []):
+        applied = "YES" if case.get("applied") else "no"
+        recovery_rows.append(
+            "<tr>"
+            f"<td>{html.escape(str(case.get('case', '')))}</td>"
+            f"<td><code>{html.escape(str(case.get('boundary', '')))}</code></td>"
+            f"<td>{_short(case.get('flag_seen'))}</td>"
+            f"<td><code>{html.escape(str(case.get('recovery_action', '')))}</code></td>"
+            f"<td class='alert-{str(bool(case.get('applied'))).lower()}'>{applied}</td>"
+            f"<td>{_short(case.get('outcome'))}</td>"
+            "</tr>"
+        )
+    recovery_body = "\n".join(recovery_rows) or "<tr><td colspan='6'>No recovery summary yet. Run live_boundary_demo.py.</td></tr>"
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -93,10 +120,18 @@ def render_page(path: Path) -> str:
   </div>
   <table>
     <thead>
-      <tr><th>Time</th><th>Boundary</th><th>Status</th><th>Alert</th><th>Expected</th><th>Observed</th><th>Difference</th><th>Violations</th></tr>
+    <tr><th>Time</th><th>Boundary</th><th>Status</th><th>Alert</th><th>Recovery</th><th>Expected</th><th>Observed</th><th>Difference</th><th>Violations</th></tr>
     </thead>
     <tbody>{body}</tbody>
   </table>
+    <h2>Execution Recovery Evidence</h2>
+    <div class="meta">Shows whether the decision was applied in the agent/service trace.</div>
+    <table>
+        <thead>
+            <tr><th>Case</th><th>Boundary</th><th>Flag Seen</th><th>Recovery</th><th>Applied</th><th>Outcome</th></tr>
+        </thead>
+        <tbody>{recovery_body}</tbody>
+    </table>
 </body>
 </html>"""
 

@@ -32,7 +32,7 @@ Wait For Page Load
 
 Navigate To Home Page
     [Documentation]    Navigates to the home page
-    Click    css=a[href="/"]
+    Click    css=a.navbar-brand[href="/"]
     Wait For Page Load
 
 Verify Product Card Visible
@@ -43,13 +43,13 @@ Verify Product Card Visible
 
 Get Product Count On Page
     [Documentation]    Returns the number of products displayed
-    ${count}=    Get Element Count    css=.card-img-top
+    ${count}=    Get Element Count    css=main a[href^="/product/"]
     [Return]    ${count}
 
 Verify Header Navigation
     [Documentation]    Verifies all header navigation elements are present
     Wait For Elements State    css=.navbar-brand    visible
-    Wait For Elements State    text="Shop All"    visible
+    Wait For Elements State    css=h3:has-text("Hot Products")    visible
     Wait For Elements State    css=a[href="/cart"]    visible
 
 Create HTTP Session

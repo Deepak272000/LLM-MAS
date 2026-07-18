@@ -408,6 +408,7 @@ class ShippingOrchestrator:
                 result["boundary_check"] = selection_boundary
             if isinstance(result, dict):
                 result["boundary_check"] = selection_boundary
+                result["recovery_action"] = selection_boundary.get("recovery")
             # FM-2.2: replace real result with hallucinated carrier data
             result = fi.maybe_hallucinate_carrier(result)
             # BL-VENDOR_NEGOTIATION: force expensive fallback carrier
@@ -674,6 +675,9 @@ class ShippingOrchestrator:
             },
         )
         ckpt.record("BOUNDARY_CHECK", quote_boundary)
+        quote_recovery = quote_boundary.get("recovery") or {}
+        if quote_recovery.get("action") == "retry_current_step":
+            ckpt.record("RECOVERY_ACTION", quote_recovery)
         carrier_data = {"carrier": carrier, "service_level": service_level}
         if fi.is_active(fi.BL_VENDOR_NEGOTIATION) or carrier == "PremiumExpress":
             carrier_data["forced_vendor"] = True
@@ -711,6 +715,17 @@ class ShippingOrchestrator:
             },
         )
         ckpt.record("BOUNDARY_CHECK", carrier_boundary)
+        carrier_recovery = carrier_boundary.get("recovery") or {}
+        if carrier_recovery.get("action") == "fallback_to_last_known_good":
+            corrected = carrier_recovery.get("corrected_payload") or {}
+            if isinstance(corrected, dict):
+                recovered_from = dict(carrier_data)
+                carrier = corrected.get("carrier", carrier)
+                service_level = corrected.get("service_level", service_level)
+                carrier_data["carrier"] = carrier
+                carrier_data["service_level"] = service_level
+                carrier_data["recovered_from"] = recovered_from
+                ckpt.record("RECOVERY_ACTION", carrier_recovery)
         ckpt.record("TRACKING_DONE", {"tracking_id": tracking_id})
 
         # BL-CUSTOMER_ESCALATION: flag high-risk orders before saving

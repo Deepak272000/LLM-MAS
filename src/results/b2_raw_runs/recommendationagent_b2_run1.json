@@ -1,0 +1,49 @@
+{
+  "agent": "recommendationagent",
+  "run": 1,
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-18T00:52:41.021754+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "user_id": "user-abc123",
+        "product_ids": [
+          "PROD-001",
+          "PROD-002"
+        ],
+        "action": "get_recommendations",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "RECOMMEND_DONE",
+      "timestamp": "2026-07-18T00:52:41.021852+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "action": "get_recommendations",
+        "count": 3,
+        "hallucinated": false,
+        "user_id_swapped": false,
+        "method_swapped": false,
+        "empty_recs": false,
+        "self_rec": false,
+        "injection": false,
+        "shuffled": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-18T00:52:41.021864+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "count": 3
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "RECOMMEND_DONE",
+    "FINAL_ANSWER"
+  ]
+}

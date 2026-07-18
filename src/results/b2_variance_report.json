@@ -1,0 +1,851 @@
+{
+  "paymentagent": {
+    "agent": "paymentagent",
+    "use_llm": false,
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 3,
+    "errors": [],
+    "b2_type": "deterministic_b2_equals_b1",
+    "variance": {
+      "TASK_START": {
+        "values": [
+          {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "NONE"
+          },
+          {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "NONE"
+          },
+          {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "NONE"
+          }
+        ],
+        "type": "numeric",
+        "min": 10.99,
+        "max": 10.99,
+        "delta": 0.0,
+        "all_identical": true
+      },
+      "CARD_VALIDATED": {
+        "values": [
+          {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": false
+          },
+          {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": false
+          },
+          {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "CHARGE_DONE": {
+        "values": [
+          {
+            "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a",
+            "hallucinated": false,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          },
+          {
+            "transaction_id": "db1d467e-3dab-4e5b-aff1-522aa372729c",
+            "hallucinated": false,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          },
+          {
+            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+            "hallucinated": false,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          }
+        ],
+        "type": "struct",
+        "all_identical": false,
+        "delta": 0
+      },
+      "SAVE_DONE": {
+        "values": [
+          {
+            "saved": true,
+            "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a",
+            "save_skipped": false,
+            "double_charge": false
+          },
+          {
+            "saved": true,
+            "transaction_id": "db1d467e-3dab-4e5b-aff1-522aa372729c",
+            "save_skipped": false,
+            "double_charge": false
+          },
+          {
+            "saved": true,
+            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8",
+            "save_skipped": false,
+            "double_charge": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": false,
+        "delta": 0
+      },
+      "FINAL_ANSWER": {
+        "values": [
+          {
+            "success": true,
+            "transaction_id": "8cbcac4e-c3da-4a9a-8600-f4282636d96a"
+          },
+          {
+            "success": true,
+            "transaction_id": "db1d467e-3dab-4e5b-aff1-522aa372729c"
+          },
+          {
+            "success": true,
+            "transaction_id": "1ca18f7d-8cab-42e3-8053-5c0224b904e8"
+          }
+        ],
+        "type": "struct",
+        "all_identical": false,
+        "delta": 0
+      }
+    },
+    "equivalence_thresholds": {
+      "TASK_START": {
+        "step": "TASK_START",
+        "type": "numeric",
+        "criterion": "delta_epsilon",
+        "delta_epsilon": 0.01,
+        "b2_observed_delta": 0.0,
+        "note": "zero_variance_deterministic"
+      },
+      "CARD_VALIDATED": {
+        "step": "CARD_VALIDATED",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "CHARGE_DONE": {
+        "step": "CHARGE_DONE",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "SAVE_DONE": {
+        "step": "SAVE_DONE",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "FINAL_ANSWER": {
+        "step": "FINAL_ANSWER",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      }
+    },
+    "timestamp": "2026-07-18T00:52:37.202038+00:00"
+  },
+  "currencyagent": {
+    "agent": "currencyagent",
+    "use_llm": false,
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 3,
+    "errors": [],
+    "b2_type": "deterministic_b2_equals_b1",
+    "variance": {
+      "TASK_START": {
+        "values": [
+          {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "NONE"
+          },
+          {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "NONE"
+          },
+          {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "NONE"
+          }
+        ],
+        "type": "numeric",
+        "min": 10.0,
+        "max": 10.0,
+        "delta": 0.0,
+        "all_identical": true
+      },
+      "CONVERT_DONE": {
+        "values": [
+          {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 9,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          },
+          {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 9,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          },
+          {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 9,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "FINAL_ANSWER": {
+        "values": [
+          {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9,
+              "nanos": 230000000
+            }
+          },
+          {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9,
+              "nanos": 230000000
+            }
+          },
+          {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9,
+              "nanos": 230000000
+            }
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      }
+    },
+    "equivalence_thresholds": {
+      "TASK_START": {
+        "step": "TASK_START",
+        "type": "numeric",
+        "criterion": "delta_epsilon",
+        "delta_epsilon": 0.01,
+        "b2_observed_delta": 0.0,
+        "note": "zero_variance_deterministic"
+      },
+      "CONVERT_DONE": {
+        "step": "CONVERT_DONE",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "FINAL_ANSWER": {
+        "step": "FINAL_ANSWER",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      }
+    },
+    "timestamp": "2026-07-18T00:52:38.237213+00:00"
+  },
+  "emailserviceagent": {
+    "agent": "emailserviceagent",
+    "use_llm": false,
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 3,
+    "errors": [],
+    "b2_type": "deterministic_b2_equals_b1",
+    "variance": {
+      "TASK_START": {
+        "values": [
+          {
+            "email": "customer@example.com",
+            "order_id": "ORDER-123",
+            "fault_mode": "NONE"
+          },
+          {
+            "email": "customer@example.com",
+            "order_id": "ORDER-123",
+            "fault_mode": "NONE"
+          },
+          {
+            "email": "customer@example.com",
+            "order_id": "ORDER-123",
+            "fault_mode": "NONE"
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "EMAIL_GENERATED": {
+        "values": [
+          {
+            "email_type": "order_confirmation",
+            "subject": "Your order has been confirmed",
+            "body_len": 68,
+            "hallucinated": false,
+            "type_wrong": false,
+            "recipient_swapped": false,
+            "corrupted": false,
+            "wrong_customer": false
+          },
+          {
+            "email_type": "order_confirmation",
+            "subject": "Your order has been confirmed",
+            "body_len": 68,
+            "hallucinated": false,
+            "type_wrong": false,
+            "recipient_swapped": false,
+            "corrupted": false,
+            "wrong_customer": false
+          },
+          {
+            "email_type": "order_confirmation",
+            "subject": "Your order has been confirmed",
+            "body_len": 68,
+            "hallucinated": false,
+            "type_wrong": false,
+            "recipient_swapped": false,
+            "corrupted": false,
+            "wrong_customer": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "EMAIL_SENT": {
+        "values": [
+          {
+            "status": "sent",
+            "send_skipped": false,
+            "double_send": false
+          },
+          {
+            "status": "sent",
+            "send_skipped": false,
+            "double_send": false
+          },
+          {
+            "status": "sent",
+            "send_skipped": false,
+            "double_send": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "FINAL_ANSWER": {
+        "values": [
+          {
+            "status": "sent"
+          },
+          {
+            "status": "sent"
+          },
+          {
+            "status": "sent"
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      }
+    },
+    "equivalence_thresholds": {
+      "TASK_START": {
+        "step": "TASK_START",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "EMAIL_GENERATED": {
+        "step": "EMAIL_GENERATED",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "EMAIL_SENT": {
+        "step": "EMAIL_SENT",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "FINAL_ANSWER": {
+        "step": "FINAL_ANSWER",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      }
+    },
+    "timestamp": "2026-07-18T00:52:40.265172+00:00"
+  },
+  "productcatalogagent": {
+    "agent": "productcatalogagent",
+    "use_llm": false,
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 3,
+    "errors": [],
+    "b2_type": "deterministic_b2_equals_b1",
+    "variance": {
+      "TASK_START": {
+        "values": [
+          {
+            "query": "list all products",
+            "product_ids": null,
+            "action": "list_products",
+            "fault_mode": "NONE"
+          },
+          {
+            "query": "list all products",
+            "product_ids": null,
+            "action": "list_products",
+            "fault_mode": "NONE"
+          },
+          {
+            "query": "list all products",
+            "product_ids": null,
+            "action": "list_products",
+            "fault_mode": "NONE"
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "CATALOG_DONE": {
+        "values": [
+          {
+            "action": "list_products",
+            "count": 2,
+            "product_ids": [
+              "PROD-001",
+              "PROD-002"
+            ],
+            "hallucinated": false,
+            "query_tampered": false,
+            "action_swapped": false,
+            "products_missing": false,
+            "price_manipulated": false,
+            "duplicated": false,
+            "category_wrong": false
+          },
+          {
+            "action": "list_products",
+            "count": 2,
+            "product_ids": [
+              "PROD-001",
+              "PROD-002"
+            ],
+            "hallucinated": false,
+            "query_tampered": false,
+            "action_swapped": false,
+            "products_missing": false,
+            "price_manipulated": false,
+            "duplicated": false,
+            "category_wrong": false
+          },
+          {
+            "action": "list_products",
+            "count": 2,
+            "product_ids": [
+              "PROD-001",
+              "PROD-002"
+            ],
+            "hallucinated": false,
+            "query_tampered": false,
+            "action_swapped": false,
+            "products_missing": false,
+            "price_manipulated": false,
+            "duplicated": false,
+            "category_wrong": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "FINAL_ANSWER": {
+        "values": [
+          {
+            "count": 2
+          },
+          {
+            "count": 2
+          },
+          {
+            "count": 2
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      }
+    },
+    "equivalence_thresholds": {
+      "TASK_START": {
+        "step": "TASK_START",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "CATALOG_DONE": {
+        "step": "CATALOG_DONE",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "FINAL_ANSWER": {
+        "step": "FINAL_ANSWER",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      }
+    },
+    "timestamp": "2026-07-18T00:52:40.842618+00:00"
+  },
+  "recommendationagent": {
+    "agent": "recommendationagent",
+    "use_llm": false,
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 3,
+    "errors": [],
+    "b2_type": "deterministic_b2_equals_b1",
+    "variance": {
+      "TASK_START": {
+        "values": [
+          {
+            "user_id": "user-abc123",
+            "product_ids": [
+              "PROD-001",
+              "PROD-002"
+            ],
+            "action": "get_recommendations",
+            "fault_mode": "NONE"
+          },
+          {
+            "user_id": "user-abc123",
+            "product_ids": [
+              "PROD-001",
+              "PROD-002"
+            ],
+            "action": "get_recommendations",
+            "fault_mode": "NONE"
+          },
+          {
+            "user_id": "user-abc123",
+            "product_ids": [
+              "PROD-001",
+              "PROD-002"
+            ],
+            "action": "get_recommendations",
+            "fault_mode": "NONE"
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "RECOMMEND_DONE": {
+        "values": [
+          {
+            "action": "get_recommendations",
+            "count": 3,
+            "hallucinated": false,
+            "user_id_swapped": false,
+            "method_swapped": false,
+            "empty_recs": false,
+            "self_rec": false,
+            "injection": false,
+            "shuffled": false
+          },
+          {
+            "action": "get_recommendations",
+            "count": 3,
+            "hallucinated": false,
+            "user_id_swapped": false,
+            "method_swapped": false,
+            "empty_recs": false,
+            "self_rec": false,
+            "injection": false,
+            "shuffled": false
+          },
+          {
+            "action": "get_recommendations",
+            "count": 3,
+            "hallucinated": false,
+            "user_id_swapped": false,
+            "method_swapped": false,
+            "empty_recs": false,
+            "self_rec": false,
+            "injection": false,
+            "shuffled": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "FINAL_ANSWER": {
+        "values": [
+          {
+            "count": 3
+          },
+          {
+            "count": 3
+          },
+          {
+            "count": 3
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      }
+    },
+    "equivalence_thresholds": {
+      "TASK_START": {
+        "step": "TASK_START",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "RECOMMEND_DONE": {
+        "step": "RECOMMEND_DONE",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "FINAL_ANSWER": {
+        "step": "FINAL_ANSWER",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      }
+    },
+    "timestamp": "2026-07-18T00:52:41.440959+00:00"
+  },
+  "adserviceagent": {
+    "agent": "adserviceagent",
+    "use_llm": false,
+    "fault_mode": "NONE",
+    "runs_attempted": 3,
+    "runs_succeeded": 3,
+    "errors": [],
+    "b2_type": "deterministic_b2_equals_b1",
+    "variance": {
+      "TASK_START": {
+        "values": [
+          {
+            "instruction": "show me some clothing ads",
+            "fault_mode": "NONE"
+          },
+          {
+            "instruction": "show me some clothing ads",
+            "fault_mode": "NONE"
+          },
+          {
+            "instruction": "show me some clothing ads",
+            "fault_mode": "NONE"
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "CONTEXT_EXTRACTED": {
+        "values": [
+          {
+            "context_keys": [
+              "clothing"
+            ],
+            "context_tampered": false,
+            "category_swapped": false
+          },
+          {
+            "context_keys": [
+              "clothing"
+            ],
+            "context_tampered": false,
+            "category_swapped": false
+          },
+          {
+            "context_keys": [
+              "clothing"
+            ],
+            "context_tampered": false,
+            "category_swapped": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "ADS_FETCHED": {
+        "values": [
+          {
+            "count": 2,
+            "observed_ads": [
+              {
+                "redirect_url": "https://shop.example.com/hats",
+                "text": "Buy stylish hats!"
+              },
+              {
+                "redirect_url": "https://shop.example.com/shoes",
+                "text": "New shoe collection"
+              }
+            ],
+            "hallucinated": false,
+            "empty_ads": false,
+            "injected": false,
+            "wrong_url": false,
+            "duplicated": false
+          },
+          {
+            "count": 2,
+            "observed_ads": [
+              {
+                "redirect_url": "https://shop.example.com/hats",
+                "text": "Buy stylish hats!"
+              },
+              {
+                "redirect_url": "https://shop.example.com/shoes",
+                "text": "New shoe collection"
+              }
+            ],
+            "hallucinated": false,
+            "empty_ads": false,
+            "injected": false,
+            "wrong_url": false,
+            "duplicated": false
+          },
+          {
+            "count": 2,
+            "observed_ads": [
+              {
+                "redirect_url": "https://shop.example.com/hats",
+                "text": "Buy stylish hats!"
+              },
+              {
+                "redirect_url": "https://shop.example.com/shoes",
+                "text": "New shoe collection"
+              }
+            ],
+            "hallucinated": false,
+            "empty_ads": false,
+            "injected": false,
+            "wrong_url": false,
+            "duplicated": false
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      },
+      "FINAL_ANSWER": {
+        "values": [
+          {
+            "ads_count": 2
+          },
+          {
+            "ads_count": 2
+          },
+          {
+            "ads_count": 2
+          }
+        ],
+        "type": "struct",
+        "all_identical": true,
+        "delta": 0
+      }
+    },
+    "equivalence_thresholds": {
+      "TASK_START": {
+        "step": "TASK_START",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "CONTEXT_EXTRACTED": {
+        "step": "CONTEXT_EXTRACTED",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "ADS_FETCHED": {
+        "step": "ADS_FETCHED",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      },
+      "FINAL_ANSWER": {
+        "step": "FINAL_ANSWER",
+        "type": "struct",
+        "criterion": "exact_match",
+        "note": "exact match required"
+      }
+    },
+    "timestamp": "2026-07-18T00:52:42.025646+00:00"
+  }
+}

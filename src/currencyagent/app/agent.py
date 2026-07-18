@@ -100,6 +100,25 @@ class CurrencyAgent:
                     "detail": boundary["detail"],
                     "violations": boundary["violations"],
                 })
+                recovery = boundary.get("recovery") or {}
+                if recovery.get("action") == "block_and_request_hitl":
+                    lkw.record("RECOVERY_ACTION", recovery)
+                    lkw.record("FINAL_ANSWER", {
+                        "blocked": True,
+                        "reason": recovery.get("reason"),
+                        "requires_hitl": recovery.get("requires_hitl", True),
+                    })
+                    logger.warning("[CurrencyAgent] Boundary recovery blocked unsafe conversion: %s", recovery.get("reason"))
+                    return {
+                        "mode": "agent",
+                        "action": "convert",
+                        "data": {
+                            "blocked": True,
+                            "requires_hitl": recovery.get("requires_hitl", True),
+                            "reason": recovery.get("reason"),
+                        },
+                        "lkw": lkw.checkpoints,
+                    }
 
             lkw.record("CONVERT_DONE", {
                 "from_currency": from_currency,

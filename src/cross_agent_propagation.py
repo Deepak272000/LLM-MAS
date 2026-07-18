@@ -265,30 +265,44 @@ async def run_chain_a():
     print(f"\n  {'--'*35}")
     print(f"\n  [HOP 1] CurrencyAgent | FAULT_MODE=FM_2_2  <<< FAULT INJECTED")
     c_infected = run_currency_agent("FM_2_2", expected_units=clean_units)
-    infected_units = c_infected["result"]["data"]["units"]
+    # When recovery fires, result["data"] has no "units" — read from BOUNDARY_CHECK observed
+    _result_data = c_infected["result"].get("data", {})
+    infected_units = _result_data.get("units")
+    if infected_units is None:
+        for _cp in c_infected["lkw"]:
+            if _cp.get("step") == "BOUNDARY_CHECK":
+                infected_units = _cp.get("data", {}).get("observed")
+                break
+    if infected_units is None:
+        infected_units = clean_units  # fallback
     print(f"  --> Converted amount : {infected_units} EUR  (HALLUCINATED, was {clean_units})")
     print(f"  --> Infection point  : {c_infected['rip']['infection_point']}")
     print(f"  --> Hallucinated     : {c_infected['result']['data'].get('hallucinated')}")
 
     print(f"\n  [HOP 2] PaymentAgent  | FAULT_MODE=NONE | charge_units={infected_units}  <<< PROPAGATED")
     p_infected = await run_payment_agent(units=infected_units, currency_code="EUR", expected_units=clean_units)
+    payment_blocked = bool(p_infected["result"].get("data", {}).get("blocked"))
     print(f"  --> Steps reached    : {[cp['step'] for cp in p_infected['lkw']]}")
     print(f"  --> Infection point  : {p_infected['rip']['infection_point']}  (None = agent is correct)")
-    print(f"  --> Amount charged   : {infected_units} EUR  (WRONG -- should be {clean_units})")
+    print(f"  --> Unsafe amount    : {infected_units} EUR  (WRONG -- should be {clean_units})")
+    print(f"  --> Charge executed  : {not payment_blocked}")
 
     boundary = boundary_contract("currency_to_payment", clean_units, infected_units)
+    recovery = boundary.get("recovery") or {}
     signal_escape = boundary["alert"] and p_infected["rip"]["infection_point"] is None
     print(f"  --> Boundary check   : {boundary['status']} ({boundary.get('detail', 'matched payload')})")
+    print(f"  --> Recovery action  : {recovery.get('action')}")
     print(f"  --> Signal escape    : {signal_escape}")
 
     overcharge = infected_units - clean_units
     overcharge_pct = round(overcharge / clean_units * 100, 1) if clean_units else 0
     print(f"\n  PROPAGATION RESULT:")
     print(f"    Expected charge   : {clean_units} EUR")
-    print(f"    Actual charge     : {infected_units} EUR")
-    print(f"    Overcharge        : +{overcharge} EUR  (+{overcharge_pct}%)")
-    print(f"    PaymentAgent acts : correctly (no fault of its own)")
-    print(f"    HITL tier         : Tier 3 -- financial loss, zero structural alert")
+    print(f"    Unsafe request    : {infected_units} EUR")
+    print(f"    Charge blocked    : {payment_blocked}")
+    print(f"    Prevented loss    : +{overcharge} EUR  (+{overcharge_pct}%)")
+    print(f"    Recovery action   : {recovery.get('action')}")
+    print(f"    HITL tier         : Tier 3 -- financial loss requires review")
 
     return {
         "chain": "A",
@@ -296,6 +310,8 @@ async def run_chain_a():
         "hop1_fault": "FM_2_2", "hop2_fault": "NONE",
         "baseline_units": clean_units, "propagated_units": infected_units,
         "overcharge_eur": overcharge, "overcharge_pct": overcharge_pct,
+        "charge_blocked": payment_blocked,
+        "prevented_loss_eur": overcharge if payment_blocked else 0,
         "boundary_contract": boundary,
         "signal_escape": signal_escape,
         "hop1_rip": c_infected["rip"],
@@ -303,8 +319,8 @@ async def run_chain_a():
         "hop1_infection": c_infected["rip"]["infection_point"],
         "hop2_infection": p_infected["rip"]["infection_point"],
         "hop2_steps": [cp["step"] for cp in p_infected["lkw"]],
-        "finding": ("FM-2.2 hallucination propagates silently across agent boundary; "
-                    "PaymentAgent is fault-free but charges inflated amount"),
+        "finding": ("FM-2.2 hallucination reaches the payment boundary; "
+                "the recovery policy blocks the unsafe charge and escalates to HITL"),
     }
 
 
@@ -338,20 +354,25 @@ def run_chain_b():
     print(f"\n  [HOP 2] RecommendationAgent | FAULT_MODE=NONE | input={infected_ids}  <<< PROPAGATED")
     rec_infected = run_recommendation_agent(product_ids=infected_ids, expected_product_ids=clean_ids)
     infected_recs = rec_infected["result"]["recommended_product_ids"]
-    print(f"  --> Input used       : {infected_ids}  (HALLUCINATED-001 does not exist)")
+    recovered_ids = rec_infected["result"].get("input_product_ids", infected_ids)
+    print(f"  --> Initial input    : {infected_ids}  (HALLUCINATED-001 does not exist)")
+    print(f"  --> Recovered input  : {recovered_ids}")
     print(f"  --> Recommendations  : {infected_recs}")
     print(f"  --> Infection point  : {rec_infected['rip']['infection_point']}  (None = agent correct)")
     print(f"  --> Steps reached    : {[cp['step'] for cp in rec_infected['lkw']]}")
 
     boundary = boundary_contract("catalog_to_recommendation", clean_ids, infected_ids)
+    recovery = boundary.get("recovery") or {}
     signal_escape = boundary["alert"] and rec_infected["rip"]["infection_point"] is None
     print(f"  --> Boundary check   : {boundary['status']} ({boundary.get('detail', 'matched payload')})")
+    print(f"  --> Recovery action  : {recovery.get('action')}")
     print(f"  --> Signal escape    : {signal_escape}")
 
     print(f"\n  PROPAGATION RESULT:")
-    print(f"    Input used           : HALLUCINATED-001 (phantom catalog entry)")
-    print(f"    Recommendations for  : non-existent product")
-    print(f"    RecommendationAgent  : executes correctly on bad input")
+    print(f"    Initial input        : HALLUCINATED-001 (phantom catalog entry)")
+    print(f"    Recovered input      : {recovered_ids}")
+    print(f"    Recovery action      : {recovery.get('action')}")
+    print(f"    RecommendationAgent  : proceeds with corrected context")
     print(f"    No structural loss   : all 3 checkpoints reached at hop 2")
     print(f"    HITL tier            : Tier 2 -- detectable via product ID cross-check")
 
@@ -361,6 +382,7 @@ def run_chain_b():
         "hop1_fault": "FM_2_2", "hop2_fault": "NONE",
         "baseline_product_ids": clean_ids,
         "propagated_product_ids": infected_ids,
+        "recovered_product_ids": recovered_ids,
         "baseline_recs": rec_clean["result"]["recommended_product_ids"],
         "propagated_recs": infected_recs,
         "boundary_contract": boundary,
@@ -370,8 +392,8 @@ def run_chain_b():
         "hop1_infection": cat_infected["rip"]["infection_point"],
         "hop2_infection": rec_infected["rip"]["infection_point"],
         "hop2_steps": [cp["step"] for cp in rec_infected["lkw"]],
-        "finding": ("FM-2.2 phantom product ID propagates silently to recommender; "
-                    "no structural step loss at hop 2; garbage-in garbage-out"),
+        "finding": ("FM-2.2 phantom product ID reaches the recommendation boundary; "
+                "the recovery policy falls back to the last validated product context"),
     }
 
 
@@ -392,12 +414,14 @@ async def main():
     print("=" * 70)
     print(f"  Chain A  Currency FM-2.2 -> Payment NONE")
     print(f"           Overcharge: +{result_a['overcharge_eur']} EUR (+{result_a['overcharge_pct']}%)")
+    print(f"           Charge blocked: {result_a['charge_blocked']} | prevented loss: {result_a['prevented_loss_eur']} EUR")
     print(f"           Hop-2 infection: {result_a['hop2_infection']}  (downstream agent correct)")
     print(f"           Boundary alert: {result_a['boundary_contract']['alert']} | Signal escape: {result_a['signal_escape']}")
     print(f"           HITL Tier: 3 (financial loss, silent)")
     print()
     print(f"  Chain B  ProductCatalog FM-2.2 -> Recommendation NONE")
     print(f"           Phantom ID: {result_b['propagated_product_ids']}")
+    print(f"           Recovered ID context: {result_b['recovered_product_ids']}")
     print(f"           Hop-2 infection: {result_b['hop2_infection']}  (downstream agent correct)")
     print(f"           Boundary alert: {result_b['boundary_contract']['alert']} | Signal escape: {result_b['signal_escape']}")
     print(f"           HITL Tier: 2 (semantic corruption, detectable)")

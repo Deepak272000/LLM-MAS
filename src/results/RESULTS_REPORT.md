@@ -3,6 +3,7 @@
 **Platform:** Concordia SPEED HPC (`deepak/fault-injection` branch)  
 **Date:** 2026-06-18  
 **Updated:** 2026-07-07 — boundary validation and HITL readiness refresh  
+**Updated:** 2026-07-15 — policy-based boundary recovery layer added  
 
 ---
 
@@ -12,8 +13,9 @@
 3. [HITL Tier Classification — Automated](#3-hitl-tier-classification)
 4. [Cross-Agent Fault Propagation](#4-cross-agent-fault-propagation)
 5. [Boundary Validation Improvements](#5-boundary-validation-improvements)
-6. [Key Findings Summary](#6-key-findings-summary)
-7. [Limitations](#7-limitations)
+6. [Policy-Based Boundary Recovery Layer](#6-policy-based-boundary-recovery-layer)
+7. [Key Findings Summary](#7-key-findings-summary)
+8. [Limitations](#8-limitations)
 
 ---
 
@@ -417,7 +419,107 @@ Validated local dashboard smoke test: `/events` returned HTTP 200 with 13 total 
 
 ---
 
-## 6. Key Findings Summary
+## 6. Policy-Based Boundary Recovery Layer
+
+**Implementation date:** 2026-07-13  
+**Files:** `src/boundary_recovery.py`, `src/test_recovery_wiring.py`, `src/results/recovery_demo_summary.json`  
+**Verification:** `test_recovery_wiring.py` — **19/19 checks passed**
+
+Section 5 established that boundary contracts make silent handoff failures observable. This section documents the next step: a policy-based recovery layer that turns each boundary alert into an automatic corrective action before the failure propagates further.
+
+---
+
+### 6.1 Design
+
+`boundary_recovery.py` implements `decide_recovery(boundary_result)`. It is called automatically inside `_finalize_boundary_result()` in `boundary_validation.py`, so every `boundary_contract()` call across all agents receives a recovery decision as part of its return value. No agent-level changes are needed to get a decision — wiring the *action* is the agent's responsibility.
+
+The recovery decision is always one of four actions:
+
+| Action | Meaning |
+|---|---|
+| `continue` | Boundary is clean — execution proceeds normally |
+| `block_and_request_hitl` | Halt execution, escalate to human review, record `requires_hitl=True` |
+| `fallback_to_last_known_good` | Replace observed payload with `corrected_payload` from the policy |
+| `retry_current_step` | Record the mismatch, flag for retry at the calling layer |
+
+---
+
+### 6.2 Recovery Policies Per Boundary
+
+| Boundary | Failure Scenario | Recovery Action | Corrected Payload |
+|---|---|---|---|
+| `currency_to_payment` | Hallucinated/inflated conversion amount | `block_and_request_hitl` | — (charge blocked) |
+| `catalog_to_recommendation` | Invalid/phantom product IDs returned | `fallback_to_last_known_good` | `expected` from caller |
+| `carrier_to_tracking` | Hallucinated carrier or service level | `fallback_to_last_known_good` | `{"carrier":"FedEx","service_level":"ground"}` |
+| `quote_to_carrier_selection` | Carrier selection ignores quoted cost | `retry_current_step` | — |
+| `quote_to_carrier` | Quote mismatch before carrier selection | `retry_current_step` | — |
+| `ad_lookup_to_response` | Injected or malformed ads | `fallback_to_last_known_good` | `[]` (empty list) |
+| `email_generation_to_send` | Corrupted body or wrong recipient | `block_and_request_hitl` | — (send blocked) |
+| Any unknown alert | Unclassified boundary failure | `block_and_request_hitl` | — |
+
+---
+
+### 6.3 Recovery Wiring — All 7 Agents
+
+Every agent that has a `boundary_contract()` call now also reads the `recovery` field from the result and acts on it before proceeding:
+
+| Agent | Boundary | Recovery Wired | Execution Effect |
+|---|---|---|---|
+| PaymentAgent | `currency_to_payment` | ✅ `block_and_request_hitl` | Returns `blocked=True` — charge never executed |
+| CurrencyAgent | `currency_to_payment` | ✅ `block_and_request_hitl` | Returns `blocked=True` — bad units never sent downstream |
+| RecommendationAgent | `catalog_to_recommendation` | ✅ `fallback_to_last_known_good` | Replaces `product_ids` with corrected list before recommendation |
+| ProductCatalogAgent | `catalog_to_recommendation` | ✅ `fallback_to_last_known_good` | Filters `data` to only products in corrected ID set |
+| AdServiceAgent | `ad_lookup_to_response` | ✅ `fallback_to_last_known_good` | Replaces `state["ads"]` with `[]` — injected ads never served |
+| EmailServiceAgent | `email_generation_to_send` | ✅ `block_and_request_hitl` | Sets `boundary_blocked=True`; send node returns early — gRPC never called |
+| ShippingAgent | `carrier_to_tracking`, `quote_to_carrier` | ✅ Partial | Carrier fallback applied; quote retry recorded |
+
+---
+
+### 6.4 Verification Results
+
+All recovery paths were verified by `test_recovery_wiring.py` run on 2026-07-13:
+
+| Agent | Test Scenario | Checks | Result |
+|---|---|---|---|
+| CurrencyAgent | FM_2_2 hallucination → `expected=9`, `observed=9999` | 5 | ✅ PASS |
+| ProductCatalogAgent | Catalog returns `[PROD-001, FAKE-999]`, `expected=[PROD-001]` | 3 | ✅ PASS |
+| AdServiceAgent | `BL_AD_INJECTION` with mismatched expected ads | 5 | ✅ PASS |
+| EmailServiceAgent | `BL_CORRUPTED_BODY` with valid expected structure | 6 | ✅ PASS |
+| **TOTAL** | | **19** | **19/19 PASS** |
+
+Key observations from the test run:
+- CurrencyAgent FM_2_2: LKW trace = `TASK_START → BOUNDARY_CHECK → RECOVERY_ACTION → FINAL_ANSWER` (CONVERT_DONE absent — charge was blocked before conversion result left the agent)
+- ProductCatalogAgent: `FAKE-999` removed from data, `PROD-001` kept — `RECOVERY_ACTION` in LKW
+- AdServiceAgent: `BL_AD_INJECTION` injected extra ad → `extra_items` violation → `state["ads"] = []`
+- EmailServiceAgent: body truncated from 41 to 20 chars → field mismatch + predicate fail → `boundary_blocked=True` → gRPC send client never called
+
+---
+
+### 6.5 Recovery Demo Summary (from `recovery_demo_summary.json`)
+
+| Case | Boundary | Recovery Action | Applied | Outcome |
+|---|---|---|---|---|
+| Payment overcharge | `currency_to_payment` | `block_and_request_hitl` | ✅ | `charge_blocked=True`, prevented loss |
+| Catalog hallucination | `catalog_to_recommendation` | `fallback_to_last_known_good` | ✅ | `recovered_product_ids=[PROD-001]` |
+| Shipping carrier hallucination | `carrier_to_tracking` | `fallback_to_last_known_good` | ✅ | Corrected to `FedEx/ground` |
+| Shipping quote mismatch | `quote_to_carrier_selection` | `retry_current_step` | ✅ | Decision recorded |
+
+---
+
+### 6.6 Updated HITL Tier Interpretation
+
+The recovery layer changes the meaning of Tier 2 and Tier 3 for boundary-instrumented handoffs:
+
+| Before recovery layer | After recovery layer |
+|---|---|
+| Tier 3 (silent FM-2.2): requires human semantic review | `BOUNDARY_CHECK` alert + automatic `block` or `fallback` — human reviews the blocked record, not raw data |
+| Tier 2 (flag-detectable): human sets alert rule | Recovery fires automatically; human reviews `RECOVERY_ACTION` checkpoint in LKW trace |
+
+The recovery layer does **not** eliminate the need for human review in high-risk cases — it ensures that humans review a structured `RECOVERY_ACTION` record rather than having to detect the anomaly themselves from raw payloads.
+
+---
+
+## 7. Key Findings Summary
 
 ### Structural Pattern Across Fault Classes
 
@@ -463,7 +565,7 @@ Yes. 64/64 mode-runs across all 7 agents are STABLE_PASS or STABLE_FAULT. Zero U
 
 ---
 
-## 7. Limitations
+## 8. Limitations
 
 ### L1 — LLM Not in the Loop for 6 of 7 Agents
 

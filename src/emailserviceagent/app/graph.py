@@ -106,6 +106,11 @@ def run_agent_node(state: EmailGraphState) -> EmailGraphState:
             "detail": boundary["detail"],
             "violations": boundary["violations"],
         })
+        recovery = boundary.get("recovery") or {}
+        if recovery.get("action") == "block_and_request_hitl":
+            fi.record_checkpoint("RECOVERY_ACTION", recovery)
+            state["boundary_blocked"] = True
+            state["boundary_block_reason"] = recovery.get("reason")
 
     fi.record_checkpoint("EMAIL_GENERATED", {
         "email_type": state["email_type"],
@@ -124,6 +129,16 @@ def send_via_microservice_node(state: EmailGraphState) -> EmailGraphState:
     # FM_3_1 guard: if premature termination flagged, skip send
     if state.get("email_type") == "PREMATURE_TERMINATION":
         state["microservice_status"] = "skipped_premature"
+        return state
+
+    # Boundary recovery guard: block send if boundary detected corrupted/misrouted email
+    if state.get("boundary_blocked"):
+        state["microservice_status"] = "blocked_by_boundary"
+        fi.record_checkpoint("FINAL_ANSWER", {
+            "blocked": True,
+            "reason": state.get("boundary_block_reason"),
+            "requires_hitl": True,
+        })
         return state
 
     # BL_SEND_SKIPPED: bypass gRPC

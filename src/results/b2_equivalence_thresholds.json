@@ -1,0 +1,150 @@
+{
+  "paymentagent": {
+    "TASK_START": {
+      "step": "TASK_START",
+      "type": "numeric",
+      "criterion": "delta_epsilon",
+      "delta_epsilon": 0.01,
+      "b2_observed_delta": 0.0,
+      "note": "zero_variance_deterministic"
+    },
+    "CARD_VALIDATED": {
+      "step": "CARD_VALIDATED",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "CHARGE_DONE": {
+      "step": "CHARGE_DONE",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "SAVE_DONE": {
+      "step": "SAVE_DONE",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "FINAL_ANSWER": {
+      "step": "FINAL_ANSWER",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    }
+  },
+  "currencyagent": {
+    "TASK_START": {
+      "step": "TASK_START",
+      "type": "numeric",
+      "criterion": "delta_epsilon",
+      "delta_epsilon": 0.01,
+      "b2_observed_delta": 0.0,
+      "note": "zero_variance_deterministic"
+    },
+    "CONVERT_DONE": {
+      "step": "CONVERT_DONE",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "FINAL_ANSWER": {
+      "step": "FINAL_ANSWER",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    }
+  },
+  "emailserviceagent": {
+    "TASK_START": {
+      "step": "TASK_START",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "EMAIL_GENERATED": {
+      "step": "EMAIL_GENERATED",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "EMAIL_SENT": {
+      "step": "EMAIL_SENT",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "FINAL_ANSWER": {
+      "step": "FINAL_ANSWER",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    }
+  },
+  "productcatalogagent": {
+    "TASK_START": {
+      "step": "TASK_START",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "CATALOG_DONE": {
+      "step": "CATALOG_DONE",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "FINAL_ANSWER": {
+      "step": "FINAL_ANSWER",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    }
+  },
+  "recommendationagent": {
+    "TASK_START": {
+      "step": "TASK_START",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "RECOMMEND_DONE": {
+      "step": "RECOMMEND_DONE",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "FINAL_ANSWER": {
+      "step": "FINAL_ANSWER",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    }
+  },
+  "adserviceagent": {
+    "TASK_START": {
+      "step": "TASK_START",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "CONTEXT_EXTRACTED": {
+      "step": "CONTEXT_EXTRACTED",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "ADS_FETCHED": {
+      "step": "ADS_FETCHED",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    },
+    "FINAL_ANSWER": {
+      "step": "FINAL_ANSWER",
+      "type": "struct",
+      "criterion": "exact_match",
+      "note": "exact match required"
+    }
+  }
+}

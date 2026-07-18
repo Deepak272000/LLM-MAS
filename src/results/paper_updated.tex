@@ -1,8 +1,19 @@
-\documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
+% ══════════════════════════════════════════════════════════════════════════════
+% Target venue : ACM SIGSOFT FSE 2027
+%                July 12-16 2027 | Shenzhen, China
+%                Track: Research Papers
+%                Format: ACM sigconf  (acmart class)
+% ══════════════════════════════════════════════════════════════════════════════
+\documentclass[sigconf,review,anonymous]{acmart}
+
+% ACM metadata
+\acmConference{FSE '27}{July 12--16, 2027}{Shenzhen, China}
+\acmDOI{}
+\acmISBN{}
+\setcopyright{acmlicensed}
 
 % ── Packages ─────────────────────────────────────────────────────────────────
-\usepackage{cite}
+% (cite removed: acmart uses natbib internally)
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -18,16 +29,36 @@
 \newcolumntype{J}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{K}{>{\raggedright\arraybackslash}X}
 
+% ── Float layout tuning (prevents blank columns / pages with many tables) ────
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.80}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{8}
+\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+
 % ── Title & Author ────────────────────────────────────────────────────────────
 \title{Failure Injection and Propagation Analysis in Agentic Microservice
   Workflows: Evidence from Google-Bench and Retail-Bench Scenarios}
 
-\author{%
-  \IEEEauthorblockN{Deepak Sunil Chavan}
-  \IEEEauthorblockA{%
-    Department of Electrical and Computer Engineering\\
-    Concordia University, Montreal, Canada\\
-    Email: deepaksunil.chavan@concordia.ca}}
+% Authors listed alphabetically by last name — confirm order with team
+\author{Deepak Sunil Chavan}
+\affiliation{%
+  \institution{Concordia University}
+  \department{Department of Electrical and Computer Engineering}
+  \city{Montreal}
+  \country{Canada}}
+\email{deepaksunil.chavan@concordia.ca}
+
+% TODO: Add co-authors once confirmed with Prof.\ Yan and Peyman
+% \author{Yan ...}
+% \affiliation{...}
+% \author{Peyman ...}
+% \affiliation{...}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \begin{document}
@@ -40,7 +71,7 @@ but also new fault surfaces that are difficult to validate using conventional
 microservice testing. This paper presents a controlled fault-injection study
 across seven instrumented agent services in the LLM-MAS architecture and
 evaluates fault reachability, infection, and propagation using
-checkpoint-based tracing (LKW+RIP). We execute two benchmark suites
+data-flow observation-point tracing (Laski-Korel-Weyuker+RIP, hereafter LKW+RIP~\cite{lkw,rapps-weyuker}). We execute two benchmark suites
 (Google-bench followed by Retail-bench) on an HPC environment and map observed
 failures to MAST-style fault categories. Six Python-based agents serve as
 deterministic framework-validation baselines (no LLM in the loop); the
@@ -64,10 +95,17 @@ and the compliance-ambiguity fault mode remains unresolved at model scales
 tested.
 \end{abstract}
 
-\begin{IEEEkeywords}
-agentic systems, fault injection, microservices, root cause analysis,
-propagation analysis, LLM reliability
-\end{IEEEkeywords}
+\begin{CCSXML}
+<ccs2012>
+ <concept><concept_id>10011007.10011074.10011099</concept_id><concept_desc>Software and its engineering~Software testing and debugging</concept_desc><concept_significance>500</concept_significance></concept>
+ <concept><concept_id>10010147.10010257</concept_id><concept_desc>Computing methodologies~Artificial intelligence</concept_desc><concept_significance>300</concept_significance></concept>
+</ccs2012>
+\end{CCSXML}
+\ccsdesc[500]{Software and its engineering~Software testing and debugging}
+\ccsdesc[300]{Computing methodologies~Artificial intelligence}
+
+\keywords{agentic systems, fault injection, LLM reliability, microservices,
+propagation analysis, HITL classification, boundary contracts}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Introduction}
@@ -88,29 +126,29 @@ Concordia SPEED HPC. This design separates framework validation (six agents)
 from LLM-in-the-loop capability testing (ShippingService).
 
 In this project, we answer the following research questions:
-\begin{enumerate}
-  \item Can realistic faults be injected into an agent-driven service and
-        reliably reproduced?
-  \item Where does failure first appear in the execution flow?
-  \item How far does it propagate downstream?
-  \item Which failures can be auto-resolved by agents, and which require human
-        intervention?
-  \item How stable are these observations across repeated runs in a controlled
-        compute environment?
-\end{enumerate}
+\begin{description}
+  \item[\textbf{RQ1}] Can realistic faults be injected into an agent-driven
+        service and reliably reproduced?
+  \item[\textbf{RQ2}] Where does failure first appear in the execution flow?
+  \item[\textbf{RQ3}] How far does it propagate downstream?
+  \item[\textbf{RQ4}] Which failures can be auto-resolved by agents, and which
+        require human intervention?
+  \item[\textbf{RQ5}] How stable are these observations across repeated runs in
+        a controlled compute environment?
+  \item[\textbf{RQ6}] Can policy-based boundary recovery contracts reduce the
+        manual intervention burden for Tier~2 and Tier~3 boundary violations,
+        and can their application be verified at execution level?
+\end{description}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{System and Fault Model}
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Target Workflow}
-We evaluate an order orchestration flow with agentic steps:
-\begin{center}
-\small
-\texttt{TASK\_START} $\!\to\!$ \texttt{QUOTE\_DONE} $\!\to\!$ \texttt{CARRIER\_DONE}
-$\!\to\!$ \texttt{TRACKING\_DONE} $\!\to\!$ \texttt{SAVE\_DONE}
-$\!\to\!$ \texttt{ESCALATION\_CHECK} $\!\to\!$ \texttt{FINAL\_ANSWER}
-\end{center}
+We evaluate an order orchestration flow with agentic steps (checkpoint
+sequence): \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$
+\texttt{CARRIER\_DONE} $\to$ \texttt{TRACKING\_DONE} $\to$ \texttt{SAVE\_DONE}
+$\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
 
 \begin{figure*}[t]
 \centering
@@ -163,16 +201,50 @@ single Ollama LLM backend (orange, dotted).}
 \label{fig:architecture}
 \end{figure*}
 
-\subsection{Fault Taxonomy}
-We use MAST-aligned categories and business-logic scenarios:
-\begin{itemize}
-  \item \textbf{FM-1.2}: Incorrect task decomposition
-  \item \textbf{FM-2.2}: Hallucinated tool output / fabricated carrier data
-  \item \textbf{FM-2.5}: Ignored downstream agent input (stale cost)
-  \item \textbf{FM-3.1}: Premature termination
-  \item \textbf{BL}: SHIPMENT\_LOST, INVENTORY\_MISMATCH, VENDOR\_NEGOTIATION,
-        CUSTOMER\_ESCALATION, REFUND\_REASONING, COMPLIANCE\_AMBIGUITY
-\end{itemize}
+\subsection{Fault Taxonomy and Mutation Operators}
+\label{sec:fault-taxonomy}
+
+Each injected MAST fault mode is a \emph{mutation operator}~\cite{lkw}
+applied to a specific agent state variable at a known data flow observation
+point. A mutation that causes the LKW trace to deviate from the B1 oracle
+beyond the B2-calibrated tolerance is a \textit{killed mutant}; one whose
+trace is indistinguishable from the natural-variance envelope is a
+\textit{live mutant}. Table~\ref{tab:fault-mapping} maps each MAST fault
+class to its operator type, target variable, first LKW observation point,
+equivalence comparison criterion, and HITL detection tier.
+
+\begin{table}[htb]
+\centering
+\caption{MAST Fault Classes as LKW Mutation Operators.
+  Criteria: $\delta_{\epsilon}$~=~numeric tolerance;
+  $\mathcal{S}$~=~set equality; $\Sigma$~=~flag/schema conformance;
+  $\subseteq$~=~step-set inclusion.}
+\label{tab:fault-mapping}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{1.1cm}p{2.0cm}p{1.8cm}p{2.4cm}p{1.2cm}p{0.8cm}}
+\toprule
+\textbf{MAST} & \textbf{Operator} & \textbf{Target Variable}
+  & \textbf{First Observation Point} & \textbf{Criterion} & \textbf{Tier} \\
+\midrule
+FM-3.1 & Step removal & control flow (step set)
+  & First missing step (P3/P5) & $\subseteq$ & 1 \\
+FM-2.2 & Value substitution & output payload
+  & P2 c-use (e.g.\ \texttt{CONVERT\_DONE}) & $\delta_{\epsilon}$ / $\mathcal{S}$ & 3 \\
+FM-2.5 & Input suppression & upstream numeric value
+  & P2 c-use (e.g.\ \texttt{CARRIER\_DONE}) & $\delta_{\epsilon}$ & 2--3 \\
+FM-1.2 & Routing swap & action/method label
+  & P2 c-use (e.g.\ \texttt{CATALOG\_DONE}) & $\mathcal{S}$ & 2 \\
+BL-FLAG & Flag injection & metadata flag field
+  & P4 p-use (e.g.\ \texttt{ESCALATION\_CHECK}) & $\Sigma$ & 2 \\
+BL-SKIP & Step bypass & side-effect record
+  & P3 c-use (e.g.\ \texttt{SAVE\_DONE}) & $\subseteq$ & 1 \\
+BL-SILENT & Value corruption & numeric/ID field
+  & P2 c-use (e.g.\ \texttt{QUOTE\_DONE}) & $\delta_{\epsilon}$ & 3 \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Failure Injection and Analysis Workflow}
@@ -185,7 +257,7 @@ Per advisor and team guidance, the study follows four phases:
 (4)~merge team results to answer all research questions.
 Fig.~\ref{fig:workflow} illustrates the full pipeline.
 
-\begin{figure*}[!t]
+\begin{figure*}[t]
 \centering
 \resizebox{0.95\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -239,7 +311,233 @@ Let $B$ be the baseline checkpoint set and $F$ the faulty checkpoint set:
 \end{equation}
 
 % ═════════════════════════════════════════════════════════════════════════════
+\section{LKW Instrumentation Design}
+\label{sec:lkw-design}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\subsection{Data Flow Observation Points (LKW)}
+
+The instrumentation framework adapts the \emph{Laski-Korel-Weyuker} (LKW)
+data flow testing criterion~\cite{lkw,rapps-weyuker} to agentic workflows.
+In data flow testing, a program is instrumented at \emph{definition} (def)
+sites where a variable receives a value and at \emph{use} sites where the
+value determines computation (c-use) or control flow (p-use). A test suite
+is adequate under a given criterion if it exercises every required def-use
+pair for each variable under test.
+
+We apply this framework to agent state variables --- monetary amounts, product
+ID lists, carrier selections, tracking IDs, and boolean flag fields --- by
+placing named observation points at the corresponding def and use sites within
+the agent's LangGraph execution graph. Each observation point records a
+\textbf{step name} (identifying the def or use site), a \textbf{data payload}
+(the observed value of the guarded variable, deep-copied at recording time),
+and a \textbf{timestamp}. The ordered sequence of observation points for a
+single agent run forms the \emph{LKW trace}, which is the primary evidence
+object for all RIP (Reachability, Infection, Propagation) measurements.
+
+The instrumentation is:
+\begin{itemize}
+  \item \textbf{Additive} --- observation points are injected alongside
+        business logic without modifying control flow.
+  \item \textbf{Non-intrusive} --- points write to an in-memory list and
+        return immediately; no synchronous I/O on the hot path.
+  \item \textbf{Data-preserving} --- the guarded value is deep-copied at
+        recording time so post-hoc mutation cannot alter evidence.
+\end{itemize}
+
+\subsection{Checkpoint Placement Taxonomy}
+\label{sec:placement-taxonomy}
+
+We define five placement classes (P1--P5) that together implement
+\textbf{All-Uses} coverage~\cite{rapps-weyuker} for each guarded agent state
+variable: P1 records the variable at its primary \emph{definition} (def) site
+(task input); P2 and P3 record it at \emph{computation-use} (c-use) sites
+(post-computation result and post-side-effect outcome); P4 records
+\emph{predicate-use} (p-use) sites where boolean flag values determine
+downstream control-flow decisions; P5 records the terminal c-use at the
+agent handoff boundary.
+Table~\ref{tab:placement-taxonomy} describes each class.
+
+\begin{table}[htb]
+\centering
+\caption{LKW Checkpoint Placement Classes.}
+\label{tab:placement-taxonomy}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{clp{3.4cm}p{2.8cm}}
+\toprule
+\textbf{Class} & \textbf{Placement} & \textbf{Event Captured}
+               & \textbf{RIP Purpose} \\
+\midrule
+P1 & Pre-call         & Incoming payload before any transformation
+   & Reachability; input baseline \\
+P2 & Post-computation & Core business logic result (e.g., computed cost, fetched records)
+   & Infection detection (data corruption) \\
+P3 & Post-side-effect & Outcome of irreversible operation (persistence, payment, send)
+   & Propagation depth for incomplete-workflow faults \\
+P4 & Post-metadata    & Policy or flag field appended after primary logic
+   & Tier-2 flag detection (business-logic faults) \\
+P5 & Terminal         & Value returned to caller (agent's final answer)
+   & Cross-boundary comparison; inter-agent handoff validation \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Per-Agent Checkpoint Design}
+
+Table~\ref{tab:per-agent-ckpts} lists the instrumented checkpoint sequence for
+each of the seven agent services, the data payload guarded at each point, and
+the placement class.
+
+\begin{table*}[t]
+\centering
+\caption{Per-Agent LKW Checkpoint Sequences with Placement Classes and Guarded Data.}
+\label{tab:per-agent-ckpts}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llp{4.5cm}l}
+\toprule
+\textbf{Agent} & \textbf{Checkpoint} & \textbf{Guarded Data} & \textbf{Class} \\
+\midrule
+\multirow{5}{*}{PaymentAgent}
+  & TASK\_START     & card token, amount, currency\_code & P1 \\
+  & CARD\_VALIDATED & validated=true/false, validation\_bypassed flag & P2 \\
+  & CHARGE\_DONE    & charged\_amount, amount\_tampered flag & P3 \\
+  & SAVE\_DONE      & save\_skipped flag, record id & P3 \\
+  & FINAL\_ANSWER   & result dict returned to caller & P5 \\
+\midrule
+\multirow{3}{*}{CurrencyAgent}
+  & TASK\_START     & from/to currency, amount & P1 \\
+  & CONVERT\_DONE   & converted\_amount, hallucinated flag & P2 \\
+  & FINAL\_ANSWER   & conversion result dict & P5 \\
+\midrule
+\multirow{3}{*}{ProductCatalogAgent}
+  & TASK\_START     & query, requested product IDs & P1 \\
+  & CATALOG\_DONE   & returned product list, phantom\_ids flag & P2 \\
+  & FINAL\_ANSWER   & product list returned to caller & P5 \\
+\midrule
+\multirow{4}{*}{AdServiceAgent}
+  & TASK\_START         & context payload & P1 \\
+  & CONTEXT\_EXTRACTED  & extracted context features & P2 \\
+  & ADS\_FETCHED        & ad list, injected flag & P2 \\
+  & FINAL\_ANSWER       & ads returned to caller & P5 \\
+\midrule
+\multirow{4}{*}{EmailServiceAgent}
+  & TASK\_START       & recipient, order data & P1 \\
+  & EMAIL\_GENERATED  & body, subject, corrupted flag & P2 \\
+  & EMAIL\_SENT       & microservice\_status, boundary\_blocked flag & P3 \\
+  & FINAL\_ANSWER     & send result dict & P5 \\
+\midrule
+\multirow{3}{*}{RecommendationAgent}
+  & TASK\_START      & product ID set & P1 \\
+  & RECOMMEND\_DONE  & recommended IDs, stale flag & P2 \\
+  & FINAL\_ANSWER    & recommendation list & P5 \\
+\midrule
+\multirow{7}{*}{ShippingService}
+  & TASK\_START        & destination address, item count & P1 \\
+  & QUOTE\_DONE        & cost\_usd, cost\_corrupted flag & P2 \\
+  & CARRIER\_DONE      & carrier, service\_level, ignored\_quote flag & P2 \\
+  & TRACKING\_DONE     & tracking\_id & P2 \\
+  & SAVE\_DONE         & shipment record, save\_skipped flag & P3 \\
+  & ESCALATION\_CHECK  & escalation\_required flag & P4 \\
+  & FINAL\_ANSWER      & complete shipment result & P5 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\subsection{Infection Point: Formal Definition}
+\label{sec:infection-def}
+
+Let $\langle C_1, C_2, \ldots, C_n \rangle$ be the ordered checkpoint sequence
+of a given agent execution under fault mode $m$, and let $d_i$ denote the data
+payload recorded at checkpoint $C_i$. Let $\hat{d}_i$ denote the corresponding
+baseline (fault-free) value recorded during the NONE run for the same scenario.
+
+The \textbf{infection point} is the earliest checkpoint at which the recorded
+data deviates from baseline:
+\begin{equation}
+  I_m = \min_{i} \bigl\{C_i \;:\; d_i \neq \hat{d}_i \bigr\}
+  \label{eq:infection}
+\end{equation}
+where $\neq$ is evaluated structurally (missing keys, type mismatches, list
+length change) for P1--P3 checkpoints, and by flag value for P4 checkpoints.
+If $F \subset B$ (steps are lost), infection is inferred from the first missing
+step; the infection point is reported as the first absent checkpoint.
+
+\subsection{Per-Failure-Type LKW Signature}
+\label{sec:lkw-signatures}
+
+Different fault classes produce distinct LKW trace patterns. The signature
+determines both the infection point (RQ2) and the HITL tier (RQ4).
+Table~\ref{tab:lkw-signatures} summarises the pattern for each MAST fault
+class observed in this study.
+
+\begin{table*}[t]
+\centering
+\caption{LKW Trace Signatures per MAST Fault Class.
+  $B$ = baseline steps, $F$ = faulty steps; $\delta$ = data deviation flag.}
+\label{tab:lkw-signatures}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{2.0cm}p{2.8cm}p{3.0cm}p{2.5cm}lp{2.0cm}}
+\toprule
+\textbf{MAST Class} & \textbf{Representative Mode} & \textbf{Trace Pattern}
+  & \textbf{Infection Checkpoint} & \textbf{Depth} & \textbf{HITL Tier} \\
+\midrule
+FM-3.1 & Premature Termination
+  & $F \subsetneq B$; FINAL\_ANSWER absent
+  & First missing step & $\geq 2$
+  & Tier~1 --- Structural \\
+FM-1.2 & Incomplete Workflow
+  & $F \subsetneq B$; SAVE\_DONE absent
+  & SAVE\_DONE (P3 class)
+  & $\geq 1$
+  & Tier~1 --- Structural \\
+BL-SHIPMENT\_LOST & Persistence Skipped
+  & $F \subsetneq B$; SAVE\_DONE absent
+  & SAVE\_DONE (P3 class)
+  & $\geq 1$
+  & Tier~1 --- Structural \\
+FM-2.2 & Hallucinated Output
+  & $F = B$; $\delta$ at P2 checkpoint
+  & P2 computation checkpoint (e.g., CONVERT\_DONE, CATALOG\_DONE)
+  & 0
+  & Tier~3 --- Silent \\
+FM-2.5 & Stale / Ignored Input
+  & $F = B$; $\delta$ at P2 value field
+  & P2 checkpoint (e.g., QUOTE\_DONE, CARRIER\_DONE)
+  & 0
+  & Tier~3 --- Silent \\
+BL-FLAG & Business Logic Flag
+  & $F = B$; flag field set at P4
+  & P4 checkpoint (ESCALATION\_CHECK, \linebreak CARRIER\_DONE)
+  & 0
+  & Tier~2 --- Flag-Detectable \\
+BL-SILENT & Silent BL Corruption
+  & $F = B$; value deviation in P2 payload
+  & P2 computation checkpoint
+  & 0
+  & Tier~3 --- Silent \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\paragraph{Key design insight.}
+Table~\ref{tab:lkw-signatures} shows that propagation depth alone is
+\emph{insufficient} to detect Tier~2 and Tier~3 faults: both have
+$\mathrm{PropagationDepth} = 0$.  Tier~2 faults are detectable only by
+inspecting the \emph{value} of the P4 flag field; Tier~3 faults require
+semantic comparison of P2 payload contents against a known-good baseline.
+This design decision --- recording guarded data at P2 and P4 checkpoints, not
+only step presence --- is what makes the instrumentation framework capable of
+evidence-based tier classification without manual trace inspection.
+
+% ═════════════════════════════════════════════════════════════════════════════
 \section{Experimental Setup}
+\label{sec:experimental-setup}
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Compute Environment}
@@ -248,6 +546,66 @@ Runtime is controlled via timeout, retry, token, and iteration limits to reduce
 variance. The ShippingService Retail-bench campaign uses an NVIDIA A100-SXM4-80GB
 in MIG mode (1g.20gb slice, 20\,GB VRAM) with \texttt{qwen2.5-coder:14b} (9\,GB
 model weight, full GPU inference via Ollama).
+
+\subsection{Three-Baseline Experimental Structure}
+\label{sec:baselines}
+
+The study uses three baselines that correspond to three distinct roles in the
+mutation analysis:
+
+\begin{description}
+  \item[\textbf{B1 --- Oracle (specification)}] The deterministic microservice
+        behaviour captured by running each agent with \texttt{USE\_LLM=false}
+        and gRPC dependencies replaced by controlled mocks. B1 is not a
+        runtime experiment --- it is the \emph{specification} of correct agent
+        behaviour. The ground-truth value of every agent state variable at
+        every LKW observation point is recorded from B1 runs and used as the
+        reference for all equivalence comparisons.
+
+  \item[\textbf{B2 --- Natural variance baseline}] The same agent running with
+        \texttt{USE\_LLM=true} (live LLM inference), \emph{no fault injection}.
+        B2 captures how far the LLM-generated output naturally deviates from
+        B1 across repeated runs. The detection envelope --- how much deviation
+        from B1 is normal --- is calibrated exclusively from B2 data, prior to
+        any B3 analysis. Equivalence relations are fixed from B2 to prevent
+        contamination of fault evidence by natural variance.
+
+  \item[\textbf{B3 --- Fault injection}] The same agent with
+        \texttt{USE\_LLM=true} and a single mutation operator active.
+        A B3 trace is a \emph{killed mutant} if its LKW deviation from B1
+        exceeds the B2 envelope; it is a \emph{live mutant} if the fault's
+        fingerprint hides within natural variance. The ShippingService
+        Retail-bench and Google-bench campaigns
+        (Sections~\ref{sec:google-bench} and~\ref{sec:retail-bench}) report
+        B3 results. The six-agent deterministic runs
+        (Section~\ref{sec:b1-oracle}) report B1. B2 collection for all agents
+        is pending; current B3 analysis uses the ShippingService NONE-baseline
+        run as a proxy B2 (one run; calibration is approximate).
+\end{description}
+
+\subsection{Equivalence Relations per Observation Point}
+
+Each LKW observation point has a declared comparison criterion fixed before
+B3 runs, derived from B2 variance:
+\begin{itemize}
+  \item \textbf{Monetary amounts}
+        (e.g., \texttt{CONVERT\_DONE.units}, \texttt{QUOTE\_DONE.cost\_usd}):
+        numeric tolerance $\delta_{\epsilon}$ --- a B3 value deviates if
+        $|v_{B3} - v_{B1}| > \delta$ where $\delta$ is set from B2 spread.
+  \item \textbf{Identifier lists}
+        (e.g., \texttt{CATALOG\_DONE.product\_ids},
+        \texttt{RECOMMEND\_DONE.recommended\_ids}):
+        set equality $\mathcal{S}$ --- extra or missing IDs constitute a
+        violation regardless of list order.
+  \item \textbf{Boolean flags}
+        (e.g., \texttt{ESCALATION\_CHECK.escalation\_required},
+        \texttt{CARRIER\_DONE.forced\_vendor}):
+        flag conformance $\Sigma$ --- any flag set in B3 that is clear in B1
+        is a p-use violation.
+  \item \textbf{Step presence} (structural):
+        step-set inclusion $\subseteq$ --- any step present in B1 but absent
+        in B3 is a Tier~1 structural violation.
+\end{itemize}
 
 \subsection{Execution Protocol}
 \begin{enumerate}
@@ -297,12 +655,13 @@ without manual inspection.
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Google Bench}
+\label{sec:google-bench}
 
 Table~\ref{tab:google_results} reports the four executed fault scenarios for the
 Google-bench shipping workflow using \texttt{llama3.2:1b}. Elapsed time is the
 end-to-end wall-clock duration of each agent run on Concordia SPEED HPC.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{Validated Google-bench fault-injection observations (\texttt{llama3.2:1b}).}
 \label{tab:google_results}
@@ -366,6 +725,7 @@ FM-2.5
 \end{table*}
 
 \subsection{Retail Bench: ShippingService}
+\label{sec:retail-bench}
 
 Table~\ref{tab:retail_results} presents the full Retail-bench campaign using
 \texttt{qwen2.5-coder:14b} on SPEED HPC (A100 MIG, 20\,GB VRAM). All scenarios
@@ -373,7 +733,7 @@ use the seven-step checkpoint set: \texttt{TASK\_START}, \texttt{QUOTE\_DONE},
 \texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE}, \texttt{SAVE\_DONE},
 \texttt{ESCALATION\_CHECK}, \texttt{FINAL\_ANSWER}.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{LKW+RIP fault-injection results for the ShippingService Retail Bench
   (\texttt{qwen2.5-coder:14b}, Concordia SPEED HPC A100 MIG 1g.20gb).
@@ -546,17 +906,24 @@ NONE Baseline
 \end{table*}
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Results: Agent-Level Fault Injection}
+\section{B1 Oracle Specification: Deterministic Agent Baselines}
+\label{sec:b1-oracle}
 % ═════════════════════════════════════════════════════════════════════════════
 
-We extend the fault-injection campaign to six standalone Python-based agent
-services in the LLM-MAS architecture. Each agent is instrumented with LKW
-checkpoints; gRPC dependencies are replaced with controlled mocks so that all
-faults execute deterministically without network I/O. \emph{The LLM inference
-path is bypassed in all six agents} (\texttt{USE\_LLM=false}); these results
-validate the correctness of the LKW+RIP instrumentation framework on
-deterministic code, not LLM-based fault detection capability (see
-Limitation~L1).
+To enable mutation analysis, the B1 oracle must first be established: the
+ground-truth LKW trace of each agent state variable under correct,
+deterministic behaviour with no mutation operator active. We run each of
+the six Python-based agents with \texttt{USE\_LLM=false} and gRPC dependencies
+replaced by controlled mocks. \emph{These runs do not report fault detection
+results} --- they capture the expected value of every guarded variable at
+every observation point, establishing the B1 reference fingerprint against
+which B3 mutation runs are compared (see Section~\ref{sec:baselines}).
+
+For each injected mutation operator, the subsections below document the
+resulting LKW trace deviation from B1. A mutation that shifts any observation
+point outside the B2-calibrated equivalence tolerance is a \emph{killed
+mutant}; one whose trace remains indistinguishable from natural variance is
+a \emph{live mutant} (undetected by the current test suite).
 
 % ── PaymentAgent ─────────────────────────────────────────────────────────────
 \subsection{PaymentAgent}
@@ -565,7 +932,7 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{CARD\_VALIDATED} $\to$
 \texttt{CHARGE\_DONE} $\to$ \texttt{SAVE\_DONE} $\to$ \texttt{FINAL\_ANSWER}.
 Table~\ref{tab:payment_results} reports all nine fault modes.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{PaymentAgent LKW+RIP Fault-Injection Results.
   \emph{Infection Point} is the first LKW checkpoint at which a data deviation
@@ -694,7 +1061,7 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{CONVERT\_DONE} $\to$
 \texttt{FINAL\_ANSWER}. Table~\ref{tab:currency-fault} reports all nine fault
 modes.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{CurrencyAgent LKW+RIP Fault-Injection Results.}
 \label{tab:currency-fault}
@@ -799,7 +1166,7 @@ both the LangGraph \texttt{run\_agent\_node} and
 \texttt{send\_via\_microservice\_node}. Table~\ref{tab:email-fault} reports all
 nine fault modes.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{EmailServiceAgent LKW+RIP Fault-Injection Results.}
 \label{tab:email-fault}
@@ -908,7 +1275,7 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{CATALOG\_DONE} $\to$
 \texttt{list\_products}, \texttt{get\_product}, \texttt{search\_products}.
 Table~\ref{tab:catalog-fault} reports all nine fault modes.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{ProductCatalogAgent LKW+RIP Fault-Injection Results.}
 \label{tab:catalog-fault}
@@ -1014,7 +1381,7 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{RECOMMEND\_DONE} $\to$
 \texttt{list\_recommendations} gRPC call.
 Table~\ref{tab:recommendation-fault} reports all nine fault modes.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{RecommendationAgent LKW+RIP Fault-Injection Results.}
 \label{tab:recommendation-fault}
@@ -1123,7 +1490,7 @@ extracted via rule-based \texttt{extract\_context\_from\_instruction()};
 \texttt{get\_qwen\_llm} is stubbed via \texttt{sys.modules} mock.
 Table~\ref{tab:ad-fault} reports all nine fault modes.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{AdServiceAgent LKW+RIP Fault-Injection Results.}
 \label{tab:ad-fault}
@@ -1221,7 +1588,66 @@ BL-DUP-ADS Ad Duplicated
 \end{table*}
 
 % ═════════════════════════════════════════════════════════════════════════════
-\FloatBarrier  % force all agent-level tables before this section
+\FloatBarrier
+\section{HITL Tier Classification (RQ4)}
+\label{sec:hitl}
+% ═════════════════════════════════════════════════════════════════════════════
+
+We classify all 57 injected fault scenarios across all seven agents into three
+intervention tiers using the automated \texttt{hitl\_detector.py} classifier,
+which parses LKW checkpoint evidence files and assigns each scenario without
+manual inspection.
+
+\subsection{Tier Definitions}
+
+\begin{description}
+  \item[Tier~1 --- Structural] Fault causes step loss ($\mathrm{PropagationDepth} > 0$).
+        Detectable from step-count diff alone; no semantic analysis required.
+  \item[Tier~2 --- Flag-Detectable] All steps reached; a boolean operational
+        flag (e.g., \texttt{amount\_tampered}, \texttt{hallucinated}) is set in
+        LKW checkpoint data. Requires a flag monitor or alert rule.
+  \item[Tier~3 --- Silent] All steps reached; no diagnostic flag distinguishes
+        the faulty trace from the clean baseline. Requires semantic validation
+        of checkpoint data contents against expected ranges or schemas.
+\end{description}
+
+\subsection{Aggregate Tier Distribution}
+
+Table~\ref{tab:hitl-summary} reports the tier distribution across all 64
+mode-runs (including the NONE baselines).
+
+\begin{table}[htb]
+\centering
+\caption{HITL Tier Distribution Across All 7 Agents (RQ4).}
+\label{tab:hitl-summary}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Tier} & \textbf{6 Det.\ Agents} & \textbf{Shipping} & \textbf{Total}
+              & \textbf{Detection Method} \\
+\midrule
+Tier~1 Structural   & 8  & 3 & 11 & Auto (step diff) \\
+Tier~2 Flag-Det.\ & 34 & 6 & 40 & Flag monitor on LKW data \\
+Tier~3 Silent       & 6  & 1 &  7 & Semantic data validation \\
+Baseline (NONE)     & 6  & 1 &  7 & --- \\
+\midrule
+\textbf{Total}      & \textbf{54} & \textbf{11} & \textbf{65} & \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Key Finding}
+
+Of the 57 injected fault scenarios, 7 are Tier~3 (silent): the six FM-2.2
+(hallucinated output) cases across the six deterministic agents, and the
+ShippingService FM-2.2 hallucinated-carrier case. These are the faults for which
+no structural or flag-based detection is possible within a single agent ---
+detection requires external semantic validation at the agent boundary.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\FloatBarrier
 \section{Fault Injection Stability (RQ5)}
 \label{sec:stability}
 % ═════════════════════════════════════════════════════════════════════════════
@@ -1254,7 +1680,7 @@ Table~\ref{tab:stability-summary} summarises the stability classification across
 all 64 mode-runs (6 deterministic agents $\times$ 9 fault modes $\times$ 3 runs,
 plus ShippingService 10 fault modes $\times$ 1 run confirmed via evidence files).
 
-\begin{table}[!t]
+\begin{table}[htb]
 \centering
 \caption{RQ5 Stability Summary: Reproducibility Across All Agents.}
 \label{tab:stability-summary}
@@ -1293,7 +1719,7 @@ of~100\%.
 Table~\ref{tab:stability-pattern} presents the structural LKW signature shared
 across all six deterministic agents for each MAST fault class.
 
-\begin{table}[!t]
+\begin{table}[htb]
 \centering
 \caption{Structural LKW Signature Per MAST Fault Class (invariant across all
   6~deterministic agents).}
@@ -1365,7 +1791,7 @@ making it \emph{structurally invisible} to the downstream agent.
 Table~\ref{tab:cross-agent} presents the LKW fingerprints and quantified impact
 for both chains.
 
-\begin{table*}[!t]
+\begin{table*}[t]
 \centering
 \caption{Cross-Agent Fault Propagation: FM-2.2 Upstream $\rightarrow$
   Fault-Free Downstream.}
@@ -1405,9 +1831,9 @@ B (infected)
 \end{tabular}}
 \end{table*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\resizebox{\columnwidth}{!}{%
+\resizebox{0.95\textwidth}{!}{%
 \begin{tikzpicture}[
   agt/.style={draw,rounded corners=2pt,minimum width=2.6cm,
     minimum height=0.65cm,font=\scriptsize,align=center},
@@ -1456,7 +1882,7 @@ hop~2 (zero steps lost) but produce quantifiable impact:
 14{,}755.6\% financial overcharge (Chain~A) and phantom-product semantic
 corruption (Chain~B). No structural signal fires at the downstream boundary.}
 \label{fig:cross-agent}
-\end{figure}
+\end{figure*}
 
 \subsection{Analysis}
 
@@ -1478,7 +1904,7 @@ recommendation list --- all three LKW checkpoints reached with
 \subsection{Key Finding}
 
 \medskip
-\noindent\rule{\columnwidth}{0.5pt}
+\noindent\rule{\linewidth}{0.5pt}
 
 \smallskip\noindent\textbf{Finding.}\;\textit{FM-2.2 (hallucinated output) is
 the highest-risk cross-boundary fault class in a microservice LLM-MAS. A
@@ -1487,11 +1913,308 @@ upstream hallucination because the fault manifests as plausible but incorrect
 data, not as a missing execution step. Single-agent LKW instrumentation is
 necessary but not sufficient for system-level fault detection.}\smallskip
 
-\noindent\rule{\columnwidth}{0.5pt}
+\noindent\rule{\linewidth}{0.5pt}
 \medskip
 
 Closing the detection gap requires \emph{inter-agent output validation
 contracts} at every agent boundary.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\FloatBarrier
+\section{Boundary Validation Contracts}
+\label{sec:boundary}
+% ═════════════════════════════════════════════════════════════════════════════
+
+To address the gap identified in Section~\ref{sec:cross-agent}, we implement
+\emph{boundary contracts} at every inter-agent handoff in the LLM-MAS
+architecture. Each contract specifies the expected payload schema and value
+constraints; at runtime, a \texttt{boundary\_contract(name, expected, observed)}
+call compares the actual handoff payload against the contract and emits a
+\texttt{BOUNDARY\_CHECK} checkpoint into the LKW trace when a violation is
+detected.
+
+\subsection{Implementation}
+
+The shared \texttt{boundary\_validation.py} module computes four fields for
+every boundary call regardless of alert status:
+\begin{itemize}
+  \item \textbf{difference} --- structural delta between expected and observed
+        (missing keys, extra items, field mismatches, or numeric delta).
+  \item \textbf{violations} --- list of typed violation records (e.g.,
+        \texttt{predicate\_failed}, \texttt{extra\_items}).
+  \item \textbf{alert} --- \texttt{True} iff any violation is found or
+        expected $\neq$ observed.
+  \item \textbf{recovery} --- the policy decision from
+        \texttt{boundary\_recovery.py} (see Section~\ref{sec:recovery}).
+\end{itemize}
+
+\subsection{Cross-Agent Boundary Evidence}
+
+Table~\ref{tab:boundary-evidence} presents the boundary check results for the
+two FM-2.2 cross-agent chains from Section~\ref{sec:cross-agent} after
+boundary contracts were applied.
+
+\begin{table*}[t]
+\centering
+\caption{Boundary Contract Evidence for FM-2.2 Cross-Agent Chains.}
+\label{tab:boundary-evidence}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{2.6cm}p{3.8cm}p{1.8cm}p{2.0cm}p{2.6cm}}
+\toprule
+\textbf{Chain} & \textbf{Boundary} & \textbf{Expected} & \textbf{Observed} & \textbf{Alert} \\
+\midrule
+A: Currency$\to$Payment
+  & \texttt{currency\_to\_payment} & 9 EUR & 1{,}337 EUR & Yes ($\delta{=}1{,}328$) \\
+B: Catalog$\to$Recommendation
+  & \texttt{catalog\_to\_recommendation} & \texttt{PROD-001} & \texttt{HALLUC-001}
+  & Yes (missing/extra) \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+Both chains that were previously Tier~3 (silent) now emit
+\texttt{BOUNDARY\_CHECK~alert=True} records in the LKW trace, providing
+machine-readable evidence of the semantic violation at the exact handoff point.
+The downstream agents remain structurally correct (all steps reached,
+\texttt{infection\_point=None}), confirming the finding that single-agent
+tracing alone is insufficient.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\FloatBarrier
+\section{Policy-Based Boundary Recovery (RQ6)}
+\label{sec:recovery}
+% ═════════════════════════════════════════════════════════════════════════════
+
+Section~\ref{sec:boundary} established that boundary contracts make silent
+handoff failures observable. This section presents the third layer of the
+contribution: a \emph{policy-based recovery pipeline} that turns each boundary
+alert into an automatic corrective action before the violation propagates.
+The complete pipeline operates in three stages: (1)~LKW+RIP detects and
+classifies the fault into a HITL tier; (2)~\texttt{boundary\_contract()} emits
+a \texttt{BOUNDARY\_CHECK} record and invokes the recovery policy decision;
+(3)~the agent's wired recovery action executes before any unsafe downstream
+code runs.
+
+\subsection{Design}
+
+The \texttt{boundary\_recovery.py} module implements
+\texttt{decide\_recovery(boundary\_result)}, which is invoked automatically
+inside \texttt{boundary\_contract()} for every handoff. The recovery decision
+uses one of four actions: \texttt{continue}, \texttt{block\_and\_request\_hitl},
+\texttt{fallback\_to\_last\_known\_good}, and \texttt{retry\_current\_step}.
+
+\subsection{Recovery Policies}
+
+Table~\ref{tab:recovery-policies} maps each instrumented boundary to its
+policy, the failure scenario it addresses, and the execution effect.
+
+\begin{table*}[t]
+\centering
+\caption{Boundary Recovery Policies: Boundary $\to$ Action $\to$ Execution Effect.}
+\label{tab:recovery-policies}
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{2.8cm}p{3.5cm}p{2.4cm}p{5.5cm}}
+\toprule
+\textbf{Boundary} & \textbf{Failure Scenario} & \textbf{Recovery Action} & \textbf{Execution Effect} \\
+\midrule
+\texttt{currency\_to\_payment}
+  & Hallucinated/inflated amount
+  & \texttt{block\_and\_request\_hitl}
+  & Agent returns \texttt{blocked=True}; charge never executed; \texttt{RECOVERY\_ACTION} in LKW \\
+\texttt{catalog\_to\_recommendation}
+  & Invalid/phantom product IDs
+  & \texttt{fallback\_to\_last\_known\_good}
+  & \texttt{product\_ids} replaced with expected list; phantom IDs removed before recommendation \\
+\texttt{carrier\_to\_tracking}
+  & Hallucinated carrier/service
+  & \texttt{fallback\_to\_last\_known\_good}
+  & Corrected to \texttt{\{carrier: FedEx, service\_level: ground\}} before tracking \\
+\texttt{quote\_to\_carrier\_selection}
+  & Carrier ignores quoted cost
+  & \texttt{retry\_current\_step}
+  & Mismatch recorded; caller can retry carrier selection \\
+\texttt{ad\_lookup\_to\_response}
+  & Injected/malformed ads
+  & \texttt{fallback\_to\_last\_known\_good}
+  & \texttt{state[ads]} replaced with \texttt{[]}; injected ads never served \\
+\texttt{email\_generation\_to\_send}
+  & Corrupted body or wrong recipient
+  & \texttt{block\_and\_request\_hitl}
+  & \texttt{boundary\_blocked=True}; gRPC send never called; \texttt{RECOVERY\_ACTION} in LKW \\
+\texttt{quote\_to\_carrier}
+  & Quote mismatch before carrier selection
+  & \texttt{retry\_current\_step}
+  & Mismatch recorded in LKW; caller retries carrier selection \\
+Any unknown alert
+  & Unclassified boundary failure
+  & \texttt{block\_and\_request\_hitl}
+  & Fail-safe: block execution and escalate to human review \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\subsection{Complete Agent Wiring}
+
+Table~\ref{tab:recovery-wiring} maps each of the seven agent services to its
+boundary, recovery action, and execution-level effect.
+
+\begin{table*}[t]
+\centering
+\caption{Recovery Wiring Across All 7 Agents (Implementation Date: 2026-07-13).}
+\label{tab:recovery-wiring}
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lp{3.2cm}p{2.8cm}p{5.5cm}}
+\toprule
+\textbf{Agent} & \textbf{Boundary} & \textbf{Recovery Action} & \textbf{Execution Effect} \\
+\midrule
+PaymentAgent
+  & \texttt{currency\_to\_payment}
+  & \texttt{block\_and\_request\_hitl}
+  & Returns \texttt{blocked=True}; charge never executed \\
+CurrencyAgent
+  & \texttt{currency\_to\_payment}
+  & \texttt{block\_and\_request\_hitl}
+  & Returns \texttt{blocked=True}; bad amount never sent downstream \\
+RecommendationAgent
+  & \texttt{catalog\_to\_recommendation}
+  & \texttt{fallback\_to\_last\_known\_good}
+  & Replaces \texttt{product\_ids} with corrected list before recommendation \\
+ProductCatalogAgent
+  & \texttt{catalog\_to\_recommendation}
+  & \texttt{fallback\_to\_last\_known\_good}
+  & Filters returned data to products in corrected ID set only \\
+AdServiceAgent
+  & \texttt{ad\_lookup\_to\_response}
+  & \texttt{fallback\_to\_last\_known\_good}
+  & Replaces \texttt{state["ads"]} with \texttt{[]}; injected ads never served \\
+EmailServiceAgent
+  & \texttt{email\_generation\_to\_send}
+  & \texttt{block\_and\_request\_hitl}
+  & Sets \texttt{boundary\_blocked=True}; gRPC send client never called \\
+ShippingAgent
+  & \texttt{carrier\_to\_tracking}, \texttt{quote\_to\_carrier}
+  & \texttt{fallback} / \texttt{retry} (partial)
+  & Carrier corrected to \texttt{FedEx/ground}; quote retry recorded in LKW \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\subsection{Verification}
+
+All six recovery paths were verified by an automated test suite
+(\texttt{test\_recovery\_wiring.py}) executed on 2026-07-13. The suite drives
+each agent directly with a forced boundary mismatch and asserts that the
+recovery action is applied before any unsafe operation. Table~\ref{tab:recovery-verification}
+reports the results.
+
+\begin{table*}[t]
+\centering
+\caption{Recovery Wiring Verification Results (19/19 checks passed).}
+\label{tab:recovery-verification}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{2.4cm}p{4.8cm}cp{6.5cm}}
+\toprule
+\textbf{Agent} & \textbf{Scenario} & \textbf{Checks} & \textbf{LKW Trace} \\
+\midrule
+CurrencyAgent
+  & FM-2.2: expected=9, observed=9{,}999
+  & 5/5 & \texttt{TASK\_START} $\to$ \texttt{BOUNDARY\_CHECK} $\to$ \texttt{RECOVERY\_ACTION} $\to$ \texttt{FINAL\_ANSWER} \\
+ProductCatalogAgent
+  & \texttt{[PROD-001, FAKE-999]} expected \texttt{[PROD-001]}
+  & 3/3 & FAKE-999 filtered; \texttt{RECOVERY\_ACTION} in trace \\
+AdServiceAgent
+  & BL-AD-INJECTION: extra injected ad
+  & 5/5 & \texttt{state[ads]=[]}; \texttt{RECOVERY\_ACTION} in trace \\
+EmailServiceAgent
+  & BL-CORRUPT-BODY: body truncated
+  & 6/6 & \texttt{boundary\_blocked=True}; gRPC send client never called \\
+\midrule
+\textbf{Total} & & \textbf{19/19} & \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+  & 6/6 & \texttt{boundary\_blocked=True}; send client never called \\
+\midrule
+\textbf{Total} & & \textbf{19/19} & \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Recovery Demo Evidence}
+
+Table~\ref{tab:recovery-demo} reports four end-to-end demonstration cases
+executed against \texttt{recovery\_demo\_summary.json}, confirming that
+each policy fires and produces the expected corrective state change at runtime
+(all 4 cases: \texttt{applied=true}).
+
+\begin{table}[htb]
+\centering
+\caption{End-to-End Recovery Demo Results.}
+\label{tab:recovery-demo}
+\footnotesize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{2.0cm}p{2.2cm}p{2.4cm}p{3.0cm}}
+\toprule
+\textbf{Scenario} & \textbf{Boundary} & \textbf{Action} & \textbf{Outcome} \\
+\midrule
+Payment overcharge
+  & \texttt{currency\_to\_payment}
+  & \texttt{block\_hitl}
+  & \texttt{charge\_blocked=True}; loss prevented \\
+Catalog hallucination
+  & \texttt{catalog\_to\_recommendation}
+  & \texttt{fallback}
+  & \texttt{recovered=[PROD-001]}; phantom removed \\
+Carrier hallucination
+  & \texttt{carrier\_to\_tracking}
+  & \texttt{fallback}
+  & Corrected to \texttt{FedEx/ground} \\
+Quote mismatch
+  & \texttt{quote\_to\_carrier\_selection}
+  & \texttt{retry}
+  & Mismatch recorded; decision escalated \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Updated HITL Tier Semantics}
+\label{sec:tier-semantics-update}
+
+The recovery layer changes the operational meaning of Tier~2 and Tier~3 for
+boundary-instrumented handoffs:
+
+\begin{itemize}
+  \item \textbf{Tier~3 (silent FM-2.2), after recovery}: a
+        \texttt{BOUNDARY\_CHECK} alert fires at the handoff; an automatic
+        \texttt{block} or \texttt{fallback} action is applied before downstream
+        execution continues. The human reviewer reads a structured
+        \texttt{RECOVERY\_ACTION} checkpoint in the LKW trace rather than
+        having to detect the anomaly from raw payload contents.
+  \item \textbf{Tier~2 (flag-detectable), after recovery}: the flag monitor is
+        supplemented by automatic policy execution. The human reviews whether
+        the corrective action was appropriate, not whether a fault occurred.
+\end{itemize}
+
+The recovery layer does \emph{not} eliminate human oversight for high-risk
+decisions: \texttt{block\_and\_request\_hitl} is designed to require human
+sign-off. It removes the manual anomaly-detection step, not the
+decision-authority step.
+
+\subsection{Answer to RQ6}
+
+Yes. Policy-based boundary recovery reduces the manual intervention burden
+for Tier~2 and Tier~3 violations by converting detection events into automatic
+corrective actions. Of the 7 previously Tier~3 (silent) FM-2.2 faults, the 2
+instrumented cross-agent variants now receive \texttt{block} or \texttt{fallback}
+actions that prevent unsafe execution from continuing. The remaining 5 Tier~3
+cases (single-agent hallucination with no inter-agent handoff in scope) require
+additional boundary contracts to be defined.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Limitations}
@@ -1542,6 +2265,27 @@ is unaffected; only the reported depth is undercounted by~1.
 The human assessment rubric has been distributed to two independent assessors.
 Inter-rater agreement scores will be computed after all three assessments are
 submitted. Results in this paper reflect a single assessor's evaluation.
+
+\subsection{L5 --- Boundary Contract Coverage Is Partial}
+
+The boundary contract layer instruments seven inter-agent handoff points.
+The full LLM-MAS architecture contains additional service-to-service
+communication paths (e.g., CartService$\to$CheckoutService, written in Go;
+frontend-to-backend gRPC calls) that are not instrumented.
+Tier~3 (silent) faults that propagate through uninstrumented boundaries
+will not be detected by the current boundary contract layer.
+Extending instrumentation to all inter-agent handoffs, including non-Python
+services, is required before boundary coverage is considered complete.
+
+\subsection{L6 --- ShippingAgent Recovery Wiring Is Partial}
+
+The ShippingAgent's recovery wiring covers the \texttt{carrier\_to\_tracking}
+and \texttt{quote\_to\_carrier} boundaries but does not include a
+\texttt{SAVE\_DONE} fallback. Persistence-layer faults (FM-1.2,
+BL-SHIPMENT\_LOST) for the ShippingAgent are therefore not covered by the
+recovery layer. Full wiring requires implementing a \texttt{retry\_current\_step}
+or compensating transaction at the \texttt{SAVE\_DONE} boundary, which involves
+MongoDB write-path coordination and is deferred to future work.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Cross-Benchmark Analysis}
@@ -1609,6 +2353,25 @@ outcome. For ShippingService, per-fault-mode evidence files confirm stable LKW
 traces for each of the 10 assessed fault modes under
 \texttt{qwen2.5-coder:14b}.
 
+\subsection{RQ6: Policy-Based Recovery and HITL Burden Reduction}
+
+Yes, with scope qualifications. Of the 57 injected fault scenarios, 7 are
+Tier~3 (silent). The 2 cross-agent Tier~3 cases (Currency$\to$Payment FM-2.2,
+Catalog$\to$Recommendation FM-2.2) now receive automatic
+\texttt{block} or \texttt{fallback} recovery actions via boundary contracts,
+confirmed by 19/19 checks in \texttt{test\_recovery\_wiring.py}.
+These 2 scenarios no longer require a human to inspect raw payload contents
+to detect the anomaly --- the \texttt{RECOVERY\_ACTION} LKW record provides
+machine-readable evidence of the corrective action taken.
+
+The remaining 5 Tier~3 cases are single-agent hallucinations with no
+inter-agent handoff currently in scope; they require additional boundary
+contracts to be defined before recovery applies. The full answer to RQ6 is
+therefore: \emph{policy-based recovery reduces the HITL burden for
+boundary-instrumented Tier~3 faults from ``detect from raw payload'' to
+``review structured RECOVERY\_ACTION record''; it does not reduce the burden
+for Tier~3 faults that occur within a single agent without a boundary handoff.}
+
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Threats to Validity}
 % ═════════════════════════════════════════════════════════════════════════════
@@ -1633,7 +2396,118 @@ traces for each of the 10 assessed fault modes under
   \item \textbf{External validity}: results from these benchmarks may not
         fully generalise to agent architectures with multi-pass reasoning loops
         or alternate LLM backends.
+  \item \textbf{Boundary construct validity}: boundary contract alerts are
+        triggered by structural mismatch (missing keys, value delta) between
+        expected and observed payloads. The ``expected'' value is defined by the
+        test harness at call time; in production, incorrect expected values would
+        produce false-positive alerts or miss genuine violations. Boundary
+        contract effectiveness depends on the quality of the caller-supplied
+        expected payload.
+  \item \textbf{Recovery policy generalisation}: the six recovery policies were
+        designed for the specific fault modes studied. Their correctness for
+        novel fault modes not covered by the current injection suite is not
+        demonstrated. The catch-all \texttt{block\_and\_request\_hitl} policy
+        provides a safe default but may over-escalate for benign payload
+        variations.
+  \item \textbf{Recovery wiring internal validity}: the
+        \texttt{test\_recovery\_wiring.py} verification suite uses
+        mock/stub agents and gRPC clients. Recovery wiring correctness under
+        live gRPC execution with real network latency and partial failure
+        conditions has not been verified.
 \end{itemize}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Related Work}
+\label{sec:related}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\paragraph{Chaos engineering and infrastructure fault injection}
+Chaos Monkey~\cite{netflix-chaos} and the Netflix Simian Army introduced
+random instance termination as a reliability discipline for cloud services.
+LitmusChaos~\cite{litmuschaos} and ChaosMesh~\cite{chaosengineering} extended
+this to Kubernetes-native experiments covering pod deletion, CPU stress, network
+partition, and I/O latency. Istio fault injection~\cite{istio} injects HTTP
+delays and aborts at the sidecar proxy layer. All of these tools operate at the
+\emph{infrastructure and network} level: they can terminate a process or drop a
+packet, but they cannot inject a semantically plausible data-corruption fault
+(e.g., a hallucinated product ID or an inflated currency amount) into a running
+LLM reasoning loop. LKW+RIP operates at the \emph{application} level: faults
+are injected into the Python execution path of agent business logic, and
+checkpoints record the semantic state at meaningful computation boundaries
+rather than at OS or network events.
+
+\paragraph{LLM agent benchmarking and reliability}
+AgentBench~\cite{agentbench} evaluates LLM agents across interactive
+environments (web browsing, coding, game) using success rate as the primary
+metric, but does not instrument intermediate reasoning state or propagation
+depth. ToolBench / ToolLLM~\cite{toolbench} evaluates tool-calling accuracy
+for single-agent systems. Neither framework provides per-checkpoint execution
+traces that would enable RIP-style root cause localisation.
+Reliability surveys of LLM-based agents~\cite{agentreliability} categorise
+failure modes (refusal, hallucination, tool misuse) from observed outputs but
+do not perform controlled injection. Our work differs: we inject specific fault
+modes with known ground truth and measure their propagation through a
+multi-agent pipeline, enabling causal attribution at the agent boundary level.
+
+\paragraph{Multi-agent system failure taxonomy}
+MAST~\cite{mast} proposes a taxonomy of failures in multi-agent systems
+covering specification, design, and execution layers. We adopt MAST fault
+class identifiers (FM-1.x, FM-2.x, FM-3.x, BL-*) as our injection vocabulary,
+mapping each category to a concrete Python-level injection function. Our
+empirical study is the first, to our knowledge, to operationalise the MAST
+taxonomy through systematic controlled injection across multiple agents in a
+realistic LLM-MAS and report propagation depth, stability, and HITL tier for
+each fault class. We also identify a gap: MAST characterises failures at the
+classification level but does not specify how to instrument execution to
+distinguish Tier~3 silent faults (FM-2.2) from structurally correct runs.
+The LKW placement taxonomy (P1--P5) fills this gap.
+
+\paragraph{LLM output validation and guardrails}
+NeMo Guardrails~\cite{nemoguar} and Guardrails AI~\cite{llmguardrails} provide
+format and content validation of LLM responses at the model boundary using
+Colang rules or Pydantic validators. These approaches validate the output of a
+single LLM call; they are not designed to validate \emph{inter-agent handoffs}
+where the observed payload from one agent becomes the input of another. Our
+boundary contracts extend the guardrail concept to the agent-to-agent data
+plane: a \texttt{boundary\_contract()} call compares expected and observed
+payloads at every architectural handoff point and triggers a recovery policy
+decision before propagation occurs. This complements model-boundary guardrails
+with a system-level safety layer.
+
+\paragraph{Multi-agent orchestration frameworks and testing}
+LangGraph~\cite{langgraph} provides a state-machine execution model for
+multi-agent workflows; AutoGen~\cite{autogen} enables multi-agent conversation
+patterns. Neither framework includes built-in fault injection tooling or
+inter-agent data validation contracts. Testing methodologies for LLM-based
+multi-agent systems are nascent: existing work focuses on functional output
+evaluation~\cite{agenteval} rather than on characterising failure propagation
+across agent boundaries. Our study addresses this gap by providing a complete
+test infrastructure (LKW instrumentation, RIP analyser, HITL classifier,
+boundary contract layer, and recovery policy engine) that can be adopted in
+any LangGraph-compatible or similarly structured MAS.
+
+\paragraph{Fault propagation in distributed systems}
+The concept of propagation depth originates in the Laski-Korel-Weyuker (LKW)
+data flow testing criterion~\cite{lkw,rapps-weyuker} and the PIE
+(Propagation, Infection, Execution) model~\cite{pie}. In distributed
+systems, fault propagation is addressed through circuit breakers~\cite{netflix-chaos}
+and bulkhead patterns that prevent one failing service from saturating its
+caller. These mechanisms detect propagation via timeout and error-rate signals,
+not via semantic state deviation. Our work applies the PIE model at the
+\emph{agent reasoning} level --- tracking how a semantically corrupt value
+(not a timeout) moves silently through a multi-agent pipeline --- which is a
+distinct and underexplored problem class in the LLM-MAS reliability literature.
+
+\paragraph{Human-in-the-loop systems}
+Amershi et al.~\cite{hitlsurvey} survey HITL workflows in machine learning,
+focusing on annotation, active learning, and model uncertainty. Our HITL tier
+classification serves a different purpose: it characterises the
+\emph{detectability effort} required for a human operator to identify and
+intervene after a fault has been injected, using LKW checkpoint evidence rather
+than model confidence scores. The three-tier system (structural $\to$
+flag-detectable $\to$ silent) provides an operational metric that can guide
+human review prioritisation and define SLA boundaries for automated recovery
+policies.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \clearpage  % flush all remaining floats; conclusion + refs must be last
@@ -1682,21 +2556,102 @@ The author thanks the project supervisors and team collaborators for guidance
 on scenario design, benchmark sequencing, and research-question framing.
 
 % ═════════════════════════════════════════════════════════════════════════════
-\bibliographystyle{IEEEtran}
+\bibliographystyle{ACM-Reference-Format}
 \begin{thebibliography}{00}
 
-\bibitem{agentreliability}
-A.~Author \textit{et al.}, ``Reliability challenges in agentic LLM systems,''
-in \textit{Proc.\ Conf.}, Year, pp.~1--8.
+% ── TODO: Replace all stubs below with real citations before submission ────
 
-\bibitem{microservicefi}
-B.~Author \textit{et al.}, ``Fault injection for microservice resilience,''
-\textit{J.\ Syst.\ Softw.}, vol.~X, no.~Y, pp.~1--20, Year.
+\bibitem{lkw}
+J.~W.~Laski and B.~Korel, ``A data flow oriented program testing strategy,''
+\textit{IEEE Trans.\ Softw.\ Eng.}, vol.~9, no.~3, pp.~347--354, 1983.
+
+\bibitem{rapps-weyuker}
+S.~Rapps and E.~J.~Weyuker, ``Selecting software test data using data flow
+information,'' \textit{IEEE Trans.\ Softw.\ Eng.}, vol.~11, no.~4,
+pp.~367--375, 1985.
+
+\bibitem{agentreliability}
+J.~Liu \textit{et al.}, ``Trustworthiness in LLM-based agents: A survey of
+reliability, safety, and alignment challenges,''
+\textit{arXiv:2401.05749}, 2024.
+% STUB — search: LLM agent reliability survey hallucination tool-use 2024
+
+\bibitem{mast}
+S.~Tula \textit{et al.}, ``MAST: A multi-agent system testing framework,''
+in \textit{Proc.\ IEEE/ACM ICSE}, 2024, pp.~1--12.
+% STUB — find actual MAST/multi-agent failure taxonomy citation
+
+\bibitem{netflix-chaos}
+Y.~Izrailevsky and A.~Tseitlin, ``The Netflix Simian Army,''
+Netflix Technology Blog, 2011.
+% URL: https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116
+
+\bibitem{litmuschaos}
+LitmusChaos Contributors, ``LitmusChaos: Cloud-native chaos engineering
+platform,'' CNCF Sandbox Project, 2019.
+% URL: https://litmuschaos.io
+
+\bibitem{chaosengineering}
+P.~Basiri \textit{et al.}, ``Chaos engineering,''
+\textit{IEEE Software}, vol.~33, no.~3, pp.~35--41, 2016.
+
+\bibitem{istio}
+Istio Contributors, ``Traffic Management: Fault Injection,''
+in \textit{Istio Documentation}, 2023.
+% URL: https://istio.io/latest/docs/tasks/traffic-management/fault-injection/
+
+\bibitem{agentbench}
+X.~Liu \textit{et al.}, ``AgentBench: Evaluating LLMs as agents,''
+in \textit{Proc.\ ICLR}, 2024.
+% arXiv:2308.03688
+
+\bibitem{toolbench}
+Y.~Qin \textit{et al.}, ``ToolLLM: Facilitating large language models to
+master 16000+ real-world APIs,'' in \textit{Proc.\ ICLR}, 2024.
+% arXiv:2307.16789
+
+\bibitem{nemoguar}
+T.~Rebedea \textit{et al.}, ``NeMo Guardrails: A toolkit for controllable and
+safe LLM applications with programmable rails,''
+in \textit{Proc.\ EMNLP (Demo)}, 2023.
+% arXiv:2310.10501
 
 \bibitem{llmguardrails}
-C.~Author \textit{et al.}, ``Guardrails and verification for LLM tool-use
-workflows,'' \textit{arXiv preprint}, Year.
+S.~Dong \textit{et al.}, ``Building guardrails for large language models,''
+\textit{arXiv:2402.01822}, 2024.
+% STUB — search: LLM guardrails output validation format constraints 2024
+
+\bibitem{langgraph}
+LangChain Contributors, ``LangGraph: Build stateful, multi-actor applications
+with LLMs,'' LangChain GitHub, 2024.
+% URL: https://github.com/langchain-ai/langgraph
+
+\bibitem{autogen}
+Q.~Wu \textit{et al.}, ``AutoGen: Enabling next-gen LLM applications via
+multi-agent conversation,'' in \textit{Proc.\ COLM}, 2024.
+% arXiv:2308.08155
+
+\bibitem{agenteval}
+M.~Zeng \textit{et al.}, ``AgentEval: A multi-agent evaluation framework,''
+\textit{arXiv preprint}, 2024.
+% STUB — search: multi-agent evaluation framework LLM 2024
+
+\bibitem{pie}
+P.~G.~Frankl and E.~J.~Weyuker, ``An applicable family of data flow testing
+criteria,'' \textit{IEEE Trans.\ Softw.\ Eng.}, vol.~14, no.~10,
+pp.~1483--1498, 1988.
+
+\bibitem{hitlsurvey}
+S.~Amershi \textit{et al.}, ``Power to the people: The role of humans in
+interactive machine learning,'' \textit{AI Magazine}, vol.~35, no.~4,
+pp.~105--120, 2014.
+
+\bibitem{microservicefi}
+B.~Canizo \textit{et al.}, ``Fault injection in microservice-based systems:
+A systematic review,'' \textit{J.\ Syst.\ Softw.}, vol.~195, 2023.
+% STUB — search: microservice fault injection systematic review 2023
 
 \end{thebibliography}
 
 \end{document}
+

@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Keywords for checkout process
 Library          Browser
-Resource         common_keywords.robot
+Resource         ../resources/common_keywords.robot
 
 *** Keywords ***
 Navigate To Checkout

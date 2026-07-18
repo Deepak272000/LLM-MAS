@@ -1,0 +1,51 @@
+{
+  "agent": "emailserviceagent",
+  "run": 3,
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "fault_mode": "NONE",
+      "data": {
+        "email": "customer@example.com",
+        "order_id": "ORDER-123",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "EMAIL_GENERATED",
+      "fault_mode": "NONE",
+      "data": {
+        "email_type": "order_confirmation",
+        "subject": "Your order has been confirmed",
+        "body_len": 68,
+        "hallucinated": false,
+        "type_wrong": false,
+        "recipient_swapped": false,
+        "corrupted": false,
+        "wrong_customer": false
+      }
+    },
+    {
+      "step": "EMAIL_SENT",
+      "fault_mode": "NONE",
+      "data": {
+        "status": "sent",
+        "send_skipped": false,
+        "double_send": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "fault_mode": "NONE",
+      "data": {
+        "status": "sent"
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "EMAIL_GENERATED",
+    "EMAIL_SENT",
+    "FINAL_ANSWER"
+  ]
+}

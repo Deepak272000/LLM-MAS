@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import json
 import os
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
+
+from boundary_recovery import decide_recovery
 
 
 def _events_file() -> Path | None:
@@ -30,6 +33,13 @@ def _record_boundary_event(result: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(event, default=str) + "\n")
+
+
+def _finalize_boundary_result(result: dict) -> dict:
+    result = deepcopy(result)
+    result["recovery"] = decide_recovery(result)
+    _record_boundary_event(result)
+    return result
 
 
 def boundary_contract(
@@ -61,8 +71,7 @@ def boundary_contract(
             "difference": None,
             "violations": [],
         }
-        _record_boundary_event(result)
-        return result
+        return _finalize_boundary_result(result)
 
     if isinstance(expected, list) and isinstance(observed, list):
         missing = [item for item in expected if item not in observed]
@@ -169,8 +178,7 @@ def boundary_contract(
         "detail": detail,
         "violations": violations,
     }
-    _record_boundary_event(result)
-    return result
+    return _finalize_boundary_result(result)
 
 
 def summarize_boundary_results(chains: list[dict]) -> dict:

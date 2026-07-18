@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-07-17T00:18:35.572950+00:00",
+  "event_counts": {
+    "total": 13,
+    "alerts": 8,
+    "clean": 5
+  },
+  "cases": [
+    {
+      "case": "Payment overcharge",
+      "boundary": "currency_to_payment",
+      "flag_seen": "expected=9 observed=1337",
+      "recovery_action": "block_and_request_hitl",
+      "applied": true,
+      "outcome": "charge_blocked=True prevented_loss_eur=1328"
+    },
+    {
+      "case": "Catalog hallucination",
+      "boundary": "catalog_to_recommendation",
+      "flag_seen": "expected=['PROD-001'] observed=[]",
+      "recovery_action": "fallback_to_last_known_good",
+      "applied": true,
+      "outcome": "recovered_product_ids=['PROD-001']"
+    },
+    {
+      "case": "Shipping carrier hallucination",
+      "boundary": "carrier_to_tracking",
+      "flag_seen": "observed={'carrier': 'SpeedyShip', 'service_level': 'ultra-express'}",
+      "recovery_action": "fallback_to_last_known_good",
+      "applied": true,
+      "outcome": "corrected_payload={'carrier': 'FedEx', 'service_level': 'ground'}"
+    },
+    {
+      "case": "Shipping quote selection mismatch",
+      "boundary": "quote_to_carrier_selection",
+      "flag_seen": "difference={'missing': [], 'extra': ['ignored_downstream_quote'], 'field_mismatches': []}",
+      "recovery_action": "retry_current_step",
+      "applied": true,
+      "outcome": "retry_current_step decision recorded for carrier selection"
+    }
+  ]
+}

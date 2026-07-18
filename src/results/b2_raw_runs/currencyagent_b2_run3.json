@@ -1,0 +1,53 @@
+{
+  "agent": "currencyagent",
+  "run": 3,
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-18T00:52:38.202582+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "action": "convert",
+        "from_currency": "USD",
+        "to_currency": "EUR",
+        "units": 10,
+        "nanos": 0,
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CONVERT_DONE",
+      "timestamp": "2026-07-18T00:52:38.202647+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "from_currency": "USD",
+        "to_currency": "EUR",
+        "units_in": 10,
+        "units_out": 9,
+        "hallucinated": false,
+        "rate_manipulated": false,
+        "stale_rate": false,
+        "overflow": false,
+        "amount_tampered": false,
+        "currency_swapped": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-18T00:52:38.202657+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "result": {
+          "currency_code": "EUR",
+          "units": 9,
+          "nanos": 230000000
+        }
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CONVERT_DONE",
+    "FINAL_ANSWER"
+  ]
+}

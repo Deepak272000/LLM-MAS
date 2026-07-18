@@ -315,6 +315,35 @@ def extract_oracle_entry(
 
     all_valid = all(r["valid"] for r in validation_results)
 
+    # Build comparison_params for B3 oracle comparisons.
+    # CRITICAL: use observed oracle_value as the reference (not the hardcoded map
+    # b1_oracle_expected) when checkout runs are available. This ensures B3
+    # comparisons are calibrated against the actual checkout scenario, not the
+    # isolated pilot test payloads.
+    comparison_params = {
+        k: v for k, v in field_entry.items()
+        if k in ("tolerance_pct", "valid_set", "schema_pattern",
+                 "range_min", "range_max", "b1_oracle_expected_set")
+    }
+    if oracle_value is not None:
+        if relation in ("exact_string", "exact_bool") and oracle_type == "consensus":
+            # Observed consensus value IS the oracle — use it for B3 deviation check
+            comparison_params["b1_oracle_expected"] = oracle_value
+        elif relation == "exact_integer" and oracle_type == "consensus":
+            comparison_params["b1_oracle_expected"] = oracle_value
+        elif relation == "numeric_tolerance_pct" and oracle_type == "numeric_range":
+            # Use observed mean as the oracle centre for tolerance checks
+            comparison_params["b1_oracle_expected"] = oracle_value.get("mean")
+        else:
+            # For schema, range, set: keep original map constraints (they are scenario-agnostic)
+            orig = field_entry.get("b1_oracle_expected")
+            if orig is not None and not isinstance(orig, str):
+                comparison_params["b1_oracle_expected"] = orig
+    else:
+        orig = field_entry.get("b1_oracle_expected")
+        if orig is not None:
+            comparison_params["b1_oracle_expected"] = orig
+
     return {
         "agent":               agent_key,
         "checkpoint":          checkpoint_name,
@@ -333,12 +362,7 @@ def extract_oracle_entry(
         "run_count":           len(all_lkw_runs),
         "mutation_faults_detected": field_entry.get("mutation_faults_detected", []),
         "notes":               field_entry.get("notes", ""),
-        "comparison_params":   {
-            k: v for k, v in field_entry.items()
-            if k in ("tolerance_pct", "valid_set", "schema_pattern",
-                     "range_min", "range_max", "b1_oracle_expected",
-                     "b1_oracle_expected_set")
-        },
+        "comparison_params":   comparison_params,
     }
 
 

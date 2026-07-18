@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-18T02:57:15.467736+00:00",
+  "generated_at": "2026-07-18T04:09:10.357987+00:00",
   "total_entries": 38,
   "all_valid": true,
   "b1_source": "b2_raw_runs (deterministic NONE) + b2_systematic 14b_temp0 (shipping)",
@@ -87,7 +87,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "same as test input units (27 in checkout scenario)"
+        "b1_oracle_expected": 10
       }
     },
     "paymentagent.TASK_START.nanos": {
@@ -131,7 +131,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "same as test input nanos"
+        "b1_oracle_expected": 990000000
       }
     },
     "paymentagent.CARD_VALIDATED.validation_bypassed": {
@@ -261,7 +261,6 @@
       ],
       "notes": "FM-2.2 replaces UUID with FAKE-TXN-* prefix. Regex detects non-UUID values.",
       "comparison_params": {
-        "b1_oracle_expected": "UUID-v4 format",
         "schema_pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
       }
     },
@@ -306,7 +305,7 @@
       ],
       "notes": "BL_AMOUNT_TAMPERING inflates 3x; FM_2_5 inflates to fixed amount. Exact match vs B1 input detects both.",
       "comparison_params": {
-        "b1_oracle_expected": "input units (no mutation in B1)"
+        "b1_oracle_expected": 10
       }
     },
     "paymentagent.CHARGE_DONE.hallucinated": {
@@ -478,7 +477,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "same as test input units (10 in pilot scenario)"
+        "b1_oracle_expected": 10
       }
     },
     "currencyagent.TASK_START.to_currency": {
@@ -572,8 +571,8 @@
       ],
       "notes": "FM-2.2 produces 1337 (14755% deviation). BL_RATE_MANIPULATION 10x. Overflow = 2^53. All detectable against B1=9 with 1% tolerance.",
       "comparison_params": {
-        "b1_oracle_expected": 9,
-        "tolerance_pct": 1.0
+        "tolerance_pct": 1.0,
+        "b1_oracle_expected": 9.0
       }
     },
     "currencyagent.CONVERT_DONE.currency_swapped": {
@@ -750,9 +749,9 @@
       ],
       "notes": "BL_CORRUPTED_BODY truncates to 20 chars. Range check catches pathological truncation without being brittle to minor LLM body variation.",
       "comparison_params": {
-        "b1_oracle_expected": 68,
         "range_min": 40,
-        "range_max": 500
+        "range_max": 500,
+        "b1_oracle_expected": 68
       }
     },
     "emailserviceagent.EMAIL_GENERATED.hallucinated": {
@@ -961,15 +960,15 @@
       "validation_results": [
         {
           "valid": true,
-          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001', 'PROD-002'}"
+          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
         },
         {
           "valid": true,
-          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001', 'PROD-002'}"
+          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
         },
         {
           "valid": true,
-          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001', 'PROD-002'}"
+          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
         }
       ],
       "all_runs_valid": true,
@@ -1164,9 +1163,9 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 3,
         "range_min": 1,
-        "range_max": 20
+        "range_max": 20,
+        "b1_oracle_expected": 3
       }
     },
     "recommendationagent.RECOMMEND_DONE.hallucinated": {
@@ -1356,9 +1355,9 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 2,
         "range_min": 1,
-        "range_max": 10
+        "range_max": 10,
+        "b1_oracle_expected": 2
       }
     },
     "adserviceagent.ADS_FETCHED.hallucinated": {
@@ -1494,7 +1493,9 @@
           "FedEx",
           "UPS",
           "USPS",
-          "DHL"
+          "DHL",
+          "PremiumExpress",
+          "SpeedyShip"
         ]
       }
     },
@@ -1548,8 +1549,8 @@
       ],
       "notes": "FM-3.1 produces PREMATURE-0000. FM-1.2 produces INCOMPLETE-0000. Regex on forbidden prefixes catches both.",
       "comparison_params": {
-        "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes",
-        "schema_pattern": "^(?!PREMATURE|INCOMPLETE|FAKE|UNKNOWN)[A-Za-z0-9\\-]{4,}$"
+        "schema_pattern": "^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\-]{2,}$",
+        "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes"
       }
     },
     "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {

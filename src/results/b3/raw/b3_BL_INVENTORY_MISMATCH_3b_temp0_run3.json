@@ -1,13 +1,13 @@
 {
-  "run_idx": 1,
-  "fault_mode": "FM_2_5",
-  "fault_category": "general",
+  "run_idx": 3,
+  "fault_mode": "BL_INVENTORY_MISMATCH",
+  "fault_category": "business",
   "fault_agent": "all",
-  "model_label": "14b_temp0",
-  "model": "qwen2.5-coder:14b",
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
   "temperature": 0.0,
   "status": "TP",
-  "elapsed_ms": 16958.1,
+  "elapsed_ms": 5767.0,
   "mutation": {
     "terminated_mutant": true,
     "live_mutant": false,
@@ -56,27 +56,15 @@
         "any_deviation": true,
         "deviating_fields": [
           "units",
-          "amount_tampered",
           "units_charged"
         ],
         "deviating_detail": [
           {
             "field": "units",
             "b1_value": 34,
-            "observed": 23,
+            "observed": 24,
             "severity": "data",
-            "reason": "expected=34 got=23",
-            "detects": [
-              "FM_2_5",
-              "BL_AMOUNT_TAMPERING"
-            ]
-          },
-          {
-            "field": "amount_tampered",
-            "b1_value": false,
-            "observed": true,
-            "severity": "data",
-            "reason": "expected=False got=True",
+            "reason": "expected=34 got=24",
             "detects": [
               "FM_2_5",
               "BL_AMOUNT_TAMPERING"
@@ -85,9 +73,9 @@
           {
             "field": "units_charged",
             "b1_value": 34,
-            "observed": 69,
+            "observed": 24,
             "severity": "data",
-            "reason": "expected=34 got=69",
+            "reason": "expected=34 got=24",
             "detects": [
               "FM_2_5",
               "BL_AMOUNT_TAMPERING"
@@ -104,12 +92,10 @@
           {
             "field": "ignored_downstream_quote",
             "b1_value": null,
-            "observed": true,
-            "severity": "data",
-            "reason": "expected=False got=True",
-            "detects": [
-              "FM_2_5"
-            ]
+            "observed": null,
+            "severity": "missing",
+            "reason": "observed value is None (checkpoint possibly absent)",
+            "detects": []
           }
         ]
       },
@@ -179,9 +165,9 @@
   "rip": {
     "productcatalog": {
       "R": true,
-      "I": true,
+      "I": false,
       "P": false,
-      "infection_point": "CATALOG_DONE",
+      "infection_point": null,
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
@@ -192,9 +178,9 @@
     },
     "currency": {
       "R": true,
-      "I": true,
+      "I": false,
       "P": false,
-      "infection_point": "CONVERT_DONE",
+      "infection_point": null,
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
@@ -219,9 +205,9 @@
     },
     "payment": {
       "R": true,
-      "I": true,
+      "I": false,
       "P": false,
-      "infection_point": "CARD_VALIDATED",
+      "infection_point": null,
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
@@ -243,6 +229,7 @@
         "FINAL_ANSWER",
         "QUOTE_DONE",
         "BOUNDARY_CHECK",
+        "RECOVERY_ACTION",
         "CARRIER_DONE",
         "BOUNDARY_CHECK",
         "RECOVERY_ACTION",
@@ -298,6 +285,7 @@
       "FINAL_ANSWER",
       "QUOTE_DONE",
       "BOUNDARY_CHECK",
+      "RECOVERY_ACTION",
       "CARRIER_DONE",
       "BOUNDARY_CHECK",
       "RECOVERY_ACTION",

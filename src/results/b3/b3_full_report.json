@@ -1,11 +1,12 @@
 {
-  "generated_at": "2026-07-18T04:31:51.177781+00:00",
+  "generated_at": "2026-07-18T04:52:52.878589+00:00",
   "description": "B3 mutation detection results. Retail-bench = qwen2.5-coder:14b. Google-bench = qwen2.5:3b.",
-  "retail_bench": [
+  "retail_bench": [],
+  "google_bench": [
     {
-      "fault_mode": "FM_3_1",
-      "fault_category": "general",
-      "model_label": "14b_temp0",
+      "fault_mode": "BL_INVENTORY_MISMATCH",
+      "fault_category": "business",
+      "model_label": "3b_temp0",
       "total_runs": 3,
       "TP": 3,
       "PARTIAL_TP": 0,
@@ -15,23 +16,22 @@
       "mutation_score": 1.0,
       "overall_classification": "TP",
       "infection_agent": "productcatalog",
-      "max_propagation_depth": 4,
+      "max_propagation_depth": 3,
       "top_deviating_fields": [
-        "hallucinated",
-        "product_ids",
         "count",
-        "price_manipulated",
-        "units_out"
+        "units",
+        "units_charged",
+        "ignored_downstream_quote",
+        "email"
       ],
-      "elapsed_ms_avg": 17930.5
+      "elapsed_ms_avg": 6067.4
     }
   ],
-  "google_bench": [],
   "all_summaries": [
     {
-      "fault_mode": "FM_3_1",
-      "fault_category": "general",
-      "model_label": "14b_temp0",
+      "fault_mode": "BL_INVENTORY_MISMATCH",
+      "fault_category": "business",
+      "model_label": "3b_temp0",
       "total_runs": 3,
       "TP": 3,
       "PARTIAL_TP": 0,
@@ -41,15 +41,15 @@
       "mutation_score": 1.0,
       "overall_classification": "TP",
       "infection_agent": "productcatalog",
-      "max_propagation_depth": 4,
+      "max_propagation_depth": 3,
       "top_deviating_fields": [
-        "hallucinated",
-        "product_ids",
         "count",
-        "price_manipulated",
-        "units_out"
+        "units",
+        "units_charged",
+        "ignored_downstream_quote",
+        "email"
       ],
-      "elapsed_ms_avg": 17930.5
+      "elapsed_ms_avg": 6067.4
     }
   ],
   "killed_mutants": 1,

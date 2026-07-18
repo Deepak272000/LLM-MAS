@@ -942,6 +942,65 @@ def build_model_comparison(all_runs):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Aggregate from raw directory (used when --cfg runs are done separately)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def aggregate_from_raw(fault_mode="NONE"):
+    """
+    Read all checkout_*.json files from RAW_DIR and rebuild all output reports.
+    Use this after running multiple --cfg invocations to merge their results.
+    """
+    pattern  = f"checkout_*_{fault_mode}_run*.json"
+    raw_files = sorted(RAW_DIR.glob(pattern))
+    if not raw_files:
+        print(f"No raw files matching {pattern} in {RAW_DIR}")
+        return
+
+    all_runs = []
+    for p in raw_files:
+        with open(p, encoding="utf-8") as f:
+            all_runs.append(json.load(f))
+
+    print(f"Loaded {len(all_runs)} raw runs from {RAW_DIR}")
+
+    timestamp   = datetime.now(timezone.utc).isoformat()
+    rip_agg     = aggregate_rip(all_runs)
+    deviation   = compute_deviation_from_b1(all_runs)
+    comp_report = build_model_comparison(all_runs)
+
+    lkw_summary = {
+        "generated_at":      timestamp,
+        "fault_mode":        fault_mode,
+        "total_runs":        len(all_runs),
+        "b1_expected_steps": B1_EXPECTED_STEPS,
+        "runs": [
+            {k: v for k, v in r.items() if k != "checkout_lkw"}
+            for r in all_runs
+        ],
+    }
+    with open(RESULTS / "b2_checkout_lkw_summary.json", "w", encoding="utf-8") as f:
+        json.dump(lkw_summary, f, indent=2, default=str)
+    with open(RESULTS / "b2_rip_analysis.json", "w", encoding="utf-8") as f:
+        json.dump({"generated_at": timestamp, "fault_mode": fault_mode,
+                   "by_model_config": rip_agg}, f, indent=2, default=str)
+    with open(RESULTS / "b2_deviation_from_b1.json", "w", encoding="utf-8") as f:
+        json.dump({"generated_at": timestamp, "fault_mode": fault_mode,
+                   "by_model_config": deviation}, f, indent=2, default=str)
+    with open(RESULTS / "b2_model_comparison.json", "w", encoding="utf-8") as f:
+        json.dump({"generated_at": timestamp, "fault_mode": fault_mode,
+                   "model_comparison": comp_report}, f, indent=2, default=str)
+
+    print("Rebuilt all 4 output files from raw runs.")
+    for label, c in comp_report.items():
+        print(f"  [{label}] success={c['success_rate']:.0%}  "
+              f"avg_elapsed={c['avg_elapsed_ms']:.0f}ms  "
+              f"runs={c['total']}")
+        for agent, ar in c["agent_reach"].items():
+            mark = "v" if ar["reach_rate"] == 1.0 else "x"
+            print(f"    {mark} {agent}: {ar['reached']}/{ar['total']}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -957,7 +1016,13 @@ def main():
                         help="Skip live-LLM steps (shipping) — dry-run mode")
     parser.add_argument("--cfg",         default=None,
                         help="Only run one model config label, e.g. 14b_temp0")
+    parser.add_argument("--aggregate-from-raw", action="store_true",
+                        help="Rebuild all output files from existing raw run files")
     args = parser.parse_args()
+
+    if args.aggregate_from_raw:
+        aggregate_from_raw(fault_mode=args.fault_mode)
+        return
 
     N          = args.runs
     fault_mode = args.fault_mode

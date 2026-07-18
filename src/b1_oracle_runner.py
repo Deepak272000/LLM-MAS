@@ -168,12 +168,50 @@ def _get_field(checkpoint: dict, field: str) -> Any:
     return data.get(field)
 
 
+# ── Agent name mapping: systematic runner short names → oracle full names ──────
+SYS_TO_ORACLE_AGENT = {
+    "productcatalog": "productcatalogagent",
+    "currency":       "currencyagent",
+    "payment":        "paymentagent",
+    "email":          "emailserviceagent",
+    "shipping_quote": "shippingagent_get_quote",
+    "ship_order":     "shippingagent_ship_order",
+}
+
 # ── Load raw run data ──────────────────────────────────────────────────────────
+
+def load_checkout_agent_runs() -> dict:
+    """
+    Load ALL agents' LKW from checkout systematic B2 NONE runs.
+    These are calibrated against the CHECKOUT test scenario (USD→USD, 2 products,
+    same address/items), which is the correct context for B3 oracle comparison.
+    Returns: {oracle_agent_key: [lkw_trace, lkw_trace, lkw_trace]}
+    Preferred over isolated pilot runs because B3 uses the checkout scenario.
+    """
+    runs = {k: [] for k in SYS_TO_ORACLE_AGENT.values()}
+    found = 0
+    for run_num in [1, 2, 3]:
+        fname = RAW_SYS / f"checkout_{SHIPPING_CFG}_{SHIPPING_FAULT}_run{run_num}.json"
+        if not fname.exists():
+            continue
+        with open(fname, encoding="utf-8") as f:
+            data = json.load(f)
+        per_agent = data.get("per_agent_lkw", {})
+        for sys_name, oracle_name in SYS_TO_ORACLE_AGENT.items():
+            lkw = per_agent.get(sys_name, [])
+            if lkw:
+                runs[oracle_name].append(lkw)
+                found += 1
+    # Return only agents that had data
+    return {k: v for k, v in runs.items() if v}
+
 
 def load_deterministic_runs() -> dict:
     """
-    Load all b2_raw_runs/*.json files.
+    Load all b2_raw_runs/*.json files (isolated pilot runs — fallback only).
     Returns: {agent_key: [lkw_trace, lkw_trace, lkw_trace]}
+    NOTE: These use different test payloads than the checkout scenario.
+    Prefer load_checkout_agent_runs() when checkout raw files are available.
     """
     runs = {}
     for agent_key in AGENT_KEY_MAP:
@@ -348,9 +386,22 @@ def main():
     with open(MAP_FILE, encoding="utf-8") as f:
         cmap = json.load(f)
 
-    print("Loading deterministic agent runs (b2_raw_runs)...")
-    det_runs = load_deterministic_runs()
-    print(f"  Loaded: {', '.join(f'{k}×{len(v)}' for k, v in det_runs.items())}")
+    print("Loading checkout B2 NONE runs for oracle calibration (checkout scenario)...")
+    checkout_runs = load_checkout_agent_runs()
+    if checkout_runs:
+        print(f"  Checkout runs loaded: {', '.join(f'{k}×{len(v)}' for k, v in checkout_runs.items())}")
+    else:
+        print("  No checkout runs found — will use isolated pilot runs as fallback.")
+
+    print("Loading isolated pilot runs (b2_raw_runs — fallback for agents missing from checkout)...")
+    pilot_runs = load_deterministic_runs()
+    print(f"  Pilot runs: {', '.join(f'{k}×{len(v)}' for k, v in pilot_runs.items())}")
+
+    # Merge: checkout runs take priority (correct test context); pilot fills gaps
+    all_det_runs = dict(pilot_runs)
+    for agent_key, lkw_list in checkout_runs.items():
+        all_det_runs[agent_key] = lkw_list
+        print(f"  [oracle] Using CHECKOUT runs for {agent_key} (overrides pilot)")
 
     print("Loading shipping runs (b2_systematic/raw checkout 14b_temp0)...")
     ship_runs = load_shipping_runs()
@@ -360,7 +411,7 @@ def main():
         else:
             print(f"  {k}: 0 runs (systematic raw not present — shipping oracle will use mock defaults)")
 
-    all_runs = {**det_runs, **ship_runs}
+    all_runs = {**all_det_runs, **ship_runs}
 
     oracle_entries = []
     missing_agents = []

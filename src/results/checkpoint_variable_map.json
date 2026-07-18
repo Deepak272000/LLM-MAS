@@ -204,7 +204,8 @@
           "lkw_criterion": "All-Uses",
           "use_type": ["C-use"],
           "b1_oracle_source": "CurrencyService.Convert() gRPC request → to_code",
-          "b1_oracle_expected": "EUR (in pilot scenario)",
+          "b1_oracle_expected": "EUR",
+          "b1_oracle_note": "Pilot scenario: USD→EUR. Checkout scenario uses USD→USD — override per test.",
           "comparison_relation": "exact_string",
           "mutation_faults_detected": ["FM_1_2"]
         }

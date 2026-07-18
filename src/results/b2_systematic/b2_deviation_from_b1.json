@@ -1,0 +1,218 @@
+{
+  "generated_at": "2026-07-18T02:21:43.419150+00:00",
+  "fault_mode": "NONE",
+  "by_model_config": {
+    "14b_temp0": {
+      "productcatalog": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CATALOG_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "currency": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CONVERT_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "shipping_quote": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "QUOTE_DONE",
+          "FINAL_ANSWER",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "payment": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CARD_VALIDATED",
+          "CHARGE_DONE",
+          "SAVE_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "ship_order": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER",
+          "QUOTE_DONE",
+          "BOUNDARY_CHECK",
+          "CARRIER_DONE",
+          "BOUNDARY_CHECK",
+          "TRACKING_DONE",
+          "ESCALATION_CHECK",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "email": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      }
+    },
+    "3b_temp0.8": {
+      "productcatalog": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CATALOG_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "currency": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CONVERT_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "shipping_quote": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "QUOTE_DONE",
+          "FINAL_ANSWER",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "payment": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CARD_VALIDATED",
+          "CHARGE_DONE",
+          "SAVE_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "ship_order": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER",
+          "QUOTE_DONE",
+          "BOUNDARY_CHECK",
+          "CARRIER_DONE",
+          "BOUNDARY_CHECK",
+          "RECOVERY_ACTION",
+          "TRACKING_DONE",
+          "ESCALATION_CHECK",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "email": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      }
+    },
+    "3b_temp0": {
+      "productcatalog": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CATALOG_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "currency": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CONVERT_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "shipping_quote": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "QUOTE_DONE",
+          "FINAL_ANSWER",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "payment": {
+        "sequence_deviations": 0,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "CARD_VALIDATED",
+          "CHARGE_DONE",
+          "SAVE_DONE",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "ship_order": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER",
+          "QUOTE_DONE",
+          "BOUNDARY_CHECK",
+          "CARRIER_DONE",
+          "BOUNDARY_CHECK",
+          "RECOVERY_ACTION",
+          "TRACKING_DONE",
+          "ESCALATION_CHECK",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "email": {
+        "sequence_deviations": 3,
+        "total_runs": 3,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      }
+    }
+  }
+}

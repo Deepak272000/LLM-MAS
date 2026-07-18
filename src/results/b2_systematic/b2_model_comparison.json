@@ -1,0 +1,123 @@
+{
+  "generated_at": "2026-07-18T02:21:43.419150+00:00",
+  "fault_mode": "NONE",
+  "model_comparison": {
+    "14b_temp0": {
+      "total": 3,
+      "success": 3,
+      "elapsed_ms_sum": 74404.8,
+      "agent_reach": {
+        "productcatalog": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "currency": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "shipping_quote": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "payment": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "ship_order": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "email": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        }
+      },
+      "success_rate": 1.0,
+      "avg_elapsed_ms": 24801.6
+    },
+    "3b_temp0.8": {
+      "total": 3,
+      "success": 3,
+      "elapsed_ms_sum": 17529.6,
+      "agent_reach": {
+        "productcatalog": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "currency": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "shipping_quote": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "payment": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "ship_order": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "email": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        }
+      },
+      "success_rate": 1.0,
+      "avg_elapsed_ms": 5843.2
+    },
+    "3b_temp0": {
+      "total": 3,
+      "success": 3,
+      "elapsed_ms_sum": 14704.3,
+      "agent_reach": {
+        "productcatalog": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "currency": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "shipping_quote": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "payment": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "ship_order": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        },
+        "email": {
+          "reached": 3,
+          "total": 3,
+          "reach_rate": 1.0
+        }
+      },
+      "success_rate": 1.0,
+      "avg_elapsed_ms": 4901.4
+    }
+  }
+}

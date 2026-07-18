@@ -1,0 +1,231 @@
+{
+  "generated_at": "2026-07-18T02:21:43.419150+00:00",
+  "fault_mode": "NONE",
+  "by_model_config": {
+    "14b_temp0": {
+      "productcatalog": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "currency": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "shipping_quote": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "payment": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "ship_order": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "email": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [
+          "EMAIL_GENERATED",
+          "EMAIL_SENT",
+          "EMAIL_GENERATED",
+          "EMAIL_SENT",
+          "EMAIL_GENERATED",
+          "EMAIL_SENT"
+        ],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      }
+    },
+    "3b_temp0.8": {
+      "productcatalog": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "currency": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "shipping_quote": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "payment": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "ship_order": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "email": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [
+          "EMAIL_GENERATED",
+          "EMAIL_SENT",
+          "EMAIL_GENERATED",
+          "EMAIL_SENT",
+          "EMAIL_GENERATED",
+          "EMAIL_SENT"
+        ],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      }
+    },
+    "3b_temp0": {
+      "productcatalog": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "currency": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "shipping_quote": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "payment": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "ship_order": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      },
+      "email": {
+        "R_count": 3,
+        "I_count": 0,
+        "P_count": 0,
+        "total": 3,
+        "infection_points": [],
+        "steps_lost_all": [
+          "EMAIL_GENERATED",
+          "EMAIL_SENT",
+          "EMAIL_GENERATED",
+          "EMAIL_SENT",
+          "EMAIL_GENERATED",
+          "EMAIL_SENT"
+        ],
+        "R_rate": 1.0,
+        "I_rate": 0.0,
+        "P_rate": 0.0
+      }
+    }
+  }
+}

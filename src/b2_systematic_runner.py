@@ -121,10 +121,10 @@ B1_EXPECTED_STEPS = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _write_productcatalog_helper():
-    """Write checkout helper for productcatalogagent."""
+    """Write checkout helper for productcatalogagent — LLM classify_request via Ollama REST."""
     script = '''\
-"""ProductCatalog checkout helper — called by b2_systematic_runner.py."""
-import json, os, sys, importlib
+"""ProductCatalog checkout helper — LLM classify_request (Ollama REST) + agent.run()."""
+import json, os, sys, importlib, requests
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -132,15 +132,17 @@ SRC = Path(__file__).parent
 AGENT_DIR = SRC / "productcatalogagent"
 sys.path.insert(0, str(AGENT_DIR))
 
-# Stub gRPC and proto at module level
+# Stub gRPC/proto so imports don't fail without live microservices
 sys.modules.setdefault("grpc", MagicMock())
-_mc = MagicMock()
-sys.modules.setdefault("app.clients", _mc)
-sys.modules.setdefault("app.clients.demo_pb2", MagicMock())
-sys.modules.setdefault("app.clients.demo_pb2_grpc", MagicMock())
+for _m in ("app.clients", "app.clients.demo_pb2", "app.clients.demo_pb2_grpc"):
+    sys.modules.setdefault(_m, MagicMock())
 
-payload = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
+payload    = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
 fault_mode = payload.get("fault_mode", "NONE")
+model      = payload.get("model",      "qwen2.5-coder:14b")
+ollama_url = payload.get("ollama_url", "http://localhost:11434")
+query      = payload.get("query",      "list all products")
+
 os.environ["FAULT_MODE"] = fault_mode
 
 import app.fault_injection as fi_mod
@@ -157,16 +159,44 @@ MOCK_PRODUCT_2 = {
     "price_usd": {"currency_code": "USD", "units": 12, "nanos": 500000000},
 }
 mock_client = MagicMock()
-mock_client.list_products.return_value = [MOCK_PRODUCT, MOCK_PRODUCT_2]
-mock_client.get_product.return_value = MOCK_PRODUCT
-mock_client.search_products.return_value = [MOCK_PRODUCT]
+mock_client.list_products.return_value  = [MOCK_PRODUCT, MOCK_PRODUCT_2]
+mock_client.get_product.return_value    = MOCK_PRODUCT
+mock_client.search_products.return_value = [MOCK_PRODUCT, MOCK_PRODUCT_2]
 agent_mod.client = mock_client
 
-agent = agent_mod.ProductCatalogAgent()
-result = agent.run(query=payload.get("query", "list all products"))
-lkw = fi_mod.get_lkw()
+def _classify_catalog(query, model, ollama_url):
+    """LLM routing call — mirrors graph.py classify_request node."""
+    prompt = (
+        "You are a router for a product catalog service.\\n"
+        "Classify the user request into exactly one label:\\n"
+        "- list_products\\n- search_products\\n- get_product\\n\\n"
+        "User query: " + query + "\\n\\nReturn only one label."
+    )
+    try:
+        resp = requests.post(
+            ollama_url + "/api/generate",
+            json={"model": model, "prompt": prompt, "stream": False},
+            timeout=30,
+        )
+        label = resp.json().get("response", "list_products").strip().lower()
+    except Exception:
+        label = "list_products"
+    if "list_products" in label: return "list_products"
+    if "get_product"   in label: return "get_product"
+    return "search_products"
 
-data = result.get("data", [])
+route = _classify_catalog(query, model, ollama_url)
+
+agent = agent_mod.ProductCatalogAgent()
+if route == "get_product":
+    result = agent.run(query=query, product_ids=["PROD-001"])
+elif route == "list_products":
+    result = agent.run(query="list all products")
+else:
+    result = agent.run(query=query)
+
+lkw      = fi_mod.get_lkw()
+data     = result.get("data", [])
 products = data if isinstance(data, list) else [data]
 print(json.dumps({"lkw": lkw, "products": products, "fault_mode": fault_mode}))
 '''
@@ -176,10 +206,10 @@ print(json.dumps({"lkw": lkw, "products": products, "fault_mode": fault_mode}))
 
 
 def _write_currency_helper():
-    """Write checkout helper for currencyagent."""
+    """Write checkout helper for currencyagent — LLM classify_request via Ollama REST."""
     script = '''\
-"""Currency checkout helper — called by b2_systematic_runner.py."""
-import json, os, sys, importlib
+"""Currency checkout helper — LLM classify_request (Ollama REST) + agent.run()."""
+import json, os, sys, importlib, requests
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -187,8 +217,12 @@ SRC = Path(__file__).parent
 AGENT_DIR = SRC / "currencyagent"
 sys.path.insert(0, str(AGENT_DIR))
 
-payload = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
+payload    = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
 fault_mode = payload.get("fault_mode", "NONE")
+model      = payload.get("model",      "qwen2.5-coder:14b")
+ollama_url = payload.get("ollama_url", "http://localhost:11434")
+query      = payload.get("query",      "convert 19 USD to USD")
+
 os.environ["FAULT_MODE"] = fault_mode
 
 import app.fault_injection as fi_mod
@@ -198,24 +232,49 @@ importlib.reload(agent_mod)
 
 converted = {
     "currency_code": payload.get("to_currency", "USD"),
-    "units":  payload.get("units", 19),
-    "nanos":  payload.get("nanos", 990000000),
+    "units": payload.get("units", 19),
+    "nanos": payload.get("nanos", 990000000),
 }
 mock_client = MagicMock()
 mock_client.convert.return_value = dict(converted)
 mock_client.get_supported_currencies.return_value = ["USD", "EUR", "GBP", "CAD"]
 agent_mod.client = mock_client
 
+def _classify_currency(query, model, ollama_url):
+    """LLM routing call — mirrors graph.py classify_request node."""
+    prompt = (
+        "You are a router for a currency service.\\n"
+        "Classify the user request into exactly one label:\\n"
+        "- get_supported_currencies\\n- convert\\n\\n"
+        "User query: " + query + "\\n\\nReturn only one label."
+    )
+    try:
+        resp = requests.post(
+            ollama_url + "/api/generate",
+            json={"model": model, "prompt": prompt, "stream": False},
+            timeout=30,
+        )
+        label = resp.json().get("response", "convert").strip().lower()
+    except Exception:
+        label = "convert"
+    return "get_supported_currencies" if "get_supported" in label else "convert"
+
+route = _classify_currency(query, model, ollama_url)
+
 agent = agent_mod.CurrencyAgent()
-result = agent.run(
-    query=payload.get("query", "convert 19 USD to USD"),
-    action="convert",
-    from_currency=payload.get("from_currency", "USD"),
-    units=payload.get("units", 19),
-    nanos=payload.get("nanos", 990000000),
-    to_currency=payload.get("to_currency", "USD"),
-)
-lkw = result.get("lkw", [])
+if route == "get_supported_currencies":
+    result = agent.run(query=query, action="get_supported_currencies")
+else:
+    result = agent.run(
+        query=query,
+        action="convert",
+        from_currency=payload.get("from_currency", "USD"),
+        units=payload.get("units", 19),
+        nanos=payload.get("nanos", 990000000),
+        to_currency=payload.get("to_currency", "USD"),
+    )
+
+lkw           = result.get("lkw", [])
 converted_out = result.get("data", converted)
 print(json.dumps({"lkw": lkw, "converted": converted_out, "fault_mode": fault_mode}))
 '''
@@ -225,10 +284,10 @@ print(json.dumps({"lkw": lkw, "converted": converted_out, "fault_mode": fault_mo
 
 
 def _write_payment_helper():
-    """Write checkout helper for paymentagent."""
+    """Write checkout helper for paymentagent — LLM classify_request via Ollama REST."""
     script = '''\
-"""Payment checkout helper — called by b2_systematic_runner.py."""
-import asyncio, json, os, sys, importlib
+"""Payment checkout helper — LLM classify_request (Ollama REST) + async agent.run()."""
+import asyncio, json, os, sys, importlib, requests
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -236,8 +295,12 @@ SRC = Path(__file__).parent
 AGENT_DIR = SRC / "paymentagent"
 sys.path.insert(0, str(AGENT_DIR))
 
-payload = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
+payload    = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
 fault_mode = payload.get("fault_mode", "NONE")
+model      = payload.get("model",      "qwen2.5-coder:14b")
+ollama_url = payload.get("ollama_url", "http://localhost:11434")
+query      = payload.get("query",      "charge card")
+
 os.environ["FAULT_MODE"] = fault_mode
 
 import app.fault_injection as fi_mod
@@ -245,12 +308,32 @@ importlib.reload(fi_mod)
 import app.agent as agent_mod
 importlib.reload(agent_mod)
 
+def _classify_payment(query, model, ollama_url):
+    """LLM routing call — mirrors graph.py classify_request node."""
+    prompt = (
+        "You are a router for a payment service.\\n"
+        "Classify the user request into exactly one label:\\n"
+        "- charge\\n\\n"
+        "User query: " + query + "\\n\\nReturn only one label."
+    )
+    try:
+        requests.post(
+            ollama_url + "/api/generate",
+            json={"model": model, "prompt": prompt, "stream": False},
+            timeout=30,
+        )
+    except Exception:
+        pass
+    return "charge"  # payment always routes to charge
+
+_classify_payment(query, model, ollama_url)
+
 async def main():
     agent = agent_mod.PaymentAgent()
     with patch("app.agent.save_transaction", new_callable=AsyncMock) as ms:
         ms.return_value = "co-tx-mock-id"
         result = await agent.run(
-            query=payload.get("query", "charge card"),
+            query=query,
             currency_code=payload.get("currency_code", "USD"),
             units=payload.get("units", 27),
             nanos=payload.get("nanos", 490000000),
@@ -259,8 +342,8 @@ async def main():
             credit_card_expiration_year=payload.get("credit_card_expiration_year", 2030),
             credit_card_expiration_month=payload.get("credit_card_expiration_month", 12),
         )
-    lkw = result.get("lkw", [])
-    data = result.get("data", {})
+    lkw            = result.get("lkw", [])
+    data           = result.get("data", {})
     transaction_id = data.get("transaction_id", "mock-tx-123") if isinstance(data, dict) else "mock-tx-123"
     print(json.dumps({"lkw": lkw, "transaction_id": transaction_id,
                       "data": data, "fault_mode": fault_mode}))
@@ -273,9 +356,9 @@ asyncio.run(main())
 
 
 def _write_email_helper():
-    """Write checkout helper for emailserviceagent."""
+    """Write checkout helper for emailserviceagent — real LLM via Ollama (USE_LLM=true)."""
     script = '''\
-"""Email checkout helper — called by b2_systematic_runner.py."""
+"""Email checkout helper — real LLM content generation via Ollama (USE_LLM=true)."""
 import json, os, sys, importlib
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -284,60 +367,63 @@ SRC = Path(__file__).parent
 AGENT_DIR = SRC / "emailserviceagent"
 sys.path.insert(0, str(AGENT_DIR))
 
-# Stub langgraph and gRPC before any imports
-_mock_langgraph = MagicMock()
-_mock_langgraph.END = "__end__"
-_mock_langgraph.StateGraph = MagicMock()
-sys.modules.setdefault("langgraph", MagicMock())
-sys.modules["langgraph.graph"] = _mock_langgraph
+# Stub gRPC (email microservice send call) and langgraph (not in shippingservice venv)
 sys.modules.setdefault("grpc", MagicMock())
 sys.modules.setdefault("demo_pb2", MagicMock())
 sys.modules.setdefault("demo_pb2_grpc", MagicMock())
+_lg = MagicMock()
+_lg.END = "__end__"
+sys.modules.setdefault("langgraph", MagicMock())
+sys.modules["langgraph.graph"] = _lg
 
-payload = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
+payload    = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
 fault_mode = payload.get("fault_mode", "NONE")
-os.environ["FAULT_MODE"] = fault_mode
+model      = payload.get("model",      "qwen2.5-coder:14b")
+ollama_url = payload.get("ollama_url", "http://localhost:11434")
 
-sys.modules.pop("app.fault_injection", None)
+# Set env BEFORE any app imports — config.Settings reads USE_LLM at class definition time
+os.environ["FAULT_MODE"]    = fault_mode
+os.environ["MODEL_NAME"]    = model
+os.environ["OLLAMA_BASE_URL"] = ollama_url
+os.environ["USE_LLM"]       = "true"   # enable real LLM email generation
+
+for _k in ("app.fault_injection", "app.config", "app.agent", "app.graph"):
+    sys.modules.pop(_k, None)
+
 import app.fault_injection as fi_mod
+importlib.reload(fi_mod)
 
-MOCK_GENERATE = {
-    "email_type": "order_confirmation",
-    "subject": "Your order has been confirmed",
-    "body": "Hello, your order is confirmed.",
-    "llm_used": False,
-}
 MOCK_SEND = {"status": "sent"}
 
 try:
     import app.graph as graph_mod
+    importlib.reload(graph_mod)
     graph_mod.fi = fi_mod
 
-    initial_state = {
+    state = {
         "request": {
-            "email":            payload.get("email", "customer@example.com"),
-            "order_id":         payload.get("order_id", "ORDER-B2-001"),
+            "email":            payload.get("email",     "customer@example.com"),
+            "order_id":         payload.get("order_id",  "ORDER-B2-001"),
             "user_name":        payload.get("user_name", "Test Customer"),
             "currency_code":    payload.get("currency_code", "USD"),
-            "total":            payload.get("total", 27.49),
-            "items":            payload.get("items", [{"name": "Sunglasses", "quantity": 2, "price": "19.99"}]),
+            "total":            payload.get("total",     27.49),
+            "items":            payload.get("items",     [{"name": "Sunglasses", "quantity": 2, "price": "19.99"}]),
             "shipping_address": payload.get("shipping_address", {}),
         },
+        "handoff_contract": None,
         "email_type": "", "subject": "", "body": "",
         "llm_used": False, "microservice_status": "",
     }
 
-    with patch.object(graph_mod, "generate_email_content", return_value=MOCK_GENERATE), \
-         patch.object(graph_mod, "send_via_microservice", return_value=MOCK_SEND):
-        from app.graph import task_start_node, generate_email_node, send_via_microservice_node, final_answer_node
-        state = initial_state.copy()
-        state = task_start_node(state)
-        state = generate_email_node(state)
-        state = send_via_microservice_node(state)
-        state = final_answer_node(state)
+    # Call graph nodes directly (no LangGraph runtime needed)
+    state = graph_mod.run_agent_node(state)       # real LLM email generation here
+    from app.grpc_client import EmailServiceClient
+    with patch.object(EmailServiceClient, "send_confirmation_email", return_value=MOCK_SEND):
+        state = graph_mod.send_via_microservice_node(state)
 
-    lkw = fi_mod.get_lkw() if hasattr(fi_mod, "get_lkw") else fi_mod._global_lkw
+    lkw = fi_mod.get_lkw() if hasattr(fi_mod, "get_lkw") else getattr(fi_mod, "_global_lkw", [])
 except Exception as e:
+    import traceback; traceback.print_exc(file=sys.stderr)
     lkw = [{"step": "TASK_START", "data": {"fault_mode": fault_mode}},
            {"step": "FINAL_ANSWER", "data": {"error": str(e)}}]
 

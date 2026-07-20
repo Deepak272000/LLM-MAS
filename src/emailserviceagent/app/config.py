@@ -17,6 +17,7 @@ class Settings:
     MODEL_NAME = os.getenv("MODEL_NAME", "qwen3")
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     USE_LLM = os.getenv("USE_LLM", "false").lower() == "true"
+    TEMPERATURE = float(os.getenv("TEMPERATURE", "0.0"))
 
 
 settings = Settings()

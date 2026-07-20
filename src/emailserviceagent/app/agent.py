@@ -84,6 +84,7 @@ BODY:
                 "model": settings.MODEL_NAME,
                 "prompt": prompt,
                 "stream": False,
+                "options": {"temperature": settings.TEMPERATURE},
             },
             timeout=60,
         )

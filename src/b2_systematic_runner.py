@@ -386,6 +386,7 @@ os.environ["FAULT_MODE"]    = fault_mode
 os.environ["MODEL_NAME"]    = model
 os.environ["OLLAMA_BASE_URL"] = ollama_url
 os.environ["USE_LLM"]       = "true"   # enable real LLM email generation
+os.environ["TEMPERATURE"]   = str(payload.get("temperature", 0.0))
 
 for _k in ("app.fault_injection", "app.config", "app.agent", "app.graph"):
     sys.modules.pop(_k, None)
@@ -793,6 +794,7 @@ def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
             "shipping_address": CHECKOUT_ADDRESS,
             "model":            model,
             "ollama_url":       model_cfg["ollama_url"],
+            "temperature":      temp,
         }
         em_result = _run_helper(SRC / "co_helper_email.py", em_payload)
         per_agent_lkw["email"] = em_result.get("lkw", [])

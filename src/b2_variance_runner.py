@@ -304,6 +304,19 @@ def print_variance_report(summary: dict):
     print()
 
 
+def aggregate_from_raw(cfg_label: str) -> dict:
+    """Load all saved raw run files for cfg_label and return aggregated summary."""
+    raw_files = sorted(RAW_DIR.glob(f"b2_{cfg_label}_run*.json"))
+    if not raw_files:
+        raise FileNotFoundError(f"No raw files found in {RAW_DIR} for cfg={cfg_label!r}")
+    runs = []
+    for f in raw_files:
+        with open(f, encoding="utf-8") as fh:
+            runs.append(json.load(fh))
+    print(f"  Loaded {len(runs)} raw files for {cfg_label}")
+    return aggregate_b2_runs(cfg_label, runs)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="B2 Natural Variance Runner — True B2 Baseline"
@@ -314,6 +327,8 @@ def main():
                         help="Number of NONE-mode runs per config (default: 10)")
     parser.add_argument("--all",  action="store_true",
                         help="Run all model configs")
+    parser.add_argument("--from-raw", action="store_true",
+                        help="Rebuild summary from existing raw files instead of re-running")
     args = parser.parse_args()
 
     model_configs = build_model_configs()
@@ -325,6 +340,34 @@ def main():
             labels = [c["label"] for c in build_model_configs()]
             print(f"ERROR: unknown config '{args.cfg}'. Available: {labels}")
             sys.exit(1)
+
+    # ── --from-raw: rebuild summaries from saved raw files, no new runs ───
+    if args.from_raw:
+        print("=" * 60)
+        print("B2 Variance — rebuilding summary from existing raw files")
+        print("=" * 60)
+        all_summaries = []
+        cfg_labels = [c["label"] for c in model_configs] if not args.all else \
+                     [c["label"] for c in build_model_configs()]
+        for label in cfg_labels:
+            try:
+                summary = aggregate_from_raw(label)
+                summary_file = RESULTS / f"b2_{label}_variance_summary.json"
+                with open(summary_file, "w", encoding="utf-8") as f:
+                    json.dump(summary, f, indent=2, default=str)
+                print_variance_report(summary)
+                all_summaries.append(summary)
+            except FileNotFoundError as e:
+                print(f"  SKIP {label}: {e}")
+        if all_summaries:
+            full_report = {
+                "generated_at":  datetime.now(timezone.utc).isoformat(),
+                "all_summaries": all_summaries,
+            }
+            with open(RESULTS / "b2_full_variance_report.json", "w", encoding="utf-8") as f:
+                json.dump(full_report, f, indent=2, default=str)
+            print(f"\nResults saved to: {RESULTS}")
+        return
 
     print("=" * 60)
     print("B2 Natural Variance Runner — True B2 Baseline")

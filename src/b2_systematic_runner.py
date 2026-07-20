@@ -10,7 +10,8 @@ Checkout chain (mirrors checkout-agent/agent/agent.go tool sequence):
 Three model configurations:
   CFG-1  qwen2.5-coder:14b  @ temperature=0.0  (current baseline)
   CFG-2  [3B_MODEL]         @ temperature=0.0  (compact, low-temp)
-  CFG-3  [3B_MODEL]         @ temperature=0.8  (compact, high-temp)
+  CFG-3  [3B_MODEL]         @ temperature=0.7  (compact, moderate-high-temp)
+  CFG-4  [3B_MODEL]         @ temperature=1.0  (compact, maximum-temp)
 
 LKW Checkpoints (cross-agent):
   CHECKOUT_INIT
@@ -103,11 +104,23 @@ def build_model_configs():
     return [
         {"label": "14b_temp0",  "model": model_14b, "temperature": 0.0, "ollama_url": ollama_url},
         {"label": "3b_temp0",   "model": model_3b,  "temperature": 0.0, "ollama_url": ollama_url},
-        {"label": "3b_temp0.8", "model": model_3b,  "temperature": 0.8, "ollama_url": ollama_url},
+        {"label": "3b_temp0.7", "model": model_3b,  "temperature": 0.7, "ollama_url": ollama_url},
+        {"label": "3b_temp1.0", "model": model_3b,  "temperature": 1.0, "ollama_url": ollama_url},
     ]
 
 # ── B1 per-agent expected checkpoint sequences ────────────────────────────────
 B1_EXPECTED_STEPS = {
+    # Orchestrator agent (Python mirror of checkout-agent/agent/agent.go)
+    "checkout_orchestrator": [
+        "TASK_START",
+        "PRODUCT_FETCHED",
+        "CURRENCY_CONVERTED",
+        "SHIPPING_QUOTED",
+        "PAYMENT_CHARGED",
+        "ORDER_SHIPPED",
+        "CONFIRMATION_SENT",
+        "FINAL_ANSWER",
+    ],
     "productcatalog": ["TASK_START", "CATALOG_DONE", "FINAL_ANSWER"],
     "currency":       ["TASK_START", "CONVERT_DONE", "FINAL_ANSWER"],
     "shipping_quote": ["TASK_START", "FINAL_ANSWER"],
@@ -577,11 +590,153 @@ def _make_lkw_entry(step, agent, data):
     }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Orchestrator-driven checkout (True B2/B3 mode)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: int) -> dict:
+    """
+    Run one checkout through the LLM-driven checkout orchestrator agent,
+    which mirrors the Go checkout-agent ReAct loop.  The LLM decides which
+    tools to call and in what order — nothing is Python-hardcoded.
+
+    Returns the same dict shape as run_checkout_once() so callers are unchanged.
+    """
+    run_id   = str(uuid.uuid4())[:8]
+    model    = model_cfg["model"]
+    temp     = model_cfg["temperature"]
+    label    = model_cfg["label"]
+    start_ts = datetime.now(timezone.utc)
+
+    payload = {
+        "fault_mode":    fault_mode,
+        "model":         model,
+        "temperature":   temp,
+        "ollama_url":    model_cfg["ollama_url"],
+        "order_id":      f"CO-{run_id[:6].upper()}",
+        "email":         "customer@example.com",
+        "user_name":     "Test Customer",
+        "address":       CHECKOUT_ADDRESS,
+        "items":         CHECKOUT_ITEMS,
+        # Human-readable item list passed through to the email helper
+        "items_desc":    [{"name": "Sunglasses", "quantity": 2, "price": "19.99"}],
+        **CHECKOUT_CARD,
+    }
+
+    orch_path = SRC / "co_helper_checkout_orchestrator.py"
+    if not orch_path.exists():
+        raise FileNotFoundError(
+            f"Orchestrator helper missing at {orch_path}. "
+            "Ensure co_helper_checkout_orchestrator.py is in src/."
+        )
+
+    try:
+        orch_result = _run_helper(orch_path, payload, timeout=900)
+    except Exception as exc:
+        elapsed_ms = (datetime.now(timezone.utc) - start_ts).total_seconds() * 1000
+        return {
+            "run_id":         run_id,
+            "run_idx":        run_idx,
+            "fault_mode":     fault_mode,
+            "model":          model,
+            "temperature":    temp,
+            "model_label":    label,
+            "elapsed_ms":     round(elapsed_ms, 1),
+            "success":        False,
+            "errors":         {"checkout_orchestrator": str(exc)},
+            "checkout_lkw":   [],
+            "per_agent_lkw":  {"checkout_orchestrator": []},
+            "rip":            {},
+            "order_id":       payload["order_id"],
+            "transaction_id": None,
+            "tracking_id":    None,
+        }
+
+    # ── Unpack orchestrator output ─────────────────────────────────────────
+    sub_agent_lkw = orch_result.get("per_agent_lkw", {})
+    orch_lkw      = orch_result.get("lkw", [])
+
+    # per_agent_lkw: orchestrator first, then each sub-agent
+    per_agent_lkw = {"checkout_orchestrator": orch_lkw, **sub_agent_lkw}
+
+    # Build unified checkout_lkw from orchestrator trace + sub-agent steps
+    checkout_lkw: list = []
+    for cp in orch_lkw:
+        checkout_lkw.append(_make_lkw_entry(
+            cp["step"], "checkout_orchestrator", cp.get("data", {})))
+    for agent_name, agent_trace in sub_agent_lkw.items():
+        for cp in agent_trace:
+            checkout_lkw.append(_make_lkw_entry(
+                f"{agent_name.upper()}_{cp['step']}", agent_name, cp.get("data", {})))
+
+    # Errors: sub-agents with empty traces were likely never called by the LLM
+    errors: dict = {}
+    for agent_name, agent_trace in sub_agent_lkw.items():
+        if not agent_trace:
+            errors[agent_name] = "no trace — agent may not have been called by orchestrator"
+
+    orch_status = orch_result.get("status", "unknown")
+    success = orch_status in ("ok", "max_iterations") and not errors
+
+    # Extract transaction_id and tracking_id from sub-agent traces
+    transaction_id = "orch-tx-unknown"
+    tracking_id    = None
+    for cp in sub_agent_lkw.get("payment", []):
+        td = cp.get("data", {}).get("transaction_id")
+        if td:
+            transaction_id = td
+            break
+    for cp in sub_agent_lkw.get("ship_order", []):
+        ti = cp.get("data", {}).get("tracking_id")
+        if ti:
+            tracking_id = ti
+            break
+
+    elapsed_ms = (datetime.now(timezone.utc) - start_ts).total_seconds() * 1000
+    rip        = _compute_rip(per_agent_lkw, errors)
+
+    print(f"    [checkout_orchestrator] "
+          f"status={orch_status} "
+          f"iterations={orch_result.get('iterations', 0)} "
+          f"steps={[c['step'] for c in orch_lkw]}")
+
+    return {
+        "run_id":                  run_id,
+        "run_idx":                 run_idx,
+        "fault_mode":              fault_mode,
+        "model":                   model,
+        "temperature":             temp,
+        "model_label":             label,
+        "elapsed_ms":              round(elapsed_ms, 1),
+        "success":                 success,
+        "errors":                  errors,
+        "checkout_lkw":            checkout_lkw,
+        "per_agent_lkw":           per_agent_lkw,
+        "rip":                     rip,
+        "order_id":                payload["order_id"],
+        "transaction_id":          transaction_id,
+        "tracking_id":             tracking_id,
+        "orchestrator_iterations": orch_result.get("iterations", 0),
+        "orchestrator_status":     orch_status,
+    }
+
+
 def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
     """
     Execute one full checkout flow.
     Returns a dict with unified checkout LKW + per-agent LKW + RIP summary.
+
+    When skip_llm=False (default), routes through the LLM-driven checkout
+    orchestrator agent (co_helper_checkout_orchestrator.py), which mirrors
+    the Go checkout-agent ReAct loop — the LLM decides tool ordering.
+    When skip_llm=True, falls back to the legacy hardcoded sequential helpers
+    (dry-run / deterministic mode only).
     """
+    # ── Orchestrator path — True B2/B3 mode ──────────────────────────────────
+    if not skip_llm:
+        return _run_checkout_via_orchestrator(fault_mode, model_cfg, run_idx)
+
+    # ── Legacy fallback (skip_llm=True dry-run mode) ──────────────────────────
     run_id   = str(uuid.uuid4())[:8]
     model    = model_cfg["model"]
     temp     = model_cfg["temperature"]
@@ -875,9 +1030,16 @@ def _compute_rip(per_agent_lkw, errors):
     Compute per-agent RIP (Reachability, Infection, Propagation).
     For NONE mode: all R=True, I=False, P=False is expected.
     Deviations indicate problems.
+    Automatically includes checkout_orchestrator as first agent when present
+    (orchestrator-driven runs via _run_checkout_via_orchestrator).
     """
-    agents_ordered = ["productcatalog", "currency", "shipping_quote",
-                      "payment", "ship_order", "email"]
+    base_agents = ["productcatalog", "currency", "shipping_quote",
+                   "payment", "ship_order", "email"]
+    agents_ordered = (
+        ["checkout_orchestrator"] + base_agents
+        if "checkout_orchestrator" in per_agent_lkw
+        else base_agents
+    )
     rip = {}
 
     for idx, agent in enumerate(agents_ordered):

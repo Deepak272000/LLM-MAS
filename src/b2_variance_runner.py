@@ -24,10 +24,13 @@ Usage (SPEED HPC):
   # Google-bench B2 (3b, low temp):
   $VENV/bin/python b2_variance_runner.py --cfg 3b_temp0 --runs 10
 
-  # Google-bench B2 (3b, HIGH temp — needed for Yan's high-temp config):
-  $VENV/bin/python b2_variance_runner.py --cfg 3b_temp0.8 --runs 10
+  # Google-bench B2 (3b, moderate-high temp):
+  $VENV/bin/python b2_variance_runner.py --cfg 3b_temp0.7 --runs 10
 
-  # All configs at once:
+  # Google-bench B2 (3b, maximum temp):
+  $VENV/bin/python b2_variance_runner.py --cfg 3b_temp1.0 --runs 10
+
+  # All configs at once (14b_temp0 + 3b_temp0 + 3b_temp0.7 + 3b_temp1.0):
   $VENV/bin/python b2_variance_runner.py --all --runs 10
 
 Output:
@@ -60,6 +63,7 @@ RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 # Same mapping as b3_runner.py
 SYS_TO_ORACLE = {
+    "checkout_orchestrator": "checkout_orchestrator",  # structural RIP only; no B1 oracle
     "productcatalog": "productcatalogagent",
     "currency":       "currencyagent",
     "payment":        "paymentagent",
@@ -69,6 +73,7 @@ SYS_TO_ORACLE = {
 }
 
 CHECKOUT_AGENT_ORDER = [
+    "checkout_orchestrator",
     "productcatalog", "currency", "shipping_quote",
     "payment", "ship_order", "email",
 ]

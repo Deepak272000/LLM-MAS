@@ -16,9 +16,11 @@ Fault modes tested:
   Business faults:  BL_SHIPMENT_LOST, BL_INVENTORY_MISMATCH, BL_VENDOR_NEGOTIATION,
                     BL_CUSTOMER_ESCALATION, BL_REFUND_REASONING, BL_COMPLIANCE_AMBIGUITY
 
-Two benchmark campaigns (model configs):
+Four benchmark campaigns (model configs):
   Retail-bench:  qwen2.5-coder:14b  @ temperature=0.0  (--cfg 14b_temp0)
   Google-bench:  qwen2.5:3b         @ temperature=0.0  (--cfg 3b_temp0)
+  Google-bench:  qwen2.5:3b         @ temperature=0.7  (--cfg 3b_temp0.7)  # moderate variance
+  Google-bench:  qwen2.5:3b         @ temperature=1.0  (--cfg 3b_temp1.0)  # maximum variance
 
 Injection modes:
   Global (default): same FAULT_MODE for all agents in the checkout chain
@@ -37,8 +39,12 @@ Usage (SPEED HPC):
   # Run one fault mode, Retail-bench:
   $VENV/bin/python b3_runner.py --fault-mode FM_3_1 --cfg 14b_temp0 --runs 3
 
-  # Run all fault modes, both benchmarks:
+  # Run all fault modes, all configs (Retail + Google low/high temp):
   $VENV/bin/python b3_runner.py --all --runs 3
+
+  # Google-bench high-temp only (tests whether variance hides faults):
+  $VENV/bin/python b3_runner.py --all --cfg 3b_temp0.7 --runs 3
+  $VENV/bin/python b3_runner.py --all --cfg 3b_temp1.0 --runs 3
 
   # Targeted injection (only ShippingService gets the fault):
   $VENV/bin/python b3_runner.py --fault-mode FM_2_2 --fault-agent ship_order --runs 3
@@ -101,6 +107,7 @@ FAULT_CATEGORIES = {
 
 # Agent name mapping: systematic runner short names → oracle full names
 SYS_TO_ORACLE = {
+    "checkout_orchestrator": "checkout_orchestrator",  # structural RIP only; no B1 oracle
     "productcatalog": "productcatalogagent",
     "currency":       "currencyagent",
     "payment":        "paymentagent",
@@ -110,6 +117,7 @@ SYS_TO_ORACLE = {
 }
 
 CHECKOUT_AGENT_ORDER = [
+    "checkout_orchestrator",
     "productcatalog", "currency", "shipping_quote",
     "payment", "ship_order", "email",
 ]

@@ -610,7 +610,8 @@ def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
         {"product_ids": [i["product_id"] for i in CHECKOUT_ITEMS]}
     ))
     try:
-        pc_payload = {"fault_mode": fault_mode, "query": "list all products"}
+        pc_payload = {"fault_mode": fault_mode, "query": "list all products",
+                      "model": model, "ollama_url": model_cfg["ollama_url"]}
         pc_result  = _run_helper(SRC / "co_helper_productcatalog.py", pc_payload)
         per_agent_lkw["productcatalog"] = pc_result.get("lkw", [])
         products  = pc_result.get("products", [MOCK_PRODUCT])
@@ -641,6 +642,8 @@ def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
             "units":         price_usd.get("units", 19),
             "nanos":         price_usd.get("nanos", 990000000),
             "to_currency":   "USD",
+            "model":         model,
+            "ollama_url":    model_cfg["ollama_url"],
         }
         curr_result = _run_helper(SRC / "co_helper_currency.py", curr_payload)
         per_agent_lkw["currency"] = curr_result.get("lkw", [])
@@ -718,6 +721,8 @@ def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
             "currency_code": converted.get("currency_code", "USD") if isinstance(converted, dict) else "USD",
             "units":         total_units,
             "nanos":         total_nanos,
+            "model":         model,
+            "ollama_url":    model_cfg["ollama_url"],
         })
         pay_result     = _run_helper(SRC / "co_helper_payment.py", pay_payload)
         per_agent_lkw["payment"] = pay_result.get("lkw", [])
@@ -786,6 +791,8 @@ def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
             "total":            total_units + total_nanos / 1_000_000_000.0,
             "items":            [{"name": "Sunglasses", "quantity": 2, "price": "19.99"}],
             "shipping_address": CHECKOUT_ADDRESS,
+            "model":            model,
+            "ollama_url":       model_cfg["ollama_url"],
         }
         em_result = _run_helper(SRC / "co_helper_email.py", em_payload)
         per_agent_lkw["email"] = em_result.get("lkw", [])

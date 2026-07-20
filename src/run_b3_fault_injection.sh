@@ -54,7 +54,7 @@
 #    tail -f /speed-scratch/$USER/logs/b3_fault_<jobid>.log
 # ─────────────────────────────────────────────────────────────────────────────
 
-set -euo pipefail
+set -uo pipefail   # -u: unset var error, -o pipefail; removed -e (set -e exits silently on curl subshell failure)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SCRATCH="/speed-scratch/${USER}"
@@ -110,14 +110,25 @@ WARMUP_MODEL="${MODEL_3B}"
 if [[ "${CFG:-}" == "14b"* ]]; then
     WARMUP_MODEL="${LLAMA_MODEL}"
 fi
-echo "[ollama] warming up inference for model: ${WARMUP_MODEL} ..."
-WARMUP_RESP=$(curl -sf -X POST "${OLLAMA_URL}/api/generate" \
+OLLAMA_BIN="${SCRATCH}/tools/ollama/bin/ollama"
+
+# Pull model if not already present (safe to re-run, idempotent)
+echo "[ollama] ensuring model is pulled: ${WARMUP_MODEL}..."
+"${OLLAMA_BIN}" pull "${WARMUP_MODEL}" 2>&1 || echo "[ollama] pull returned non-zero (may already be cached)"
+echo "[ollama] models available:"
+"${OLLAMA_BIN}" list 2>&1 || true
+
+# Actual inference warmup — use || to capture rc without triggering pipefail exit
+echo "[ollama] running inference warmup for: ${WARMUP_MODEL}..."
+WARMUP_RC=0
+WARMUP_RESP=$(curl -s -X POST "${OLLAMA_URL}/api/generate" \
     -H "Content-Type: application/json" \
     -d "{\"model\":\"${WARMUP_MODEL}\",\"prompt\":\"ping\",\"stream\":false}" \
-    --max-time 180 2>&1)
-WARMUP_RC=$?
+    --max-time 300 2>&1) || WARMUP_RC=$?
+echo "[ollama] warmup curl rc=${WARMUP_RC}"
 if [[ ${WARMUP_RC} -ne 0 ]]; then
-    echo "ERROR: Model warmup failed (rc=${WARMUP_RC}): ${WARMUP_RESP}"
+    echo "ERROR: Model warmup failed (rc=${WARMUP_RC})"
+    echo "Warmup response: ${WARMUP_RESP}"
     exit 1
 fi
 echo "[ollama] model ${WARMUP_MODEL} is loaded and ready"

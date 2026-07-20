@@ -146,6 +146,20 @@ def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str) -> dict:
 
     for idx, agent in enumerate(CHECKOUT_AGENT_ORDER):
         lkw = per_agent_lkw.get(agent, [])
+
+        # Skip oracle comparison for unreached agents — an empty trace means the
+        # agent was never called (orchestrator infra failure or premature exit).
+        # Comparing against oracle when trace is empty produces false positives
+        # because every expected field appears "missing" = deviation.
+        if not lkw:
+            per_agent_results[agent] = {
+                "any_deviation":    False,
+                "deviating_fields": [],
+                "deviating_detail": [],
+                "not_reached":      True,
+            }
+            continue
+
         oracle_agent = SYS_TO_ORACLE.get(agent, agent)
         comparisons  = compare_lkw_trace_to_oracle(oracle_agent, lkw, oracle)
 
@@ -237,7 +251,13 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
     )
 
     # Classification
-    if not checkout_result.get("success") and checkout_result.get("errors"):
+    orch_status = checkout_result.get("orchestrator_status", "ok")
+    if orch_status == "error":
+        # Orchestrator LLM call failed due to infrastructure (Ollama unreachable,
+        # connection refused, etc.) — NOT fault-induced. Mark INCONCLUSIVE so
+        # these runs are excluded from mutation score calculation.
+        status = "INCONCLUSIVE"
+    elif not checkout_result.get("success") and checkout_result.get("errors"):
         status = "INCONCLUSIVE"
     elif mutation["terminated_mutant"]:
         # Partial TP if only some agents show deviation, full TP if all expected do

@@ -92,6 +92,23 @@ if ! curl -sf "${OLLAMA_URL}/api/tags" >/dev/null 2>&1; then
     echo "[ollama] ready"
 fi
 
+# ── Warm up model inference (loads model into GPU before Python starts) ──────
+WARMUP_MODEL="${MODEL_3B}"
+if [[ "${CFG:-}" == "14b"* ]]; then
+    WARMUP_MODEL="${LLAMA_MODEL}"
+fi
+echo "[ollama] warming up inference for model: ${WARMUP_MODEL} ..."
+WARMUP_RESP=$(curl -sf -X POST "${OLLAMA_URL}/api/generate" \
+    -H "Content-Type: application/json" \
+    -d "{\"model\":\"${WARMUP_MODEL}\",\"prompt\":\"ping\",\"stream\":false}" \
+    --max-time 180 2>&1)
+WARMUP_RC=$?
+if [[ ${WARMUP_RC} -ne 0 ]]; then
+    echo "ERROR: Model warmup failed (rc=${WARMUP_RC}): ${WARMUP_RESP}"
+    exit 1
+fi
+echo "[ollama] model ${WARMUP_MODEL} is loaded and ready"
+
 # ── Run B2 variance ───────────────────────────────────────────────────────────
 if [[ -n "${CFG}" ]]; then
     echo ""

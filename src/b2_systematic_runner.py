@@ -699,6 +699,14 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
           f"status={orch_status} "
           f"iterations={orch_result.get('iterations', 0)} "
           f"steps={[c['step'] for c in orch_lkw]}")
+    if orch_status == "error":
+        error_detail = next(
+            (cp.get("data", {}).get("error", "no detail")
+             for cp in orch_lkw
+             if cp.get("step") == "FINAL_ANSWER" and cp.get("data", {}).get("error")),
+            "no error detail in FINAL_ANSWER checkpoint",
+        )
+        print(f"    [checkout_orchestrator] INFRA ERROR: {str(error_detail)[:300]}")
 
     return {
         "run_id":                  run_id,

@@ -88,11 +88,15 @@ echo "========================================================================"
 
 cd "${SRCDIR}"
 
+# ── Ollama binary + models dir — set unconditionally so pull/list always ──────
+# use scratch even when ollama is already running from a prior job on this node.
+OLLAMA_BIN="${SCRATCH}/tools/ollama/bin/ollama"
+export OLLAMA_MODELS="${SCRATCH}/ollama-models"
+mkdir -p "${OLLAMA_MODELS}"
+
 # ── Start Ollama if not already running ───────────────────────────────────────
 if ! curl -sf "${OLLAMA_URL}/api/tags" >/dev/null 2>&1; then
     echo "[ollama] starting ollama server..."
-    OLLAMA_BIN="${SCRATCH}/tools/ollama/bin/ollama"
-    export OLLAMA_MODELS="${SCRATCH}/ollama-models"
     nohup "${OLLAMA_BIN}" serve > "${LOGDIR}/ollama_b3_${SLURM_JOB_ID:-0}.log" 2>&1 &
     OLLAMA_PID=$!
     echo "[ollama] pid=${OLLAMA_PID}, waiting for ready..."
@@ -110,8 +114,6 @@ WARMUP_MODEL="${MODEL_3B}"
 if [[ "${CFG:-}" == "14b"* ]]; then
     WARMUP_MODEL="${LLAMA_MODEL}"
 fi
-OLLAMA_BIN="${SCRATCH}/tools/ollama/bin/ollama"
-
 # Pull model if not already present (safe to re-run, idempotent)
 echo "[ollama] ensuring model is pulled: ${WARMUP_MODEL}..."
 "${OLLAMA_BIN}" pull "${WARMUP_MODEL}" 2>&1 || echo "[ollama] pull returned non-zero (may already be cached)"

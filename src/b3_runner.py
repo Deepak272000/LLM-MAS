@@ -131,10 +131,17 @@ CHECKOUT_AGENT_ORDER = [
 
 # ── Mutation detection ─────────────────────────────────────────────────────────
 
-def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str) -> dict:
+def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str,
+                    fault_agent: str = "all") -> dict:
     """
     Apply oracle comparator to each agent's LKW trace.
     Returns a structured mutation detection result.
+
+    For targeted injection (fault_agent != "all"): only the targeted agent is
+    compared against the oracle.  Non-targeted agents received fault_mode=NONE
+    and their LLM outputs may differ from the oracle baseline purely due to
+    cross-model variance (e.g., 3b_temp0.7 vs the 14b_temp0 oracle), which
+    would create false positives.  The orchestrator is always compared.
 
     Returns:
       {
@@ -150,20 +157,31 @@ def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str) -> dict:
     """
     per_agent_results = {}
     first_infection = None  # (agent_idx, agent, checkpoint, field)
+    is_targeted = fault_agent not in ("all", "")
 
     for idx, agent in enumerate(CHECKOUT_AGENT_ORDER):
         lkw = per_agent_lkw.get(agent, [])
 
         # Skip oracle comparison for unreached agents — an empty trace means the
         # agent was never called (orchestrator infra failure or premature exit).
-        # Comparing against oracle when trace is empty produces false positives
-        # because every expected field appears "missing" = deviation.
         if not lkw:
             per_agent_results[agent] = {
                 "any_deviation":    False,
                 "deviating_fields": [],
                 "deviating_detail": [],
                 "not_reached":      True,
+            }
+            continue
+
+        # For targeted injection: only compare the fault target and the orchestrator.
+        # Other agents ran with fault_mode=NONE; their LLM outputs vs the cross-model
+        # oracle baseline would produce false positives (model variance != fault).
+        if is_targeted and agent not in (fault_agent, "checkout_orchestrator"):
+            per_agent_results[agent] = {
+                "any_deviation":    False,
+                "deviating_fields": [],
+                "deviating_detail": [],
+                "not_targeted":     True,  # skipped — different model baseline
             }
             continue
 
@@ -256,6 +274,7 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
         per_agent_lkw = checkout_result.get("per_agent_lkw", {}),
         oracle        = oracle,
         fault_mode    = fault_mode,
+        fault_agent   = fault_agent,
     )
 
     # Classification

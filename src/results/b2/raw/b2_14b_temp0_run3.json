@@ -1,0 +1,553 @@
+{
+  "run_idx": 3,
+  "model_label": "14b_temp0",
+  "model": "qwen2.5-coder:14b",
+  "temperature": 0.0,
+  "status": "OK",
+  "any_deviation": true,
+  "total_fields": 31,
+  "total_deviating": 2,
+  "overall_deviation_rate": 0.0645,
+  "per_agent_lkw": {
+    "productcatalog": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-20T01:17:47.183843+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "query": "list all products",
+          "product_ids": null,
+          "action": "list_products",
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "CATALOG_DONE",
+        "timestamp": "2026-07-20T01:17:47.184252+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "action": "list_products",
+          "count": 2,
+          "product_ids": [
+            "PROD-001",
+            "PROD-002"
+          ],
+          "hallucinated": false,
+          "query_tampered": false,
+          "action_swapped": false,
+          "products_missing": false,
+          "price_manipulated": false,
+          "duplicated": false,
+          "category_wrong": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-20T01:17:47.184293+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "count": 2
+        }
+      }
+    ],
+    "currency": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-20T01:17:47.864076+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "action": "convert",
+          "from_currency": "USD",
+          "to_currency": "USD",
+          "units": 19,
+          "nanos": 990000000,
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "CONVERT_DONE",
+        "timestamp": "2026-07-20T01:17:47.864275+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "from_currency": "USD",
+          "to_currency": "USD",
+          "units_in": 19,
+          "units_out": 19,
+          "hallucinated": false,
+          "rate_manipulated": false,
+          "stale_rate": false,
+          "overflow": false,
+          "amount_tampered": false,
+          "currency_swapped": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-20T01:17:47.864299+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "result": {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          }
+        }
+      }
+    ],
+    "shipping_quote": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-20T01:17:48.297498+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "address": {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          "item_count": 1
+        }
+      },
+      {
+        "step": "QUOTE_DONE",
+        "timestamp": "2026-07-20T01:17:59.085496+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "cost_usd": 15.88
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-20T01:17:59.085522+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "raw": "{\"cost_usd\": 15.88}"
+        }
+      },
+      {
+        "step": "SAVE_DONE",
+        "timestamp": "2026-07-20T01:17:59.085571+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "saved": false,
+          "reason": "benchmark_mode"
+        }
+      }
+    ],
+    "payment": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-20T01:17:59.866377+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "currency_code": "USD",
+          "units": 34,
+          "nanos": 990000000,
+          "card_last4": "1111",
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "CARD_VALIDATED",
+        "timestamp": "2026-07-20T01:17:59.866558+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "card_last4": "1111",
+          "validation_bypassed": false,
+          "amount_tampered": false
+        }
+      },
+      {
+        "step": "CHARGE_DONE",
+        "timestamp": "2026-07-20T01:17:59.866578+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "transaction_id": "4da7f68e-190c-431d-b473-b0fc07d0dbef",
+          "hallucinated": false,
+          "units_charged": 34,
+          "nanos_charged": 990000000
+        }
+      },
+      {
+        "step": "SAVE_DONE",
+        "timestamp": "2026-07-20T01:17:59.866662+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "saved": true,
+          "transaction_id": "4da7f68e-190c-431d-b473-b0fc07d0dbef",
+          "save_skipped": false,
+          "double_charge": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-20T01:17:59.866681+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "success": true,
+          "transaction_id": "4da7f68e-190c-431d-b473-b0fc07d0dbef"
+        }
+      }
+    ],
+    "ship_order": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-20T01:18:00.255523+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "address": {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          "item_count": 2
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-20T01:18:09.717877+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "raw": "{\n  \"tracking_id\": \"8451028805\",\n  \"carrier\": \"DHL\",\n  \"service_level\": \"standard\",\n  \"cost_usd\": 15.88\n}"
+        }
+      },
+      {
+        "step": "QUOTE_DONE",
+        "timestamp": "2026-07-20T01:18:09.717933+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "cost_usd": 15.88
+        }
+      },
+      {
+        "step": "BOUNDARY_CHECK",
+        "timestamp": "2026-07-20T01:18:09.718084+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "boundary": "quote_to_carrier",
+          "alert": false,
+          "status": "clean",
+          "expected": {
+            "cost_usd": 15.88
+          },
+          "observed": {
+            "cost_usd": 15.88
+          },
+          "difference": {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          "detail": "strict validation passed",
+          "violations": [],
+          "recovery": {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          }
+        }
+      },
+      {
+        "step": "CARRIER_DONE",
+        "timestamp": "2026-07-20T01:18:09.718098+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "carrier": "DHL",
+          "service_level": "standard"
+        }
+      },
+      {
+        "step": "BOUNDARY_CHECK",
+        "timestamp": "2026-07-20T01:18:09.718173+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "boundary": "carrier_to_tracking",
+          "alert": false,
+          "status": "clean",
+          "expected": {
+            "carrier": "DHL",
+            "service_level": "standard"
+          },
+          "observed": {
+            "carrier": "DHL",
+            "service_level": "standard"
+          },
+          "difference": {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          "detail": "strict validation passed",
+          "violations": [],
+          "recovery": {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          }
+        }
+      },
+      {
+        "step": "TRACKING_DONE",
+        "timestamp": "2026-07-20T01:18:09.718181+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "tracking_id": "8451028805"
+        }
+      },
+      {
+        "step": "ESCALATION_CHECK",
+        "timestamp": "2026-07-20T01:18:09.718189+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "escalation_required": false
+        }
+      },
+      {
+        "step": "SAVE_DONE",
+        "timestamp": "2026-07-20T01:18:09.718197+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "saved": false,
+          "tracking_id": "8451028805",
+          "reason": "benchmark_mode"
+        }
+      }
+    ],
+    "email": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-20T01:18:10.072266+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "email": "customer@example.com",
+          "order_id": "CO-05AC53",
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "EMAIL_GENERATED",
+        "timestamp": "2026-07-20T01:18:12.526655+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "email_type": "order_confirmation",
+          "subject": "Order Confirmation - CO-05AC53",
+          "body_len": 303,
+          "hallucinated": false,
+          "type_wrong": false,
+          "recipient_swapped": false,
+          "corrupted": false,
+          "wrong_customer": false
+        }
+      },
+      {
+        "step": "EMAIL_SENT",
+        "timestamp": "2026-07-20T01:18:12.527345+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "status": "sent",
+          "send_skipped": false,
+          "double_send": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-20T01:18:12.527379+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "status": "sent"
+        }
+      }
+    ]
+  },
+  "oracle_comparisons": {
+    "productcatalog": {
+      "total_fields": 4,
+      "deviating_fields": 1,
+      "deviation_rate": 0.25,
+      "deviations": [
+        {
+          "key": "productcatalogagent.CATALOG_DONE.count",
+          "b1_value": 1,
+          "observed": 2,
+          "reason": "expected=1 got=2"
+        }
+      ],
+      "steps_reached": [
+        "TASK_START",
+        "CATALOG_DONE",
+        "FINAL_ANSWER"
+      ]
+    },
+    "currency": {
+      "total_fields": 4,
+      "deviating_fields": 0,
+      "deviation_rate": 0.0,
+      "deviations": [],
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ]
+    },
+    "shipping_quote": {
+      "total_fields": 2,
+      "deviating_fields": 0,
+      "deviation_rate": 0.0,
+      "deviations": [],
+      "steps_reached": [
+        "TASK_START",
+        "QUOTE_DONE",
+        "FINAL_ANSWER",
+        "SAVE_DONE"
+      ]
+    },
+    "payment": {
+      "total_fields": 10,
+      "deviating_fields": 0,
+      "deviation_rate": 0.0,
+      "deviations": [],
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ]
+    },
+    "ship_order": {
+      "total_fields": 5,
+      "deviating_fields": 1,
+      "deviation_rate": 0.2,
+      "deviations": [
+        {
+          "key": "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote",
+          "b1_value": null,
+          "observed": null,
+          "reason": "observed value is None (checkpoint possibly absent)"
+        }
+      ],
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ]
+    },
+    "email": {
+      "total_fields": 6,
+      "deviating_fields": 0,
+      "deviation_rate": 0.0,
+      "deviations": [],
+      "steps_reached": [
+        "TASK_START",
+        "EMAIL_GENERATED",
+        "EMAIL_SENT",
+        "FINAL_ANSWER"
+      ]
+    }
+  },
+  "elapsed_ms": 26032.8,
+  "rip": {
+    "productcatalog": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CATALOG_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "currency": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "shipping_quote": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "QUOTE_DONE",
+        "FINAL_ANSWER",
+        "SAVE_DONE"
+      ],
+      "steps_lost": []
+    },
+    "payment": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "ship_order": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": []
+    },
+    "email": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "EMAIL_GENERATED",
+        "EMAIL_SENT",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    }
+  },
+  "success": true,
+  "errors": {}
+}

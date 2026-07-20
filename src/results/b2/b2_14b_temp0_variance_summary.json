@@ -1,0 +1,169 @@
+{
+  "model_label": "14b_temp0",
+  "total_runs": 9,
+  "ok_runs": 9,
+  "natural_variance_rate": 1.0,
+  "runs_with_deviation": 9,
+  "per_agent_stats": {
+    "productcatalog": {
+      "mean_deviation_rate": 0.25,
+      "runs_with_any_deviation": 9,
+      "step_coverage": {
+        "TASK_START": 1.0,
+        "CATALOG_DONE": 1.0,
+        "FINAL_ANSWER": 1.0
+      },
+      "frequently_deviating_fields": {
+        "productcatalogagent.CATALOG_DONE.count": {
+          "count": 9,
+          "deviation_rate": 1.0,
+          "sample_values": [
+            2,
+            2,
+            2
+          ]
+        }
+      }
+    },
+    "currency": {
+      "mean_deviation_rate": 0.0,
+      "runs_with_any_deviation": 0,
+      "step_coverage": {
+        "TASK_START": 1.0,
+        "CONVERT_DONE": 1.0,
+        "FINAL_ANSWER": 1.0
+      },
+      "frequently_deviating_fields": {}
+    },
+    "shipping_quote": {
+      "mean_deviation_rate": 0.0,
+      "runs_with_any_deviation": 0,
+      "step_coverage": {
+        "TASK_START": 1.0,
+        "QUOTE_DONE": 1.0,
+        "FINAL_ANSWER": 1.0,
+        "SAVE_DONE": 1.0
+      },
+      "frequently_deviating_fields": {}
+    },
+    "payment": {
+      "mean_deviation_rate": 0.0,
+      "runs_with_any_deviation": 0,
+      "step_coverage": {
+        "TASK_START": 1.0,
+        "CARD_VALIDATED": 1.0,
+        "CHARGE_DONE": 1.0,
+        "SAVE_DONE": 1.0,
+        "FINAL_ANSWER": 1.0
+      },
+      "frequently_deviating_fields": {}
+    },
+    "ship_order": {
+      "mean_deviation_rate": 0.2,
+      "runs_with_any_deviation": 9,
+      "step_coverage": {
+        "TASK_START": 1.0,
+        "FINAL_ANSWER": 1.0,
+        "QUOTE_DONE": 1.0,
+        "BOUNDARY_CHECK": 2.0,
+        "CARRIER_DONE": 1.0,
+        "TRACKING_DONE": 1.0,
+        "ESCALATION_CHECK": 1.0,
+        "SAVE_DONE": 1.0
+      },
+      "frequently_deviating_fields": {
+        "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote": {
+          "count": 9,
+          "deviation_rate": 1.0,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        }
+      }
+    },
+    "email": {
+      "mean_deviation_rate": 0.0,
+      "runs_with_any_deviation": 0,
+      "step_coverage": {
+        "TASK_START": 1.0,
+        "EMAIL_GENERATED": 1.0,
+        "EMAIL_SENT": 1.0,
+        "FINAL_ANSWER": 1.0
+      },
+      "frequently_deviating_fields": {}
+    }
+  },
+  "step_coverage": {
+    "productcatalog": {
+      "TASK_START": 1.0,
+      "CATALOG_DONE": 1.0,
+      "FINAL_ANSWER": 1.0
+    },
+    "currency": {
+      "TASK_START": 1.0,
+      "CONVERT_DONE": 1.0,
+      "FINAL_ANSWER": 1.0
+    },
+    "shipping_quote": {
+      "TASK_START": 1.0,
+      "QUOTE_DONE": 1.0,
+      "FINAL_ANSWER": 1.0,
+      "SAVE_DONE": 1.0
+    },
+    "payment": {
+      "TASK_START": 1.0,
+      "CARD_VALIDATED": 1.0,
+      "CHARGE_DONE": 1.0,
+      "SAVE_DONE": 1.0,
+      "FINAL_ANSWER": 1.0
+    },
+    "ship_order": {
+      "TASK_START": 1.0,
+      "FINAL_ANSWER": 1.0,
+      "QUOTE_DONE": 1.0,
+      "BOUNDARY_CHECK": 2.0,
+      "CARRIER_DONE": 1.0,
+      "TRACKING_DONE": 1.0,
+      "ESCALATION_CHECK": 1.0,
+      "SAVE_DONE": 1.0
+    },
+    "email": {
+      "TASK_START": 1.0,
+      "EMAIL_GENERATED": 1.0,
+      "EMAIL_SENT": 1.0,
+      "FINAL_ANSWER": 1.0
+    }
+  },
+  "field_variance_table": [
+    {
+      "agent": "productcatalog",
+      "checkpoint": "CATALOG_DONE",
+      "field": "count",
+      "deviation_count": 9,
+      "deviation_rate": 1.0,
+      "total_runs": 9,
+      "sample_values": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "agent": "ship_order",
+      "checkpoint": "CARRIER_DONE",
+      "field": "ignored_downstream_quote",
+      "deviation_count": 9,
+      "deviation_rate": 1.0,
+      "total_runs": 9,
+      "sample_values": [
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "avg_elapsed_ms": 25919.6,
+  "generated_at": "2026-07-20T01:59:31.836650+00:00"
+}

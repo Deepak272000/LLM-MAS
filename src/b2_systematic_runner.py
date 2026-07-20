@@ -594,7 +594,8 @@ def _make_lkw_entry(step, agent, data):
 # Orchestrator-driven checkout (True B2/B3 mode)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: int) -> dict:
+def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: int,
+                                   fault_agent: str = "all") -> dict:
     """
     Run one checkout through the LLM-driven checkout orchestrator agent,
     which mirrors the Go checkout-agent ReAct loop.  The LLM decides which
@@ -610,6 +611,7 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
 
     payload = {
         "fault_mode":    fault_mode,
+        "fault_agent":   fault_agent,   # "all" = global; service name = targeted
         "model":         model,
         "temperature":   temp,
         "ollama_url":    model_cfg["ollama_url"],
@@ -729,7 +731,7 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
     }
 
 
-def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
+def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False, fault_agent="all"):
     """
     Execute one full checkout flow.
     Returns a dict with unified checkout LKW + per-agent LKW + RIP summary.
@@ -742,7 +744,7 @@ def run_checkout_once(fault_mode, model_cfg, run_idx, skip_llm=False):
     """
     # ── Orchestrator path — True B2/B3 mode ──────────────────────────────────
     if not skip_llm:
-        return _run_checkout_via_orchestrator(fault_mode, model_cfg, run_idx)
+        return _run_checkout_via_orchestrator(fault_mode, model_cfg, run_idx, fault_agent)
 
     # ── Legacy fallback (skip_llm=True dry-run mode) ──────────────────────────
     run_id   = str(uuid.uuid4())[:8]

@@ -77,33 +77,40 @@ from b2_systematic_runner import (
 )
 
 # ── Fault mode registry ────────────────────────────────────────────────────────
-ALL_FAULT_MODES = [
-    # General faults
-    "FM_3_1",
-    "FM_1_2",
-    "FM_2_2",
-    "FM_2_5",
-    # Business-logic faults
-    "BL_SHIPMENT_LOST",
-    "BL_INVENTORY_MISMATCH",
-    "BL_VENDOR_NEGOTIATION",
-    "BL_CUSTOMER_ESCALATION",
-    "BL_REFUND_REASONING",
-    "BL_COMPLIANCE_AMBIGUITY",
+# ── Targeted fault matrix ─────────────────────────────────────────────────────
+# Each entry: (fault_mode, fault_agent, category)
+#
+# FM_ general faults are injected globally (fault_agent="all") — they exist in
+# every agent's fault_injection.py and test system-level resilience.
+#
+# BL_ business faults are TARGETED to a specific service because each agent
+# only knows its own BL_ codes.  Injecting "BL_SHIPMENT_LOST" globally would
+# cause productcatalog/currency/payment/email to silently ignore it while
+# shipping activates it — but the oracle then incorrectly reports infection at
+# productcatalog due to natural LLM variance.  Targeted injection fixes this:
+# only the target agent receives the fault_mode; all others get "NONE".
+#
+# Professor requirement: every service ≥1 system fault + ≥1 business fault.
+TARGETED_FAULT_MATRIX = [
+    # (fault_mode,             fault_agent,       category)
+    # ── General / system-level — all agents get the fault simultaneously ─────
+    ("FM_3_1", "all",           "general"),   # Premature Termination
+    ("FM_1_2", "all",           "general"),   # Wrong Action Routing
+    ("FM_2_2", "all",           "general"),   # Hallucinated Output
+    ("FM_2_5", "all",           "general"),   # Input Ignored
+    # ── Business-logic — targeted to the owning service ──────────────────────
+    ("BL_PRICE_MANIPULATION", "productcatalog", "business"),  # price inflated 10x
+    ("BL_RATE_MANIPULATION",  "currency",       "business"),  # exchange rate manipulated
+    ("BL_AMOUNT_TAMPERING",   "payment",        "business"),  # charge amount tampered
+    ("BL_INVENTORY_MISMATCH", "shipping_quote", "business"),  # item quantities corrupt
+    ("BL_SHIPMENT_LOST",      "ship_order",     "business"),  # tracking save skipped
+    ("BL_CORRUPTED_BODY",     "email",          "business"),  # email body truncated
 ]
 
-FAULT_CATEGORIES = {
-    "FM_3_1":                 "general",
-    "FM_1_2":                 "general",
-    "FM_2_2":                 "general",
-    "FM_2_5":                 "general",
-    "BL_SHIPMENT_LOST":       "business",
-    "BL_INVENTORY_MISMATCH":  "business",
-    "BL_VENDOR_NEGOTIATION":  "business",
-    "BL_CUSTOMER_ESCALATION": "business",
-    "BL_REFUND_REASONING":    "business",
-    "BL_COMPLIANCE_AMBIGUITY":"business",
-}
+# Flat list kept for --fault-mode CLI backward compatibility
+ALL_FAULT_MODES = [e[0] for e in TARGETED_FAULT_MATRIX]
+
+FAULT_CATEGORIES = {e[0]: e[2] for e in TARGETED_FAULT_MATRIX}
 
 # Agent name mapping: systematic runner short names → oracle full names
 SYS_TO_ORACLE = {
@@ -227,10 +234,11 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
     # Run the checkout chain
     try:
         checkout_result = run_checkout_once(
-            fault_mode = effective_fault_mode,
-            model_cfg  = model_cfg,
-            run_idx    = run_idx,
-            skip_llm   = skip_llm,
+            fault_mode  = effective_fault_mode,
+            model_cfg   = model_cfg,
+            run_idx     = run_idx,
+            skip_llm    = skip_llm,
+            fault_agent = fault_agent,
         )
     except Exception as exc:
         return {
@@ -390,7 +398,13 @@ def main():
     if not args.fault_mode and not args.all:
         parser.error("Provide --fault-mode FM_X or --all")
 
-    fault_modes   = ALL_FAULT_MODES if args.all else [args.fault_mode]
+    # When --all: use the targeted matrix (fault_mode + fault_agent per entry).
+    # When --fault-mode X [--fault-agent Y]: single-entry campaign from CLI args.
+    if args.all:
+        fault_campaign = [(fm, fa) for fm, fa, _ in TARGETED_FAULT_MATRIX]
+    else:
+        fault_campaign = [(args.fault_mode, args.fault_agent)]
+
     model_configs = build_model_configs()
     if args.cfg:
         model_configs = [c for c in model_configs if c["label"] == args.cfg]
@@ -401,10 +415,9 @@ def main():
     print("=" * 60)
     print("B3 Fault Injection Runner — Mutation Detection")
     print("=" * 60)
-    print(f"  fault_modes  : {fault_modes}")
+    print(f"  fault_campaign: {fault_campaign}")
     print(f"  runs/combo   : {args.runs}")
     print(f"  configs      : {[c['label'] for c in model_configs]}")
-    print(f"  fault_agent  : {args.fault_agent}")
     print()
 
     # Write checkout helpers once
@@ -423,10 +436,11 @@ def main():
     all_summaries = []
     all_raw_runs  = []
 
-    for fault_mode in fault_modes:
+    for (fault_mode, fault_agent) in fault_campaign:
         for cfg in model_configs:
             label = cfg["label"]
-            print(f"── {fault_mode} × {label} ──")
+            agent_tag = f"@{fault_agent}" if fault_agent != "all" else ""
+            print(f"── {fault_mode}{agent_tag} × {label} ──")
             runs = []
 
             for run_idx in range(1, args.runs + 1):
@@ -435,7 +449,7 @@ def main():
                     fault_mode  = fault_mode,
                     model_cfg   = cfg,
                     run_idx     = run_idx,
-                    fault_agent = args.fault_agent,
+                    fault_agent = fault_agent,
                     oracle      = oracle,
                     skip_llm    = args.skip_llm,
                 )

@@ -373,12 +373,35 @@ def _ckpt(step: str, data: dict) -> dict:
 
 # ── Main orchestrator (ReAct loop) ────────────────────────────────────────────
 
+# ── Tool name → agent short name (matches CHECKOUT_AGENT_ORDER in b3_runner) ─
+_TOOL_TO_AGENT = {
+    "get_product":             "productcatalog",
+    "convert_currency":        "currency",
+    "quote_shipping":          "shipping_quote",
+    "charge_card":             "payment",
+    "ship_order":              "ship_order",
+    "send_order_confirmation": "email",
+}
+
+
+def _fm_for_agent(fault_mode: str, fault_agent: str, agent_name: str) -> str:
+    """
+    Return the fault_mode to pass to a specific sub-agent.
+    - fault_agent="all"  → every agent gets fault_mode
+    - fault_agent=X      → only agent X gets fault_mode; all others get "NONE"
+    """
+    if fault_agent in ("all", ""):
+        return fault_mode
+    return fault_mode if agent_name == fault_agent else "NONE"
+
+
 def run_orchestrator(payload: dict) -> None:
     """
     Run the LLM ReAct loop, dispatching each tool call to the appropriate
     co_helper subprocess, and emit JSON to stdout.
     """
-    fault_mode = payload.get("fault_mode",  "NONE")
+    fault_mode  = payload.get("fault_mode",  "NONE")
+    fault_agent = payload.get("fault_agent", "all")  # "all" or a specific agent name
     model      = payload.get("model",       "qwen2.5-coder:14b")
     temp       = float(payload.get("temperature", 0.0))
     ollama_url = payload.get("ollama_url",  "http://localhost:11434")
@@ -397,8 +420,10 @@ def run_orchestrator(payload: dict) -> None:
         "address":     payload.get("address", {}),
     }))
 
-    # FM_3_1 = premature termination → cap to 3 ReAct iterations
-    max_iters = 3 if fault_mode == "FM_3_1" else 15
+    # FM_3_1 on the orchestrator itself caps ReAct iterations.
+    # Only apply when fault targets the orchestrator ("all") or "checkout_orchestrator".
+    orch_fault = _fm_for_agent(fault_mode, fault_agent, "checkout_orchestrator")
+    max_iters = 3 if orch_fault == "FM_3_1" else 15
 
     system_prompt = (
         "You are a checkout orchestrator agent for an e-commerce platform.\n"
@@ -479,8 +504,11 @@ def run_orchestrator(payload: dict) -> None:
                 if dispatcher is None:
                     tool_result = json.dumps({"error": f"unknown tool: {tool_name}"})
                 else:
+                    # Pass fault_mode only to the target agent; others get NONE.
+                    agent_name  = _TOOL_TO_AGENT.get(tool_name, tool_name)
+                    agent_fault = _fm_for_agent(fault_mode, fault_agent, agent_name)
                     tool_result = dispatcher(
-                        tool_args, payload, per_agent_lkw, model, ollama_url, temp, fault_mode
+                        tool_args, payload, per_agent_lkw, model, ollama_url, temp, agent_fault
                     )
 
                 # Emit a LKW checkpoint for each completed tool call

@@ -5,8 +5,8 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
 #SBATCH --time=08:00:00
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:a100:1
+#SBATCH --partition=pt
+#SBATCH --gres=gpu:1
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  LLM-MAS — B3 Fault Injection Campaign (all fault modes × all configs)

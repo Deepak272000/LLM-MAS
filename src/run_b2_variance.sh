@@ -5,8 +5,8 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
 #SBATCH --time=03:00:00
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:a100:1
+#SBATCH --partition=pt
+#SBATCH --gres=gpu:1
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  LLM-MAS — B2 Natural Variance Baseline (High-Temp Google-bench configs)

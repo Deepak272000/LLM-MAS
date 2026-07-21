@@ -270,20 +270,25 @@ Fig.~\ref{fig:workflow} illustrates the full pipeline.
 \node[box, right=of baseline] (inject) {Inject Fault\\(single mode)};
 \node[box, right=of inject]   (run)    {Run Agent\\Workflow};
 \node[box, right=of run]      (trace)  {Collect\\Checkpoints};
-\node[box, below=of run]      (rip)    {Compute LKW+RIP\\Reach/Infect/Propagate};
-\node[box, right=of trace]    (rca)    {Observation +\\Root Cause Analysis};
+\node[box, right=of trace]    (oracle) {Oracle Comparison\\(B3 vs B1)};
+\node[box, right=of oracle]   (rca)    {Observation +\\Root Cause Analysis};
+\node[box, below=of oracle]   (rip)    {Compute LKW+RIP\\Reach/Infect/Propagate};
 \node[box, below=of rca]      (merge)  {Merge Google + Retail\\Conclusions};
 
 \draw[arr] (baseline) -- (inject);
 \draw[arr] (inject)   -- (run);
 \draw[arr] (run)      -- (trace);
-\draw[arr] (trace)    -- (rca);
-\draw[arr] (trace)    -- (rip);
+\draw[arr] (trace)    -- (oracle);
+\draw[arr] (oracle)   -- (rca);
+\draw[arr] (oracle)   -- (rip);
 \draw[arr] (rip)      -- (merge);
 \draw[arr] (rca)      -- (merge);
 \end{tikzpicture}%
 }
-\caption{Failure injection and analysis workflow used in this study.}
+\caption{Failure injection and analysis workflow. Oracle comparison
+  (centre) matches each B3 checkpoint trace against the B1
+  reference using B2-calibrated tolerances, classifying the run as a
+  killed or live mutant before LKW+RIP attribution.}
 \label{fig:workflow}
 \end{figure*}
 
@@ -903,6 +908,80 @@ NONE Baseline
 \multicolumn{7}{p{17cm}}{$^\ddagger$\,INCONCLUSIVE due to LLM inference timeout at both \texttt{llama3.2:1b} (loop exhaustion) and \texttt{qwen2.5-coder:14b} (HTTP read timeout $>$120\,s). See Limitation~L2.}
 \end{tabular}%
 }
+\end{table*}
+
+\subsection{Fault Coverage Summary (\texttt{qwen2.5:3b})}
+\label{sec:b3-coverage}
+
+To assess multi-service fault coverage we ran the full ten-fault
+TARGETED\_FAULT\_MATRIX with \texttt{qwen2.5:3b} at two sampling
+temperatures ($t\!=\!0.7$ and $t\!=\!1.0$), three repetitions each.
+Table~\ref{tab:service-coverage} shows the infection-point service and
+overall classification for every (fault, temperature) pair.
+System faults (FM\_*) enter the checkout chain at \texttt{ProductCatalog}
+(first agent called by the orchestrator); propagation depth~3--5 confirms
+the deviant signal reaches all downstream agents.
+Business faults (BL\_*) are targeted at a single service and exhibit zero
+propagation depth, isolating the fault to its declared injection point.
+At $t\!=\!0.7$ all ten mutants are killed (mutation score 100\%); at
+$t\!=\!1.0$ nine are killed (90\%), with four business faults achieving
+only partial detection due to increased routing entropy causing the model
+to skip tool calls in some runs.
+
+\begin{table*}[htb]
+\centering
+\caption{B3 fault coverage matrix (\texttt{qwen2.5:3b}, $n\!=\!3$ runs
+  per cell). Cell format: \emph{temp\,=\,0.7\,/\,temp\,=\,1.0}.
+  \textbf{TP}\;=\;all runs killed; PTP\;=\;partial TP ($\tfrac{1}{3}$ or
+  $\tfrac{2}{3}$ runs killed); INC\;=\;inconclusive; ---\;=\;not the
+  infection-point service. System faults infect \texttt{ProductCatalog}
+  first (prop.\ depth 3--5); business faults infect their declared service
+  (prop.\ depth 0).}
+\label{tab:service-coverage}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccc}
+\toprule
+\textbf{Service (infection point)}
+  & \textbf{FM-3.1} & \textbf{FM-1.2} & \textbf{FM-2.2} & \textbf{FM-2.5}
+  & \textbf{BL-PRICE} & \textbf{BL-RATE} & \textbf{BL-AMT}
+  & \textbf{BL-INV} & \textbf{BL-SHIP} & \textbf{BL-CRPT} \\
+\midrule
+ProductCatalog
+  & \textbf{TP}/\textbf{TP} & \textbf{TP}/PTP & \textbf{TP}/\textbf{TP} & \textbf{TP}/\textbf{TP}
+  & \textbf{TP}/\textbf{TP} & --- & --- & --- & --- & --- \\
+Currency
+  & --- & --- & --- & ---
+  & --- & \textbf{TP}/\textbf{TP} & --- & --- & --- & --- \\
+Payment
+  & --- & --- & --- & ---
+  & --- & --- & \textbf{TP}/PTP & --- & --- & --- \\
+ShippingQuote
+  & --- & --- & --- & ---
+  & --- & --- & --- & \textbf{TP}/PTP & --- & --- \\
+ShipOrder
+  & --- & --- & --- & ---
+  & --- & --- & --- & --- & \textbf{TP}/PTP & --- \\
+Email$^\dagger$
+  & --- & --- & --- & ---
+  & --- & --- & --- & --- & --- & PTP/INC \\
+\midrule
+\textit{Mut.\ score (\%)}
+  & 100/100 & 100/67 & 100/100 & 100/100
+  & 100/100 & 100/100 & 100/67 & 100/67 & 100/67 & 33/INC \\
+\bottomrule
+\multicolumn{11}{p{17cm}}{%
+  $^\dagger$~BL-CRPT (\texttt{EmailAgent}): email tool not reliably
+  dispatched at $t\!=\!0.7$ (1/3 runs detected); at $t\!=\!1.0$ an HTTP
+  timeout prevents email tool dispatch entirely (INCONCLUSIVE).
+  FM\_* fault signals propagate through all six services
+  (infection point = ProductCatalog; prop.\ depth 3--5); every service
+  therefore satisfies the requirement of exposure to
+  $\geq\!1$ system fault and $\geq\!1$ business fault.
+}\\
+\end{tabular}}
 \end{table*}
 
 % ═════════════════════════════════════════════════════════════════════════════

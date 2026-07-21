@@ -1348,8 +1348,12 @@ def main():
     print(f"  configs      : {[c['label'] for c in model_configs]}")
     print()
 
-    # Write helper scripts once
-    write_all_helpers()
+    # Verify helpers exist (no longer written at runtime — use pre-built orchestrators)
+    if not _all_helpers_exist():
+        print("[ERROR] One or more co_helper files are missing.")
+        print("        Expected: co_helper_{productcatalog,currency,payment,email,shipping}.py in src/")
+        sys.exit(1)
+    print("[helpers] all co_helper files present (using pre-built orchestrators)")
     print()
 
     all_runs = []

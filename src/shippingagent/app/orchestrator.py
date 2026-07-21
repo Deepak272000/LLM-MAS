@@ -500,6 +500,8 @@ class ShippingOrchestrator:
         Returns: {"cost_usd": float}
         """
         ckpt = LKWCheckpoint()
+        # BL_INVENTORY_MISMATCH: double item quantities before task prompt
+        items = fi.maybe_corrupt_items(items)
         ckpt.record("TASK_START", {"address": address, "item_count": len(items)})
 
         task = (
@@ -529,7 +531,10 @@ class ShippingOrchestrator:
             match    = re.search(r"[\d]+\.?[\d]*", raw)
             cost_usd = float(match.group()) if match else 5.0
 
-        ckpt.record("QUOTE_DONE", {"cost_usd": cost_usd})
+        ckpt.record("QUOTE_DONE", {
+            "cost_usd":            cost_usd,
+            "item_count_inflated": fi.is_active(fi.BL_INVENTORY_MISMATCH),
+        })
         ckpt.record("FINAL_ANSWER", {"raw": raw})
 
         # ── Save quote to MongoDB ─────────────────────────────────────────────

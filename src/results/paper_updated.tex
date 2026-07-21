@@ -75,14 +75,15 @@ evaluates fault reachability, infection, and propagation using
 data-flow observation-point tracing (Laski-Korel-Weyuker+RIP, hereafter LKW+RIP~\cite{lkw,rapps-weyuker}). We execute two benchmark suites
 (Google-bench followed by Retail-bench) on an HPC environment and map observed
 failures to MAST-style fault categories. Six Python-based agents serve as
-deterministic framework-validation baselines (no LLM in the loop); the
-ShippingService agent is the sole live-LLM service, exercised with
-\texttt{qwen2.5-coder:14b} via Ollama on Concordia SPEED HPC. Across all
-64~mode-runs (6 deterministic agents $\times$ 9 fault modes $\times$ 3
-stability runs), zero UNSTABLE entries were observed, confirming 100\%
+deterministic baselines for B3 fault injection (\texttt{USE\_LLM=false});
+all seven agents are exercised with live LLM for B2 natural variance collection.
+The ShippingService is the sole live-LLM service for fault injection, exercised
+with \texttt{qwen2.5-coder:14b} via Ollama on Concordia SPEED HPC. Across all
+64~mode-runs ($6\,{\times}\,9$ deterministic~$+$~$10$ ShippingService; each
+deterministic mode repeated $3{\times}$ for stability), zero UNSTABLE entries were observed, confirming 100\%
 reproducibility of the LKW+RIP instrumentation framework. For the
-ShippingService, 9 of 11 fault modes produced observable LKW signals (7 TP,
-2~Partial TP, 1 TN); 1 fault mode remains INCONCLUSIVE due to LLM inference
+ShippingService, 9 of 11 fault modes produced positive detectable signals (7~TP,
+2~Partial TP); 1 mode was correctly rejected (TN); 1 fault mode remains INCONCLUSIVE due to LLM inference
 timeout under the compliance-ambiguity scenario. Per-benchmark root cause
 analysis shows that FM-2.2 (hallucinated output) is the highest-risk fault
 class at both single-agent and cross-agent boundaries, completing all
@@ -121,10 +122,12 @@ reproduced, observed, and contained before they become business harm.
 This study covers seven agent services in the LLM-MAS architecture: six
 Python-based agents (PaymentAgent, CurrencyAgent, EmailServiceAgent,
 ProductCatalogAgent, RecommendationAgent, AdServiceAgent) that serve as
-deterministic instrumentation baselines, and the ShippingService agent, which
-is the sole live-LLM service using \texttt{qwen2.5-coder:14b} via Ollama on
-Concordia SPEED HPC. This design separates framework validation (six agents)
-from LLM-in-the-loop capability testing (ShippingService).
+deterministic instrumentation baselines for B3 fault injection, and the
+ShippingService agent, which is the sole live-LLM service for fault injection
+using \texttt{qwen2.5-coder:14b} via Ollama on Concordia SPEED HPC. B2 natural
+variance collection exercises all seven agents with live LLM. This design
+separates deterministic framework validation (six agents) from LLM fault-injection
+capability testing (ShippingService).
 
 In this project, we answer the following research questions:
 \begin{description}
@@ -292,8 +295,9 @@ $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
 \end{tikzpicture}
 \caption{LLM-MAS system architecture. Microservices (blue) serve
 \texttt{CheckoutService} via gRPC (solid arrows). Agent wrappers (green)
-orchestrate each microservice via LangGraph\,/\,ReAct (dashed) and share a
-single Ollama LLM backend (orange, dotted).}
+orchestrate each microservice via ReAct (dashed; ShippingAgent uses LangGraph;
+remaining agents use direct Ollama HTTP) and share a single Ollama LLM backend
+(orange, dotted).}
 \label{fig:architecture}
 \end{figure*}
 
@@ -780,9 +784,9 @@ mutation analysis:
         Retail-bench and Google-bench campaigns
         (Sections~\ref{sec:google-bench} and~\ref{sec:retail-bench}) report
         B3 results. The six-agent deterministic runs
-        (Section~\ref{sec:b1-oracle}) report B1. B2 collection for all agents
-        is pending; current B3 analysis uses the ShippingService NONE-baseline
-        run as a proxy B2 (one run; calibration is approximate).
+        (Section~\ref{sec:b1-oracle}) report B1. B2 natural variance has been
+        collected for all seven agents across three \texttt{qwen2.5:3b}
+        temperature configurations (30 runs total; see Figure~\ref{fig:b2-heatmap}).
 \end{description}
 
 Figure~\ref{fig:b2-heatmap} visualises the B2 agent reach rate across the
@@ -895,8 +899,11 @@ ShippingService
         agent's business-logic method directly, bypassing the LangGraph router
         and LLM inference call entirely. \texttt{USE\_LLM=false} is hardcoded
         in all test runners. These agents validate the correctness of the
-        LKW+RIP instrumentation framework on deterministic Python code.
-  \item \textbf{ShippingService}: the sole live-LLM agent. The full LangGraph
+        LKW+RIP instrumentation framework on deterministic Python code during
+        B3 fault injection. For B2 natural variance collection, all seven agents
+        are exercised with live LLM (Section~\ref{sec:b1-b2-align}).
+  \item \textbf{ShippingService}: the sole live-LLM agent for B3 fault injection.
+        The full LangGraph
         ReAct loop is exercised with \texttt{qwen2.5-coder:14b} on SPEED HPC.
         Fault injection occurs at the Final Answer intercept, tool-dispatch, and
         post-agent metadata layers to be observable regardless of single-pass
@@ -2010,7 +2017,7 @@ Figure~\ref{fig:hitl-stacked} shows the per-agent tier breakdown.
 \label{fig:hitl-stacked}
 \end{figure*}
 
-\subsection{Key Finding}
+\subsection{Key Finding: Tier~3 Silent Fault Distribution}
 
 Of the 57 injected fault scenarios, 7 are Tier~3 (silent): the six FM-2.2
 (hallucinated output) cases across the six deterministic agents, and the
@@ -2049,8 +2056,8 @@ Each fault mode is assigned one of three stability labels:
 \subsection{Aggregate Results}
 
 Table~\ref{tab:stability-summary} summarises the stability classification across
-all 64 mode-runs (6 deterministic agents $\times$ 9 fault modes $\times$ 3 runs,
-plus ShippingService 10 fault modes $\times$ 1 run confirmed via evidence files).
+all 64 mode-runs (6 deterministic agents $\times$ 9 fault modes = 54, plus
+ShippingService 10 fault modes; each deterministic mode-run executed 3 times).
 
 \begin{table}[htb]
 \centering
@@ -2302,7 +2309,7 @@ receives this identifier, queries the recommender service, and returns a product
 recommendation list --- all three LKW checkpoints reached with
 \texttt{infection\_point = None}. No structural signal fires at either hop.
 
-\subsection{Key Finding}
+\subsection{Key Finding: Cross-Boundary FM-2.2 Risk}
 
 \medskip
 \noindent\rule{\linewidth}{0.5pt}
@@ -2628,10 +2635,12 @@ result, the six-agent results characterise the correctness of the LKW+RIP
 \emph{instrumentation framework} on deterministic Python code --- not LLM-based
 fault detection capability.
 
-Only \textbf{ShippingService} is a true LLM-in-the-loop agent in this study.
+Only \textbf{ShippingService} runs live LLM during B3 fault injection campaigns.
 Claims about LLM-based fault detection are supported only by the ShippingService
 Retail-bench results (11 fault modes: 7 TP, 2 Partial TP, 1 TN, 1 INCONCLUSIVE).
-Extending live-LLM execution to all agents is left as future work.
+Pure LLM ReAct orchestrators have been built for all six agents and used for B2
+natural variance collection (Figure~\ref{fig:b2-heatmap}); extending B3 fault
+injection to live-LLM execution for the remaining six agents is left as future work.
 
 \subsection{L2 --- Compliance-Ambiguity Fault Remains INCONCLUSIVE}
 
@@ -2824,8 +2833,8 @@ real LLM-in-the-loop execution.
 
 Across all 64~mode-runs (7 agents, 100\% stability), zero UNSTABLE entries
 confirm that the LKW+RIP instrumentation is deterministic and reproducible.
-For the ShippingService Retail-bench, 9 of 11 fault modes produced observable
-LKW signals (7~TP, 2~Partial TP, 1~TN); 1 fault mode
+For the ShippingService Retail-bench, 9 of 11 fault modes produced positive
+detectable signals (7~TP, 2~Partial TP); 1 mode was correctly rejected (TN); 1 fault mode
 (BL-COMPLIANCE\_AMBIGUITY) remains INCONCLUSIVE due to LLM inference timeout
 at both model scales tested.
 
@@ -2859,8 +2868,6 @@ on scenario design, benchmark sequencing, and research-question framing.
 % ═════════════════════════════════════════════════════════════════════════════
 \bibliographystyle{ACM-Reference-Format}
 \begin{thebibliography}{00}
-
-% ── TODO: Replace all stubs below with real citations before submission ────
 
 \bibitem{lkw}
 J.~W.~Laski and B.~Korel, ``A data flow oriented program testing strategy,''

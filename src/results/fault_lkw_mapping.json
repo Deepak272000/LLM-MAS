@@ -1,0 +1,1529 @@
+{
+  "description": "Fault \u00d7 LKW \u00d7 Checkpoint \u00d7 Service mapping table",
+  "generated_from": [
+    "checkpoint_variable_map.json",
+    "b1_oracle_values.json",
+    "b3 summaries"
+  ],
+  "configs": [
+    "3b_temp0.7",
+    "3b_temp1.0"
+  ],
+  "total_rows": 57,
+  "rows": [
+    {
+      "fault": "BL_AMOUNT_TAMPERING",
+      "category": "business",
+      "target_service": "payment",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CARD_VALIDATED",
+      "field": "amount_tampered",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "payment",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "payment",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_AMOUNT_TAMPERING",
+      "category": "business",
+      "target_service": "payment",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CHARGE_DONE",
+      "field": "units_charged",
+      "field_type": "integer",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "payment",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "payment",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_AMOUNT_TAMPERING",
+      "category": "business",
+      "target_service": "payment",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "TASK_START",
+      "field": "nanos",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "payment",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "payment",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_AMOUNT_TAMPERING",
+      "category": "business",
+      "target_service": "payment",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "TASK_START",
+      "field": "units",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "payment",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "payment",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_CORRUPTED_BODY",
+      "category": "business",
+      "target_service": "email",
+      "agent": "email",
+      "agent_full": "emailserviceagent",
+      "checkpoint": "EMAIL_GENERATED",
+      "field": "body_len",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 33,
+          "infected_at": "email",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "INCONCLUSIVE",
+          "detect_pct": 0,
+          "infected_at": "-",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_INVENTORY_MISMATCH",
+      "category": "business",
+      "target_service": "shipping_quote",
+      "agent": "shipping_quote",
+      "agent_full": "shippingagent_get_quote",
+      "checkpoint": "QUOTE_DONE",
+      "field": "cost_usd",
+      "field_type": "float",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "shipping_quote",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "shipping_quote",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_INVENTORY_MISMATCH",
+      "category": "business",
+      "target_service": "shipping_quote",
+      "agent": "shipping_quote",
+      "agent_full": "shippingagent_get_quote",
+      "checkpoint": "TASK_START",
+      "field": "item_count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "shipping_quote",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "shipping_quote",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_PRICE_MANIPULATION",
+      "category": "business",
+      "target_service": "productcatalog",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "price_manipulated",
+      "field_type": "boolean",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_RATE_MANIPULATION",
+      "category": "business",
+      "target_service": "currency",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "units_out",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "numeric_tolerance_pct",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "currency",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "currency",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_SHIPMENT_LOST",
+      "category": "business",
+      "target_service": "ship_order",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "SAVE_DONE",
+      "field": "saved",
+      "field_type": "boolean",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "ship_order",
+          "prop_depth": 0
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "ship_order",
+          "prop_depth": 0
+        }
+      }
+    },
+    {
+      "fault": "BL_AD_INJECTION",
+      "category": "other",
+      "target_service": "all",
+      "agent": "adservice",
+      "agent_full": "adserviceagent",
+      "checkpoint": "ADS_FETCHED",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_CONVERSION_OVERFLOW",
+      "category": "other",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "units_out",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "numeric_tolerance_pct",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_CUSTOMER_ESCALATION",
+      "category": "other",
+      "target_service": "all",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "ESCALATION_CHECK",
+      "field": "escalation_required",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "BL_DOUBLE_CHARGE",
+      "category": "other",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "SAVE_DONE",
+      "field": "double_charge",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_DUPLICATE_ADS",
+      "category": "other",
+      "target_service": "all",
+      "agent": "adservice",
+      "agent_full": "adserviceagent",
+      "checkpoint": "ADS_FETCHED",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_DUPLICATE_PRODUCT",
+      "category": "other",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_DUPLICATE_PRODUCT",
+      "category": "other",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "product_ids",
+      "field_type": "list[string]",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_equality",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_EMPTY_ADS",
+      "category": "other",
+      "target_service": "all",
+      "agent": "adservice",
+      "agent_full": "adserviceagent",
+      "checkpoint": "ADS_FETCHED",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_EMPTY_RECS",
+      "category": "other",
+      "target_service": "all",
+      "agent": "recommendation",
+      "agent_full": "recommendationagent",
+      "checkpoint": "RECOMMEND_DONE",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_INJECTION_RECS",
+      "category": "other",
+      "target_service": "all",
+      "agent": "recommendation",
+      "agent_full": "recommendationagent",
+      "checkpoint": "RECOMMEND_DONE",
+      "field": "injection",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_PRODUCT_MISSING",
+      "category": "other",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_PRODUCT_MISSING",
+      "category": "other",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "product_ids",
+      "field_type": "list[string]",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_equality",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_REFUND_REASONING",
+      "category": "other",
+      "target_service": "all",
+      "agent": "shipping_quote",
+      "agent_full": "shippingagent_get_quote",
+      "checkpoint": "QUOTE_DONE",
+      "field": "cost_usd",
+      "field_type": "float",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "BL_SEND_SKIPPED",
+      "category": "other",
+      "target_service": "all",
+      "agent": "email",
+      "agent_full": "emailserviceagent",
+      "checkpoint": "EMAIL_SENT",
+      "field": "send_skipped",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_SEND_SKIPPED",
+      "category": "other",
+      "target_service": "all",
+      "agent": "email",
+      "agent_full": "emailserviceagent",
+      "checkpoint": "EMAIL_SENT",
+      "field": "status",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "exact_string",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_STALE_RATE",
+      "category": "other",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "units_out",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "numeric_tolerance_pct",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_TRANSACTION_LOST",
+      "category": "other",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "SAVE_DONE",
+      "field": "saved",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": null,
+        "3b_temp1.0": null
+      }
+    },
+    {
+      "fault": "BL_VENDOR_NEGOTIATION",
+      "category": "other",
+      "target_service": "all",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "CARRIER_DONE",
+      "field": "carrier",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_membership",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "adservice",
+      "agent_full": "adserviceagent",
+      "checkpoint": "CONTEXT_EXTRACTED",
+      "field": "context_keys",
+      "field_type": "list[string]",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_equality",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "currency_swapped",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "TASK_START",
+      "field": "to_currency",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_string",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "email",
+      "agent_full": "emailserviceagent",
+      "checkpoint": "EMAIL_GENERATED",
+      "field": "email_type",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "exact_string",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CARD_VALIDATED",
+      "field": "validation_bypassed",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "TASK_START",
+      "field": "action",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_string",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_1_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "TRACKING_DONE",
+      "field": "tracking_id",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "schema_regex",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "PARTIAL_TP",
+          "detect_pct": 67,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "adservice",
+      "agent_full": "adserviceagent",
+      "checkpoint": "ADS_FETCHED",
+      "field": "hallucinated",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "units_out",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "numeric_tolerance_pct",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "email",
+      "agent_full": "emailserviceagent",
+      "checkpoint": "EMAIL_GENERATED",
+      "field": "hallucinated",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CHARGE_DONE",
+      "field": "hallucinated",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CHARGE_DONE",
+      "field": "transaction_id",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "schema_regex",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "productcatalog",
+      "agent_full": "productcatalogagent",
+      "checkpoint": "CATALOG_DONE",
+      "field": "product_ids",
+      "field_type": "list[string]",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_equality",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "recommendation",
+      "agent_full": "recommendationagent",
+      "checkpoint": "RECOMMEND_DONE",
+      "field": "hallucinated",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_2",
+      "category": "system",
+      "target_service": "all",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "CARRIER_DONE",
+      "field": "carrier",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_membership",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "adservice",
+      "agent_full": "adserviceagent",
+      "checkpoint": "CONTEXT_EXTRACTED",
+      "field": "context_keys",
+      "field_type": "list[string]",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "set_equality",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "units_out",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "numeric_tolerance_pct",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "currency",
+      "agent_full": "currencyagent",
+      "checkpoint": "TASK_START",
+      "field": "units",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "email",
+      "agent_full": "emailserviceagent",
+      "checkpoint": "TASK_START",
+      "field": "email",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_string",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CARD_VALIDATED",
+      "field": "amount_tampered",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "CHARGE_DONE",
+      "field": "units_charged",
+      "field_type": "integer",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "TASK_START",
+      "field": "nanos",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "payment",
+      "agent_full": "paymentagent",
+      "checkpoint": "TASK_START",
+      "field": "units",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_integer",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "recommendation",
+      "agent_full": "recommendationagent",
+      "checkpoint": "TASK_START",
+      "field": "user_id",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "exact_string",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "CARRIER_DONE",
+      "field": "ignored_downstream_quote",
+      "field_type": "boolean",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "comparison": "exact_bool",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_2_5",
+      "category": "system",
+      "target_service": "all",
+      "agent": "shipping_quote",
+      "agent_full": "shippingagent_get_quote",
+      "checkpoint": "QUOTE_DONE",
+      "field": "cost_usd",
+      "field_type": "float",
+      "lkw_criterion": "All-DU-Paths",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 3
+        }
+      }
+    },
+    {
+      "fault": "FM_3_1",
+      "category": "system",
+      "target_service": "all",
+      "agent": "recommendation",
+      "agent_full": "recommendationagent",
+      "checkpoint": "RECOMMEND_DONE",
+      "field": "count",
+      "field_type": "integer",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use",
+        "C-use"
+      ],
+      "comparison": "range_check",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    },
+    {
+      "fault": "FM_3_1",
+      "category": "system",
+      "target_service": "all",
+      "agent": "ship_order",
+      "agent_full": "shippingagent_ship_order",
+      "checkpoint": "TRACKING_DONE",
+      "field": "tracking_id",
+      "field_type": "string",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "C-use"
+      ],
+      "comparison": "schema_regex",
+      "b3": {
+        "3b_temp0.7": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 4
+        },
+        "3b_temp1.0": {
+          "result": "TP",
+          "detect_pct": 100,
+          "infected_at": "productcatalog",
+          "prop_depth": 5
+        }
+      }
+    }
+  ]
+}

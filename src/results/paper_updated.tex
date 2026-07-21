@@ -16,6 +16,7 @@
 % (cite removed: acmart uses natbib internally)
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\graphicspath{{figures/}}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
@@ -376,6 +377,23 @@ reachability and propagation measurement.
 \section{LKW and RIP Checkpoint Design}
 \label{sec:lkw-design}
 % ═════════════════════════════════════════════════════════════════════════════
+
+Figure~\ref{fig:rip-causality} shows how the FM-2.2 mutation operator maps
+to a specific infection checkpoint at each agent.  All seven agents share the
+same P2 c-use placement class and Tier~3 (Silent) classification, confirming
+that the LKW framework produces consistent, evidence-based tier assignment
+across the full service portfolio.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/fig_rip_causality.pdf}
+\caption{RIP Causality for FM-2.2 (Hallucinated Output): primary infection
+  checkpoint, LKW criterion, use type, and HITL tier for each agent.  All
+  seven agents produce a P2 c-use infection with Tier~3 Silent classification,
+  confirming structural invariance of the FM-2.2 trace signature across the
+  service portfolio.}
+\label{fig:rip-causality}
+\end{figure*}
 
 \subsection{RIP Metrics and Definitions}
 
@@ -766,6 +784,22 @@ mutation analysis:
         is pending; current B3 analysis uses the ShippingService NONE-baseline
         run as a proxy B2 (one run; calibration is approximate).
 \end{description}
+
+Figure~\ref{fig:b2-heatmap} visualises the B2 agent reach rate across the
+three \texttt{qwen2.5:3b} temperature configurations, showing how temperature
+affects LLM routing through the checkout pipeline.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/fig_b2_heatmap.pdf}
+\caption{B2 Natural Variance Baseline --- per-agent reach rate (fraction of
+  10~runs where \texttt{TASK\_START} was recorded) across three temperature
+  configurations with no fault injection.  Green~=~1.0, Red~=~0.0.
+  At temp~=~0, \texttt{ship\_order} is never reached (LLM consistently
+  short-circuits the checkout after \texttt{payment}); at temp~=~0.7 and 1.0,
+  partial reach is observed, reflecting natural LLM routing variance.}
+\label{fig:b2-heatmap}
+\end{figure*}
 
 \subsection{Equivalence Relations per Observation Point}
 
@@ -1234,6 +1268,20 @@ resulting LKW trace deviation from B1. A mutation that shifts any observation
 point outside the B2-calibrated equivalence tolerance is a \emph{killed
 mutant}; one whose trace remains indistinguishable from natural variance is
 a \emph{live mutant} (undetected by the current test suite).
+Figure~\ref{fig:lkw-trace-diff} shows a concrete killed-mutant example for
+PaymentAgent \texttt{BL-AMOUNT-TAMPER}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/fig_lkw_trace_diff.pdf}
+\caption{B1 Oracle vs.\ B3 Fault Run for PaymentAgent \texttt{BL-AMOUNT-TAMPER}.
+  The B3 trace deviates at \texttt{CHARGE\_DONE} (P3 class):
+  \texttt{charged=9999.00} vs.\ B1 baseline \texttt{9.00}, with
+  \texttt{tampered=True} set.  All steps are reached (propagation depth~=~0),
+  so this is a Tier~3 Silent fault --- detectable only by comparing the P2/P3
+  data payload against the B1 oracle value.}
+\label{fig:lkw-trace-diff}
+\end{figure*}
 
 % ── PaymentAgent ─────────────────────────────────────────────────────────────
 \subsection{PaymentAgent}
@@ -1948,6 +1996,20 @@ Baseline (NONE)     & 6  & 1 &  7 & --- \\
 \end{tabular}}
 \end{table}
 
+Figure~\ref{fig:hitl-stacked} shows the per-agent tier breakdown.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig_hitl_stacked.pdf}
+\caption{HITL Tier Distribution per Agent.  Tier~1 (red, structural) faults
+  are detected automatically via step-count comparison; Tier~2 (orange,
+  flag-detectable) require a flag monitor on LKW checkpoint data; Tier~3
+  (grey, silent) require semantic payload validation against the B1 oracle.
+  ShippingService (Shipping) contributes all three tiers due to its live-LLM
+  execution path.}
+\label{fig:hitl-stacked}
+\end{figure*}
+
 \subsection{Key Finding}
 
 Of the 57 injected fault scenarios, 7 are Tier~3 (silent): the six FM-2.2
@@ -2019,6 +2081,21 @@ ShippingService$^*$  & 10 & 1 & 9 & 0 & 100\% \\
 \multicolumn{6}{l}{\footnotesize per-fault-mode evidence files (single batch run).}
 \end{tabular}}
 \end{table}
+
+Figure~\ref{fig:stability-scatter} shows per-fault-mode average detection
+rates coloured by HITL tier, confirming that all TP faults achieve 100\%
+or near-100\% detection stability.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/fig_stability_scatter.pdf}
+\caption{Fault Detection Stability: average detection rate per fault mode
+  across all agents and configurations.  Points coloured by HITL Tier (Tier~1
+  red, Tier~2 orange, Tier~3 grey).  Most Tier~1 and Tier~2 faults achieve
+  100\% detection; Tier~3 (Silent) faults cluster at lower detection rates,
+  reflecting the need for semantic payload comparison.}
+\label{fig:stability-scatter}
+\end{figure*}
 
 All 64 mode-runs are classified as STABLE\_PASS or STABLE\_FAULT. The UNSTABLE
 count is zero across all seven agents, yielding a system-wide stability rate
@@ -2192,6 +2269,20 @@ hop~2 (zero steps lost) but produce quantifiable impact:
 14{,}755.6\% financial overcharge (Chain~A) and phantom-product semantic
 corruption (Chain~B). No structural signal fires at the downstream boundary.}
 \label{fig:cross-agent}
+\end{figure*}
+
+Figure~\ref{fig:cross-agent-chain} traces the data-flow and boundary signals
+for Chain~A in detail.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/fig_cross_agent_chain.pdf}
+\caption{Cross-Agent FM-2.2 Propagation Chain~A (financial): CurrencyAgent
+  hallucination (1{,}337\,EUR) propagates through the currency-to-payment
+  boundary where the recovery policy fires \texttt{block\_and\_request\_hitl},
+  preventing the unsafe charge.  LKW checkpoint labels and boundary
+  alert values are shown at each stage.}
+\label{fig:cross-agent-chain}
 \end{figure*}
 
 \subsection{Analysis}

@@ -296,6 +296,82 @@ single Ollama LLM backend (orange, dotted).}
 \label{fig:architecture}
 \end{figure*}
 
+\subsection{Google Online Boutique Application}
+\label{sec:google-boutique}
+
+The \emph{Google Online Boutique}~\cite{google-ob} is an open-source,
+cloud-native e-commerce reference application comprising ten
+interdependent microservices: \texttt{Frontend}, \texttt{CheckoutService},
+\texttt{CartService}, \texttt{ProductCatalogService},
+\texttt{CurrencyService}, \texttt{PaymentService},
+\texttt{ShippingService}, \texttt{RecommendationService},
+\texttt{EmailService}, and \texttt{AdService}.
+Services communicate over gRPC with protobuf-encoded contracts and are
+deployed on Kubernetes.  The application provides a realistic multi-service
+call graph for a complete retail checkout that exercises monetary computation
+(currency conversion, payment), catalogue lookup, personalisation
+(recommendations, ads), fulfilment (shipping), and notification (email).
+All seven services exercised in this study are drawn directly from this
+benchmark; their gRPC interface contracts are defined in
+\texttt{protos/demo.proto}.
+
+\subsection{Benchmark Configurations}
+\label{sec:bench-configs}
+
+Three distinct benchmark configurations are used throughout the study,
+differing in the LLM model and the set of agents exercised:
+
+\begin{description}
+  \item[\textbf{Google-bench}]
+        ShippingService orchestrated by \texttt{llama3.2:1b} on Concordia
+        SPEED HPC (A100 MIG 1g.20gb, 10\,GB slice).  This configuration
+        represents a \emph{small-model, resource-constrained} setting and is
+        used for the initial fault-injection campaign
+        (Section~\ref{sec:google-bench}).  It establishes whether a
+        1-billion-parameter model can reliably reproduce the B1 oracle
+        under repeated sampling.
+
+  \item[\textbf{Retail-bench}]
+        ShippingService orchestrated by \texttt{qwen2.5-coder:14b} on
+        Concordia SPEED HPC (A100 SXM4-80\,GB, full GPU).  This
+        configuration represents a \emph{production-grade model} with
+        significantly higher reasoning capacity and is used for the full
+        retail fault-injection campaign (Section~\ref{sec:retail-bench}).
+
+  \item[\textbf{Six-Agent B3}]
+        All six deterministic agents (Payment, Currency, Email,
+        ProductCatalog, Recommendation, Ad) with \texttt{qwen2.5:3b} and
+        \texttt{USE\_LLM=false}.  Business logic is exercised directly via
+        Python sub-agent calls; no LLM inference occurs.  This configuration
+        validates the LKW+RIP instrumentation on deterministic code and
+        provides the B1 oracle baselines for all cross-agent analyses
+        (Section~\ref{sec:b1-oracle}).
+\end{description}
+
+\subsection{Agentification Design}
+\label{sec:agentification}
+
+Each microservice is paired with a dedicated \emph{agent wrapper} (green
+nodes in Figure~\ref{fig:architecture}) that implements the
+LLM-directed orchestration layer.  All wrappers follow a uniform
+\emph{ReAct}~\cite{react} pattern:
+\begin{enumerate}
+  \item The LLM receives a structured task description and a manifest of
+        available tools (one tool per deterministic sub-agent).
+  \item It emits a sequence of \texttt{Thought / Action / Observation}
+        steps until it produces a \texttt{Final Answer}.
+  \item Each \texttt{Action} is dispatched to a deterministic sub-agent
+        (e.g., \texttt{CardValidationAgent}, \texttt{ConversionAgent})
+        that executes the microservice business logic without LLM
+        involvement and returns a structured result.
+  \item The result is appended as an \texttt{Observation} and the loop
+        continues.
+\end{enumerate}
+This design isolates LKW checkpoints at sub-agent call boundaries --- 
+well-defined definition and use sites that are independent of LLM token
+sampling --- while still exercising the full LLM reasoning path for
+reachability and propagation measurement.
+
 % ═════════════════════════════════════════════════════════════════════════════
 \section{LKW and RIP Checkpoint Design}
 \label{sec:lkw-design}
@@ -353,104 +429,110 @@ The instrumentation is:
         recording time so post-hoc mutation cannot alter evidence.
 \end{itemize}
 
-\subsection{Checkpoint Placement Taxonomy}
+\subsection{Checkpoint Placement Taxonomy and Coverage Criterion}
 \label{sec:placement-taxonomy}
 
-We define five placement classes (P1--P5) that together implement
-\textbf{All-Uses} coverage~\cite{rapps-weyuker} for each guarded agent state
-variable: P1 records the variable at its primary \emph{definition} (def) site
-(task input); P2 and P3 record it at \emph{computation-use} (c-use) sites
-(post-computation result and post-side-effect outcome); P4 records
-\emph{predicate-use} (p-use) sites where boolean flag values determine
-downstream control-flow decisions; P5 records the terminal c-use at the
-agent handoff boundary.
-Table~\ref{tab:placement-taxonomy} describes each class.
+\paragraph{Coverage adequacy criterion.}
+This study applies the \textbf{All-Uses} data-flow adequacy
+criterion~\cite{rapps-weyuker} as its primary coverage standard: for every
+guarded agent state variable, the LKW checkpoint sequence must include at
+least one observation at each \emph{definition} site (P1) and at each
+reachable \emph{computation-use} (c-use: P2, P3) and
+\emph{predicate-use} (p-use: P4) site.  For high-risk monetary and
+identifier variables (e.g., \texttt{amount}, \texttt{nanos},
+\texttt{product\_ids}), the stricter \textbf{All-DU-Paths} criterion is
+additionally applied, requiring every acyclic def-to-use path to be
+exercised.
 
-\begin{table}[htb]
-\centering
-\caption{LKW Checkpoint Placement Classes.}
-\label{tab:placement-taxonomy}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{clp{3.4cm}p{2.8cm}}
-\toprule
-\textbf{Class} & \textbf{Placement} & \textbf{Event Captured}
-               & \textbf{RIP Purpose} \\
-\midrule
-P1 & Pre-call         & Incoming payload before any transformation
-   & Reachability; input baseline \\
-P2 & Post-computation & Core business logic result (e.g., computed cost, fetched records)
-   & Infection detection (data corruption) \\
-P3 & Post-side-effect & Outcome of irreversible operation (persistence, payment, send)
-   & Propagation depth for incomplete-workflow faults \\
-P4 & Post-metadata    & Policy or flag field appended after primary logic
-   & Tier-2 flag detection (business-logic faults) \\
-P5 & Terminal         & Value returned to caller (agent's final answer)
-   & Cross-boundary comparison; inter-agent handoff validation \\
-\bottomrule
-\end{tabular}}
-\end{table}
+Five placement classes implement this criterion.
+\textbf{P1}~(Pre-call) records the incoming payload at the definition site,
+establishing reachability and the input baseline.
+\textbf{P2}~(Post-computation) records the business-logic result after the
+core transformation, enabling infection detection for data-corruption faults.
+\textbf{P3}~(Post-side-effect) records the outcome of irreversible operations
+(persistence, payment charge, email send), enabling propagation-depth
+measurement for workflow-skip faults.
+\textbf{P4}~(Post-metadata) records policy or flag fields appended after
+primary logic, enabling Tier-2 p-use flag detection.
+\textbf{P5}~(Terminal) records the value returned to the caller at the agent
+handoff boundary, enabling cross-agent propagation comparison.
 
-\subsection{Per-Agent Checkpoint Design}
+\subsection{Fault $\times$ LKW Criterion $\times$ Checkpoint Mapping}
+\label{sec:fault-lkw-ckpt}
 
-Table~\ref{tab:per-agent-ckpts} lists the instrumented checkpoint sequence for
-each of the seven agent services, the data payload guarded at each point, and
-the placement class.
+Table~\ref{tab:fault-lkw-ckpt} maps each fault mode to its primary infection
+checkpoint, the applicable LKW data-flow criterion, the use type (c-use or
+p-use), and the comparison operator applied during B1 oracle evaluation.
+This consolidated reference replaces the per-agent and per-placement tables
+from earlier drafts; Table~\ref{tab:lkw-signatures} gives the complementary
+trace-pattern view.
 
 \begin{table*}[t]
 \centering
-\caption{Per-Agent LKW Checkpoint Sequences with Placement Classes and Guarded Data.}
-\label{tab:per-agent-ckpts}
+\caption{Fault $\times$ LKW Criterion $\times$ Checkpoint mapping (replaces Tables~1--2).
+  For each fault mode and agent the \emph{primary infection checkpoint},
+  applicable criterion (\textbf{AU}~=~All-Uses; \textbf{ADP}~=~All-DU-Paths),
+  use type (C~=~c-use; P~=~p-use), and comparison operator are listed.
+  Comparison: $\delta_{\epsilon}$~=~numeric tolerance;
+  $\mathcal{S}$~=~set/schema equality; $\Sigma$~=~flag/bool conformance.}
+\label{tab:fault-lkw-ckpt}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{llp{4.5cm}l}
+\begin{tabular}{p{2.8cm}p{3.0cm}p{2.9cm}lll}
 \toprule
-\textbf{Agent} & \textbf{Checkpoint} & \textbf{Guarded Data} & \textbf{Class} \\
+\textbf{Agent} & \textbf{Fault Mode} & \textbf{Infect.\ Checkpoint} & \textbf{Criterion} & \textbf{Use} & \textbf{Cmp.} \\
 \midrule
-\multirow{5}{*}{PaymentAgent}
-  & TASK\_START     & card token, amount, currency\_code & P1 \\
-  & CARD\_VALIDATED & validated=true/false, validation\_bypassed flag & P2 \\
-  & CHARGE\_DONE    & charged\_amount, amount\_tampered flag & P3 \\
-  & SAVE\_DONE      & save\_skipped flag, record id & P3 \\
-  & FINAL\_ANSWER   & result dict returned to caller & P5 \\
+ShippingQuoteAgent & \texttt{BL-INV-MISMATCH} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-REFUND} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-2.5} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
-\multirow{3}{*}{CurrencyAgent}
-  & TASK\_START     & from/to currency, amount & P1 \\
-  & CONVERT\_DONE   & converted\_amount, hallucinated flag & P2 \\
-  & FINAL\_ANSWER   & conversion result dict & P5 \\
+ShipOrderAgent & \texttt{BL-ESCALATION} & \texttt{ESCALATION\_CHECK} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{BL-SHIP-LOST} & \texttt{SAVE\_DONE} & \textbf{ADP} & C-use/P-use & $\Sigma$ \\
+ & \texttt{BL-VENDOR} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-1.2} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-2.2} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-2.5} & \texttt{CARRIER\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-3.1} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
 \midrule
-\multirow{3}{*}{ProductCatalogAgent}
-  & TASK\_START     & query, requested product IDs & P1 \\
-  & CATALOG\_DONE   & returned product list, phantom\_ids flag & P2 \\
-  & FINAL\_ANSWER   & product list returned to caller & P5 \\
+PaymentAgent & \texttt{BL-AMOUNT-TAMPER} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-DOUBLE-CHARGE} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{BL-TXN-LOST} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-1.2} & \texttt{CARD\_VALIDATED} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{CHARGE\_DONE} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
-\multirow{4}{*}{AdServiceAgent}
-  & TASK\_START         & context payload & P1 \\
-  & CONTEXT\_EXTRACTED  & extracted context features & P2 \\
-  & ADS\_FETCHED        & ad list, injected flag & P2 \\
-  & FINAL\_ANSWER       & ads returned to caller & P5 \\
+CurrencyAgent & \texttt{BL-CONV-OVERFLOW} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-RATE-MANIP} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-STALE-RATE} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-1.2} & \texttt{TASK\_START} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
 \midrule
-\multirow{4}{*}{EmailServiceAgent}
-  & TASK\_START       & recipient, order data & P1 \\
-  & EMAIL\_GENERATED  & body, subject, corrupted flag & P2 \\
-  & EMAIL\_SENT       & microservice\_status, boundary\_blocked flag & P3 \\
-  & FINAL\_ANSWER     & send result dict & P5 \\
+EmailServiceAgent & \texttt{BL-CORRUPT-BODY} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-SEND-SKIP} & \texttt{EMAIL\_SENT} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-1.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\Sigma$ \\
 \midrule
-\multirow{3}{*}{RecommendationAgent}
-  & TASK\_START      & product ID set & P1 \\
-  & RECOMMEND\_DONE  & recommended IDs, stale flag & P2 \\
-  & FINAL\_ANSWER    & recommendation list & P5 \\
+ProductCatalogAgent & \texttt{BL-DUP-PRODUCT} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-PRICE-MANIP} & \texttt{CATALOG\_DONE} & \textbf{ADP} & C-use & $\Sigma$ \\
+ & \texttt{BL-PROD-MISSING} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-1.2} & \texttt{TASK\_START} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
-\multirow{7}{*}{ShippingService}
-  & TASK\_START        & destination address, item count & P1 \\
-  & QUOTE\_DONE        & cost\_usd, cost\_corrupted flag & P2 \\
-  & CARRIER\_DONE      & carrier, service\_level, ignored\_quote flag & P2 \\
-  & TRACKING\_DONE     & tracking\_id & P2 \\
-  & SAVE\_DONE         & shipment record, save\_skipped flag & P3 \\
-  & ESCALATION\_CHECK  & escalation\_required flag & P4 \\
-  & FINAL\_ANSWER      & complete shipment result & P5 \\
+RecommendationAgent & \texttt{BL-EMPTY-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-INJECT-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-3.1} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+\midrule
+AdServiceAgent & \texttt{BL-AD-INJECTION} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-DUP-ADS} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-EMPTY-ADS} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-1.2} & \texttt{CONTEXT\_EXTRACTED} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-2.2} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{CONTEXT\_EXTRACTED} & \textbf{AU} & C-use & $\mathcal{S}$ \\
 \bottomrule
 \end{tabular}}
 \end{table*}
@@ -708,6 +790,58 @@ B3 runs, derived from B2 variance:
         step-set inclusion $\subseteq$ --- any step present in B1 but absent
         in B3 is a Tier~1 structural violation.
 \end{itemize}
+
+\subsection{B1--B2 Checkpoint Alignment}
+\label{sec:b1-b2-align}
+
+B1 oracle runs (\texttt{USE\_LLM=false}) and B2 baseline runs
+(\texttt{USE\_LLM=true}) record LKW checkpoints at identical named sites;
+what differs is the \emph{execution path} through which each checkpoint is
+reached.  In B1, the agent's business-logic method is called directly by the
+test harness with no LLM involvement.  In B2, the LLM ReAct loop dispatches
+a tool call that invokes the same method, so the checkpoint fires at the
+same Python site.  Table~\ref{tab:b1-b2-align} makes this alignment
+explicit and maps each checkpoint to its gRPC counterpart in the original
+microservice.
+
+\begin{table}[htb]
+\centering
+\caption{B1--B2 Checkpoint Alignment: B1 deterministic path vs.\ B2 ReAct tool
+  vs.\ original gRPC method.}
+\label{tab:b1-b2-align}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{2.0cm}p{1.9cm}p{2.0cm}p{1.9cm}p{1.8cm}}
+\toprule
+\textbf{Agent} & \textbf{LKW Checkpoint} & \textbf{B1: Direct Call} & \textbf{B2: ReAct Tool} & \textbf{gRPC Method} \\
+\midrule
+PaymentAgent
+  & \texttt{CARD\_VALIDATED} & \texttt{CardValidation\-Agent} & \texttt{validate\_card} & (pre-charge) \\
+  & \texttt{CHARGE\_DONE}    & \texttt{ChargeAgent}          & \texttt{charge\_payment} & \texttt{Payment\-Svc.Charge} \\
+  & \texttt{SAVE\_DONE}      & transaction mock              & LLM FINAL\_ANSWER      & (mock) \\
+\midrule
+CurrencyAgent
+  & \texttt{CONVERT\_DONE}  & \texttt{ConversionAgent}      & \texttt{convert\_currency} & \texttt{Currency\-Svc.Convert} \\
+\midrule
+EmailService\-Agent
+  & \texttt{EMAIL\_GENERATED} & \texttt{Email\-GeneratorAgent} & \texttt{generate\_email} & (pre-send) \\
+  & \texttt{EMAIL\_SENT}      & \texttt{Email\-DeliveryAgent}  & \texttt{send\_email}     & \texttt{Email\-Svc.Send} \\
+\midrule
+ProductCatalog\-Agent
+  & \texttt{CATALOG\_DONE}  & \texttt{Product\-LookupAgent} & \texttt{list\_products}  & \texttt{Catalog\-Svc.List} \\
+\midrule
+Recommendation\-Agent
+  & \texttt{RECOMMEND\_DONE} & \texttt{Recommender\-Agent}   & \texttt{get\_recommendations} & \texttt{Rec\-Svc.ListRecos} \\
+\midrule
+ShippingService
+  & \texttt{QUOTE\_DONE}   & \texttt{QuoteAgent}            & \texttt{quote\_shipping}  & \texttt{Shipping\-Svc.GetQuote} \\
+  & \texttt{CARRIER\_DONE} & \texttt{Carrier\-SelectionAgent} & \texttt{select\_carrier} & (internal) \\
+  & \texttt{TRACKING\_DONE} & \texttt{TrackingAgent}         & \texttt{assign\_tracking} & (internal) \\
+  & \texttt{SAVE\_DONE}    & persistence mock               & LLM FINAL\_ANSWER       & (mock) \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \subsection{Execution Protocol}
 \begin{enumerate}
@@ -2315,12 +2449,6 @@ EmailServiceAgent
 \bottomrule
 \end{tabular}}
 \end{table*}
-  & 6/6 & \texttt{boundary\_blocked=True}; send client never called \\
-\midrule
-\textbf{Total} & & \textbf{19/19} & \\
-\bottomrule
-\end{tabular}}
-\end{table}
 
 \subsection{Recovery Demo Evidence}
 
@@ -2732,6 +2860,15 @@ pp.~105--120, 2014.
 B.~Canizo \textit{et al.}, ``Fault injection in microservice-based systems:
 A systematic review,'' \textit{J.\ Syst.\ Softw.}, vol.~195, 2023.
 % STUB — search: microservice fault injection systematic review 2023
+
+\bibitem{google-ob}
+Google~LLC, ``Microservices Demo: Online Boutique,'' GitHub repository,
+\url{https://github.com/GoogleCloudPlatform/microservices-demo}, 2024.
+
+\bibitem{react}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, and Y.~Cao,
+``ReAct: Synergizing Reasoning and Acting in Language Models,''
+in \textit{Proc.\ ICLR}, 2023.
 
 \end{thebibliography}
 

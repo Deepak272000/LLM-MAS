@@ -141,7 +141,102 @@ In this project, we answer the following research questions:
 \end{description}
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{System and Fault Model}
+\section{Related Work}
+\label{sec:related}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\paragraph{Chaos engineering and infrastructure fault injection}
+Chaos Monkey~\cite{netflix-chaos} and the Netflix Simian Army introduced
+random instance termination as a reliability discipline for cloud services.
+LitmusChaos~\cite{litmuschaos} and ChaosMesh~\cite{chaosengineering} extended
+this to Kubernetes-native experiments covering pod deletion, CPU stress, network
+partition, and I/O latency. Istio fault injection~\cite{istio} injects HTTP
+delays and aborts at the sidecar proxy layer. All of these tools operate at the
+\emph{infrastructure and network} level: they can terminate a process or drop a
+packet, but they cannot inject a semantically plausible data-corruption fault
+(e.g., a hallucinated product ID or an inflated currency amount) into a running
+LLM reasoning loop. LKW+RIP operates at the \emph{application} level: faults
+are injected into the Python execution path of agent business logic, and
+checkpoints record the semantic state at meaningful computation boundaries
+rather than at OS or network events.
+
+\paragraph{LLM agent benchmarking and reliability}
+AgentBench~\cite{agentbench} evaluates LLM agents across interactive
+environments (web browsing, coding, game) using success rate as the primary
+metric, but does not instrument intermediate reasoning state or propagation
+depth. ToolBench / ToolLLM~\cite{toolbench} evaluates tool-calling accuracy
+for single-agent systems. Neither framework provides per-checkpoint execution
+traces that would enable RIP-style root cause localisation.
+Reliability surveys of LLM-based agents~\cite{agentreliability} categorise
+failure modes (refusal, hallucination, tool misuse) from observed outputs but
+do not perform controlled injection. Our work differs: we inject specific fault
+modes with known ground truth and measure their propagation through a
+multi-agent pipeline, enabling causal attribution at the agent boundary level.
+
+\paragraph{Multi-agent system failure taxonomy}
+MAST~\cite{mast} proposes a taxonomy of failures in multi-agent systems
+covering specification, design, and execution layers. We adopt MAST fault
+class identifiers (FM-1.x, FM-2.x, FM-3.x, BL-*) as our injection vocabulary,
+mapping each category to a concrete Python-level injection function. Our
+empirical study is the first, to our knowledge, to operationalise the MAST
+taxonomy through systematic controlled injection across multiple agents in a
+realistic LLM-MAS and report propagation depth, stability, and HITL tier for
+each fault class. We also identify a gap: MAST characterises failures at the
+classification level but does not specify how to instrument execution to
+distinguish Tier~3 silent faults (FM-2.2) from structurally correct runs.
+The LKW placement taxonomy (P1--P5) fills this gap.
+
+\paragraph{LLM output validation and guardrails}
+NeMo Guardrails~\cite{nemoguar} and Guardrails AI~\cite{llmguardrails} provide
+format and content validation of LLM responses at the model boundary using
+Colang rules or Pydantic validators. These approaches validate the output of a
+single LLM call; they are not designed to validate \emph{inter-agent handoffs}
+where the observed payload from one agent becomes the input of another. Our
+boundary contracts extend the guardrail concept to the agent-to-agent data
+plane: a \texttt{boundary\_contract()} call compares expected and observed
+payloads at every architectural handoff point and triggers a recovery policy
+decision before propagation occurs. This complements model-boundary guardrails
+with a system-level safety layer.
+
+\paragraph{Multi-agent orchestration frameworks and testing}
+LangGraph~\cite{langgraph} provides a state-machine execution model for
+multi-agent workflows; AutoGen~\cite{autogen} enables multi-agent conversation
+patterns. Neither framework includes built-in fault injection tooling or
+inter-agent data validation contracts. Testing methodologies for LLM-based
+multi-agent systems are nascent: existing work focuses on functional output
+evaluation~\cite{agenteval} rather than on characterising failure propagation
+across agent boundaries. Our study addresses this gap by providing a complete
+test infrastructure (LKW instrumentation, RIP analyser, HITL classifier,
+boundary contract layer, and recovery policy engine) that can be adopted in
+any LangGraph-compatible or similarly structured MAS.
+
+\paragraph{Fault propagation in distributed systems}
+The concept of propagation depth originates in the Laski-Korel-Weyuker (LKW)
+data flow testing criterion~\cite{lkw,rapps-weyuker} and the PIE
+(Propagation, Infection, Execution) model~\cite{pie}. In distributed
+systems, fault propagation is addressed through circuit breakers~\cite{netflix-chaos}
+and bulkhead patterns that prevent one failing service from saturating its
+caller. These mechanisms detect propagation via timeout and error-rate signals,
+not via semantic state deviation. Our work applies the PIE model at the
+\emph{agent reasoning} level --- tracking how a semantically corrupt value
+(not a timeout) moves silently through a multi-agent pipeline --- which is a
+distinct and underexplored problem class in the LLM-MAS reliability literature.
+
+\paragraph{Human-in-the-loop systems}
+Amershi et al.~\cite{hitlsurvey} survey HITL workflows in machine learning,
+focusing on annotation, active learning, and model uncertainty. Our HITL tier
+classification serves a different purpose: it characterises the
+\emph{detectability effort} required for a human operator to identify and
+intervene after a fault has been injected, using LKW checkpoint evidence rather
+than model confidence scores. The three-tier system (structural $\to$
+flag-detectable $\to$ silent) provides an operational metric that can guide
+human review prioritisation and define SLA boundaries for automated recovery
+policies.
+
+% ═════════════════════════════════════════════════════════════════════════════
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Benchmarking Microservices and Agentification}
+\label{sec:benchmarks}
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Target Workflow}
@@ -201,100 +296,13 @@ single Ollama LLM backend (orange, dotted).}
 \label{fig:architecture}
 \end{figure*}
 
-\subsection{Fault Taxonomy and Mutation Operators}
-\label{sec:fault-taxonomy}
-
-Each injected MAST fault mode is a \emph{mutation operator}~\cite{lkw}
-applied to a specific agent state variable at a known data flow observation
-point. A mutation that causes the LKW trace to deviate from the B1 oracle
-beyond the B2-calibrated tolerance is a \textit{killed mutant}; one whose
-trace is indistinguishable from the natural-variance envelope is a
-\textit{live mutant}. Table~\ref{tab:fault-mapping} maps each MAST fault
-class to its operator type, target variable, first LKW observation point,
-equivalence comparison criterion, and HITL detection tier.
-
-\begin{table}[htb]
-\centering
-\caption{MAST Fault Classes as LKW Mutation Operators.
-  Criteria: $\delta_{\epsilon}$~=~numeric tolerance;
-  $\mathcal{S}$~=~set equality; $\Sigma$~=~flag/schema conformance;
-  $\subseteq$~=~step-set inclusion.}
-\label{tab:fault-mapping}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{p{1.1cm}p{2.0cm}p{1.8cm}p{2.4cm}p{1.2cm}p{0.8cm}}
-\toprule
-\textbf{MAST} & \textbf{Operator} & \textbf{Target Variable}
-  & \textbf{First Observation Point} & \textbf{Criterion} & \textbf{Tier} \\
-\midrule
-FM-3.1 & Step removal & control flow (step set)
-  & First missing step (P3/P5) & $\subseteq$ & 1 \\
-FM-2.2 & Value substitution & output payload
-  & P2 c-use (e.g.\ \texttt{CONVERT\_DONE}) & $\delta_{\epsilon}$ / $\mathcal{S}$ & 3 \\
-FM-2.5 & Input suppression & upstream numeric value
-  & P2 c-use (e.g.\ \texttt{CARRIER\_DONE}) & $\delta_{\epsilon}$ & 2--3 \\
-FM-1.2 & Routing swap & action/method label
-  & P2 c-use (e.g.\ \texttt{CATALOG\_DONE}) & $\mathcal{S}$ & 2 \\
-BL-FLAG & Flag injection & metadata flag field
-  & P4 p-use (e.g.\ \texttt{ESCALATION\_CHECK}) & $\Sigma$ & 2 \\
-BL-SKIP & Step bypass & side-effect record
-  & P3 c-use (e.g.\ \texttt{SAVE\_DONE}) & $\subseteq$ & 1 \\
-BL-SILENT & Value corruption & numeric/ID field
-  & P2 c-use (e.g.\ \texttt{QUOTE\_DONE}) & $\delta_{\epsilon}$ & 3 \\
-\bottomrule
-\end{tabular}}
-\end{table}
-
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Failure Injection and Analysis Workflow}
+\section{LKW and RIP Checkpoint Design}
+\label{sec:lkw-design}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Per advisor and team guidance, the study follows four phases:
-(1)~define the injection and analysis workflow,
-(2)~execute all listed scenarios with observation and root cause analysis,
-(3)~complete Google-bench first, then Retail-bench, and
-(4)~merge team results to answer all research questions.
-Fig.~\ref{fig:workflow} illustrates the full pipeline.
+\subsection{RIP Metrics and Definitions}
 
-\begin{figure*}[t]
-\centering
-\resizebox{0.95\textwidth}{!}{%
-\begin{tikzpicture}[
-  node distance=5mm and 4mm,
-  box/.style={draw, rounded corners, align=center,
-              minimum width=2.35cm, minimum height=0.85cm, font=\footnotesize},
-  arr/.style={-{Latex[length=2.2mm]}, thick}
-]
-\node[box] (baseline) {Baseline\\(FAULT\_MODE=NONE)};
-\node[box, right=of baseline] (inject) {Inject Fault\\(single mode)};
-\node[box, right=of inject]   (run)    {Run Agent\\Workflow};
-\node[box, right=of run]      (trace)  {Collect\\Checkpoints};
-\node[box, right=of trace]    (oracle) {Oracle Comparison\\(B3 vs B1)};
-\node[box, right=of oracle]   (rca)    {Observation +\\Root Cause Analysis};
-\node[box, below=of oracle]   (rip)    {Compute LKW+RIP\\Reach/Infect/Propagate};
-\node[box, below=of rca]      (merge)  {Merge Google + Retail\\Conclusions};
-
-\draw[arr] (baseline) -- (inject);
-\draw[arr] (inject)   -- (run);
-\draw[arr] (run)      -- (trace);
-\draw[arr] (trace)    -- (oracle);
-\draw[arr] (oracle)   -- (rca);
-\draw[arr] (oracle)   -- (rip);
-\draw[arr] (rip)      -- (merge);
-\draw[arr] (rca)      -- (merge);
-\end{tikzpicture}%
-}
-\caption{Failure injection and analysis workflow. Oracle comparison
-  (centre) matches each B3 checkpoint trace against the B1
-  reference using B2-calibrated tolerances, classifying the run as a
-  killed or live mutant before LKW+RIP attribution.}
-\label{fig:workflow}
-\end{figure*}
-
-% ═════════════════════════════════════════════════════════════════════════════
-\section{Metrics and Definitions}
-% ═════════════════════════════════════════════════════════════════════════════
 
 For each run, we record the checkpoint sequence and compute:
 \begin{itemize}
@@ -314,11 +322,6 @@ Let $B$ be the baseline checkpoint set and $F$ the faulty checkpoint set:
 \begin{equation}
   \mathrm{PropagationDepth} = \lvert B \setminus F \rvert
 \end{equation}
-
-% ═════════════════════════════════════════════════════════════════════════════
-\section{LKW Instrumentation Design}
-\label{sec:lkw-design}
-% ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Data Flow Observation Points (LKW)}
 
@@ -539,6 +542,100 @@ semantic comparison of P2 payload contents against a known-good baseline.
 This design decision --- recording guarded data at P2 and P4 checkpoints, not
 only step presence --- is what makes the instrumentation framework capable of
 evidence-based tier classification without manual trace inspection.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Fault Injection as Mutant Operators}
+\label{sec:fault-injection}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\subsection{Fault Taxonomy and Mutation Operators}
+\label{sec:fault-taxonomy}
+
+Each injected MAST fault mode is a \emph{mutation operator}~\cite{lkw}
+applied to a specific agent state variable at a known data flow observation
+point. A mutation that causes the LKW trace to deviate from the B1 oracle
+beyond the B2-calibrated tolerance is a \textit{killed mutant}; one whose
+trace is indistinguishable from the natural-variance envelope is a
+\textit{live mutant}. Table~\ref{tab:fault-mapping} maps each MAST fault
+class to its operator type, target variable, first LKW observation point,
+equivalence comparison criterion, and HITL detection tier.
+
+\begin{table}[htb]
+\centering
+\caption{MAST Fault Classes as LKW Mutation Operators.
+  Criteria: $\delta_{\epsilon}$~=~numeric tolerance;
+  $\mathcal{S}$~=~set equality; $\Sigma$~=~flag/schema conformance;
+  $\subseteq$~=~step-set inclusion.}
+\label{tab:fault-mapping}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{1.1cm}p{2.0cm}p{1.8cm}p{2.4cm}p{1.2cm}p{0.8cm}}
+\toprule
+\textbf{MAST} & \textbf{Operator} & \textbf{Target Variable}
+  & \textbf{First Observation Point} & \textbf{Criterion} & \textbf{Tier} \\
+\midrule
+FM-3.1 & Step removal & control flow (step set)
+  & First missing step (P3/P5) & $\subseteq$ & 1 \\
+FM-2.2 & Value substitution & output payload
+  & P2 c-use (e.g.\ \texttt{CONVERT\_DONE}) & $\delta_{\epsilon}$ / $\mathcal{S}$ & 3 \\
+FM-2.5 & Input suppression & upstream numeric value
+  & P2 c-use (e.g.\ \texttt{CARRIER\_DONE}) & $\delta_{\epsilon}$ & 2--3 \\
+FM-1.2 & Routing swap & action/method label
+  & P2 c-use (e.g.\ \texttt{CATALOG\_DONE}) & $\mathcal{S}$ & 2 \\
+BL-FLAG & Flag injection & metadata flag field
+  & P4 p-use (e.g.\ \texttt{ESCALATION\_CHECK}) & $\Sigma$ & 2 \\
+BL-SKIP & Step bypass & side-effect record
+  & P3 c-use (e.g.\ \texttt{SAVE\_DONE}) & $\subseteq$ & 1 \\
+BL-SILENT & Value corruption & numeric/ID field
+  & P2 c-use (e.g.\ \texttt{QUOTE\_DONE}) & $\delta_{\epsilon}$ & 3 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Fault Injection Pipeline}
+
+Per advisor and team guidance, the study follows four phases:
+(1)~define the injection and analysis workflow,
+(2)~execute all listed scenarios with observation and root cause analysis,
+(3)~complete Google-bench first, then Retail-bench, and
+(4)~merge team results to answer all research questions.
+Fig.~\ref{fig:workflow} illustrates the full pipeline.
+
+\begin{figure*}[t]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=5mm and 4mm,
+  box/.style={draw, rounded corners, align=center,
+              minimum width=2.35cm, minimum height=0.85cm, font=\footnotesize},
+  arr/.style={-{Latex[length=2.2mm]}, thick}
+]
+\node[box] (baseline) {Baseline\\(FAULT\_MODE=NONE)};
+\node[box, right=of baseline] (inject) {Inject Fault\\(single mode)};
+\node[box, right=of inject]   (run)    {Run Agent\\Workflow};
+\node[box, right=of run]      (trace)  {Collect\\Checkpoints};
+\node[box, right=of trace]    (oracle) {Oracle Comparison\\(B3 vs B1)};
+\node[box, right=of oracle]   (rca)    {Observation +\\Root Cause Analysis};
+\node[box, below=of oracle]   (rip)    {Compute LKW+RIP\\Reach/Infect/Propagate};
+\node[box, below=of rca]      (merge)  {Merge Google + Retail\\Conclusions};
+
+\draw[arr] (baseline) -- (inject);
+\draw[arr] (inject)   -- (run);
+\draw[arr] (run)      -- (trace);
+\draw[arr] (trace)    -- (oracle);
+\draw[arr] (oracle)   -- (rca);
+\draw[arr] (oracle)   -- (rip);
+\draw[arr] (rip)      -- (merge);
+\draw[arr] (rca)      -- (merge);
+\end{tikzpicture}%
+}
+\caption{Failure injection and analysis workflow. Oracle comparison
+  (centre) matches each B3 checkpoint trace against the B1
+  reference using B2-calibrated tolerances, classifying the run as a
+  killed or live mutant before LKW+RIP attribution.}
+\label{fig:workflow}
+\end{figure*}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Experimental Setup}
@@ -2495,100 +2592,6 @@ for Tier~3 faults that occur within a single agent without a boundary handoff.}
         conditions has not been verified.
 \end{itemize}
 
-% ═════════════════════════════════════════════════════════════════════════════
-\section{Related Work}
-\label{sec:related}
-% ═════════════════════════════════════════════════════════════════════════════
-
-\paragraph{Chaos engineering and infrastructure fault injection}
-Chaos Monkey~\cite{netflix-chaos} and the Netflix Simian Army introduced
-random instance termination as a reliability discipline for cloud services.
-LitmusChaos~\cite{litmuschaos} and ChaosMesh~\cite{chaosengineering} extended
-this to Kubernetes-native experiments covering pod deletion, CPU stress, network
-partition, and I/O latency. Istio fault injection~\cite{istio} injects HTTP
-delays and aborts at the sidecar proxy layer. All of these tools operate at the
-\emph{infrastructure and network} level: they can terminate a process or drop a
-packet, but they cannot inject a semantically plausible data-corruption fault
-(e.g., a hallucinated product ID or an inflated currency amount) into a running
-LLM reasoning loop. LKW+RIP operates at the \emph{application} level: faults
-are injected into the Python execution path of agent business logic, and
-checkpoints record the semantic state at meaningful computation boundaries
-rather than at OS or network events.
-
-\paragraph{LLM agent benchmarking and reliability}
-AgentBench~\cite{agentbench} evaluates LLM agents across interactive
-environments (web browsing, coding, game) using success rate as the primary
-metric, but does not instrument intermediate reasoning state or propagation
-depth. ToolBench / ToolLLM~\cite{toolbench} evaluates tool-calling accuracy
-for single-agent systems. Neither framework provides per-checkpoint execution
-traces that would enable RIP-style root cause localisation.
-Reliability surveys of LLM-based agents~\cite{agentreliability} categorise
-failure modes (refusal, hallucination, tool misuse) from observed outputs but
-do not perform controlled injection. Our work differs: we inject specific fault
-modes with known ground truth and measure their propagation through a
-multi-agent pipeline, enabling causal attribution at the agent boundary level.
-
-\paragraph{Multi-agent system failure taxonomy}
-MAST~\cite{mast} proposes a taxonomy of failures in multi-agent systems
-covering specification, design, and execution layers. We adopt MAST fault
-class identifiers (FM-1.x, FM-2.x, FM-3.x, BL-*) as our injection vocabulary,
-mapping each category to a concrete Python-level injection function. Our
-empirical study is the first, to our knowledge, to operationalise the MAST
-taxonomy through systematic controlled injection across multiple agents in a
-realistic LLM-MAS and report propagation depth, stability, and HITL tier for
-each fault class. We also identify a gap: MAST characterises failures at the
-classification level but does not specify how to instrument execution to
-distinguish Tier~3 silent faults (FM-2.2) from structurally correct runs.
-The LKW placement taxonomy (P1--P5) fills this gap.
-
-\paragraph{LLM output validation and guardrails}
-NeMo Guardrails~\cite{nemoguar} and Guardrails AI~\cite{llmguardrails} provide
-format and content validation of LLM responses at the model boundary using
-Colang rules or Pydantic validators. These approaches validate the output of a
-single LLM call; they are not designed to validate \emph{inter-agent handoffs}
-where the observed payload from one agent becomes the input of another. Our
-boundary contracts extend the guardrail concept to the agent-to-agent data
-plane: a \texttt{boundary\_contract()} call compares expected and observed
-payloads at every architectural handoff point and triggers a recovery policy
-decision before propagation occurs. This complements model-boundary guardrails
-with a system-level safety layer.
-
-\paragraph{Multi-agent orchestration frameworks and testing}
-LangGraph~\cite{langgraph} provides a state-machine execution model for
-multi-agent workflows; AutoGen~\cite{autogen} enables multi-agent conversation
-patterns. Neither framework includes built-in fault injection tooling or
-inter-agent data validation contracts. Testing methodologies for LLM-based
-multi-agent systems are nascent: existing work focuses on functional output
-evaluation~\cite{agenteval} rather than on characterising failure propagation
-across agent boundaries. Our study addresses this gap by providing a complete
-test infrastructure (LKW instrumentation, RIP analyser, HITL classifier,
-boundary contract layer, and recovery policy engine) that can be adopted in
-any LangGraph-compatible or similarly structured MAS.
-
-\paragraph{Fault propagation in distributed systems}
-The concept of propagation depth originates in the Laski-Korel-Weyuker (LKW)
-data flow testing criterion~\cite{lkw,rapps-weyuker} and the PIE
-(Propagation, Infection, Execution) model~\cite{pie}. In distributed
-systems, fault propagation is addressed through circuit breakers~\cite{netflix-chaos}
-and bulkhead patterns that prevent one failing service from saturating its
-caller. These mechanisms detect propagation via timeout and error-rate signals,
-not via semantic state deviation. Our work applies the PIE model at the
-\emph{agent reasoning} level --- tracking how a semantically corrupt value
-(not a timeout) moves silently through a multi-agent pipeline --- which is a
-distinct and underexplored problem class in the LLM-MAS reliability literature.
-
-\paragraph{Human-in-the-loop systems}
-Amershi et al.~\cite{hitlsurvey} survey HITL workflows in machine learning,
-focusing on annotation, active learning, and model uncertainty. Our HITL tier
-classification serves a different purpose: it characterises the
-\emph{detectability effort} required for a human operator to identify and
-intervene after a fault has been injected, using LKW checkpoint evidence rather
-than model confidence scores. The three-tier system (structural $\to$
-flag-detectable $\to$ silent) provides an operational metric that can guide
-human review prioritisation and define SLA boundaries for automated recovery
-policies.
-
-% ═════════════════════════════════════════════════════════════════════════════
 \clearpage  % flush all remaining floats; conclusion + refs must be last
 \section{Conclusion}
 % ═════════════════════════════════════════════════════════════════════════════

@@ -204,7 +204,19 @@ def run_co_helper(agent: str, payload: dict, timeout: int = 90) -> Optional[dict
         if proc.returncode != 0:
             return {"error": proc.stderr.strip()[-500:], "lkw": [],
                     "fault_mode": payload["fault_mode"]}
-        return json.loads(proc.stdout.strip())
+        # co_helpers may print debug lines to stdout before the JSON payload;
+        # find the last line that starts with '{' to extract the result dict.
+        json_line = ""
+        for line in reversed(proc.stdout.splitlines()):
+            line = line.strip()
+            if line.startswith("{"):
+                json_line = line
+                break
+        if not json_line:
+            stderr_hint = proc.stderr.strip()[-300:] if proc.stderr else ""
+            return {"error": f"no JSON in stdout; stderr={stderr_hint}",
+                    "lkw": [], "fault_mode": payload["fault_mode"]}
+        return json.loads(json_line)
     except subprocess.TimeoutExpired:
         return {"error": "timeout", "lkw": [], "fault_mode": payload["fault_mode"]}
     except Exception as exc:

@@ -131,7 +131,7 @@ def _rip_from_lkw(lkw: list, expected_steps: list) -> dict:
 
 # ── Agent runner functions ────────────────────────────────────────────────────
 
-def run_currency_agent(fault_mode: str, expected_units: int | None = None) -> dict:
+def run_currency_agent(fault_mode: str, expected_units: Optional[int] = None) -> dict:
     """Run CurrencyAgent — LKW is embedded in result dict (class-based LKW)."""
     agent_dir = SRC / "currencyagent"
     captured = {}

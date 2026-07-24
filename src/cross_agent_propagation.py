@@ -192,7 +192,7 @@ async def run_payment_agent(units: int, currency_code: str, expected_units: int,
     return {"result": captured["result"], "lkw": captured["lkw"], "rip": rip}
 
 
-def run_catalog_agent(fault_mode: str, expected_product_ids: list[str] | None = None) -> dict:
+def run_catalog_agent(fault_mode: str, expected_product_ids: Optional[list] = None) -> dict:
     """Run ProductCatalogAgent — module-level get_lkw() called inside context."""
     agent_dir = SRC / "productcatalogagent"
     captured = {}

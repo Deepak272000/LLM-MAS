@@ -31,7 +31,7 @@
 \newcolumntype{K}{>{\raggedright\arraybackslash}X}
 
 % ── Float layout tuning (prevents blank columns / pages with many tables) ────
-\renewcommand{\topfraction}{0.9}
+\renewcommand{\topfraction}{0.95}
 \renewcommand{\bottomfraction}{0.8}
 \renewcommand{\textfraction}{0.05}
 \renewcommand{\floatpagefraction}{0.80}
@@ -39,8 +39,10 @@
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{8}
 \setlength{\floatsep}{4pt plus 1pt minus 1pt}
-\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{4pt plus 2pt minus 2pt}
 \setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{2pt}
 
 % ── Title & Author ────────────────────────────────────────────────────────────
 \title{Failure Injection and Propagation Analysis in Agentic Microservice
@@ -249,7 +251,7 @@ sequence): \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$
 \texttt{CARRIER\_DONE} $\to$ \texttt{TRACKING\_DONE} $\to$ \texttt{SAVE\_DONE}
 $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
 
-\begin{figure*}[t]
+\begin{figure*}[!tp]
 \centering
 \begin{tikzpicture}[
   svc/.style={draw,fill=blue!12,rounded corners=2pt,
@@ -388,7 +390,7 @@ same P2 c-use placement class and Tier~3 (Silent) classification, confirming
 that the LKW framework produces consistent, evidence-based tier assignment
 across the full service portfolio.
 
-\begin{figure*}[t]
+\begin{figure*}[!tp]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/fig_rip_causality.pdf}
 \caption{RIP Causality for FM-2.2 (Hallucinated Output): primary infection
@@ -489,7 +491,7 @@ This consolidated reference replaces the per-agent and per-placement tables
 from earlier drafts; Table~\ref{tab:lkw-signatures} gives the complementary
 trace-pattern view.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Fault $\times$ LKW Criterion $\times$ Checkpoint mapping (replaces Tables~1--2).
   For each fault mode and agent the \emph{primary infection checkpoint},
@@ -586,7 +588,7 @@ determines both the infection point (RQ2) and the HITL tier (RQ4).
 Table~\ref{tab:lkw-signatures} summarises the pattern for each MAST fault
 class observed in this study.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{LKW Trace Signatures per MAST Fault Class.
   $B$ = baseline steps, $F$ = faulty steps; $\delta$ = data deviation flag.}
@@ -664,7 +666,7 @@ trace is indistinguishable from the natural-variance envelope is a
 class to its operator type, target variable, first LKW observation point,
 equivalence comparison criterion, and HITL detection tier.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
 \centering
 \caption{MAST Fault Classes as LKW Mutation Operators.
   Criteria: $\delta_{\epsilon}$~=~numeric tolerance;
@@ -794,7 +796,7 @@ same Python site.  Table~\ref{tab:b1-b2-align} makes this alignment
 explicit and maps each checkpoint to its gRPC counterpart in the original
 microservice.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
 \centering
 \caption{B1--B2 Checkpoint Alignment: B1 deterministic path vs.\ B2 ReAct tool
   vs.\ original gRPC method.}
@@ -890,13 +892,13 @@ Table~\ref{tab:google_results} reports the four executed fault scenarios for the
 Google-bench shipping workflow using \texttt{llama3.2:1b}. Elapsed time is the
 end-to-end wall-clock duration of each agent run on Concordia SPEED HPC.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Validated Google-bench fault-injection observations (\texttt{llama3.2:1b}).}
 \label{tab:google_results}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{p{1.6cm}p{1.6cm}p{2.1cm}p{1.6cm}p{2.8cm}p{3.6cm}p{3.8cm}}
 \toprule
@@ -962,7 +964,7 @@ use the seven-step checkpoint set: \texttt{TASK\_START}, \texttt{QUOTE\_DONE},
 \texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE}, \texttt{SAVE\_DONE},
 \texttt{ESCALATION\_CHECK}, \texttt{FINAL\_ANSWER}.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{LKW+RIP fault-injection results for the ShippingService Retail Bench
   (\texttt{qwen2.5-coder:14b}, Concordia SPEED HPC A100 MIG 1g.20gb).
@@ -975,7 +977,7 @@ use the seven-step checkpoint set: \texttt{TASK\_START}, \texttt{QUOTE\_DONE},
 \label{tab:retail_results}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{p{1.6cm}p{1.8cm}p{2.6cm}p{2.0cm}p{1.5cm}p{3.7cm}p{3.7cm}}
 \toprule
@@ -1152,7 +1154,7 @@ $t\!=\!1.0$ nine are killed (90\%), with four business faults achieving
 only partial detection due to increased routing entropy causing the model
 to skip tool calls in some runs.
 
-\begin{table*}[htb]
+\begin{table*}[!htbp]
 \centering
 \caption{B3 fault coverage matrix (\texttt{qwen2.5:3b}, $n\!=\!3$ runs
   per cell). Cell format: \emph{temp\,=\,0.7\,/\,temp\,=\,1.0}.
@@ -1164,7 +1166,7 @@ to skip tool calls in some runs.
 \label{tab:service-coverage}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccccccc}
 \toprule
@@ -1239,7 +1241,7 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{CARD\_VALIDATED} $\to$
 \texttt{CHARGE\_DONE} $\to$ \texttt{SAVE\_DONE} $\to$ \texttt{FINAL\_ANSWER}.
 Table~\ref{tab:payment_results} reports all nine fault modes.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{PaymentAgent LKW+RIP Fault-Injection Results.
   \emph{Infection Point} is the first LKW checkpoint at which a data deviation
@@ -1250,7 +1252,7 @@ Table~\ref{tab:payment_results} reports all nine fault modes.
 \label{tab:payment_results}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabularx}{\textwidth}{J{1.4cm}J{1.9cm}J{1.7cm}cJ{1.4cm}KK}
 \toprule
 Scenario & Injected At & Infection Point & Propagation Depth & Steps Lost
@@ -1368,13 +1370,13 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{CONVERT\_DONE} $\to$
 \texttt{FINAL\_ANSWER}. Table~\ref{tab:currency-fault} reports all nine fault
 modes.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{CurrencyAgent LKW+RIP Fault-Injection Results.}
 \label{tab:currency-fault}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabularx}{\textwidth}{J{1.4cm}J{1.9cm}J{1.7cm}cJ{1.4cm}KK}
 \toprule
 \textbf{Scenario} & \textbf{Injected At} & \textbf{Infection Point}
@@ -1473,13 +1475,13 @@ both the LangGraph \texttt{run\_agent\_node} and
 \texttt{send\_via\_microservice\_node}. Table~\ref{tab:email-fault} reports all
 nine fault modes.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{EmailServiceAgent LKW+RIP Fault-Injection Results.}
 \label{tab:email-fault}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabularx}{\textwidth}{J{1.4cm}J{1.9cm}J{1.7cm}cJ{1.4cm}KK}
 \toprule
 \textbf{Scenario} & \textbf{Injected At} & \textbf{Infection Point}
@@ -1582,13 +1584,13 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{CATALOG\_DONE} $\to$
 \texttt{list\_products}, \texttt{get\_product}, \texttt{search\_products}.
 Table~\ref{tab:catalog-fault} reports all nine fault modes.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{ProductCatalogAgent LKW+RIP Fault-Injection Results.}
 \label{tab:catalog-fault}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabularx}{\textwidth}{J{1.4cm}J{1.9cm}J{1.7cm}cJ{1.4cm}KK}
 \toprule
 \textbf{Scenario} & \textbf{Injected At} & \textbf{Infection Point}
@@ -1688,13 +1690,13 @@ Checkpoints: \texttt{TASK\_START} $\to$ \texttt{RECOMMEND\_DONE} $\to$
 \texttt{list\_recommendations} gRPC call.
 Table~\ref{tab:recommendation-fault} reports all nine fault modes.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{RecommendationAgent LKW+RIP Fault-Injection Results.}
 \label{tab:recommendation-fault}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabularx}{\textwidth}{J{1.4cm}J{1.9cm}J{1.7cm}cJ{1.4cm}KK}
 \toprule
 \textbf{Scenario} & \textbf{Injected At} & \textbf{Infection Point}
@@ -1797,13 +1799,13 @@ extracted via rule-based \texttt{extract\_context\_from\_instruction()};
 \texttt{get\_qwen\_llm} is stubbed via \texttt{sys.modules} mock.
 Table~\ref{tab:ad-fault} reports all nine fault modes.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{AdServiceAgent LKW+RIP Fault-Injection Results.}
 \label{tab:ad-fault}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabularx}{\textwidth}{J{1.4cm}J{1.9cm}J{1.7cm}cJ{1.4cm}KK}
 \toprule
 \textbf{Scenario} & \textbf{Injected At} & \textbf{Infection Point}
@@ -1923,7 +1925,7 @@ manual inspection.
 Table~\ref{tab:hitl-summary} reports the tier distribution across all 64
 mode-runs (including the NONE baselines).
 
-\begin{table}[htb]
+\begin{table}[!htbp]
 \centering
 \caption{HITL Tier Distribution Across All 7 Agents (RQ4).}
 \label{tab:hitl-summary}
@@ -1947,7 +1949,7 @@ Baseline (NONE)     & 6  & 1 &  7 & --- \\
 
 Figure~\ref{fig:hitl-stacked} shows the per-agent tier breakdown.
 
-\begin{figure*}[t]
+\begin{figure*}[!tp]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/fig_hitl_stacked.pdf}
 \caption{HITL Tier Distribution per Agent.  Tier~1 (red, structural) faults
@@ -2001,7 +2003,7 @@ Table~\ref{tab:stability-summary} summarises the stability classification across
 all 64 mode-runs (6 deterministic agents $\times$ 9 fault modes = 54, plus
 ShippingService 10 fault modes; each deterministic mode-run executed 3 times).
 
-\begin{table}[htb]
+\begin{table}[!htbp]
 \centering
 \caption{RQ5 Stability Summary: Reproducibility Across All Agents.}
 \label{tab:stability-summary}
@@ -2043,11 +2045,12 @@ of~100\%.
 Table~\ref{tab:stability-pattern} presents the structural LKW signature shared
 across all six deterministic agents for each MAST fault class.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
 \centering
 \caption{Structural LKW Signature Per MAST Fault Class (invariant across all
   6~deterministic agents).}
 \label{tab:stability-pattern}
+\footnotesize
 \setlength{\tabcolsep}{4pt}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{llccc}
@@ -2116,14 +2119,14 @@ making it \emph{structurally invisible} to the downstream agent.
 Table~\ref{tab:cross-agent} presents the LKW fingerprints and quantified impact
 for both chains.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Cross-Agent Fault Propagation: FM-2.2 Upstream $\rightarrow$
   Fault-Free Downstream.}
 \label{tab:cross-agent}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.2}
+\renewcommand{\arraystretch}{1.0}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lp{2.3cm}p{2.3cm}p{2.0cm}p{1.8cm}p{1.5cm}p{1.6cm}p{3.8cm}}
 \toprule
@@ -2156,7 +2159,7 @@ B (infected)
 \end{tabular}}
 \end{table*}
 
-\begin{figure*}[t]
+\begin{figure*}[!tp]
 \centering
 \resizebox{0.97\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -2340,7 +2343,7 @@ Table~\ref{tab:boundary-evidence} presents the boundary check results for the
 two FM-2.2 cross-agent chains from Section~\ref{sec:cross-agent} after
 boundary contracts were applied.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Boundary Contract Evidence for FM-2.2 Cross-Agent Chains.}
 \label{tab:boundary-evidence}
@@ -2396,7 +2399,7 @@ uses one of four actions: \texttt{continue}, \texttt{block\_and\_request\_hitl},
 Table~\ref{tab:recovery-policies} maps each instrumented boundary to its
 policy, the failure scenario it addresses, and the execution effect.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Boundary Recovery Policies: Boundary $\to$ Action $\to$ Execution Effect.}
 \label{tab:recovery-policies}
@@ -2447,7 +2450,7 @@ Any unknown alert
 Table~\ref{tab:recovery-wiring} maps each of the seven agent services to its
 boundary, recovery action, and execution-level effect.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Recovery Wiring Across All 7 Agents (Implementation Date: 2026-07-13).}
 \label{tab:recovery-wiring}
@@ -2497,7 +2500,7 @@ each agent directly with a forced boundary mismatch and asserts that the
 recovery action is applied before any unsafe operation. Table~\ref{tab:recovery-verification}
 reports the results.
 
-\begin{table*}[t]
+\begin{table*}[!tp]
 \centering
 \caption{Recovery Wiring Verification Results (19/19 checks passed).}
 \label{tab:recovery-verification}
@@ -2533,7 +2536,7 @@ executed against \texttt{recovery\_demo\_summary.json}, confirming that
 each policy fires and produces the expected corrective state change at runtime
 (all 4 cases: \texttt{applied=true}).
 
-\begin{table}[htb]
+\begin{table}[!htbp]
 \centering
 \caption{End-to-End Recovery Demo Results.}
 \label{tab:recovery-demo}

@@ -517,36 +517,36 @@ ShipOrderAgent & \texttt{BL-ESCALATION} & \texttt{ESCALATION\_CHECK} & \textbf{A
  & \texttt{FM-2.5} & \texttt{CARRIER\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{FM-3.1} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
 \midrule
-PaymentAgent & \texttt{BL-AMOUNT-TAMPER} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+PaymentAgent & \texttt{BL-AMOUNT-TAMPER} & \texttt{CARD\_VALIDATED} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-DOUBLE-CHARGE} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{BL-TXN-LOST} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{FM-1.2} & \texttt{CARD\_VALIDATED} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{FM-2.2} & \texttt{CHARGE\_DONE} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-2.5} & \texttt{CARD\_VALIDATED} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
 CurrencyAgent & \texttt{BL-CONV-OVERFLOW} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-RATE-MANIP} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-STALE-RATE} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-1.2} & \texttt{TASK\_START} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-1.2} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
  & \texttt{FM-2.2} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-2.5} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
 \midrule
 EmailServiceAgent & \texttt{BL-CORRUPT-BODY} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-SEND-SKIP} & \texttt{EMAIL\_SENT} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
  & \texttt{FM-1.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
  & \texttt{FM-2.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use & $\Sigma$ \\
 \midrule
 ProductCatalogAgent & \texttt{BL-DUP-PRODUCT} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-PRICE-MANIP} & \texttt{CATALOG\_DONE} & \textbf{ADP} & C-use & $\Sigma$ \\
  & \texttt{BL-PROD-MISSING} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-1.2} & \texttt{TASK\_START} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-1.2} & \texttt{CATALOG\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{FM-2.2} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
 RecommendationAgent & \texttt{BL-EMPTY-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-INJECT-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{FM-2.2} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use & $\Sigma$ \\
  & \texttt{FM-3.1} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
 AdServiceAgent & \texttt{BL-AD-INJECTION} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
@@ -601,13 +601,13 @@ class observed in this study.
 \midrule
 FM-3.1 & Premature Termination
   & $F \subsetneq B$; FINAL\_ANSWER absent
-  & First missing step & $\geq 2$
+  & First missing step & $\geq 1$
   & Tier~1 --- Structural \\
 FM-1.2 & Incomplete Workflow
   & $F \subsetneq B$; SAVE\_DONE absent
   & SAVE\_DONE (P3 class)
-  & $\geq 1$
-  & Tier~1 --- Structural \\
+  & 0--2
+  & Tier~1--2 (agent-dependent) \\
 BL-SHIPMENT\_LOST & Persistence Skipped
   & $F \subsetneq B$; SAVE\_DONE absent
   & SAVE\_DONE (P3 class)
@@ -622,7 +622,7 @@ FM-2.5 & Stale / Ignored Input
   & $F = B$; $\delta$ at P2 value field
   & P2 checkpoint (e.g., QUOTE\_DONE, CARRIER\_DONE)
   & 0
-  & Tier~3 --- Silent \\
+  & Tier~2 --- Flag-Detectable \\
 BL-FLAG & Business Logic Flag
   & $F = B$; flag field set at P4
   & P4 checkpoint (ESCALATION\_CHECK, \linebreak CARRIER\_DONE)
@@ -684,7 +684,7 @@ FM-3.1 & Step removal & control flow (step set)
 FM-2.2 & Value substitution & output payload
   & P2 c-use (e.g.\ \texttt{CONVERT\_DONE}) & $\delta_{\epsilon}$ / $\mathcal{S}$ & 3 \\
 FM-2.5 & Input suppression & upstream numeric value
-  & P2 c-use (e.g.\ \texttt{CARRIER\_DONE}) & $\delta_{\epsilon}$ & 2--3 \\
+  & P2 c-use (e.g.\ \texttt{CARRIER\_DONE}) & $\delta_{\epsilon}$ & 2 \\
 FM-1.2 & Routing swap & action/method label
   & P2 c-use (e.g.\ \texttt{CATALOG\_DONE}) & $\mathcal{S}$ & 2 \\
 BL-FLAG & Flag injection & metadata flag field
@@ -2129,7 +2129,7 @@ FM-3.1 & Premature Termination & \texttt{FINAL\_ANSWER} & 1--3 & Tier~1 (structu
 FM-2.2 & Hallucinated Output   & Middle checkpoint      & 0    & Tier~3 (silent)     \\
 FM-2.5 & Ignored Input         & Middle checkpoint      & 0    & Tier~2              \\
 FM-1.2 & Wrong Routing         & Middle checkpoint      & 0    & Tier~2              \\
-BL     & Business Logic        & Middle checkpoint      & 0    & Tier~2--3           \\
+BL     & Business Logic        & Middle checkpoint      & 0    & Tier~1--2           \\
 \midrule
 ---    & NONE (baseline)       & ---                    & 0    & ---                 \\
 \bottomrule
@@ -2220,7 +2220,7 @@ B (infected)
   & ProductCatalogAgent [FM-2.2]
   & RecommendationAgent [NONE]
   & \texttt{CATALOG\_DONE} & \textbf{None} & \textbf{0 of 3}
-  & \textbf{Tier~2} & Recs for: HALLUCINATED-001 (phantom) \\
+  & \textbf{Tier~2} & Recs for: \texttt{[]} (empty input; default recs served) \\
 \bottomrule
 \end{tabular}}
 \end{table*}
@@ -2263,10 +2263,10 @@ B (infected)
 \node[font=\tiny,gray,align=center] at ( 1.4, -1.9)
   {3/3 steps reached, no flag};
 \node[res] (resb) at ( 5.0, -1.2)
-  {Recs for:\\HALLUCINATED-001\\\textcolor{red}{phantom product}};
+  {Default recs\\(baseline pattern)\\\textcolor{blue}{unaffected}};
 \draw[->,red!70] (pc) -- node[above,font=\tiny,align=center]
-  {phantom\\HALLUC-001} (ra);
-\draw[->] (ra) -- node[above,font=\tiny] {garbage-in} (resb);
+  {empty\\product list} (ra);
+\draw[->] (ra) -- node[above,font=\tiny] {baseline recs} (resb);
 \node[font=\tiny,gray] at (-0.5, -1.35) {silent};
 \end{tikzpicture}%
 }
@@ -2303,10 +2303,10 @@ The overcharge of 1{,}328~EUR (+14{,}755.6\%) is a direct, quantifiable financia
 consequence of upstream FM-2.2. No LKW step-loss signal fires at either hop.
 
 \textbf{Chain~B --- Semantic propagation.}
-ProductCatalogAgent FM-2.2 substitutes a phantom product identifier
-(\texttt{HALLUCINATED-001}) for the valid catalog entry. RecommendationAgent
-receives this identifier, queries the recommender service, and returns a product
-recommendation list --- all three LKW checkpoints reached with
+ProductCatalogAgent FM-2.2 returns an empty product list
+(\texttt{[]}) instead of the valid catalog entry \texttt{PROD-001}. RecommendationAgent
+receives this empty input, queries the recommender service, and returns its
+default recommendation list --- all three LKW checkpoints reached with
 \texttt{infection\_point = None}. No structural signal fires at either hop.
 
 \subsection{Key Finding: Cross-Boundary FM-2.2 Risk}
@@ -2376,7 +2376,7 @@ boundary contracts were applied.
 A: Currency$\to$Payment
   & \texttt{currency\_to\_payment} & 9 EUR & 1{,}337 EUR & Yes ($\delta{=}1{,}328$) \\
 B: Catalog$\to$Recommendation
-  & \texttt{catalog\_to\_recommendation} & \texttt{PROD-001} & \texttt{HALLUC-001}
+  & \texttt{catalog\_to\_recommendation} & \texttt{PROD-001} & \texttt{[]\ (empty)}
   & Yes (missing/extra) \\
 \bottomrule
 \end{tabular}}

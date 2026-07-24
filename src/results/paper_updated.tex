@@ -704,42 +704,7 @@ Per advisor and team guidance, the study follows four phases:
 (2)~execute all listed scenarios with observation and root cause analysis,
 (3)~complete Google-bench first, then Retail-bench, and
 (4)~merge team results to answer all research questions.
-Fig.~\ref{fig:workflow} illustrates the full pipeline.
-
-\begin{figure*}[t]
-\centering
-\resizebox{0.95\textwidth}{!}{%
-\begin{tikzpicture}[
-  node distance=5mm and 4mm,
-  box/.style={draw, rounded corners, align=center,
-              minimum width=2.35cm, minimum height=0.85cm, font=\footnotesize},
-  arr/.style={-{Latex[length=2.2mm]}, thick}
-]
-\node[box] (baseline) {Baseline\\(FAULT\_MODE=NONE)};
-\node[box, right=of baseline] (inject) {Inject Fault\\(single mode)};
-\node[box, right=of inject]   (run)    {Run Agent\\Workflow};
-\node[box, right=of run]      (trace)  {Collect\\Checkpoints};
-\node[box, right=of trace]    (oracle) {Oracle Comparison\\(B3 vs B1)};
-\node[box, right=of oracle]   (rca)    {Observation +\\Root Cause Analysis};
-\node[box, below=of oracle]   (rip)    {Compute LKW+RIP\\Reach/Infect/Propagate};
-\node[box, below=of rca]      (merge)  {Merge Google + Retail\\Conclusions};
-
-\draw[arr] (baseline) -- (inject);
-\draw[arr] (inject)   -- (run);
-\draw[arr] (run)      -- (trace);
-\draw[arr] (trace)    -- (oracle);
-\draw[arr] (oracle)   -- (rca);
-\draw[arr] (oracle)   -- (rip);
-\draw[arr] (rip)      -- (merge);
-\draw[arr] (rca)      -- (merge);
-\end{tikzpicture}%
-}
-\caption{Failure injection and analysis workflow. Oracle comparison
-  (centre) matches each B3 checkpoint trace against the B1
-  reference using B2-calibrated tolerances, classifying the run as a
-  killed or live mutant before LKW+RIP attribution.}
-\label{fig:workflow}
-\end{figure*}
+The pipeline runs: Baseline (NONE) $\to$ inject single fault $\to$ run agent workflow $\to$ collect LKW checkpoints $\to$ oracle comparison (B3 vs.\ B1) $\to$ LKW+RIP attribution.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Experimental Setup}
@@ -786,24 +751,11 @@ mutation analysis:
         B3 results. The six-agent deterministic runs
         (Section~\ref{sec:b1-oracle}) report B1. B2 natural variance has been
         collected for all seven agents across three \texttt{qwen2.5:3b}
-        temperature configurations (30 runs total; see Figure~\ref{fig:b2-heatmap}).
+        temperature configurations (30 runs total).
 \end{description}
 
-Figure~\ref{fig:b2-heatmap} visualises the B2 agent reach rate across the
-three \texttt{qwen2.5:3b} temperature configurations, showing how temperature
-affects LLM routing through the checkout pipeline.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.90\textwidth]{figures/fig_b2_heatmap.pdf}
-\caption{B2 Natural Variance Baseline --- per-agent reach rate (fraction of
-  10~runs where \texttt{TASK\_START} was recorded) across three temperature
-  configurations with no fault injection.  Green~=~1.0, Red~=~0.0.
-  At temp~=~0, \texttt{ship\_order} is never reached (LLM consistently
-  short-circuits the checkout after \texttt{payment}); at temp~=~0.7 and 1.0,
-  partial reach is observed, reflecting natural LLM routing variance.}
-\label{fig:b2-heatmap}
-\end{figure*}
+At temperature~=~0, \texttt{ship\_order} is never reached; at 0.7 and~1.0,
+partial reach is observed, reflecting natural LLM routing variance.
 
 \subsection{Equivalence Relations per Observation Point}
 
@@ -1275,20 +1227,10 @@ resulting LKW trace deviation from B1. A mutation that shifts any observation
 point outside the B2-calibrated equivalence tolerance is a \emph{killed
 mutant}; one whose trace remains indistinguishable from natural variance is
 a \emph{live mutant} (undetected by the current test suite).
-Figure~\ref{fig:lkw-trace-diff} shows a concrete killed-mutant example for
-PaymentAgent \texttt{BL-AMOUNT-TAMPER}.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.88\textwidth]{figures/fig_lkw_trace_diff.pdf}
-\caption{B1 Oracle vs.\ B3 Fault Run for PaymentAgent \texttt{BL-AMOUNT-TAMPER}.
-  The B3 trace deviates at \texttt{CHARGE\_DONE} (P3 class):
-  \texttt{charged=9999.00} vs.\ B1 baseline \texttt{9.00}, with
-  \texttt{tampered=True} set.  All steps are reached (propagation depth~=~0),
-  so this is a Tier~3 Silent fault --- detectable only by comparing the P2/P3
-  data payload against the B1 oracle value.}
-\label{fig:lkw-trace-diff}
-\end{figure*}
+For PaymentAgent \texttt{BL-AMOUNT-TAMPER}, the B3 trace deviates at
+\texttt{CHARGE\_DONE}: \texttt{charged=9999.00} vs.\ B1 baseline \texttt{9.00},
+with \texttt{tampered=True} set --- all steps reached (depth~=~0), confirming
+a Tier~3 silent killed mutant detectable only by payload comparison.
 
 % ── PaymentAgent ─────────────────────────────────────────────────────────────
 \subsection{PaymentAgent}
@@ -2089,20 +2031,8 @@ ShippingService$^*$  & 10 & 1 & 9 & 0 & 100\% \\
 \end{tabular}}
 \end{table}
 
-Figure~\ref{fig:stability-scatter} shows per-fault-mode average detection
-rates coloured by HITL tier, confirming that all TP faults achieve 100\%
-or near-100\% detection stability.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/fig_stability_scatter.pdf}
-\caption{Fault Detection Stability: average detection rate per fault mode
-  across all agents and configurations.  Points coloured by HITL Tier (Tier~1
-  red, Tier~2 orange, Tier~3 grey).  Most Tier~1 and Tier~2 faults achieve
-  100\% detection; Tier~3 (Silent) faults cluster at lower detection rates,
-  reflecting the need for semantic payload comparison.}
-\label{fig:stability-scatter}
-\end{figure*}
+All true-positive fault modes achieve 100\% detection stability: the injected
+fault is consistently killed on every repeated run regardless of HITL tier.
 
 All 64 mode-runs are classified as STABLE\_PASS or STABLE\_FAULT. The UNSTABLE
 count is zero across all seven agents, yielding a system-wide stability rate
@@ -2165,6 +2095,7 @@ All prior single-agent fault injection characterises how a fault manifests
 \emph{within} one agent. In a microservice LLM-MAS, agents compose: the output
 of Agent~$A$ is the input of Agent~$B$. We design two two-hop propagation
 chains to quantify inter-agent fault propagation.
+Figure~\ref{fig:cross-agent} summarises both chains and their recovery outcomes.
 
 \subsection{Experimental Design}
 
@@ -2227,70 +2158,117 @@ B (infected)
 
 \begin{figure*}[t]
 \centering
-\resizebox{0.95\textwidth}{!}{%
+\resizebox{0.97\textwidth}{!}{%
 \begin{tikzpicture}[
-  agt/.style={draw,rounded corners=2pt,minimum width=2.6cm,
-    minimum height=0.65cm,font=\scriptsize,align=center},
-  ok/.style={agt,fill=green!12},
-  bad/.style={agt,fill=red!15},
-  res/.style={draw,rounded corners,fill=yellow!20,font=\tiny,
-    minimum width=3.1cm,minimum height=0.75cm,align=center},
+  agt/.style={draw,rounded corners=3pt,minimum width=3.0cm,
+    minimum height=1.05cm,font=\small,align=center,thick},
+  bad/.style={agt,fill=red!18,draw=red!55},
+  ok/.style={agt,fill=green!12,draw=green!45!black},
+  bdy/.style={draw,rounded corners=2pt,fill=gray!10,draw=gray!55,thick,
+    minimum width=2.1cm,minimum height=0.7cm,font=\scriptsize,align=center},
+  blk/.style={draw,rounded corners=3pt,fill=red!8,draw=red!75,very thick,
+    minimum width=2.9cm,minimum height=1.05cm,font=\small,align=center},
+  safe/.style={draw,rounded corners=3pt,fill=green!8,draw=green!50!black,thick,
+    minimum width=2.9cm,minimum height=1.05cm,font=\small,align=center},
   >=Stealth,thick
 ]
-%% Chain A
-\node[font=\footnotesize\bfseries] at (0.0, 2.2) {Chain~A\,(Financial)};
-\node[bad] (ca) at (-2.4, 1.3) {CurrencyAgent\\{[FM-2.2]}};
-\node[font=\tiny,red!70,align=center] at (-2.4, 0.65)
-  {\texttt{CONVERT\_DONE} / infection pt.};
-\node[ok] (pa) at ( 1.4, 1.3) {PaymentAgent\\{[NONE]}};
-\node[font=\tiny,gray,align=center] at ( 1.4, 0.65)
-  {5/5 steps reached, no flag};
-\node[res] (resa) at ( 5.0, 1.3)
-  {Charge: \textbf{1{,}337\,EUR}\\Baseline: 9\,EUR\\
-   \textcolor{red}{+14{,}755.6\%}};
-\draw[->,red!70] (ca) -- node[above,font=\tiny,align=center]
-  {hallucinated\\1{,}337\,EUR} (pa);
-\draw[->] (pa) -- node[above,font=\tiny] {charges} (resa);
-\node[font=\tiny,gray] at (-0.5, 1.15) {silent};
-%% divider
-\draw[gray!40,thin] (-3.8, 0.1) -- (6.6, 0.1);
-%% Chain B
-\node[font=\footnotesize\bfseries] at (0.0, -0.35) {Chain~B\,(Semantic)};
-\node[bad] (pc) at (-2.4, -1.2) {ProductCatalogAgent\\{[FM-2.2]}};
-\node[font=\tiny,red!70,align=center] at (-2.4, -1.9)
-  {\texttt{CATALOG\_DONE} / infection pt.};
-\node[ok] (ra) at ( 1.4, -1.2) {RecommendationAgent\\{[NONE]}};
-\node[font=\tiny,gray,align=center] at ( 1.4, -1.9)
-  {3/3 steps reached, no flag};
-\node[res] (resb) at ( 5.0, -1.2)
-  {Default recs\\(baseline pattern)\\\textcolor{blue}{unaffected}};
-\draw[->,red!70] (pc) -- node[above,font=\tiny,align=center]
-  {empty\\product list} (ra);
-\draw[->] (ra) -- node[above,font=\tiny] {baseline recs} (resb);
-\node[font=\tiny,gray] at (-0.5, -1.35) {silent};
+
+%% ─── Column headers ──────────────────────────────────────────────────────────
+\node[font=\scriptsize\bfseries,text=gray!75] at (-1.8, 4.3) {Upstream Agent};
+\node[font=\scriptsize\bfseries,text=gray!75] at ( 2.5, 4.3) {Boundary Monitor};
+\node[font=\scriptsize\bfseries,text=gray!75] at ( 6.5, 4.3) {Downstream Agent};
+\node[font=\scriptsize\bfseries,text=gray!75] at (10.5, 4.3) {Recovery Outcome};
+\draw[gray!20,thin] (-3.6,4.05) -- (12.5,4.05);
+
+%% ─── Chain A: Financial Risk ──────────────────────────────────────────────────
+\node[font=\small\bfseries] at (-1.8, 3.75) {\textsc{Chain A} --- Financial Risk};
+
+\node[bad] (ca) at (-1.8, 2.5)
+  {CurrencyAgent\\[3pt]{\small\color{red!80}FM-2.2 (Tier~3)}\\
+   {\scriptsize hallucinates 1{,}337\,EUR}};
+
+\node[bdy] (bA) at ( 2.5, 2.5)
+  {\texttt{currency\_to}\\[-2pt]\texttt{payment}\\[2pt]{\color{red!60}alert fired}};
+
+\node[ok] (pa) at ( 6.5, 2.5)
+  {PaymentAgent\\[3pt]{\small\color{green!55!black}NONE (clean)}\\
+   {\scriptsize 5/5 steps reached}};
+
+\node[blk] (blkA) at (10.5, 2.5)
+  {\textbf{BLOCKED}\\{\small block\_hitl}\\{\scriptsize charge\_blocked\,=\,True}};
+
+\node[font=\scriptsize,red!70,align=center] at (-1.8, 1.25)
+  {\texttt{CONVERT\_DONE}\\1{,}337\,EUR instead of 9\,EUR\\\textbf{+14{,}755\%}};
+
+\draw[->,red!80,very thick] (ca) --
+  node[above,font=\small,align=center]{\textbf{1{,}337\,EUR}}
+  node[below,font=\scriptsize,text=red!80]{\textbf{+14{,}755\%}} (bA);
+\draw[->,gray!55,thick] (bA) --
+  node[above,font=\scriptsize]{policy fires} (pa);
+\draw[->,red!80,very thick,dashed] (pa) --
+  node[above,font=\small]{blocked} (blkA);
+\node[font=\scriptsize,text=gray!65,align=center] at (0.35, 2.2)
+  {no step loss\\Tier~3 Silent};
+
+%% ─── Divider ─────────────────────────────────────────────────────────────────
+\draw[gray!20,thin] (-3.6, 0.75) -- (12.5, 0.75);
+
+%% ─── Chain B: Semantic (Contained) ───────────────────────────────────────────
+\node[font=\small\bfseries] at (-1.8, 0.5) {\textsc{Chain B} --- Semantic (Contained)};
+
+\node[bad] (pc) at (-1.8, -0.75)
+  {ProductCatalogAgent\\[3pt]{\small\color{red!80}FM-2.2 (Tier~3)}\\
+   {\scriptsize returns [\,] (was PROD-001)}};
+
+\node[bdy] (bB) at ( 2.5, -0.75)
+  {\texttt{catalog\_to}\\[-2pt]\texttt{recommendation}\\[2pt]{\color{orange!80}alert fired}};
+
+\node[ok] (ra) at ( 6.5, -0.75)
+  {RecommendationAgent\\[3pt]{\small\color{green!55!black}NONE (clean)}\\
+   {\scriptsize 3/3 steps reached}};
+
+\node[safe] (safeB) at (10.5, -0.75)
+  {Default Recs\\{\small\color{blue!60}Unaffected}\\{\scriptsize baseline-identical}};
+
+\node[font=\scriptsize,red!70,align=center] at (-1.8, -1.9)
+  {\texttt{CATALOG\_DONE}\\empty list [\,] (was PROD-001)};
+
+\draw[->,red!70,very thick] (pc) --
+  node[above,font=\small]{[\,] empty} (bB);
+\draw[->,gray!55,thick] (bB) --
+  node[above,font=\scriptsize]{fallback fires} (ra);
+\draw[->] (ra) --
+  node[above,font=\small]{default recs} (safeB);
+\node[font=\scriptsize,text=gray!65,align=center] at (0.35, -1.0)
+  {no step loss\\Tier~3 Silent};
+
+%% ─── Key Finding Box ──────────────────────────────────────────────────────────
+\node[draw,fill=yellow!12,rounded corners=5pt,inner sep=8pt,thick,
+      font=\small,align=center,minimum width=16cm]
+  at (3.45, -3.35)
+  {\textbf{Key Finding: FM-2.2 (Tier~3 Silent) crosses service boundaries with zero
+   structural signal --- no LKW step loss at either hop.}\\[4pt]
+   Chain~A: \textbf{14{,}755\% financial overcharge blocked by
+   \texttt{block\_and\_request\_hitl} recovery policy}
+   (\texttt{charge\_blocked\,=\,True}).\\
+   Chain~B: Semantic fault self-contained ---
+   downstream returns baseline-identical recommendations (no financial risk).};
+
 \end{tikzpicture}%
 }
-\caption{Cross-agent FM-2.2 propagation. Red: upstream FM-2.2 injected;
-green: fault-free downstream. Both chains complete all LKW checkpoints at
-hop~2 (zero steps lost) but produce quantifiable impact:
-14{,}755.6\% financial overcharge (Chain~A) and phantom-product semantic
-corruption (Chain~B). No structural signal fires at the downstream boundary.}
+\caption{Cross-agent FM-2.2 (Hallucinated Output, Tier~3 Silent) propagation.
+  \textit{Red}: upstream agents with FM-2.2 injected.
+  \textit{Green}: fault-free downstream agents (all LKW checkpoints reached at both hops).
+  \textit{Gray}: boundary monitors emit \texttt{BOUNDARY\_CHECK} alerts.
+  Chain~A (financial): CurrencyAgent hallucinates 1{,}337\,EUR (baseline 9\,EUR; +14{,}755\%);
+  \texttt{block\_and\_request\_hitl} fires at the boundary --- charge never executed.
+  Chain~B (semantic): ProductCatalogAgent returns empty product list [\,];
+  RecommendationAgent returns baseline-identical recommendations (no financial exposure).
+  \emph{Neither chain produces a structural LKW step-loss signal}: both faults are
+  Tier~3 Silent and detectable only by semantic payload inspection.}
 \label{fig:cross-agent}
 \end{figure*}
 
-Figure~\ref{fig:cross-agent-chain} traces the data-flow and boundary signals
-for Chain~A in detail.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.88\textwidth]{figures/fig_cross_agent_chain.pdf}
-\caption{Cross-Agent FM-2.2 Propagation Chain~A (financial): CurrencyAgent
-  hallucination (1{,}337\,EUR) propagates through the currency-to-payment
-  boundary where the recovery policy fires \texttt{block\_and\_request\_hitl},
-  preventing the unsafe charge.  LKW checkpoint labels and boundary
-  alert values are shown at each stage.}
-\label{fig:cross-agent-chain}
-\end{figure*}
 
 \subsection{Analysis}
 
@@ -2639,7 +2617,7 @@ Only \textbf{ShippingService} runs live LLM during B3 fault injection campaigns.
 Claims about LLM-based fault detection are supported only by the ShippingService
 Retail-bench results (11 fault modes: 7 TP, 2 Partial TP, 1 TN, 1 INCONCLUSIVE).
 Pure LLM ReAct orchestrators have been built for all six agents and used for B2
-natural variance collection (Figure~\ref{fig:b2-heatmap}); extending B3 fault
+natural variance collection; extending B3 fault
 injection to live-LLM execution for the remaining six agents is left as future work.
 
 \subsection{L2 --- Compliance-Ambiguity Fault Remains INCONCLUSIVE}

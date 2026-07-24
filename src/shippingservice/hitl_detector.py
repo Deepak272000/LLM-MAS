@@ -25,6 +25,8 @@ Output:
     Console report + hitl_classification_report.json
 """
 
+from __future__ import annotations
+
 import json
 import math
 import os

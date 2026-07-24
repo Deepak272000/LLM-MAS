@@ -19,7 +19,7 @@ class RecommendationState(TypedDict):
     total_input_tokens: int
     total_output_tokens: int
     total_llm_calls: int                          # final response (possibly LLM-enriched)
-    handoff_contract: dict | None
+    handoff_contract: Optional[dict]
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,241 @@
+{
+  "generated_at": "2026-07-24T19:11:09.782449+00:00",
+  "service_inventory_from_manifests": [
+    "adservice",
+    "cartservice",
+    "checkoutservice",
+    "currencyservice",
+    "emailservice",
+    "paymentservice",
+    "productcatalogservice",
+    "recommendationservice",
+    "shippingservice"
+  ],
+  "systematic_agents_detected": [
+    "checkout_orchestrator",
+    "currency",
+    "email",
+    "payment",
+    "productcatalog",
+    "ship_order",
+    "shipping_quote"
+  ],
+  "b3_fault_modes_detected": [
+    "BL_AMOUNT_TAMPERING",
+    "BL_COMPLIANCE_AMBIGUITY",
+    "BL_CORRUPTED_BODY",
+    "BL_CUSTOMER_ESCALATION",
+    "BL_INVENTORY_MISMATCH",
+    "BL_PRICE_MANIPULATION",
+    "BL_RATE_MANIPULATION",
+    "BL_REFUND_REASONING",
+    "BL_SHIPMENT_LOST",
+    "BL_VENDOR_NEGOTIATION",
+    "FM_1_2",
+    "FM_2_2",
+    "FM_2_5",
+    "FM_3_1"
+  ],
+  "totals": {
+    "covered": 9,
+    "partial": 0,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "agent": "paymentagent",
+      "folder": "paymentagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": true,
+        "b3_expected_modes_found": [
+          "FM_3_1",
+          "FM_1_2",
+          "FM_2_2",
+          "FM_2_5",
+          "BL_AMOUNT_TAMPERING"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "currencyagent",
+      "folder": "currencyagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": true,
+        "b3_expected_modes_found": [
+          "FM_3_1",
+          "FM_1_2",
+          "FM_2_2",
+          "FM_2_5",
+          "BL_RATE_MANIPULATION"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "emailserviceagent",
+      "folder": "emailserviceagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": true,
+        "b3_expected_modes_found": [
+          "FM_3_1",
+          "FM_1_2",
+          "FM_2_2",
+          "FM_2_5",
+          "BL_CORRUPTED_BODY"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "productcatalogagent",
+      "folder": "productcatalogagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": true,
+        "b3_expected_modes_found": [
+          "FM_3_1",
+          "FM_1_2",
+          "FM_2_2",
+          "FM_2_5",
+          "BL_PRICE_MANIPULATION"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "recommendationagent",
+      "folder": "recommendationagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": false,
+        "b3_expected_modes_found": [
+          "FM_2_2",
+          "FM_2_5"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "adserviceagent",
+      "folder": "adserviceagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": false,
+        "b3_expected_modes_found": [
+          "FM_2_2",
+          "FM_2_5"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "shippingagent",
+      "folder": "shippingagent",
+      "language": "python",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": true,
+        "b3_expected_modes_found": [
+          "FM_3_1",
+          "FM_1_2",
+          "FM_2_2",
+          "FM_2_5",
+          "BL_INVENTORY_MISMATCH",
+          "BL_SHIPMENT_LOST"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "cart-agent",
+      "folder": "cart-agent",
+      "language": "csharp",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": false,
+        "b3_expected_modes_found": [],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    },
+    {
+      "agent": "checkout-agent",
+      "folder": "checkout-agent",
+      "language": "go",
+      "status": "covered",
+      "signals": {
+        "harness_test_fault_injection": true,
+        "fault_result_json": true,
+        "stability_matrix": true,
+        "b2_raw_runs_count": 3,
+        "b2_systematic_participation": true,
+        "b3_expected_modes_found": [
+          "FM_3_1",
+          "FM_1_2",
+          "FM_2_2",
+          "FM_2_5"
+        ],
+        "hitl_report_exists": true,
+        "cross_agent_report_exists": true
+      },
+      "missing_items": []
+    }
+  ]
+}

@@ -1,8 +1,0 @@
-[FAULT FM_3_1] Premature termination — returning before catalog call
-[FAULT FM_2_2] Hallucinated product data injected
-[FAULT FM_2_5] Query tampered: 'list all products' → 'nonexistent_item_xyz'
-[FAULT FM_1_2] Action swapped: list_products → search_products
-[FAULT BL_PRODUCT_MISSING] All products removed from result
-[FAULT BL_PRICE_MANIPULATION] Prices inflated 10x
-[FAULT BL_DUPLICATE_PRODUCT] First product duplicated
-[FAULT BL_WRONG_CATEGORY] Product categories replaced

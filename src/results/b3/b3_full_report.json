@@ -1,12 +1,58 @@
 {
-  "generated_at": "2026-07-18T04:52:52.878589+00:00",
+  "generated_at": "2026-07-21T03:07:05.986512+00:00",
   "description": "B3 mutation detection results. Retail-bench = qwen2.5-coder:14b. Google-bench = qwen2.5:3b.",
   "retail_bench": [],
   "google_bench": [
     {
-      "fault_mode": "BL_INVENTORY_MISMATCH",
-      "fault_category": "business",
-      "model_label": "3b_temp0",
+      "fault_mode": "FM_3_1",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 3,
+      "PARTIAL_TP": 0,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 5,
+      "top_deviating_fields": [
+        "units",
+        "hallucinated",
+        "action",
+        "product_ids",
+        "count"
+      ],
+      "elapsed_ms_avg": 12704.5
+    },
+    {
+      "fault_mode": "FM_1_2",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 2,
+      "PARTIAL_TP": 0,
+      "FN": 0,
+      "INCONCLUSIVE": 1,
+      "detection_rate": 0.6667,
+      "mutation_score": 1.0,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 5,
+      "top_deviating_fields": [
+        "units",
+        "action",
+        "product_ids",
+        "to_currency",
+        "units_out"
+      ],
+      "elapsed_ms_avg": 49248.6
+    },
+    {
+      "fault_mode": "FM_2_2",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
       "total_runs": 3,
       "TP": 3,
       "PARTIAL_TP": 0,
@@ -18,20 +64,211 @@
       "infection_agent": "productcatalog",
       "max_propagation_depth": 3,
       "top_deviating_fields": [
-        "count",
         "units",
-        "units_charged",
-        "ignored_downstream_quote",
-        "email"
+        "action",
+        "product_ids",
+        "to_currency",
+        "units_out"
       ],
-      "elapsed_ms_avg": 6067.4
+      "elapsed_ms_avg": 8917.3
+    },
+    {
+      "fault_mode": "FM_2_5",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 3,
+      "PARTIAL_TP": 0,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 3,
+      "top_deviating_fields": [
+        "units",
+        "action",
+        "product_ids",
+        "to_currency",
+        "amount_tampered"
+      ],
+      "elapsed_ms_avg": 14040.4
+    },
+    {
+      "fault_mode": "BL_PRICE_MANIPULATION",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 3,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "action",
+        "product_ids",
+        "price_manipulated"
+      ],
+      "elapsed_ms_avg": 8137.1
+    },
+    {
+      "fault_mode": "BL_RATE_MANIPULATION",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 3,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "currency",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "to_currency",
+        "units_out",
+        "units"
+      ],
+      "elapsed_ms_avg": 11124.2
+    },
+    {
+      "fault_mode": "BL_AMOUNT_TAMPERING",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 2,
+      "FN": 1,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 0.6667,
+      "mutation_score": 0.6667,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "payment",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "units",
+        "amount_tampered",
+        "units_charged",
+        "currency_code",
+        "validation_bypassed"
+      ],
+      "elapsed_ms_avg": 7343.6
+    },
+    {
+      "fault_mode": "BL_INVENTORY_MISMATCH",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 2,
+      "FN": 1,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 0.6667,
+      "mutation_score": 0.6667,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "shipping_quote",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "item_count_inflated"
+      ],
+      "elapsed_ms_avg": 9393.9
+    },
+    {
+      "fault_mode": "BL_SHIPMENT_LOST",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 2,
+      "FN": 1,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 0.6667,
+      "mutation_score": 0.6667,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "ship_order",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "ignored_downstream_quote",
+        "tracking_id",
+        "saved"
+      ],
+      "elapsed_ms_avg": 7673.5
+    },
+    {
+      "fault_mode": "BL_CORRUPTED_BODY",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 0,
+      "FN": 2,
+      "INCONCLUSIVE": 1,
+      "detection_rate": 0.0,
+      "mutation_score": 0.0,
+      "overall_classification": "INCONCLUSIVE",
+      "infection_agent": null,
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [],
+      "elapsed_ms_avg": 47681.1
     }
   ],
   "all_summaries": [
     {
-      "fault_mode": "BL_INVENTORY_MISMATCH",
-      "fault_category": "business",
-      "model_label": "3b_temp0",
+      "fault_mode": "FM_3_1",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 3,
+      "PARTIAL_TP": 0,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 5,
+      "top_deviating_fields": [
+        "units",
+        "hallucinated",
+        "action",
+        "product_ids",
+        "count"
+      ],
+      "elapsed_ms_avg": 12704.5
+    },
+    {
+      "fault_mode": "FM_1_2",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 2,
+      "PARTIAL_TP": 0,
+      "FN": 0,
+      "INCONCLUSIVE": 1,
+      "detection_rate": 0.6667,
+      "mutation_score": 1.0,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 5,
+      "top_deviating_fields": [
+        "units",
+        "action",
+        "product_ids",
+        "to_currency",
+        "units_out"
+      ],
+      "elapsed_ms_avg": 49248.6
+    },
+    {
+      "fault_mode": "FM_2_2",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
       "total_runs": 3,
       "TP": 3,
       "PARTIAL_TP": 0,
@@ -43,18 +280,163 @@
       "infection_agent": "productcatalog",
       "max_propagation_depth": 3,
       "top_deviating_fields": [
-        "count",
         "units",
-        "units_charged",
-        "ignored_downstream_quote",
-        "email"
+        "action",
+        "product_ids",
+        "to_currency",
+        "units_out"
       ],
-      "elapsed_ms_avg": 6067.4
+      "elapsed_ms_avg": 8917.3
+    },
+    {
+      "fault_mode": "FM_2_5",
+      "fault_category": "general",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 3,
+      "PARTIAL_TP": 0,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 3,
+      "top_deviating_fields": [
+        "units",
+        "action",
+        "product_ids",
+        "to_currency",
+        "amount_tampered"
+      ],
+      "elapsed_ms_avg": 14040.4
+    },
+    {
+      "fault_mode": "BL_PRICE_MANIPULATION",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 3,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "productcatalog",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "action",
+        "product_ids",
+        "price_manipulated"
+      ],
+      "elapsed_ms_avg": 8137.1
+    },
+    {
+      "fault_mode": "BL_RATE_MANIPULATION",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 3,
+      "FN": 0,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 1.0,
+      "mutation_score": 1.0,
+      "overall_classification": "TP",
+      "infection_agent": "currency",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "to_currency",
+        "units_out",
+        "units"
+      ],
+      "elapsed_ms_avg": 11124.2
+    },
+    {
+      "fault_mode": "BL_AMOUNT_TAMPERING",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 2,
+      "FN": 1,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 0.6667,
+      "mutation_score": 0.6667,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "payment",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "units",
+        "amount_tampered",
+        "units_charged",
+        "currency_code",
+        "validation_bypassed"
+      ],
+      "elapsed_ms_avg": 7343.6
+    },
+    {
+      "fault_mode": "BL_INVENTORY_MISMATCH",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 2,
+      "FN": 1,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 0.6667,
+      "mutation_score": 0.6667,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "shipping_quote",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "item_count_inflated"
+      ],
+      "elapsed_ms_avg": 9393.9
+    },
+    {
+      "fault_mode": "BL_SHIPMENT_LOST",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 2,
+      "FN": 1,
+      "INCONCLUSIVE": 0,
+      "detection_rate": 0.6667,
+      "mutation_score": 0.6667,
+      "overall_classification": "PARTIAL_TP",
+      "infection_agent": "ship_order",
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [
+        "ignored_downstream_quote",
+        "tracking_id",
+        "saved"
+      ],
+      "elapsed_ms_avg": 7673.5
+    },
+    {
+      "fault_mode": "BL_CORRUPTED_BODY",
+      "fault_category": "business",
+      "model_label": "3b_temp1.0",
+      "total_runs": 3,
+      "TP": 0,
+      "PARTIAL_TP": 0,
+      "FN": 2,
+      "INCONCLUSIVE": 1,
+      "detection_rate": 0.0,
+      "mutation_score": 0.0,
+      "overall_classification": "INCONCLUSIVE",
+      "infection_agent": null,
+      "max_propagation_depth": 0,
+      "top_deviating_fields": [],
+      "elapsed_ms_avg": 47681.1
     }
   ],
-  "killed_mutants": 1,
+  "killed_mutants": 9,
   "live_mutants": 0,
-  "inconclusive": 0,
-  "total_combos": 1,
-  "mutation_score": 1.0
+  "inconclusive": 1,
+  "total_combos": 10,
+  "mutation_score": 0.9
 }

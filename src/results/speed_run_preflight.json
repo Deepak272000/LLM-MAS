@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-07-24T19:12:38.169778+00:00",
+  "python_executable": "E:\\Summer ai Agent Project\\.venv\\Scripts\\python.exe",
+  "rows": [
+    {
+      "agent": "paymentagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes: NONE\n  \u00e2\u2020\u2019 NONE ... done (0.7 ms) | steps=5/5\n\n======================================================================\n  PAYMENTAGENT FAULT INJECTION \u00e2\u20ac\u201d TEST REPORT\n======================================================================\n\n  [PASS] NONE\n  Elapsed       : 0.7 ms\n  Steps reached : TASK_START \u00e2\u2020\u2019 CARD_VALIDATED \u00e2\u2020\u2019 CHARGE_DONE \u00e2\u2020\u2019 SAVE_DONE \u00e2\u2020\u2019 FINAL_ANSWER\n  Infection at  : none detected\n  Propagation   : 0\n  Success       : True\n  Transaction   : c8f6af2b-0d0f-40b7-9258-818d7fd48d78\n\n======================================================================\n  Baseline clean    : YES\n  Faults with evidence: 0 / 0\n======================================================================\n\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\paymentagent\\paymentagent_fault_results.json"
+    },
+    {
+      "agent": "currencyagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes...\n  \u00e2\u2020\u2019 NONE ... done | steps=3/3 | infects=None\n\n======================================================================\n  CURRENCYAGENT FAULT INJECTION \u00e2\u20ac\u201d TEST REPORT\n======================================================================\n\n  [PASS] NONE\n  Steps   : TASK_START \u00e2\u2020\u2019 CONVERT_DONE \u00e2\u2020\u2019 FINAL_ANSWER\n  Infects : none\n  Prop.   : 0\n  Data    : {'currency_code': 'EUR', 'units': 9, 'nanos': 230000000}\n\n  Faults with evidence: 0 / 0\n======================================================================\n\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\currencyagent\\currencyagent_fault_results.json"
+    },
+    {
+      "agent": "emailserviceagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes...\n  \u00e2\u2020\u2019 NONE ... done | steps=4/4 | infects=None\n\n========================================================================\n  EMAILSERVICEAGENT FAULT INJECTION \u00e2\u20ac\u201d TEST REPORT\n========================================================================\n\n  [PASS] NONE\n  Steps    : TASK_START \u00e2\u2020\u2019 EMAIL_GENERATED \u00e2\u2020\u2019 EMAIL_SENT \u00e2\u2020\u2019 FINAL_ANSWER\n  Infects  : none\n  Prop.    : 0\n  State    : {'email_type': 'order_confirmation', 'subject': 'Your order has been confirmed', 'body_len': 68, 'microservice_status': 'sent'}\n\n  Faults with evidence: 0 / 0\n========================================================================\n\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\emailserviceagent\\emailserviceagent_fault_results.json"
+    },
+    {
+      "agent": "productcatalogagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes...\n  \u00e2\u2020\u2019 NONE ... done | steps=3/3 | infects=None\n\n========================================================================\n  PRODUCTCATALOGAGENT FAULT INJECTION \u00e2\u20ac\u201d TEST REPORT\n========================================================================\n\n  [PASS] NONE\n  Steps   : TASK_START \u00e2\u2020\u2019 CATALOG_DONE \u00e2\u2020\u2019 FINAL_ANSWER\n  Infects : none\n  Prop.   : 0\n  Action  : list_products | Count: 2\n  Preview : {'id': 'PROD-001', 'name': 'Sunglasses', 'description': 'Stylish sunglasses', 'picture': '/static/img/products/sunglasses.jpg', 'categories': ['accessories'], 'price_usd': {'currency_code': 'USD', 'units': 19, 'nanos': 990000000}}\n\n  Faults with evidence: 0 / 0\n========================================================================\n\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\productcatalogagent\\productcatalogagent_fault_results.json"
+    },
+    {
+      "agent": "recommendationagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes...\n  \u00e2\u2020\u2019 NONE ... done | steps=3/3 | infects=None\n\n========================================================================\n  RECOMMENDATIONAGENT FAULT INJECTION \u00e2\u20ac\u201d TEST REPORT\n========================================================================\n\n  [PASS] NONE\n  Steps   : TASK_START \u00e2\u2020\u2019 RECOMMEND_DONE \u00e2\u2020\u2019 FINAL_ANSWER\n  Infects : none\n  Prop.   : 0\n  Action  : get_recommendations | Recs: ['PROD-042', 'PROD-017', 'PROD-009']\n\n  Faults with evidence: 0 / 0\n========================================================================\n\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\recommendationagent\\recommendationagent_fault_results.json"
+    },
+    {
+      "agent": "adserviceagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes...\n  \u00e2\u2020\u2019 NONE ... done | steps=4/4 | infects=None\n\n========================================================================\n  ADSERVICEAGENT FAULT INJECTION \u00e2\u20ac\u201d TEST REPORT\n========================================================================\n\n  [PASS] NONE\n  Steps   : TASK_START \u00e2\u2020\u2019 CONTEXT_EXTRACTED \u00e2\u2020\u2019 ADS_FETCHED \u00e2\u2020\u2019 FINAL_ANSWER\n  Infects : none\n  Prop.   : 0\n  Keys    : ['clothing'] | Ads: 2\n  Ad[0]   : {'redirect_url': 'https://shop.example.com/hats', 'text': 'Buy stylish hats!'}\n\n  Faults with evidence: 0 / 0\n========================================================================\n\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\adserviceagent\\adserviceagent_fault_results.json"
+    },
+    {
+      "agent": "shippingagent",
+      "language": "python",
+      "harness_exists": true,
+      "result_json_exists": true,
+      "smoke_none_ok": true,
+      "status": "ready",
+      "notes": [],
+      "smoke_output_tail": "Running 1 fault modes: NONE\n  -> NONE ... done | steps=9 | infects=None\n\n======================================================================\n  SHIPPINGAGENT FAULT INJECTION - TEST REPORT\n======================================================================\n\n  [PASS] NONE\n  Steps   : TASK_START -> FINAL_ANSWER -> QUOTE_DONE -> BOUNDARY_CHECK -> CARRIER_DONE -> BOUNDARY_CHECK -> TRACKING_DONE -> ESCALATION_CHECK -> SAVE_DONE\n  Infects : None\n  Prop.   : 0\n\n======================================================================\n  Results saved to: E:\\Summer ai Agent Project\\LLM-MAS\\src\\shippingagent\\shippingagent_fault_results.json\n======================================================================"
+    },
+    {
+      "agent": "cart-agent",
+      "language": "csharp",
+      "build_tool": "dotnet",
+      "tool_available": true,
+      "build_ok": true,
+      "status": "ready",
+      "notes": [],
+      "build_output_tail": "Determining projects to restore...\n  All projects are up-to-date for restore.\n  cartservice -> E:\\Summer ai Agent Project\\LLM-MAS\\src\\cart-agent\\src\\bin\\Debug\\net8.0\\cartservice.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:01.08",
+      "harness_exists": true,
+      "result_json_exists": true
+    },
+    {
+      "agent": "checkout-agent",
+      "language": "go",
+      "build_tool": "go",
+      "tool_available": false,
+      "build_ok": false,
+      "status": "blocked",
+      "notes": [
+        "go not found in PATH"
+      ]
+    }
+  ],
+  "totals": {
+    "ready": 8,
+    "partial": 0,
+    "blocked": 1,
+    "missing": 0
+  }
+}

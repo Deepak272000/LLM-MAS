@@ -1,9 +1,0 @@
-[FAULT FM_3_1] Premature termination — returning before conversion
-[LKW RIP] {'reachability': ['TASK_START', 'FINAL_ANSWER'], 'infection_point': 'FINAL_ANSWER', 'propagation_depth': 1, 'missing_steps': ['CONVERT_DONE']}
-[FAULT FM_2_2] Hallucinated conversion result injected
-[FAULT FM_2_5] Amount tampered: 10.0 → 50.0
-[FAULT FM_1_2] Currency swapped: EUR → JPY
-[FAULT BL_RATE_MANIPULATION] Rate inflated: 9 → 90
-[FAULT BL_CURRENCY_UNAVAILABLE] Simulating unsupported currency error
-[FAULT BL_STALE_RATE] Stale cached rate injected
-[FAULT BL_CONVERSION_OVERFLOW] Overflow value injected

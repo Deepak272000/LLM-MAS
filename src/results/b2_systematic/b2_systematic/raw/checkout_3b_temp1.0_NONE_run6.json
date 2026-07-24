@@ -1,0 +1,578 @@
+{
+  "run_id": "5df812d9",
+  "run_idx": 6,
+  "fault_mode": "NONE",
+  "model": "qwen2.5:3b",
+  "temperature": 1.0,
+  "model_label": "3b_temp1.0",
+  "elapsed_ms": 8897.9,
+  "success": true,
+  "errors": {},
+  "checkout_lkw": [
+    {
+      "step": "TASK_START",
+      "agent": "checkout_orchestrator",
+      "timestamp": "2026-07-21T04:38:35.742535+00:00",
+      "data": {
+        "fault_mode": "NONE",
+        "model": "qwen2.5:3b",
+        "temperature": 1.0,
+        "order_id": "CO-5DF812",
+        "items": [
+          {
+            "product_id": "PROD-001",
+            "quantity": 2,
+            "weight_kg": 1.5
+          }
+        ],
+        "address": {
+          "street_address": "123 Main St",
+          "city": "Montreal",
+          "state": "QC",
+          "country": "Canada",
+          "zip_code": "H3A 0A1"
+        }
+      }
+    },
+    {
+      "step": "PRODUCT_FETCHED",
+      "agent": "checkout_orchestrator",
+      "timestamp": "2026-07-21T04:38:35.742557+00:00",
+      "data": {
+        "tool": "get_product",
+        "args": {
+          "product_id": "PROD-001"
+        },
+        "result": {
+          "id": "PROD-001",
+          "name": "Sunglasses",
+          "price_usd": {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          }
+        }
+      }
+    },
+    {
+      "step": "CURRENCY_CONVERTED",
+      "agent": "checkout_orchestrator",
+      "timestamp": "2026-07-21T04:38:35.742560+00:00",
+      "data": {
+        "tool": "convert_currency",
+        "args": {
+          "amount_nanos": 234567890,
+          "amount_units": 1,
+          "from_currency": "USD",
+          "to_currency": "CAD"
+        },
+        "result": {}
+      }
+    },
+    {
+      "step": "SHIPPING_QUOTED",
+      "agent": "checkout_orchestrator",
+      "timestamp": "2026-07-21T04:38:35.742562+00:00",
+      "data": {
+        "tool": "quote_shipping",
+        "args": {
+          "items": [
+            {
+              "product_id": "PROD-001",
+              "quantity": 2,
+              "weight_kg": 1.5
+            }
+          ],
+          "address": {
+            "city": "Montreal",
+            "country": "Canada",
+            "state": "QC",
+            "street_address": "123 Main St",
+            "zip_code": "H3A 0A1"
+          }
+        },
+        "result": {
+          "cost_usd": 5.0
+        }
+      }
+    },
+    {
+      "step": "PAYMENT_CHARGED",
+      "agent": "checkout_orchestrator",
+      "timestamp": "2026-07-21T04:38:35.742565+00:00",
+      "data": {
+        "tool": "charge_card",
+        "args": {
+          "credit_card_cvv": null,
+          "credit_card_expiration_month": 11,
+          "credit_card_expiration_year": 2030,
+          "credit_card_number": null,
+          "currency_code": "CAD",
+          "units": 89.95
+        },
+        "result": {
+          "transaction_id": null
+        }
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "agent": "checkout_orchestrator",
+      "timestamp": "2026-07-21T04:38:35.742567+00:00",
+      "data": {
+        "content": ">{\"order_id\": \"CO-5DF812\", \"shipping_tracking_id\": \"\", \"total_charged\": 0.0}",
+        "iterations": 3
+      }
+    },
+    {
+      "step": "PRODUCTCATALOG_TASK_START",
+      "agent": "productcatalog",
+      "timestamp": "2026-07-21T04:38:35.742572+00:00",
+      "data": {
+        "query": "get product PROD-001",
+        "product_ids": null,
+        "action": "search_products",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "PRODUCTCATALOG_FINAL_ANSWER",
+      "agent": "productcatalog",
+      "timestamp": "2026-07-21T04:38:35.742574+00:00",
+      "data": {
+        "error": "module 'app.fault_injection' has no attribute 'maybe_tamper_query_str'"
+      }
+    },
+    {
+      "step": "CURRENCY_TASK_START",
+      "agent": "currency",
+      "timestamp": "2026-07-21T04:38:35.742576+00:00",
+      "data": {
+        "action": "convert",
+        "from_currency": "USD",
+        "to_currency": "CAD",
+        "units": 1,
+        "nanos": 234567890,
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CURRENCY_CONVERT_DONE",
+      "agent": "currency",
+      "timestamp": "2026-07-21T04:38:35.742578+00:00",
+      "data": {
+        "action": "list",
+        "count": 44
+      }
+    },
+    {
+      "step": "CURRENCY_FINAL_ANSWER",
+      "agent": "currency",
+      "timestamp": "2026-07-21T04:38:35.742580+00:00",
+      "data": {
+        "error": "module 'app.fault_injection' has no attribute 'maybe_inflate_rate'"
+      }
+    },
+    {
+      "step": "SHIPPING_QUOTE_TASK_START",
+      "agent": "shipping_quote",
+      "timestamp": "2026-07-21T04:38:35.742583+00:00",
+      "data": {
+        "address": {
+          "city": "Montreal",
+          "country": "Canada",
+          "state": "QC",
+          "street_address": "123 Main St",
+          "zip_code": "H3A 0A1"
+        },
+        "item_count": 1
+      }
+    },
+    {
+      "step": "SHIPPING_QUOTE_QUOTE_DONE",
+      "agent": "shipping_quote",
+      "timestamp": "2026-07-21T04:38:35.742585+00:00",
+      "data": {
+        "cost_usd": 5.0,
+        "item_count_inflated": false
+      }
+    },
+    {
+      "step": "SHIPPING_QUOTE_FINAL_ANSWER",
+      "agent": "shipping_quote",
+      "timestamp": "2026-07-21T04:38:35.742587+00:00",
+      "data": {
+        "raw": "{\"cost_usd\": <number>}"
+      }
+    },
+    {
+      "step": "SHIPPING_QUOTE_SAVE_DONE",
+      "agent": "shipping_quote",
+      "timestamp": "2026-07-21T04:38:35.742589+00:00",
+      "data": {
+        "saved": false,
+        "reason": "benchmark_mode"
+      }
+    },
+    {
+      "step": "PAYMENT_TASK_START",
+      "agent": "payment",
+      "timestamp": "2026-07-21T04:38:35.742593+00:00",
+      "data": {
+        "currency_code": "CAD",
+        "units": 89.95,
+        "nanos": 990000000,
+        "card_last4": "****",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "PAYMENT_FINAL_ANSWER",
+      "agent": "payment",
+      "timestamp": "2026-07-21T04:38:35.742595+00:00",
+      "data": {
+        "error": "module 'app.fault_injection' has no attribute 'maybe_force_card_decline'"
+      }
+    }
+  ],
+  "per_agent_lkw": {
+    "checkout_orchestrator": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-21T04:38:26.996488+00:00",
+        "data": {
+          "fault_mode": "NONE",
+          "model": "qwen2.5:3b",
+          "temperature": 1.0,
+          "order_id": "CO-5DF812",
+          "items": [
+            {
+              "product_id": "PROD-001",
+              "quantity": 2,
+              "weight_kg": 1.5
+            }
+          ],
+          "address": {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          }
+        }
+      },
+      {
+        "step": "PRODUCT_FETCHED",
+        "timestamp": "2026-07-21T04:38:28.684875+00:00",
+        "data": {
+          "tool": "get_product",
+          "args": {
+            "product_id": "PROD-001"
+          },
+          "result": {
+            "id": "PROD-001",
+            "name": "Sunglasses",
+            "price_usd": {
+              "currency_code": "USD",
+              "units": 19,
+              "nanos": 990000000
+            }
+          }
+        }
+      },
+      {
+        "step": "CURRENCY_CONVERTED",
+        "timestamp": "2026-07-21T04:38:30.678330+00:00",
+        "data": {
+          "tool": "convert_currency",
+          "args": {
+            "amount_nanos": 234567890,
+            "amount_units": 1,
+            "from_currency": "USD",
+            "to_currency": "CAD"
+          },
+          "result": {}
+        }
+      },
+      {
+        "step": "SHIPPING_QUOTED",
+        "timestamp": "2026-07-21T04:38:34.176045+00:00",
+        "data": {
+          "tool": "quote_shipping",
+          "args": {
+            "items": [
+              {
+                "product_id": "PROD-001",
+                "quantity": 2,
+                "weight_kg": 1.5
+              }
+            ],
+            "address": {
+              "city": "Montreal",
+              "country": "Canada",
+              "state": "QC",
+              "street_address": "123 Main St",
+              "zip_code": "H3A 0A1"
+            }
+          },
+          "result": {
+            "cost_usd": 5.0
+          }
+        }
+      },
+      {
+        "step": "PAYMENT_CHARGED",
+        "timestamp": "2026-07-21T04:38:35.123255+00:00",
+        "data": {
+          "tool": "charge_card",
+          "args": {
+            "credit_card_cvv": null,
+            "credit_card_expiration_month": 11,
+            "credit_card_expiration_year": 2030,
+            "credit_card_number": null,
+            "currency_code": "CAD",
+            "units": 89.95
+          },
+          "result": {
+            "transaction_id": null
+          }
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-21T04:38:35.720876+00:00",
+        "data": {
+          "content": ">{\"order_id\": \"CO-5DF812\", \"shipping_tracking_id\": \"\", \"total_charged\": 0.0}",
+          "iterations": 3
+        }
+      }
+    ],
+    "productcatalog": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-21T04:38:28.089980+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "query": "get product PROD-001",
+          "product_ids": null,
+          "action": "search_products",
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-21T04:38:28.667074+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "error": "module 'app.fault_injection' has no attribute 'maybe_tamper_query_str'"
+        }
+      }
+    ],
+    "currency": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-21T04:38:28.825612+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "action": "convert",
+          "from_currency": "USD",
+          "to_currency": "CAD",
+          "units": 1,
+          "nanos": 234567890,
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "CONVERT_DONE",
+        "timestamp": "2026-07-21T04:38:29.633300+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "action": "list",
+          "count": 44
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-21T04:38:30.660236+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "error": "module 'app.fault_injection' has no attribute 'maybe_inflate_rate'"
+        }
+      }
+    ],
+    "shipping_quote": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-21T04:38:33.036356+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "address": {
+            "city": "Montreal",
+            "country": "Canada",
+            "state": "QC",
+            "street_address": "123 Main St",
+            "zip_code": "H3A 0A1"
+          },
+          "item_count": 1
+        }
+      },
+      {
+        "step": "QUOTE_DONE",
+        "timestamp": "2026-07-21T04:38:34.153057+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "cost_usd": 5.0,
+          "item_count_inflated": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-21T04:38:34.153071+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "raw": "{\"cost_usd\": <number>}"
+        }
+      },
+      {
+        "step": "SAVE_DONE",
+        "timestamp": "2026-07-21T04:38:34.153109+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "saved": false,
+          "reason": "benchmark_mode"
+        }
+      }
+    ],
+    "payment": [
+      {
+        "step": "TASK_START",
+        "timestamp": "2026-07-21T04:38:34.332697+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "currency_code": "CAD",
+          "units": 89.95,
+          "nanos": 990000000,
+          "card_last4": "****",
+          "fault_mode": "NONE"
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-21T04:38:35.102514+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "error": "module 'app.fault_injection' has no attribute 'maybe_force_card_decline'"
+        }
+      }
+    ]
+  },
+  "rip": {
+    "checkout_orchestrator": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "PRODUCT_FETCHED",
+        "CURRENCY_CONVERTED",
+        "SHIPPING_QUOTED",
+        "PAYMENT_CHARGED",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "ORDER_SHIPPED",
+        "CONFIRMATION_SENT"
+      ]
+    },
+    "productcatalog": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CATALOG_DONE"
+      ]
+    },
+    "currency": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
+    },
+    "shipping_quote": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "QUOTE_DONE",
+        "FINAL_ANSWER",
+        "SAVE_DONE"
+      ],
+      "steps_lost": []
+    },
+    "payment": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE"
+      ]
+    },
+    "ship_order": {
+      "R": false,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [],
+      "steps_lost": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ]
+    },
+    "email": {
+      "R": false,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [],
+      "steps_lost": [
+        "TASK_START",
+        "EMAIL_GENERATED",
+        "EMAIL_SENT",
+        "FINAL_ANSWER"
+      ]
+    }
+  },
+  "order_id": "CO-5DF812",
+  "transaction_id": "orch-tx-unknown",
+  "tracking_id": null,
+  "orchestrator_iterations": 3,
+  "orchestrator_status": "ok"
+}

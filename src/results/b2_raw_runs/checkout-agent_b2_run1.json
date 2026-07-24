@@ -1,0 +1,49 @@
+{
+  "agent": "checkout-agent",
+  "run": 1,
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-24T19:11:03.791134+00:00",
+      "data": {
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CART_FETCHED",
+      "timestamp": "2026-07-24T19:11:03.791144+00:00",
+      "data": {
+        "items": 2
+      }
+    },
+    {
+      "step": "TOTAL_COMPUTED",
+      "timestamp": "2026-07-24T19:11:03.791147+00:00",
+      "data": {
+        "amount": 25.98
+      }
+    },
+    {
+      "step": "ORDER_PLACED",
+      "timestamp": "2026-07-24T19:11:03.791150+00:00",
+      "data": {
+        "order_id": "CO-TEST-001"
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-24T19:11:03.791152+00:00",
+      "data": {
+        "ok": true
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CART_FETCHED",
+    "TOTAL_COMPUTED",
+    "ORDER_PLACED",
+    "FINAL_ANSWER"
+  ],
+  "generated_at": "2026-07-24T19:11:03.791158+00:00"
+}

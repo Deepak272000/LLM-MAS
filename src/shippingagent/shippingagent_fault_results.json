@@ -1,0 +1,138 @@
+{
+  "generated_at": "2026-07-24T19:12:36.786322+00:00",
+  "results": [
+    {
+      "fault_mode": "NONE",
+      "elapsed_ms": 0.3,
+      "status": "PASS",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": null,
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:12:36.786042+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:12:36.786224+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:12:36.786243+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:12:36.786248+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:12:36.786251+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:12:36.786254+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:12:36.786256+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:12:36.786258+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:12:36.786261+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "NONE"
+      },
+      "classification": "PASS"
+    }
+  ]
+}

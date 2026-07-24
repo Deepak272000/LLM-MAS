@@ -1,0 +1,69 @@
+\begin{table*}[t]
+\centering
+\caption{Fault $\times$ LKW Criterion $\times$ Checkpoint mapping (replaces Tables~1--2).
+  For each fault mode and agent the \emph{primary infection checkpoint},
+  applicable criterion (\textbf{AU}~=~All-Uses; \textbf{ADP}~=~All-DU-Paths),
+  use type (C~=~c-use; P~=~p-use), and comparison operator are listed.
+  Comparison: $\delta_{\epsilon}$~=~numeric tolerance;
+  $\mathcal{S}$~=~set/schema equality; $\Sigma$~=~flag/bool conformance.}
+\label{tab:fault-lkw-ckpt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{2.8cm}p{3.0cm}p{2.9cm}lll}
+\toprule
+\textbf{Agent} & \textbf{Fault Mode} & \textbf{Infect.\ Checkpoint} & \textbf{Criterion} & \textbf{Use} & \textbf{Cmp.} \\
+\midrule
+ShippingQuoteAgent & \texttt{BL-INV-MISMATCH} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-REFUND} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-2.5} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+\midrule
+ShipOrderAgent & \texttt{BL-ESCALATION} & \texttt{ESCALATION\_CHECK} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{BL-SHIP-LOST} & \texttt{SAVE\_DONE} & \textbf{ADP} & C-use/P-use & $\Sigma$ \\
+ & \texttt{BL-VENDOR} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-1.2} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-2.2} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-2.5} & \texttt{CARRIER\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-3.1} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+\midrule
+PaymentAgent & \texttt{BL-AMOUNT-TAMPER} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-DOUBLE-CHARGE} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{BL-TXN-LOST} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-1.2} & \texttt{CARD\_VALIDATED} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{CHARGE\_DONE} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+\midrule
+CurrencyAgent & \texttt{BL-CONV-OVERFLOW} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-RATE-MANIP} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-STALE-RATE} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-1.2} & \texttt{TASK\_START} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+\midrule
+EmailServiceAgent & \texttt{BL-CORRUPT-BODY} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-SEND-SKIP} & \texttt{EMAIL\_SENT} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-1.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\Sigma$ \\
+\midrule
+ProductCatalogAgent & \texttt{BL-DUP-PRODUCT} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-PRICE-MANIP} & \texttt{CATALOG\_DONE} & \textbf{ADP} & C-use & $\Sigma$ \\
+ & \texttt{BL-PROD-MISSING} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-1.2} & \texttt{TASK\_START} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+\midrule
+RecommendationAgent & \texttt{BL-EMPTY-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-INJECT-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
+ & \texttt{FM-2.2} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{TASK\_START} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-3.1} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+\midrule
+AdServiceAgent & \texttt{BL-AD-INJECTION} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-DUP-ADS} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{BL-EMPTY-ADS} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
+ & \texttt{FM-1.2} & \texttt{CONTEXT\_EXTRACTED} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+ & \texttt{FM-2.2} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use & $\Sigma$ \\
+ & \texttt{FM-2.5} & \texttt{CONTEXT\_EXTRACTED} & \textbf{AU} & C-use & $\mathcal{S}$ \\
+\bottomrule
+\end{tabular}}
+\end{table*}

@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-07-24T19:10:12.783689+00:00",
+  "results": [
+    {
+      "fault_mode": "NONE",
+      "elapsed_ms": 1.0,
+      "status": "PASS",
+      "steps_reached": [
+        "TASK_START",
+        "ITEM_ADDED",
+        "CART_READ",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": null,
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:10:12.783636+00:00",
+          "data": {
+            "fault_mode": "NONE"
+          }
+        },
+        {
+          "step": "ITEM_ADDED",
+          "timestamp": "2026-07-24T19:10:12.783665+00:00",
+          "data": {
+            "user_id": "u-123",
+            "product_id": "PROD-001",
+            "qty": 2
+          }
+        },
+        {
+          "step": "CART_READ",
+          "timestamp": "2026-07-24T19:10:12.783672+00:00",
+          "data": {
+            "items": 1
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:10:12.783677+00:00",
+          "data": {
+            "success": true
+          }
+        }
+      ],
+      "data": {
+        "mode": "NONE"
+      },
+      "classification": "PASS"
+    }
+  ]
+}

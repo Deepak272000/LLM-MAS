@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-06-18T12:09:21.825152+00:00",
+  "generated_at": "2026-07-24T19:05:09.778189+00:00",
   "runs_per_agent": 3,
   "agents": [
     {
-      "agent": "paymentagent",
+      "agent": "shippingagent",
       "runs": 3,
-      "total_modes": 9,
+      "total_modes": 11,
       "stable_pass": 1,
-      "stable_fault": 8,
+      "stable_fault": 10,
       "unstable": 0,
       "stability_rate": 100.0,
       "rows": [
@@ -18,701 +18,137 @@
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_3_1",
-          "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 3,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
             "SAVE_DONE"
           ],
+          "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "FM_3_1",
+              "fault_mode": "NONE",
               "steps_reached": [
                 "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
                 "SAVE_DONE"
               ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 3
+              "steps_lost": [],
+              "infection_point": null,
+              "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_3_1",
+              "fault_mode": "NONE",
               "steps_reached": [
                 "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
                 "SAVE_DONE"
               ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 3
+              "steps_lost": [],
+              "infection_point": null,
+              "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_3_1",
+              "fault_mode": "NONE",
               "steps_reached": [
                 "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
                 "SAVE_DONE"
               ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 3
+              "steps_lost": [],
+              "infection_point": null,
+              "propagation_depth": 0
             }
           ]
         },
         {
-          "fault_mode": "FM_2_2",
+          "fault_mode": "FM_3_1",
           "stability": "STABLE_FAULT",
-          "infection_point": "CHARGE_DONE",
+          "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CHARGE_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CHARGE_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CHARGE_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_5",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CARD_VALIDATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_1_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CARD_VALIDATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_TRANSACTION_LOST",
-          "stability": "STABLE_FAULT",
-          "infection_point": "SAVE_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_TRANSACTION_LOST",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "SAVE_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_TRANSACTION_LOST",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "SAVE_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_TRANSACTION_LOST",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "SAVE_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_DOUBLE_CHARGE",
-          "stability": "STABLE_FAULT",
-          "infection_point": "SAVE_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_DOUBLE_CHARGE",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "SAVE_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DOUBLE_CHARGE",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "SAVE_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DOUBLE_CHARGE",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "SAVE_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_AMOUNT_TAMPERING",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CARD_VALIDATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
-            "SAVE_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_AMOUNT_TAMPERING",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_AMOUNT_TAMPERING",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_AMOUNT_TAMPERING",
-              "steps_reached": [
-                "TASK_START",
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
-                "SAVE_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CARD_VALIDATED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_CARD_DECLINED",
-          "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 3,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "CARD_VALIDATED",
-            "CHARGE_DONE",
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
             "SAVE_DONE"
           ],
+          "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "BL_CARD_DECLINED",
+              "fault_mode": "FM_3_1",
               "steps_reached": [
                 "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
                 "SAVE_DONE"
               ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 3
+              "steps_lost": [],
+              "infection_point": null,
+              "propagation_depth": 0
             },
             {
-              "fault_mode": "BL_CARD_DECLINED",
+              "fault_mode": "FM_3_1",
               "steps_reached": [
                 "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
                 "SAVE_DONE"
               ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 3
+              "steps_lost": [],
+              "infection_point": null,
+              "propagation_depth": 0
             },
             {
-              "fault_mode": "BL_CARD_DECLINED",
+              "fault_mode": "FM_3_1",
               "steps_reached": [
                 "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CARD_VALIDATED",
-                "CHARGE_DONE",
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
                 "SAVE_DONE"
               ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "agent": "currencyagent",
-      "runs": 3,
-      "total_modes": 9,
-      "stable_pass": 1,
-      "stable_fault": 8,
-      "unstable": 0,
-      "stability_rate": 100.0,
-      "rows": [
-        {
-          "fault_mode": "NONE",
-          "stability": "STABLE_PASS",
-          "infection_point": null,
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
               "steps_lost": [],
               "infection_point": null,
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_3_1",
-          "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 1,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "CONVERT_DONE"
-          ],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CONVERT_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CONVERT_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CONVERT_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CONVERT_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_5",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CONVERT_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
               "propagation_depth": 0
             }
           ]
@@ -720,369 +156,89 @@
         {
           "fault_mode": "FM_1_2",
           "stability": "STABLE_FAULT",
-          "infection_point": "CONVERT_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_RATE_MANIPULATION",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CONVERT_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_RATE_MANIPULATION",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_RATE_MANIPULATION",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_RATE_MANIPULATION",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_CURRENCY_UNAVAILABLE",
-          "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 1,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "CONVERT_DONE"
-          ],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_CURRENCY_UNAVAILABLE",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CONVERT_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "BL_CURRENCY_UNAVAILABLE",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CONVERT_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "BL_CURRENCY_UNAVAILABLE",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CONVERT_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_STALE_RATE",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CONVERT_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_STALE_RATE",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_STALE_RATE",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_STALE_RATE",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_CONVERSION_OVERFLOW",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CONVERT_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONVERT_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_CONVERSION_OVERFLOW",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_CONVERSION_OVERFLOW",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_CONVERSION_OVERFLOW",
-              "steps_reached": [
-                "TASK_START",
-                "CONVERT_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CONVERT_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "agent": "emailserviceagent",
-      "runs": 3,
-      "total_modes": 9,
-      "stable_pass": 1,
-      "stable_fault": 8,
-      "unstable": 0,
-      "stability_rate": 100.0,
-      "rows": [
-        {
-          "fault_mode": "NONE",
-          "stability": "STABLE_PASS",
           "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "NONE",
+              "fault_mode": "FM_1_2",
               "steps_reached": [
                 "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "NONE",
+              "fault_mode": "FM_1_2",
               "steps_reached": [
                 "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "NONE",
+              "fault_mode": "FM_1_2",
               "steps_reached": [
                 "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_3_1",
-          "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 2,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "EMAIL_GENERATED",
-            "EMAIL_SENT"
-          ],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "EMAIL_GENERATED",
-                "EMAIL_SENT"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 2
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "EMAIL_GENERATED",
-                "EMAIL_SENT"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 2
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "EMAIL_GENERATED",
-                "EMAIL_SENT"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 2
             }
           ]
         },
         {
           "fault_mode": "FM_2_2",
           "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_GENERATED",
+          "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
@@ -1090,36 +246,51 @@
               "fault_mode": "FM_2_2",
               "steps_reached": [
                 "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
               "fault_mode": "FM_2_2",
               "steps_reached": [
                 "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
               "fault_mode": "FM_2_2",
               "steps_reached": [
                 "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
+              "infection_point": null,
               "propagation_depth": 0
             }
           ]
@@ -1127,474 +298,18 @@
         {
           "fault_mode": "FM_2_5",
           "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_GENERATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_1_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_GENERATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_SEND_SKIPPED",
-          "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_SENT",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_SEND_SKIPPED",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_SENT",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_SEND_SKIPPED",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_SENT",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_SEND_SKIPPED",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_SENT",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_DOUBLE_SEND",
-          "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_SENT",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_DOUBLE_SEND",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_SENT",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DOUBLE_SEND",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_SENT",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DOUBLE_SEND",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_SENT",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_CORRUPTED_BODY",
-          "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_GENERATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_CORRUPTED_BODY",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_CORRUPTED_BODY",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_CORRUPTED_BODY",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_WRONG_CUSTOMER",
-          "stability": "STABLE_FAULT",
-          "infection_point": "EMAIL_GENERATED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "EMAIL_GENERATED",
-            "EMAIL_SENT",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_WRONG_CUSTOMER",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_WRONG_CUSTOMER",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_WRONG_CUSTOMER",
-              "steps_reached": [
-                "TASK_START",
-                "EMAIL_GENERATED",
-                "EMAIL_SENT",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "EMAIL_GENERATED",
-              "propagation_depth": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "agent": "productcatalogagent",
-      "runs": 3,
-      "total_modes": 9,
-      "stable_pass": 1,
-      "stable_fault": 8,
-      "unstable": 0,
-      "stability_rate": 100.0,
-      "rows": [
-        {
-          "fault_mode": "NONE",
-          "stability": "STABLE_PASS",
           "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "NONE",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": null,
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_3_1",
-          "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 1,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "CATALOG_DONE"
-          ],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CATALOG_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CATALOG_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "CATALOG_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_5",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
@@ -1602,323 +317,119 @@
               "fault_mode": "FM_2_5",
               "steps_reached": [
                 "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
               "fault_mode": "FM_2_5",
               "steps_reached": [
                 "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
               "fault_mode": "FM_2_5",
               "steps_reached": [
                 "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
+              "infection_point": null,
               "propagation_depth": 0
             }
           ]
         },
         {
-          "fault_mode": "FM_1_2",
+          "fault_mode": "BL_SHIPMENT_LOST",
           "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_PRODUCT_MISSING",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_PRODUCT_MISSING",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_PRODUCT_MISSING",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_PRODUCT_MISSING",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_PRICE_MANIPULATION",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_PRICE_MANIPULATION",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_PRICE_MANIPULATION",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_PRICE_MANIPULATION",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_DUPLICATE_PRODUCT",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_DUPLICATE_PRODUCT",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DUPLICATE_PRODUCT",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DUPLICATE_PRODUCT",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_WRONG_CATEGORY",
-          "stability": "STABLE_FAULT",
-          "infection_point": "CATALOG_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CATALOG_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_WRONG_CATEGORY",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_WRONG_CATEGORY",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_WRONG_CATEGORY",
-              "steps_reached": [
-                "TASK_START",
-                "CATALOG_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "CATALOG_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "agent": "recommendationagent",
-      "runs": 3,
-      "total_modes": 9,
-      "stable_pass": 1,
-      "stable_fault": 8,
-      "unstable": 0,
-      "stability_rate": 100.0,
-      "rows": [
-        {
-          "fault_mode": "NONE",
-          "stability": "STABLE_PASS",
           "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "NONE",
+              "fault_mode": "BL_SHIPMENT_LOST",
               "steps_reached": [
                 "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "NONE",
+              "fault_mode": "BL_SHIPMENT_LOST",
               "steps_reached": [
                 "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "NONE",
+              "fault_mode": "BL_SHIPMENT_LOST",
               "steps_reached": [
                 "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
@@ -1927,440 +438,69 @@
           ]
         },
         {
-          "fault_mode": "FM_3_1",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
           "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 1,
-          "steps_reached": [
-            "TASK_START",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "RECOMMEND_DONE"
-          ],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "RECOMMEND_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "RECOMMEND_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "RECOMMEND_DONE"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_2",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_5",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_2_5",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_1_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "FM_1_2",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_EMPTY_RECS",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_EMPTY_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_EMPTY_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_EMPTY_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_SELF_RECOMMENDATION",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_SELF_RECOMMENDATION",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_SELF_RECOMMENDATION",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_SELF_RECOMMENDATION",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_INJECTION_RECS",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_INJECTION_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_INJECTION_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_INJECTION_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_SHUFFLED_RECS",
-          "stability": "STABLE_FAULT",
-          "infection_point": "RECOMMEND_DONE",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "RECOMMEND_DONE",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_SHUFFLED_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_SHUFFLED_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_SHUFFLED_RECS",
-              "steps_reached": [
-                "TASK_START",
-                "RECOMMEND_DONE",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "RECOMMEND_DONE",
-              "propagation_depth": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "agent": "adserviceagent",
-      "runs": 3,
-      "total_modes": 9,
-      "stable_pass": 1,
-      "stable_fault": 8,
-      "unstable": 0,
-      "stability_rate": 100.0,
-      "rows": [
-        {
-          "fault_mode": "NONE",
-          "stability": "STABLE_PASS",
           "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "NONE",
+              "fault_mode": "BL_INVENTORY_MISMATCH",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "NONE",
+              "fault_mode": "BL_INVENTORY_MISMATCH",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "NONE",
+              "fault_mode": "BL_INVENTORY_MISMATCH",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
               "infection_point": null,
@@ -2369,413 +509,285 @@
           ]
         },
         {
-          "fault_mode": "FM_3_1",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
           "stability": "STABLE_FAULT",
-          "infection_point": "FINAL_ANSWER",
-          "propagation_depth": 1,
-          "steps_reached": [
-            "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [
-            "ADS_FETCHED"
-          ],
-          "run_fingerprints": [
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "ADS_FETCHED"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "ADS_FETCHED"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            },
-            {
-              "fault_mode": "FM_3_1",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [
-                "ADS_FETCHED"
-              ],
-              "infection_point": "FINAL_ANSWER",
-              "propagation_depth": 1
-            }
-          ]
-        },
-        {
-          "fault_mode": "FM_2_2",
-          "stability": "STABLE_FAULT",
-          "infection_point": "ADS_FETCHED",
+          "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "FM_2_2",
+              "fault_mode": "BL_VENDOR_NEGOTIATION",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_2_2",
+              "fault_mode": "BL_VENDOR_NEGOTIATION",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_2_2",
+              "fault_mode": "BL_VENDOR_NEGOTIATION",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
+              "infection_point": null,
               "propagation_depth": 0
             }
           ]
         },
         {
-          "fault_mode": "FM_2_5",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
           "stability": "STABLE_FAULT",
-          "infection_point": "CONTEXT_EXTRACTED",
+          "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "FM_2_5",
+              "fault_mode": "BL_CUSTOMER_ESCALATION",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CONTEXT_EXTRACTED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_2_5",
+              "fault_mode": "BL_CUSTOMER_ESCALATION",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CONTEXT_EXTRACTED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_2_5",
+              "fault_mode": "BL_CUSTOMER_ESCALATION",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CONTEXT_EXTRACTED",
+              "infection_point": null,
               "propagation_depth": 0
             }
           ]
         },
         {
-          "fault_mode": "FM_1_2",
+          "fault_mode": "BL_REFUND_REASONING",
           "stability": "STABLE_FAULT",
-          "infection_point": "CONTEXT_EXTRACTED",
+          "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "FM_1_2",
+              "fault_mode": "BL_REFUND_REASONING",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CONTEXT_EXTRACTED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_1_2",
+              "fault_mode": "BL_REFUND_REASONING",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CONTEXT_EXTRACTED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "FM_1_2",
+              "fault_mode": "BL_REFUND_REASONING",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "CONTEXT_EXTRACTED",
+              "infection_point": null,
               "propagation_depth": 0
             }
           ]
         },
         {
-          "fault_mode": "BL_EMPTY_ADS",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
           "stability": "STABLE_FAULT",
-          "infection_point": "ADS_FETCHED",
+          "infection_point": null,
           "propagation_depth": 0,
           "steps_reached": [
             "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
+            "FINAL_ANSWER",
+            "QUOTE_DONE",
+            "BOUNDARY_CHECK",
+            "CARRIER_DONE",
+            "BOUNDARY_CHECK",
+            "TRACKING_DONE",
+            "ESCALATION_CHECK",
+            "SAVE_DONE"
           ],
           "steps_lost": [],
           "run_fingerprints": [
             {
-              "fault_mode": "BL_EMPTY_ADS",
+              "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "BL_EMPTY_ADS",
+              "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
+              "infection_point": null,
               "propagation_depth": 0
             },
             {
-              "fault_mode": "BL_EMPTY_ADS",
+              "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
               "steps_reached": [
                 "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
+                "FINAL_ANSWER",
+                "QUOTE_DONE",
+                "BOUNDARY_CHECK",
+                "CARRIER_DONE",
+                "BOUNDARY_CHECK",
+                "TRACKING_DONE",
+                "ESCALATION_CHECK",
+                "SAVE_DONE"
               ],
               "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_AD_INJECTION",
-          "stability": "STABLE_FAULT",
-          "infection_point": "ADS_FETCHED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_AD_INJECTION",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_AD_INJECTION",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_AD_INJECTION",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_WRONG_URL",
-          "stability": "STABLE_FAULT",
-          "infection_point": "ADS_FETCHED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_WRONG_URL",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_WRONG_URL",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_WRONG_URL",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            }
-          ]
-        },
-        {
-          "fault_mode": "BL_DUPLICATE_ADS",
-          "stability": "STABLE_FAULT",
-          "infection_point": "ADS_FETCHED",
-          "propagation_depth": 0,
-          "steps_reached": [
-            "TASK_START",
-            "CONTEXT_EXTRACTED",
-            "ADS_FETCHED",
-            "FINAL_ANSWER"
-          ],
-          "steps_lost": [],
-          "run_fingerprints": [
-            {
-              "fault_mode": "BL_DUPLICATE_ADS",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DUPLICATE_ADS",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
-              "propagation_depth": 0
-            },
-            {
-              "fault_mode": "BL_DUPLICATE_ADS",
-              "steps_reached": [
-                "TASK_START",
-                "CONTEXT_EXTRACTED",
-                "ADS_FETCHED",
-                "FINAL_ANSWER"
-              ],
-              "steps_lost": [],
-              "infection_point": "ADS_FETCHED",
+              "infection_point": null,
               "propagation_depth": 0
             }
           ]

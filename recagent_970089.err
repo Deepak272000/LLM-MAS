@@ -1,7 +1,0 @@
-[FAULT FM_3_1] Premature termination — recommendation call skipped
-[FAULT FM_2_2] Hallucinated recommendation IDs injected
-[FAULT FM_2_5] user_id swapped: 'user-abc123' → 'WRONG_USER_000'
-[FAULT BL_EMPTY_RECS] Recommendations cleared to empty list
-[FAULT BL_SELF_RECOMMENDATION] Input product IDs echoed as recommendations
-[FAULT BL_INJECTION_RECS] Sponsored IDs injected: ['SPONSORED-001', 'SPONSORED-002']
-[FAULT BL_SHUFFLED_RECS] Recommendations reversed

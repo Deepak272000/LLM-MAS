@@ -1,0 +1,148 @@
+{
+  "agent": "cart-agent",
+  "runs": 3,
+  "total_modes": 5,
+  "stable_pass": 1,
+  "stable_fault": 4,
+  "unstable": 0,
+  "stability_rate": 100.0,
+  "rows": [
+    {
+      "fault_mode": "NONE",
+      "stability": "STABLE_PASS",
+      "infection_point": null,
+      "propagation_depth": 0,
+      "steps_reached": [
+        "TASK_START",
+        "ITEM_ADDED",
+        "CART_READ",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "run_fingerprints": [
+        {
+          "fault_mode": "NONE",
+          "steps_reached": [
+            "TASK_START",
+            "ITEM_ADDED",
+            "CART_READ",
+            "FINAL_ANSWER"
+          ],
+          "steps_lost": [],
+          "infection_point": null,
+          "propagation_depth": 0
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_3_1",
+      "stability": "STABLE_FAULT",
+      "infection_point": "FINAL_ANSWER",
+      "propagation_depth": 1,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "ITEM_ADDED",
+        "CART_READ"
+      ],
+      "run_fingerprints": [
+        {
+          "fault_mode": "FM_3_1",
+          "steps_reached": [
+            "TASK_START",
+            "FINAL_ANSWER"
+          ],
+          "steps_lost": [
+            "ITEM_ADDED",
+            "CART_READ"
+          ],
+          "infection_point": "FINAL_ANSWER",
+          "propagation_depth": 1
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_1_2",
+      "stability": "STABLE_FAULT",
+      "infection_point": "ITEM_ADDED",
+      "propagation_depth": 1,
+      "steps_reached": [
+        "TASK_START",
+        "ITEM_ADDED",
+        "CART_READ",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "run_fingerprints": [
+        {
+          "fault_mode": "FM_1_2",
+          "steps_reached": [
+            "TASK_START",
+            "ITEM_ADDED",
+            "CART_READ",
+            "FINAL_ANSWER"
+          ],
+          "steps_lost": [],
+          "infection_point": "ITEM_ADDED",
+          "propagation_depth": 1
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_2_2",
+      "stability": "STABLE_FAULT",
+      "infection_point": "CART_READ",
+      "propagation_depth": 1,
+      "steps_reached": [
+        "TASK_START",
+        "ITEM_ADDED",
+        "CART_READ",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "run_fingerprints": [
+        {
+          "fault_mode": "FM_2_2",
+          "steps_reached": [
+            "TASK_START",
+            "ITEM_ADDED",
+            "CART_READ",
+            "FINAL_ANSWER"
+          ],
+          "steps_lost": [],
+          "infection_point": "CART_READ",
+          "propagation_depth": 1
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_2_5",
+      "stability": "STABLE_FAULT",
+      "infection_point": "ITEM_ADDED",
+      "propagation_depth": 1,
+      "steps_reached": [
+        "TASK_START",
+        "ITEM_ADDED",
+        "CART_READ",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "run_fingerprints": [
+        {
+          "fault_mode": "FM_2_5",
+          "steps_reached": [
+            "TASK_START",
+            "ITEM_ADDED",
+            "CART_READ",
+            "FINAL_ANSWER"
+          ],
+          "steps_lost": [],
+          "infection_point": "ITEM_ADDED",
+          "propagation_depth": 1
+        }
+      ]
+    }
+  ]
+}

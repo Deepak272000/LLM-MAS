@@ -8,7 +8,7 @@
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  LLM-MAS — All-Agent Fault Injection + HITL Tier Classification
-#  Runs all 6 agent fault injection suites (3 runs each for RQ5 stability),
+#  Runs all Python-agent fault injection suites (3 runs each for RQ5 stability),
 #  then classifies every fault mode into HITL Tier 1 / 2 / 3 automatically.
 #
 #  Before submitting:
@@ -30,7 +30,7 @@ cd "$SRCDIR"
 
 echo "========================================================================"
 echo "  LLM-MAS AGENT FAULT INJECTION + HITL CLASSIFICATION"
-echo "  6 agents x 9 fault modes x 3 stability runs"
+echo "  Python agents x fault modes x 3 stability runs"
 echo "  Job: $SLURM_JOB_ID   Node: $SLURMD_NODENAME"
 echo "  Started: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 echo "========================================================================"
@@ -40,7 +40,7 @@ echo ""
 $PYTHON -m pip install -q python-dotenv
 
 # ── Step 1: Fault injection stability sweep (all 6 agents, 3 runs each) ──────
-echo "  [1/2] Running stability analysis — 6 agents x 9 modes x 3 runs each"
+echo "  [1/2] Running stability analysis — Python agents x fault modes x 3 runs each"
 echo "        (generates *_fault_results.json + stability_matrix_*.json)"
 echo ""
 $PYTHON stability_analysis.py

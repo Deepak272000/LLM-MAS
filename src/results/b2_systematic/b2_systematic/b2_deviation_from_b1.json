@@ -1,0 +1,239 @@
+{
+  "generated_at": "2026-07-21T04:39:14.583816+00:00",
+  "fault_mode": "NONE",
+  "b1_source": "results/b2_equivalence_thresholds.json",
+  "by_model_config": {
+    "3b_temp1.0": {
+      "checkout_orchestrator": {
+        "total_runs": 10,
+        "runs_with_deviation": 0,
+        "variable_deviations": {},
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "PRODUCT_FETCHED",
+          "CURRENCY_CONVERTED",
+          "SHIPPING_QUOTED",
+          "PAYMENT_CHARGED",
+          "ORDER_SHIPPED",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 0.0
+      },
+      "productcatalog": {
+        "total_runs": 10,
+        "runs_with_deviation": 10,
+        "variable_deviations": {
+          "action": {
+            "deviating_runs": 10,
+            "severity": "data"
+          },
+          "product_ids": {
+            "deviating_runs": 10,
+            "severity": "missing"
+          },
+          "count": {
+            "deviating_runs": 10,
+            "severity": "missing"
+          },
+          "price_manipulated": {
+            "deviating_runs": 10,
+            "severity": "missing"
+          }
+        },
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      },
+      "currency": {
+        "total_runs": 10,
+        "runs_with_deviation": 10,
+        "variable_deviations": {
+          "units": {
+            "deviating_runs": 7,
+            "severity": "data"
+          },
+          "to_currency": {
+            "deviating_runs": 10,
+            "severity": "data"
+          },
+          "units_out": {
+            "deviating_runs": 10,
+            "severity": "missing"
+          },
+          "currency_swapped": {
+            "deviating_runs": 10,
+            "severity": "missing"
+          }
+        },
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      },
+      "shipping_quote": {
+        "total_runs": 9,
+        "runs_with_deviation": 0,
+        "variable_deviations": {
+          "item_count": {
+            "deviating_runs": 0,
+            "severity": "none"
+          },
+          "cost_usd": {
+            "deviating_runs": 0,
+            "severity": "none"
+          },
+          "item_count_inflated": {
+            "deviating_runs": 0,
+            "severity": "none"
+          }
+        },
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "QUOTE_DONE",
+          "FINAL_ANSWER",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 0.0
+      },
+      "payment": {
+        "total_runs": 9,
+        "runs_with_deviation": 9,
+        "variable_deviations": {
+          "currency_code": {
+            "deviating_runs": 3,
+            "severity": "data"
+          },
+          "units": {
+            "deviating_runs": 9,
+            "severity": "data"
+          },
+          "nanos": {
+            "deviating_runs": 2,
+            "severity": "data"
+          },
+          "validation_bypassed": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          },
+          "amount_tampered": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          },
+          "transaction_id": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          },
+          "units_charged": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          },
+          "hallucinated": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          },
+          "saved": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          },
+          "double_charge": {
+            "deviating_runs": 9,
+            "severity": "missing"
+          }
+        },
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      },
+      "ship_order": {
+        "total_runs": 5,
+        "runs_with_deviation": 5,
+        "variable_deviations": {
+          "carrier": {
+            "deviating_runs": 0,
+            "severity": "none"
+          },
+          "ignored_downstream_quote": {
+            "deviating_runs": 5,
+            "severity": "missing"
+          },
+          "tracking_id": {
+            "deviating_runs": 4,
+            "severity": "schema"
+          },
+          "escalation_required": {
+            "deviating_runs": 0,
+            "severity": "none"
+          },
+          "saved": {
+            "deviating_runs": 0,
+            "severity": "none"
+          }
+        },
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER",
+          "QUOTE_DONE",
+          "BOUNDARY_CHECK",
+          "CARRIER_DONE",
+          "BOUNDARY_CHECK",
+          "RECOVERY_ACTION",
+          "TRACKING_DONE",
+          "ESCALATION_CHECK",
+          "SAVE_DONE"
+        ],
+        "deviation_rate": 1.0
+      },
+      "email": {
+        "total_runs": 3,
+        "runs_with_deviation": 3,
+        "variable_deviations": {
+          "email": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          },
+          "email_type": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          },
+          "body_len": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          },
+          "corrupted": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          },
+          "hallucinated": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          },
+          "status": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          },
+          "send_skipped": {
+            "deviating_runs": 3,
+            "severity": "missing"
+          }
+        },
+        "sequence_deviations": 0,
+        "last_steps": [
+          "TASK_START",
+          "FINAL_ANSWER"
+        ],
+        "deviation_rate": 1.0
+      }
+    }
+  }
+}

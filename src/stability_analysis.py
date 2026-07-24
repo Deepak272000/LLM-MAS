@@ -32,6 +32,7 @@ AGENTS = {
     "productcatalogagent": BASE / "productcatalogagent",
     "recommendationagent": BASE / "recommendationagent",
     "adserviceagent":     BASE / "adserviceagent",
+    "shippingagent":      BASE / "shippingagent",
 }
 
 RESULTS_DIR = BASE / "results"

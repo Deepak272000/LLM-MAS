@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-07-21T04:39:14.583816+00:00",
+  "fault_mode": "NONE",
+  "model_comparison": {
+    "3b_temp1.0": {
+      "total": 10,
+      "success": 10,
+      "elapsed_ms_sum": 103404.5,
+      "agent_reach": {
+        "checkout_orchestrator": {
+          "reached": 10,
+          "total": 10,
+          "reach_rate": 1.0
+        },
+        "productcatalog": {
+          "reached": 10,
+          "total": 10,
+          "reach_rate": 1.0
+        },
+        "currency": {
+          "reached": 10,
+          "total": 10,
+          "reach_rate": 1.0
+        },
+        "shipping_quote": {
+          "reached": 9,
+          "total": 10,
+          "reach_rate": 0.9
+        },
+        "payment": {
+          "reached": 9,
+          "total": 10,
+          "reach_rate": 0.9
+        },
+        "ship_order": {
+          "reached": 5,
+          "total": 10,
+          "reach_rate": 0.5
+        },
+        "email": {
+          "reached": 3,
+          "total": 10,
+          "reach_rate": 0.3
+        }
+      },
+      "success_rate": 1.0,
+      "avg_elapsed_ms": 10340.5
+    }
+  }
+}

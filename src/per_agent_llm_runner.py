@@ -411,9 +411,102 @@ def main():
                         help="Number of NONE runs per agent per config (default: 10)")
     parser.add_argument("--b3-runs",    type=int, default=3,
                         help="Number of fault runs per agent per fault mode (default: 3)")
+    parser.add_argument("--merge-report", action="store_true",
+                        help="Scan all existing raw result files and regenerate combined report")
     args = parser.parse_args()
 
-    if args.fault_mode:
+    # ── Merge-report mode: scan raw files → rebuild combined report ───────────
+    if args.merge_report:
+        import re as _re
+        _known_agents = list(B1_ORACLE.keys())
+        # Order matters: check longest names first to avoid prefix collisions
+        _known_agents.sort(key=len, reverse=True)
+        _known_cfgs   = ["14b_temp0", "3b_temp0.7", "3b_temp1.0", "3b_temp0"]
+        # ↑ 3b_temp0.7/1.0 before 3b_temp0 so substring match doesn't mis-parse
+
+        def _parse_raw_filename(stem: str):
+            """Return (agent, cfg) or (None, None) if unparseable."""
+            cfg = next((c for c in _known_cfgs if f"_{c}_" in stem), None)
+            if cfg is None:
+                return None, None
+            agent = next((a for a in _known_agents if stem.startswith(a + "_")), None)
+            return agent, cfg
+
+        all_b2: dict = {}
+        for f in sorted(B2_RAW_DIR.glob("*.json")):
+            agent, cfg = _parse_raw_filename(f.stem)
+            if agent is None:
+                print(f"  [merge] skipping unrecognised B2 file: {f.name}")
+                continue
+            try:
+                result = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            steps  = _steps_reached(result)
+            infect = _infection_detected(result, agent)
+            prop   = _propagation_depth(result, agent)
+            status = "ERROR" if result.get("error") else ("INFECTED" if infect else "CLEAN")
+            key    = f"{agent}__{cfg}"
+            all_b2.setdefault(key, []).append({
+                "run": 0, "agent": agent, "cfg": cfg, "fault_mode": "NONE",
+                "steps_reached": steps, "infection_point": infect,
+                "propagation_depth": prop, "status": status,
+                "error": result.get("error"),
+            })
+
+        all_b3: dict = {}
+        for f in sorted(B3_RAW_DIR.glob("*.json")):
+            agent, cfg = _parse_raw_filename(f.stem)
+            if agent is None:
+                print(f"  [merge] skipping unrecognised B3 file: {f.name}")
+                continue
+            # fault mode is between cfg and _run{n}
+            m = _re.search(rf"_{_re.escape(cfg)}_(.+)_run\d+$", f.stem)
+            if m is None:
+                continue
+            fault_mode = m.group(1)
+            try:
+                result = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            steps  = _steps_reached(result)
+            infect = _infection_detected(result, agent)
+            prop   = _propagation_depth(result, agent)
+            status = "ERROR" if result.get("error") else ("INFECTED" if infect else "CLEAN")
+            key    = f"{agent}__{cfg}__{fault_mode}"
+            all_b3.setdefault(key, []).append({
+                "run": 0, "agent": agent, "cfg": cfg, "fault_mode": fault_mode,
+                "steps_reached": steps, "infection_point": infect,
+                "propagation_depth": prop, "status": status,
+                "error": result.get("error"),
+            })
+
+        b2_report = build_b2_variance_report(all_b2)
+        b3_report = build_b3_mutation_report(all_b3, b2_report)
+        report = {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "b2_variance":  b2_report.get("agents", {}),
+            "b3_mutations": b3_report.get("summary", {}),
+            "per_agent_kill_rates": b3_report.get("per_agent_kill_rates", {}),
+            "fault_mode_verdicts":  b3_report.get("fault_modes", {}),
+        }
+        rpt_path = RESULTS / "per_agent_llm_report.json"
+        rpt_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        b2_path = RESULTS / "per_agent_b2_variance.json"
+        b2_path.write_text(json.dumps(b2_report, indent=2), encoding="utf-8")
+        b3_path = RESULTS / "per_agent_b3_mutations.json"
+        b3_path.write_text(json.dumps(b3_report, indent=2), encoding="utf-8")
+        b2_count = sum(len(v) for v in all_b2.values())
+        b3_count = sum(len(v) for v in all_b3.values())
+        s = b3_report.get("summary", {})
+        print(f"Merged {b2_count} B2 runs, {b3_count} B3 runs across "
+              f"{len(set(k.split('__')[0] for k in all_b2))} agents")
+        print(f"Kill rate: {s.get('killed',0)}/{s.get('total_tests',0)} = "
+              f"{s.get('mutation_kill_rate',0.0):.1%}")
+        print(f"Combined report → {rpt_path}")
+        return
+
+
         args.b3_only = True
 
     # ── Model configs ──────────────────────────────────────────────────────────

@@ -228,9 +228,17 @@ def _co_helper_script(agent: str) -> Path:
     return mapping[agent]
 
 
+# Shipping agents run a multi-step ReAct loop (quote+carrier+tracking = 3+ LLM calls).
+# Each 14b call on V100 can take 30-90s, so 90s is consistently too short.
+_AGENT_TIMEOUT: dict[str, int] = {
+    "shipping_quote": 600,
+    "ship_order":     600,
+}
+
 # ── Core runner ───────────────────────────────────────────────────────────────
 def run_co_helper(agent: str, payload: dict, timeout: int = 90) -> Optional[dict]:
     """Call the co_helper subprocess and return parsed JSON, or None on failure."""
+    timeout = _AGENT_TIMEOUT.get(agent, timeout)
     script = _co_helper_script(agent)
     env = os.environ.copy()
     env["PYTHONIOENCODING"] = "utf-8"

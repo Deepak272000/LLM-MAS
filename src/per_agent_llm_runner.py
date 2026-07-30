@@ -3,18 +3,22 @@ Per-Agent LLM Fault Injection Runner
 =====================================
 Addresses professor's feedback: "w/o LLM inference, the work has no meaning"
 
-Each checkout-pipeline agent is run INDIVIDUALLY with real Ollama LLM inference
-(app.orchestrator ReAct loop) for B2 (natural variance) and B3 (fault injection).
+Each Python agent is run INDIVIDUALLY with real Ollama LLM inference
+(app.orchestrator, LangGraph, or equivalent live agent path) for B2
+(natural variance) and B3 (fault injection).
 
 Design (per professor's framework):
   B1 = gRPC microservice ground truth (deterministic oracle, from b1_oracle_runner.py)
   B2 = LLM agent, FAULT_MODE=NONE, N runs  → natural LLM variance per agent
   B3 = LLM agent, FAULT_MODE=<fault>, N runs → compared against B2 envelope
 
-Agents covered — all checkout-pipeline services (Retail-bench + Google-bench):
+Agents covered — all Python agent roles evaluated in the repo:
+    productcatalog → co_helper_productcatalog.py  (ProductCatalogOrchestrator, real LLM)
   currency       → co_helper_currency.py       (CurrencyOrchestrator,   real LLM)
   payment        → co_helper_payment.py        (PaymentOrchestrator,    real LLM)
   email          → co_helper_email.py          (EmailOrchestrator,      real LLM)
+    recommendation → co_helper_recommendation.py (Recommendation graph,   live LLM)
+    adservice      → co_helper_adservice.py      (AdService graph,        live LLM)
   shipping_quote → co_helper_shipping.py       (ShippingOrchestrator,   real LLM, get_quote)
   ship_order     → co_helper_shipping.py       (ShippingOrchestrator,   real LLM, ship_order)
 
@@ -89,6 +93,13 @@ ALL_FAULT_MODES = [
 # These are the deterministic values a real microservice returns.
 # LLM deviations from these in B3 that exceed the B2 envelope = killed mutant.
 B1_ORACLE = {
+    "productcatalog": {
+        "expected_steps":    ["TASK_START", "CATALOG_DONE", "FINAL_ANSWER"],
+        "key_fields":        {},
+        "infection_flags":   ["hallucinated", "query_tampered", "action_swapped",
+                              "products_missing", "price_manipulated", "duplicated",
+                              "category_wrong"],
+    },
     "currency": {
         "expected_steps":    ["TASK_START", "CONVERT_DONE", "FINAL_ANSWER"],
         "key_fields":        {"currency_code": "USD", "units": 19, "nanos": 990000000},
@@ -106,6 +117,18 @@ B1_ORACLE = {
         "key_fields":        {"status": "sent"},
         "infection_flags":   ["send_skipped", "hallucinated", "wrong_recipient",
                               "empty_body", "subject_tampered"],
+    },
+    "recommendation": {
+        "expected_steps":    ["TASK_START", "RECOMMEND_DONE", "FINAL_ANSWER"],
+        "key_fields":        {},
+        "infection_flags":   ["hallucinated", "user_id_swapped", "method_swapped",
+                              "empty_recs", "self_rec", "injection", "shuffled"],
+    },
+    "adservice": {
+        "expected_steps":    ["TASK_START", "CONTEXT_EXTRACTED", "ADS_FETCHED", "FINAL_ANSWER"],
+        "key_fields":        {},
+        "infection_flags":   ["premature_termination", "context_tampered", "category_swapped",
+                              "hallucinated", "empty_ads", "injected", "wrong_url", "duplicated"],
     },
     "shipping_quote": {
         "expected_steps":    ["TASK_START", "FINAL_ANSWER"],
@@ -129,7 +152,12 @@ def _make_payload(agent: str, fault_mode: str, model: str,
         "ollama_url":  ollama_url,
         "temperature": temperature,
     }
-    if agent == "currency":
+    if agent == "productcatalog":
+        base.update({
+            "query":       "list sunglasses and accessories",
+            "product_ids": ["PROD-001"],
+        })
+    elif agent == "currency":
         base.update({
             "query":         "convert 19.99 USD to USD",
             "action":        "convert",
@@ -158,6 +186,17 @@ def _make_payload(agent: str, fault_mode: str, model: str,
             "total_cost":          {"currency_code": "USD", "units": 27, "nanos": 490000000},
             "shipping_tracking_id": "TRACK-001",
         })
+    elif agent == "recommendation":
+        base.update({
+            "query":       "recommend related products for this cart",
+            "user_id":     "user-001",
+            "product_ids": ["PROD-001"],
+        })
+    elif agent == "adservice":
+        base.update({
+            "instruction": "show me some clothing ads",
+            "context_keys": ["clothing"],
+        })
     elif agent == "shipping_quote":
         base.update({
             "action":  "get_quote",
@@ -177,9 +216,12 @@ def _make_payload(agent: str, fault_mode: str, model: str,
 
 def _co_helper_script(agent: str) -> Path:
     mapping = {
+        "productcatalog": SRC / "co_helper_productcatalog.py",
         "currency":       SRC / "co_helper_currency.py",
         "payment":        SRC / "co_helper_payment.py",
         "email":          SRC / "co_helper_email.py",
+        "recommendation": SRC / "co_helper_recommendation.py",
+        "adservice":      SRC / "co_helper_adservice.py",
         "shipping_quote": SRC / "co_helper_shipping.py",
         "ship_order":     SRC / "co_helper_shipping.py",
     }

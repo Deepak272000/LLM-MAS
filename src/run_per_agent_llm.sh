@@ -16,13 +16,14 @@
 #  Addresses professor's core requirement:
 #    "Without LLM inference, the work has no meaning"
 #
-#  Runs each checkout-pipeline agent INDIVIDUALLY with real Ollama LLM
-#  inference (ReAct orchestrator loop) for:
+#  Runs each Python agent INDIVIDUALLY with real Ollama LLM
+#  inference (or its live graph/orchestrator path) for:
 #    B2: NONE mode × 10 runs → natural LLM variance per agent
 #    B3: each fault mode × 3 runs → mutation detection per agent
 #
-#  Agents (all checkout-pipeline services — two benchmarks):
-#    currency, payment, email, shipping_quote, ship_order
+#  Agents (all Python agent roles currently in scope):
+#    productcatalog, currency, payment, email, recommendation,
+#    adservice, shipping_quote, ship_order
 #
 #  Model configs:
 #    14b_temp0   qwen2.5-coder:14b  temp=0.0  (Retail-bench)

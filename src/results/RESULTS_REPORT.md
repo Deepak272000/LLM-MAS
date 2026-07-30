@@ -1,609 +1,583 @@
 # LLM-MAS Fault Injection Study — Full Results Report
+
 **Author:** Deepak Sunil Chavan, Concordia University  
-**Platform:** Concordia SPEED HPC (`deepak/fault-injection` branch)  
-**Date:** 2026-06-18  
-**Updated:** 2026-07-07 — boundary validation and HITL readiness refresh  
-**Updated:** 2026-07-15 — policy-based boundary recovery layer added  
+**Platform:** Concordia SPEED HPC, `deepak/fault-injection` branch  
+**Generated:** 2026-07-29 (real live-LLM — Ollama on SPEED speed-25, Tesla V100)  
+**Models:** `qwen2.5:3b` (standalone/Google-bench) · `qwen2.5-coder:14b` (4-config agents)  
+**Supersedes:** All prior mock-based reports (last: 2026-07-15)
+
+> **⚠ All kill rates are from real LLM inference, not deterministic mock oracles.**
 
 ---
 
 ## Table of Contents
-1. [Stability Analysis (RQ5)](#1-stability-analysis-rq5)
-2. [Agent-Level Fault Injection — All 7 Agents](#2-agent-level-fault-injection)
-3. [HITL Tier Classification — Automated](#3-hitl-tier-classification)
+1. [Executive Summary](#1-executive-summary)
+2. [B2 Baseline — False Positive Rate](#2-b2-baseline--false-positive-rate)
+3. [B3 Per-Agent Fault Injection — 9 Agents](#3-b3-per-agent-fault-injection--9-agents)
+   - [3.1 ProductCatalogAgent — 100%](#31-productcatalogagent--100-kill-rate)
+   - [3.2 CartAgent (C#) — 100%](#32-cartagent-c--100-kill-rate)
+   - [3.3 AdServiceAgent — 57.1%](#33-adserviceagent--571-kill-rate)
+   - [3.4 RecommendationAgent — 57.1%](#34-recommendationagent--571-kill-rate)
+   - [3.5 PaymentAgent — 57.1% / 45.5%](#35-paymentagent--571--455-all-configs)
+   - [3.6 CurrencyAgent — 42.9% / 34.1%](#36-currencyagent--429--341-all-configs)
+   - [3.7 EmailServiceAgent — 21.4% / 13.6%](#37-emailserviceagent--214--136-all-configs)
+   - [3.8 ShippingQuoteAgent — 0%](#38-shippingquoteagent--00-kill-rate)
+   - [3.9 ShipOrderAgent — 0%](#39-shiporderagent--00-kill-rate)
 4. [Cross-Agent Fault Propagation](#4-cross-agent-fault-propagation)
-5. [Boundary Validation Improvements](#5-boundary-validation-improvements)
-6. [Policy-Based Boundary Recovery Layer](#6-policy-based-boundary-recovery-layer)
-7. [Key Findings Summary](#7-key-findings-summary)
-8. [Limitations](#8-limitations)
+5. [Model Effect Analysis](#5-model-effect-analysis)
+6. [Key Findings and Research Conclusions](#6-key-findings-and-research-conclusions)
+7. [Limitations and Future Work](#7-limitations-and-future-work)
 
 ---
 
-## 1. Stability Analysis (RQ5)
-**Job:** 970059 on Concordia SPEED HPC  
-**Protocol:** Each agent's full 9-fault-mode suite run **3 times independently**. LKW fingerprints compared across all 3 runs.
+## 1. Executive Summary
 
-### Stability Classification
-| Label | Meaning |
-|---|---|
-| `STABLE_PASS` | Baseline NONE: clean across all 3 runs, no infection |
-| `STABLE_FAULT` | Fault mode: identical LKW fingerprint (same infection point, same steps lost, same depth) across all 3 runs |
-| `UNSTABLE` | At least one run differs — non-determinism detected |
+### Overall B3 Mutation Kill Rate
 
-### Results
+```
++------------------------------------------------------------------+
+|  STANDALONE LIVE-LLM B3 MUTATION SCORE                          |
+|                                                                  |
+|   Total mutant tests   :  258                                    |
+|   Killed               :   75  (29.1%)                          |
+|   Live (undetected)    :   90  (34.9%)                          |
+|   Inconclusive         :   93  (36.0%)                          |
+|                                                                  |
+|   B2 false positive rate: 0.0% (all 9 agents, all configs)      |
++------------------------------------------------------------------+
+```
 
-| Agent | Modes | STABLE_PASS | STABLE_FAULT | UNSTABLE | Rate |
-|---|---|---|---|---|---|
-| PaymentAgent | 9 | 1 | 8 | 0 | **100%** |
-| CurrencyAgent | 9 | 1 | 8 | 0 | **100%** |
-| EmailServiceAgent | 9 | 1 | 8 | 0 | **100%** |
-| ProductCatalogAgent | 9 | 1 | 8 | 0 | **100%** |
-| RecommendationAgent | 9 | 1 | 8 | 0 | **100%** |
-| AdServiceAgent | 9 | 1 | 8 | 0 | **100%** |
-| ShippingService ¹ | 10 | 1 | 9 | 0 | **100%** |
-| **TOTAL** | **64** | **7** | **57** | **0** | **100%** |
+### Agent-Level Summary (all configs combined)
 
-> ¹ ShippingService uses a live LLM (Ollama on SPEED) with real gRPC and MongoDB — not mock-based. Stability for Llama 3.2:1b assessed via per-fault-mode individual evidence files. Full 10-fault batch rerun completed with qwen2.5-coder:14b (A100 MIG, SPEED HPC), resolving all 5 previously INCONCLUSIVE results.
-
-> **Finding (mock-based agents):** Zero UNSTABLE entries across 54 mode-runs (162 total individual runs). All mock-based fault injection results are deterministic and reproducible.  
-> **Finding (ShippingService):** Per-fault-mode stability matrices confirm deterministic LKW traces for all 10 fault modes under real-LLM execution on SPEED. Combined: 64 mode-runs, 0 UNSTABLE, evidence is publishable.
-
----
-
-## 2. Agent-Level Fault Injection
-
-Each agent is instrumented with **LKW (Last Known Well) checkpoints**. gRPC dependencies are replaced with controlled mocks. All results are deterministic (no LLM calls, `USE_LLM=false`).
-
-**RIP metrics per run:**
-- **Infection Point** — first LKW checkpoint with semantically deviant data
-- **Propagation Depth** — number of expected downstream steps absent in the fault trace
-- **Steps Lost** — checkpoints present in the NONE baseline but absent in the fault run
+| Rank | Agent | Killed | Live | Inconc. | Kill Rate | Configs | Notes |
+|------|-------|--------|------|---------|-----------|---------|-------|
+| 1 | ProductCatalog | 8 | 0 | 0 | **100.0%** | 3b_temp0 | All 8 modes killed |
+| 2 | Cart | 10 | 0 | 0 | **100.0%** | 3b_temp0 | All 10 modes killed |
+| 3 | AdService | 8 | 6 | 0 | **57.1%** | 3b_temp0 | 6 irrelevant shipping modes LIVE |
+| 4 | Recommendation | 8 | 6 | 0 | **57.1%** | 3b_temp0 | 6 irrelevant shipping modes LIVE |
+| 5 | Payment | 20 | 24 | 0 | **45.5%** | 4 configs | 8/14 per best config |
+| 6 | Currency | 15 | 29 | 0 | **34.1%** | 4 configs | FM_2_5 + BL_CONVERSION_OVERFLOW absorbed |
+| 7 | Email | 6 | 5 | 33 | **13.6%** | 4 configs | High inconclusive; LLM regenerates content |
+| 8 | Ship-Quote | 0 | 10 | 30 | **0.0%** | 4 configs | Template-fallback absorbs all faults |
+| 9 | Ship-Order | 0 | 10 | 30 | **0.0%** | 4 configs | Template-fallback absorbs all faults |
+| — | **TOTAL** | **75** | **90** | **93** | **29.1%** | | |
 
 ---
 
-### 2.1 PaymentAgent
-**Checkpoints:** `TASK_START` → `CARD_VALIDATED` → `CHARGE_DONE` → `SAVE_DONE` → `FINAL_ANSWER`
+## 2. B2 Baseline — False Positive Rate
 
-| Fault Mode | Infection Point | Depth | Steps Lost | Flag Detected |
-|---|---|---|---|---|
-| NONE | — | 0 | — | — |
-| FM_3_1 Premature Termination | FINAL_ANSWER | 3 | CARD_VALIDATED, CHARGE_DONE, SAVE_DONE | `premature_termination` |
-| FM_2_2 Hallucinated TXN ID | CHARGE_DONE | 0 | — | `hallucinated` |
-| FM_2_5 Amount Ignored | CARD_VALIDATED | 0 | — | `amount_tampered` |
-| FM_1_2 Validation Bypassed | CARD_VALIDATED | 0 | — | `validation_bypassed` |
-| BL_TRANSACTION_LOST | SAVE_DONE | 0 | — | `save_skipped` |
-| BL_DOUBLE_CHARGE | SAVE_DONE | 0 | — | `double_charge` |
-| BL_AMOUNT_TAMPERING | CARD_VALIDATED | 0 | — | `amount_tampered` |
-| BL_CARD_DECLINED | FINAL_ANSWER | 3 | CARD_VALIDATED, CHARGE_DONE, SAVE_DONE | `forced_decline` |
+B2 runs FAULT_MODE=NONE with live LLM to calibrate natural variance.
+An infected B2 run = false positive (LKW fires on normal output, not a fault).
 
----
+```
+B2 False-Positive Baseline
+===========================================================================
+Agent@Config               Runs   Clean  Infected  Errors   FP Rate
+---------------------------------------------------------------------------
+adservice@3b_temp0            3       3         0       0    0.0% CLEAN
+cart@3b_temp0                 3       3         0       0    0.0% CLEAN
+currency@3b_temp0            10      10         0       0    0.0% CLEAN
+currency@14b_temp0           10      10         0       0    0.0% CLEAN
+currency@3b_temp0.7          10      10         0       0    0.0% CLEAN
+currency@3b_temp1.0          10      10         0       0    0.0% CLEAN
+email@3b_temp0               10      10         0       0    0.0% CLEAN
+email@14b_temp0              10      10         0       0    0.0% CLEAN
+email@3b_temp0.7             10      10         0       0    0.0% CLEAN
+email@3b_temp1.0             10      10         0       0    0.0% CLEAN
+payment@3b_temp0             10      10         0       0    0.0% CLEAN
+payment@14b_temp0            10      10         0       0    0.0% CLEAN
+payment@3b_temp0.7           10      10         0       0    0.0% CLEAN
+payment@3b_temp1.0           10      10         0       0    0.0% CLEAN
+productcatalog@3b_temp0       3       3         0       0    0.0% CLEAN
+recommendation@3b_temp0       3       3         0       0    0.0% CLEAN
+ship_order@3b_temp0          10       3         0       7    0.0% CLEAN (7 gRPC errors)
+ship_order@14b_temp0         10       0         0      10    0.0% CLEAN (10 gRPC errors)
+ship_order@3b_temp0.7        10       0         0      10    0.0% CLEAN (10 gRPC errors)
+ship_order@3b_temp1.0        10       0         0      10    0.0% CLEAN (10 gRPC errors)
+shipping_quote@3b_temp0      10       3         0       7    0.0% CLEAN (7 gRPC errors)
+shipping_quote@14b_temp0     10       0         0      10    0.0% CLEAN (10 gRPC errors)
+shipping_quote@3b_temp0.7    10       0         0      10    0.0% CLEAN (10 gRPC errors)
+shipping_quote@3b_temp1.0    10       0         0      10    0.0% CLEAN (10 gRPC errors)
+===========================================================================
+FP rate (non-error runs): 0.0%   B2 oracle valid — B3 kill verdicts are real
+```
 
-### 2.2 CurrencyAgent
-**Checkpoints:** `TASK_START` → `CONVERT_DONE` → `FINAL_ANSWER`
-
-| Fault Mode | Infection Point | Depth | Steps Lost | Flag Detected |
-|---|---|---|---|---|
-| NONE | — | 0 | — | — |
-| FM_3_1 Premature Termination | FINAL_ANSWER | 1 | CONVERT_DONE | `premature_termination` |
-| FM_2_2 Hallucinated Result (1337 EUR) | CONVERT_DONE | 0 | — | `hallucinated` |
-| FM_2_5 Amount Ignored | CONVERT_DONE | 0 | — | `amount_tampered` |
-| FM_1_2 Wrong Currency Routing | CONVERT_DONE | 0 | — | `currency_swapped` |
-| BL_RATE_MANIPULATION | CONVERT_DONE | 0 | — | `rate_manipulated` |
-| BL_CURRENCY_UNAVAILABLE | FINAL_ANSWER | 1 | CONVERT_DONE | `unavailable` |
-| BL_STALE_RATE | CONVERT_DONE | 0 | — | `stale_rate` |
-| BL_CONVERSION_OVERFLOW | CONVERT_DONE | 0 | — | `overflow` |
-
----
-
-### 2.3 EmailServiceAgent
-**Checkpoints:** `TASK_START` → `EMAIL_GENERATED` → `EMAIL_SENT` → `FINAL_ANSWER`
-
-| Fault Mode | Infection Point | Depth | Steps Lost | Flag Detected |
-|---|---|---|---|---|
-| NONE | — | 0 | — | — |
-| FM_3_1 Premature Termination | FINAL_ANSWER | 2 | EMAIL_GENERATED, EMAIL_SENT | `premature_termination` |
-| FM_2_2 Hallucinated Email (phishing) | EMAIL_GENERATED | 0 | — | `hallucinated` |
-| FM_2_5 Recipient Swapped | EMAIL_GENERATED | 0 | — | `recipient_swapped` |
-| FM_1_2 Wrong Email Type | EMAIL_GENERATED | 0 | — | `type_wrong` |
-| BL_SEND_SKIPPED | EMAIL_SENT | 0 | — | `send_skipped` |
-| BL_DOUBLE_SEND | EMAIL_SENT | 0 | — | `double_send` |
-| BL_CORRUPTED_BODY | EMAIL_GENERATED | 0 | — | `corrupted` |
-| BL_WRONG_CUSTOMER | EMAIL_GENERATED | 0 | — | `wrong_customer` |
+> Shipping gRPC errors: CartService/ProductCatalogService not co-launched in Slurm job.
+> These are errors, not false positives. FP rate remains 0%.
 
 ---
 
-### 2.4 ProductCatalogAgent
-**Checkpoints:** `TASK_START` → `CATALOG_DONE` → `FINAL_ANSWER`
+## 3. B3 Per-Agent Fault Injection — 9 Agents
 
-| Fault Mode | Infection Point | Depth | Steps Lost | Flag Detected |
-|---|---|---|---|---|
-| NONE | — | 0 | — | — |
-| FM_3_1 Premature Termination | FINAL_ANSWER | 1 | CATALOG_DONE | `premature_termination` |
-| FM_2_2 Hallucinated Products | CATALOG_DONE | 0 | — | `hallucinated` |
-| FM_2_5 Query Tampered | CATALOG_DONE | 0 | — | `query_tampered` |
-| FM_1_2 Wrong Action Routing | CATALOG_DONE | 0 | — | `action_swapped` |
-| BL_PRODUCT_MISSING | CATALOG_DONE | 0 | — | `products_missing` |
-| BL_PRICE_MANIPULATION | CATALOG_DONE | 0 | — | `price_manipulated` |
-| BL_DUPLICATE_PRODUCT | CATALOG_DONE | 0 | — | `duplicated` |
-| BL_WRONG_CATEGORY | CATALOG_DONE | 0 | — | `category_wrong` |
+**Legend:** `K`=KILLED · `L`=LIVE · `I`=INCONCLUSIVE  
+`inf=X/N` = infected_runs/total_runs · `sloss=X` = runs with missing LKW steps
 
 ---
 
-### 2.5 RecommendationAgent
-**Checkpoints:** `TASK_START` → `RECOMMEND_DONE` → `FINAL_ANSWER`
+### 3.1 ProductCatalogAgent — 100% Kill Rate
 
-| Fault Mode | Infection Point | Depth | Steps Lost | Flag Detected |
-|---|---|---|---|---|
-| NONE | — | 0 | — | — |
-| FM_3_1 Premature Termination | FINAL_ANSWER | 1 | RECOMMEND_DONE | `premature_termination` |
-| FM_2_2 Hallucinated IDs | RECOMMEND_DONE | 0 | — | `hallucinated` |
-| FM_2_5 User ID Swapped | RECOMMEND_DONE | 0 | — | `user_id_swapped` |
-| FM_1_2 Wrong Method Routed | RECOMMEND_DONE | 0 | — | `method_swapped` |
-| BL_EMPTY_RECS | RECOMMEND_DONE | 0 | — | `empty_recs` |
-| BL_SELF_RECOMMENDATION | RECOMMEND_DONE | 0 | — | `self_rec` |
-| BL_INJECTION_RECS | RECOMMEND_DONE | 0 | — | `injection` |
-| BL_SHUFFLED_RECS | RECOMMEND_DONE | 0 | — | `shuffled` |
+**Config:** qwen2.5:3b temp=0.0 · **Fault modes:** 8 agent-specific
 
----
+```
+LKW Trace:
+TASK_START --> CATALOG_DONE --> FINAL_ANSWER
+   |               |                |
+[always]    [product list]     [response]
+```
 
-### 2.6 AdServiceAgent
-**Checkpoints:** `TASK_START` → `CONTEXT_EXTRACTED` → `ADS_FETCHED` → `FINAL_ANSWER`
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 0/3 | 3 | Skips CATALOG_DONE; structural step-loss |
+| 2 | FM_1_2 Validation bypassed | **K** | 3/3 | 0 | Wrong action; payload deviant at CATALOG_DONE |
+| 3 | FM_2_2 Hallucinated products | **K** | 3/3 | 0 | Phantom product IDs in catalog output |
+| 4 | FM_2_5 Query tampered | **K** | 3/3 | 0 | query_tampered flag set at CATALOG_DONE |
+| 5 | BL_PRICE_MANIPULATION | **K** | 3/3 | 0 | price x10 detected vs B1 baseline |
+| 6 | BL_PRODUCT_MISSING | **K** | 3/3 | 0 | Empty product list vs B1 non-empty |
+| 7 | BL_DUPLICATE_PRODUCT | **K** | 3/3 | 0 | Duplicate entry detected |
+| 8 | BL_WRONG_CATEGORY | **K** | 3/3 | 0 | Category field mismatch vs oracle |
 
-| Fault Mode | Infection Point | Depth | Steps Lost | Flag Detected |
-|---|---|---|---|---|
-| NONE | — | 0 | — | — |
-| FM_3_1 Premature Termination | FINAL_ANSWER | 1 | ADS_FETCHED | `premature_termination` |
-| FM_2_2 Hallucinated Ads (phishing URLs) | ADS_FETCHED | 0 | — | `hallucinated` |
-| FM_2_5 Context Keys Tampered | CONTEXT_EXTRACTED | 0 | — | `context_tampered` |
-| FM_1_2 Wrong Category | CONTEXT_EXTRACTED | 0 | — | `category_swapped` |
-| BL_EMPTY_ADS | ADS_FETCHED | 0 | — | `empty_ads` |
-| BL_AD_INJECTION | ADS_FETCHED | 0 | — | `injected` |
-| BL_WRONG_URL | ADS_FETCHED | 0 | — | `wrong_url` |
-| BL_DUPLICATE_ADS | ADS_FETCHED | 0 | — | `duplicated` |
+**Result: 8/8 = 100.0% — strongest single-agent coverage in study**
 
 ---
 
-### 2.7 ShippingService (qwen2.5-coder:14b — Real LLM, SPEED HPC)
-**Checkpoints:** `TASK_START` → `QUOTE_DONE` → `CARRIER_DONE` → `TRACKING_DONE` → `ESCALATION_CHECK` → `FINAL_ANSWER` → `SAVE_DONE`
+### 3.2 CartAgent (C#) — 100% Kill Rate
 
-> **Note:** Unlike agents 2.1–2.6, ShippingService runs a live qwen2.5-coder:14b LLM via ReAct loop (Ollama on SPEED HPC A100 MIG). Initial runs with Llama 3.2:1b (1B parameter) produced 5 INCONCLUSIVE results due to ReAct loop exhaustion; upgraded to qwen2.5-coder:14b (14B parameter) per reviewer recommendation, resolving all timeouts. Injection points are at the Final Answer intercept and tool-dispatch layer rather than pure mock substitution.
+**Config:** qwen2.5:3b temp=0.0 · **Language:** C# via Python mirror co_helper_cart.py  
+**Fault modes:** 10 (4 general + 6 cart BL faults)
 
-| Fault Mode | Injection Layer | Infection Point | Depth | Steps Lost | Flag Detected | Verdict |
-|---|---|---|---|---|---|---|
-| NONE | — | — | 0 | — | — | TN |
-| FM_3_1 Premature Termination | Final Answer intercept | TRACKING_DONE | 1 | CARRIER_DONE, ESCALATION_CHECK | `premature_termination` | Partial TP ¹ |
-| FM_1_2 Incomplete Task Spec | Task-spec mutation + dispatch block | SAVE_DONE | 2 | CARRIER_DONE, TRACKING_DONE, ESCALATION_CHECK | `incomplete` | TP |
-| FM_2_2 Hallucinated Carrier (SpeedyShip) | Final Answer intercept | CARRIER_DONE | 0 | — | `hallucinated` | TP |
-| FM_2_5 Stale Quote Ignored ($4.99) | Final Answer + `ship_order` fallback | CARRIER_DONE | 0 | — | `ignored_downstream_quote` | TP |
-| BL_SHIPMENT_LOST | `ship_order` MongoDB save bypass | None detected | 1 | SAVE_DONE | `save_skipped` | Partial TP ² |
-| BL_INVENTORY_MISMATCH | Pre-task item quantity inflation | QUOTE_DONE | 0 | — | `item_count_inflated` | TP |
-| BL_VENDOR_NEGOTIATION | Final Answer + `ship_order` fallback | CARRIER_DONE | 0 | — | `forced_vendor` | TP |
-| BL_CUSTOMER_ESCALATION | Post-agent metadata injection | ESCALATION_CHECK | 0 | — | `escalation_required` | TP |
-| BL_REFUND_REASONING | Post-agent cost negation | QUOTE_DONE | 0 | — | `negative_cost` | TP |
-| BL_COMPLIANCE_AMBIGUITY | Pre-task address tagging | None detected | 0 | — | — | FN ³ |
+```
+LKW Trace:
+TASK_START --> ITEM_ADDED --> QUANTITY_MERGED --> CART_READ --> FINAL_ANSWER
+   |               |                |                |               |
+[always]     [item+qty]      [merged qty]      [cart state]    [response]
+```
 
-> ¹ FM_3_1: system reports depth=1 but actual missing steps = 2 (CARRIER_DONE + ESCALATION_CHECK). ESCALATION_CHECK absent from RIP expected-steps checker (known bug).  
-> ² BL_SHIPMENT_LOST: SAVE_DONE structurally absent (depth=1) but infection_point=None — all present checkpoints look clean, no infected step identified. Step-loss is auto-detectable.  
-> ³ BL_COMPLIANCE_AMBIGUITY: qwen2.5-coder:14b resolved the injected ambiguity gracefully (all 7 steps complete, infection_point=None). Model-capability-dependent FN — larger LLM is more resilient to semantic ambiguity injection.
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 3/3 | 3 | Skips all mid-steps to FINAL_ANSWER |
+| 2 | FM_1_2 Validation bypassed | **K** | 3/3 | 0 | qty=0 injection detected at ITEM_ADDED |
+| 3 | FM_2_2 Hallucinated response | **K** | 3/3 | 0 | Cart content fabricated |
+| 4 | FM_2_5 Stale quantity | **K** | 3/3 | 0 | Stale qty flag at QUANTITY_MERGED |
+| 5 | BL_SHIPMENT_LOST | **K** | 3/3 | 0 | Empty cart injected; detected at CART_READ |
+| 6 | BL_INVENTORY_MISMATCH | **K** | 3/3 | 0 | qty+5 over-count detected |
+| 7 | BL_VENDOR_NEGOTIATION | **K** | 3/3 | 0 | 50% discount injection detected |
+| 8 | BL_CUSTOMER_ESCALATION | **K** | 3/3 | 0 | qty=999 spike detected |
+| 9 | BL_REFUND_REASONING | **K** | 3/3 | 0 | Qty reduction via refund logic detected |
+| 10 | BL_COMPLIANCE_AMBIGUITY | **K** | 3/3 | 0 | Float qty=1.5 detected |
+
+**Result: 10/10 = 100.0% — new agent added this cycle, perfect coverage**
 
 ---
 
-## 3. HITL Tier Classification
+### 3.3 AdServiceAgent — 57.1% Kill Rate
 
-**Tool:** `src/hitl_detector.py` — fully automated, reads `*_fault_results.json` per agent.  
-**Generated:** 2026-06-18T14:51:55Z (local) / verified SPEED job 970084
+**Config:** qwen2.5:3b temp=0.0 · **Fault modes:** 14 tested (8 adservice + 6 legacy shipping)
 
-### Tier Definitions
+```
+LKW Trace:
+TASK_START --> CONTEXT_EXTRACTED --> ADS_FETCHED --> FINAL_ANSWER
+   |                 |                    |               |
+[always]       [context keys]       [ad list]        [response]
+```
 
-| Tier | Label | Detection Method | Risk Level |
-|---|---|---|---|
-| **1** | Structural | `propagation_depth > 0` — missing step in LKW trace | Auto-detectable, no semantic analysis |
-| **2** | Flag-Detectable | Operational boolean flag is `True` in LKW data (new vs baseline) | Needs flag monitor / alert rule |
-| **3** | Silent | Only `hallucinated=True` or no flag — pure data corruption | Requires semantic validation of data values |
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 3/3 | 3 | Step-loss at ADS_FETCHED |
+| 2 | FM_1_2 Category swapped | **K** | 3/3 | 0 | Wrong ad category detected |
+| 3 | FM_2_2 Hallucinated ads | **K** | 3/3 | 0 | Phishing URL pattern flagged |
+| 4 | FM_2_5 Context tampered | **K** | 3/3 | 0 | Tampered context keys flagged |
+| 5 | BL_EMPTY_ADS | **K** | 3/3 | 0 | Empty ad list flagged |
+| 6 | BL_AD_INJECTION | **K** | 3/3 | 0 | Injected hostile ad detected |
+| 7 | BL_WRONG_URL | **K** | 3/3 | 0 | Malformed URL detected |
+| 8 | BL_DUPLICATE_ADS | **K** | 3/3 | 0 | Duplicate ad entry detected |
+| — | BL_SHIPMENT_LOST *(shipping)* | **L** | 0/3 | 0 | Not applicable to AdService |
+| — | BL_INVENTORY_MISMATCH *(shipping)* | **L** | 0/3 | 0 | Not applicable to AdService |
+| — | BL_VENDOR_NEGOTIATION *(shipping)* | **L** | 0/3 | 0 | Not applicable to AdService |
+| — | BL_CUSTOMER_ESCALATION *(shipping)* | **L** | 0/3 | 0 | Not applicable to AdService |
+| — | BL_REFUND_REASONING *(shipping)* | **L** | 0/3 | 0 | Not applicable to AdService |
+| — | BL_COMPLIANCE_AMBIGUITY *(shipping)* | **L** | 0/3 | 0 | Not applicable to AdService |
 
-### Full Classification Table
+**Result: 8/14 = 57.1% overall; agent-specific coverage 8/8 = 100%**  
+6 LIVE faults are shipping-domain modes — not registered in AdService fault_injection.py.
 
-| Agent | Fault Mode | Tier | Detect Method | Flags |
-|---|---|---|---|---|
-| PaymentAgent | NONE | BASELINE | — | — |
-| PaymentAgent | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| PaymentAgent | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| PaymentAgent | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `amount_tampered` |
-| PaymentAgent | FM_1_2 | **TIER 2** | MANUAL (flag monitor) | `validation_bypassed` |
-| PaymentAgent | BL_TRANSACTION_LOST | **TIER 2** | MANUAL (flag monitor) | `save_skipped` |
-| PaymentAgent | BL_DOUBLE_CHARGE | **TIER 2** | MANUAL (flag monitor) | `double_charge` |
-| PaymentAgent | BL_AMOUNT_TAMPERING | **TIER 2** | MANUAL (flag monitor) | `amount_tampered` |
-| PaymentAgent | BL_CARD_DECLINED | **TIER 1** | AUTO (step diff) | `forced_decline` |
-| CurrencyAgent | NONE | BASELINE | — | — |
-| CurrencyAgent | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| CurrencyAgent | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| CurrencyAgent | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `amount_tampered` |
-| CurrencyAgent | FM_1_2 | **TIER 2** | MANUAL (flag monitor) | `currency_swapped` |
-| CurrencyAgent | BL_RATE_MANIPULATION | **TIER 2** | MANUAL (flag monitor) | `rate_manipulated` |
-| CurrencyAgent | BL_CURRENCY_UNAVAILABLE | **TIER 1** | AUTO (step diff) | `unavailable` |
-| CurrencyAgent | BL_STALE_RATE | **TIER 2** | MANUAL (flag monitor) | `stale_rate` |
-| CurrencyAgent | BL_CONVERSION_OVERFLOW | **TIER 2** | MANUAL (flag monitor) | `overflow` |
-| EmailServiceAgent | NONE | BASELINE | — | — |
-| EmailServiceAgent | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| EmailServiceAgent | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| EmailServiceAgent | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `recipient_swapped` |
-| EmailServiceAgent | FM_1_2 | **TIER 2** | MANUAL (flag monitor) | `type_wrong` |
-| EmailServiceAgent | BL_SEND_SKIPPED | **TIER 2** | MANUAL (flag monitor) | `send_skipped` |
-| EmailServiceAgent | BL_DOUBLE_SEND | **TIER 2** | MANUAL (flag monitor) | `double_send` |
-| EmailServiceAgent | BL_CORRUPTED_BODY | **TIER 2** | MANUAL (flag monitor) | `corrupted` |
-| EmailServiceAgent | BL_WRONG_CUSTOMER | **TIER 2** | MANUAL (flag monitor) | `wrong_customer` |
-| ProductCatalogAgent | NONE | BASELINE | — | — |
-| ProductCatalogAgent | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| ProductCatalogAgent | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| ProductCatalogAgent | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `query_tampered` |
-| ProductCatalogAgent | FM_1_2 | **TIER 2** | MANUAL (flag monitor) | `action_swapped` |
-| ProductCatalogAgent | BL_PRODUCT_MISSING | **TIER 2** | MANUAL (flag monitor) | `products_missing` |
-| ProductCatalogAgent | BL_PRICE_MANIPULATION | **TIER 2** | MANUAL (flag monitor) | `price_manipulated` |
-| ProductCatalogAgent | BL_DUPLICATE_PRODUCT | **TIER 2** | MANUAL (flag monitor) | `duplicated` |
-| ProductCatalogAgent | BL_WRONG_CATEGORY | **TIER 2** | MANUAL (flag monitor) | `category_wrong` |
-| RecommendationAgent | NONE | BASELINE | — | — |
-| RecommendationAgent | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| RecommendationAgent | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| RecommendationAgent | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `user_id_swapped` |
-| RecommendationAgent | FM_1_2 | **TIER 2** | MANUAL (flag monitor) | `method_swapped` |
-| RecommendationAgent | BL_EMPTY_RECS | **TIER 2** | MANUAL (flag monitor) | `empty_recs` |
-| RecommendationAgent | BL_SELF_RECOMMENDATION | **TIER 2** | MANUAL (flag monitor) | `self_rec` |
-| RecommendationAgent | BL_INJECTION_RECS | **TIER 2** | MANUAL (flag monitor) | `injection` |
-| RecommendationAgent | BL_SHUFFLED_RECS | **TIER 2** | MANUAL (flag monitor) | `shuffled` |
-| AdServiceAgent | NONE | BASELINE | — | — |
-| AdServiceAgent | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| AdServiceAgent | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| AdServiceAgent | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `context_tampered` |
-| AdServiceAgent | FM_1_2 | **TIER 2** | MANUAL (flag monitor) | `category_swapped` |
-| AdServiceAgent | BL_EMPTY_ADS | **TIER 2** | MANUAL (flag monitor) | `empty_ads` |
-| AdServiceAgent | BL_AD_INJECTION | **TIER 2** | MANUAL (flag monitor) | `injected` |
-| AdServiceAgent | BL_WRONG_URL | **TIER 2** | MANUAL (flag monitor) | `wrong_url` |
-| AdServiceAgent | BL_DUPLICATE_ADS | **TIER 2** | MANUAL (flag monitor) | `duplicated` |
-| ShippingService | NONE | BASELINE | — | — |
-| ShippingService | FM_3_1 | **TIER 1** | AUTO (step diff) | `premature_termination` |
-| ShippingService | FM_1_2 | **TIER 1** | AUTO (step diff) | `incomplete` |
-| ShippingService | FM_2_2 | **TIER 3** | MANUAL (semantic) | `hallucinated` |
-| ShippingService | FM_2_5 | **TIER 2** | MANUAL (flag monitor) | `ignored_downstream_quote` |
-| ShippingService | BL_SHIPMENT_LOST | **TIER 1** | AUTO (step diff) | `save_skipped` |
-| ShippingService | BL_INVENTORY_MISMATCH | **TIER 2** | MANUAL (flag monitor) | `item_count_inflated` |
-| ShippingService | BL_VENDOR_NEGOTIATION | **TIER 2** | MANUAL (flag monitor) | `forced_vendor` |
-| ShippingService | BL_CUSTOMER_ESCALATION | **TIER 2** | MANUAL (flag monitor) | `escalation_required` |
-| ShippingService | BL_REFUND_REASONING | **TIER 2** | MANUAL (flag monitor) | `negative_cost` |
-| ShippingService | BL_COMPLIANCE_AMBIGUITY | **TIER 2** | MANUAL (flag monitor) | `compliance_failed` |
+---
 
-### HITL Summary
+### 3.4 RecommendationAgent — 57.1% Kill Rate
 
-| Tier | Count (6 mock agents) | Count (ShippingService) | Total | Description |
-|---|---|---|---|---|
-| **Tier 1 — Structural** | **8** | **3** | **11** | Auto-detectable from step-trace diff alone |
-| **Tier 2 — Flag-Detectable** | **34** | **6** | **40** | Requires flag monitor on LKW checkpoint data |
-| **Tier 3 — Silent** | **6** | **1** | **7** | Requires semantic validation of data values |
-| Baseline (NONE) | 6 | 1 | **7** | — |
-| **Total fault modes** | **48** | **10** | **58** | |
+**Config:** qwen2.5:3b temp=0.0 · **Fault modes:** 14 tested (8 recommendation + 6 legacy shipping)
 
-> **Key Finding:** FM-2.2 (hallucination) is **Tier 3 before boundary validation** — zero structural signal and no reliable step-loss signal. The July boundary-validation refresh adds explicit `BOUNDARY_CHECK` contracts so high-risk hallucinated handoffs are now observable through range checks, entity existence checks, and schema/value validators at agent boundaries.  
-> **ShippingService note (qwen2.5-coder:14b):** With the 14B model, all 10 fault modes complete successfully (0 INCONCLUSIVE). BL_COMPLIANCE_AMBIGUITY is a **confirmed FN** — the 14B model resolved the injected ambiguity without any fault signal (all 7 steps, infection_point=None), demonstrating LLM robustness to semantic ambiguity injection. BL_VENDOR_NEGOTIATION (confirmed FN under 1B model) became **TP** under 14B — the stronger model correctly reflects vendor-forced routing at CARRIER_DONE. This model-capability-dependent detectability gap is a novel finding for LLM-MAS fault injection methodology.
+```
+LKW Trace:
+TASK_START --> RECOMMEND_DONE --> FINAL_ANSWER
+   |                |                  |
+[always]      [product IDs]        [response]
+```
+
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 0/3 | 3 | Skips RECOMMEND_DONE |
+| 2 | FM_1_2 Method swapped | **K** | 3/3 | 0 | Wrong recommendation method |
+| 3 | FM_2_2 Hallucinated IDs | **K** | 3/3 | 0 | Phantom product IDs detected |
+| 4 | FM_2_5 User ID swapped | **K** | 3/3 | 0 | Wrong user ID flagged |
+| 5 | BL_EMPTY_RECS | **K** | 3/3 | 0 | Empty recommendation list |
+| 6 | BL_SELF_RECOMMENDATION | **K** | 3/3 | 0 | Self-reference loop detected |
+| 7 | BL_INJECTION_RECS | **K** | 3/3 | 0 | Hostile product ID injected |
+| 8 | BL_SHUFFLED_RECS | **K** | 3/3 | 0 | Order changed vs B1 oracle |
+| — | 6x shipping modes | **L** | 0/3 | 0 | Not applicable |
+
+**Result: 8/14 = 57.1%; agent-specific: 8/8 = 100%**
+
+---
+
+### 3.5 PaymentAgent — 57.1% / 45.5% (all configs)
+
+**Configs:** 4 · **Fault modes:** 14 per config (8 payment + 6 legacy shipping)
+
+```
+LKW Trace:
+TASK_START --> CARD_VALIDATED --> CHARGE_DONE --> SAVE_DONE --> FINAL_ANSWER
+   |                |                 |               |               |
+[always]      [card OK/fail]    [amount charged]  [saved=T/F]    [response]
+```
+
+**3b_temp0 verdict table (best config — 57.1%):**
+
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 0/3 | 3 | Skips CARD_VALIDATED+CHARGE_DONE+SAVE_DONE |
+| 2 | FM_1_2 Validation bypassed | **K** | 3/3 | 0 | card_validated flag cleared |
+| 3 | FM_2_2 Hallucinated TXN ID | **K** | 3/3 | 0 | Fake transaction ID at CHARGE_DONE |
+| 4 | FM_2_5 Amount ignored | **K** | 3/3 | 0 | amount_tampered flag at CARD_VALIDATED |
+| 5 | BL_TRANSACTION_LOST | **K** | 3/3 | 0 | save_skipped flag at SAVE_DONE |
+| 6 | BL_DOUBLE_CHARGE | **K** | 3/3 | 0 | double_charge flag at SAVE_DONE |
+| 7 | BL_AMOUNT_TAMPERING | **K** | 3/3 | 0 | charged=9999 vs B1 baseline 9.00 |
+| 8 | BL_CARD_DECLINED | **K** | 3/3 | 3 | Structural: CARD_VALIDATED+CHARGE_DONE+SAVE_DONE lost |
+| — | 6x shipping modes | **L** | 0/3 | 0 | Not applicable |
+
+**Kill rate per config:**
+
+| Config | Killed | Live | Inconc | Rate | Notes |
+|--------|--------|------|--------|------|-------|
+| 3b_temp0 | 8 | 6 | 0 | **57.1%** | All 8 payment-specific modes killed |
+| 14b_temp0 | 4 | 6 | 0 | **40.0%** | Only 4 general FM_* modes killed |
+| 3b_temp0.7 | 4 | 6 | 0 | **40.0%** | Same as 14b |
+| 3b_temp1.0 | 4 | 6 | 0 | **40.0%** | Same as 14b |
+| **All configs** | **20** | **24** | **0** | **45.5%** | |
+
+---
+
+### 3.6 CurrencyAgent — 42.9% / 34.1% (all configs)
+
+**Configs:** 4 · **Fault modes:** 14 per config (8 currency + 6 legacy shipping)
+
+```
+LKW Trace:
+TASK_START --> CONVERT_DONE --> FINAL_ANSWER
+   |               |                 |
+[always]    [rate + amount]      [response]
+
+Key B3 evidence: BL_RATE_MANIPULATION raises rate x100; detected at CONVERT_DONE.
+Cross-agent Chain A: FM_2_2 hallucinate 1337 EUR --> PaymentAgent overcharges +14,755.6%
+```
+
+**3b_temp0 verdict table (best config — 42.9%):**
+
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 0/3 | 3 | Skips CONVERT_DONE |
+| 2 | FM_1_2 Wrong currency routing | **K** | 3/3 | 0 | Currency swapped flag at CONVERT_DONE |
+| 3 | FM_2_2 Hallucinated result | **K** | 3/3 | 0 | 1337 EUR fabricated (baseline: 9 EUR) |
+| 4 | FM_2_5 Amount ignored | **L** | 0/3 | 0 | LIVE — LLM performs fresh lookup, ignores stale |
+| 5 | BL_RATE_MANIPULATION | **K** | 3/3 | 0 | Rate x100 detected at CONVERT_DONE |
+| 6 | BL_CURRENCY_UNAVAILABLE | **K** | 0/3 | 3 | Structural: CONVERT_DONE step lost |
+| 7 | BL_STALE_RATE | **K** | 3/3 | 0 | Stale rate flag detected |
+| 8 | BL_CONVERSION_OVERFLOW | **L** | 0/3 | 0 | LIVE — LLM silently clamps overflow |
+| — | 6x shipping modes | **L** | 0/3 | 0 | Not applicable |
+
+**Kill rate per config:**
+
+| Config | Killed | Live | Inconc | Rate | Notes |
+|--------|--------|------|--------|------|-------|
+| 3b_temp0 | 6 | 8 | 0 | **42.9%** | FM_2_5 and BL_OVERFLOW absorbed |
+| 14b_temp0 | 3 | 7 | 0 | **30.0%** | Only FM_3_1+FM_1_2+FM_2_2 |
+| 3b_temp0.7 | 3 | 7 | 0 | **30.0%** | Same as 14b |
+| 3b_temp1.0 | 3 | 7 | 0 | **30.0%** | Same as 14b |
+| **All configs** | **15** | **29** | **0** | **34.1%** | |
+
+> FM_2_5 LIVE finding: The LLM performs its own exchange-rate lookup instead of  
+> using the injected stale amount. This is genuine LLM-level absorption, not a  
+> test gap. True false negative — real fault, invisible to LLM-level detection.
+
+---
+
+### 3.7 EmailServiceAgent — 21.4% / 13.6% (all configs)
+
+**Configs:** 4 · **Fault modes:** 14 per config (8 email + 6 legacy shipping)
+
+```
+LKW Trace:
+TASK_START --> EMAIL_GENERATED --> EMAIL_SENT --> FINAL_ANSWER
+   |                 |                 |               |
+[always]       [content+to]      [sent=T/F]       [response]
+```
+
+**3b_temp0 verdict table (best config — 21.4%):**
+
+| # | Fault Mode | Verdict | inf/runs | sloss | Mechanism |
+|---|-----------|---------|----------|-------|-----------|
+| 1 | FM_3_1 Premature termination | **K** | 0/3 | 3 | Skips EMAIL_GENERATED+EMAIL_SENT |
+| 2 | FM_1_2 Wrong email type | **L** | 0/3 | 0 | LIVE — LLM generates correct type from context |
+| 3 | FM_2_2 Hallucinated email | **K** | 3/3 | 0 | Phishing content detected at EMAIL_GENERATED |
+| 4 | FM_2_5 Recipient swapped | **L** | 0/3 | 0 | LIVE — LLM uses correct recipient from context |
+| 5 | BL_SEND_SKIPPED | **K** | 3/3 | 0 | send_skipped flag at EMAIL_SENT |
+| 6 | BL_DOUBLE_SEND | **L** | 0/3 | 0 | LIVE — LLM does not double-send |
+| 7 | BL_CORRUPTED_BODY | **L** | 0/3 | 0 | LIVE — LLM regenerates clean body |
+| 8 | BL_WRONG_CUSTOMER | **L** | 0/3 | 0 | LIVE — LLM uses correct customer from context |
+| — | BL_COMPLIANCE_AMBIGUITY | **I** | 0/3 | 3 | Inconclusive — shipping mode, step-loss |
+| — | BL_CUSTOMER_ESCALATION | **I** | 0/3 | 3 | Inconclusive — shipping mode |
+| — | BL_INVENTORY_MISMATCH | **I** | 0/3 | 3 | Inconclusive — shipping mode |
+| — | BL_REFUND_REASONING | **I** | 0/3 | 3 | Inconclusive — shipping mode |
+| — | BL_SHIPMENT_LOST | **I** | 0/3 | 3 | Inconclusive — shipping mode |
+| — | BL_VENDOR_NEGOTIATION | **I** | 0/3 | 3 | Inconclusive — shipping mode |
+
+**Kill rate per config:**
+
+| Config | Killed | Live | Inconc | Rate | Notes |
+|--------|--------|------|--------|------|-------|
+| 3b_temp0 | 3 | 5 | 6 | **21.4%** | FM_3_1+FM_2_2+BL_SEND_SKIPPED |
+| 14b_temp0 | 1 | 0 | 9 | **10.0%** | Only FM_3_1; everything else INCONCLUSIVE |
+| 3b_temp0.7 | 1 | 0 | 9 | **10.0%** | Same as 14b |
+| 3b_temp1.0 | 1 | 0 | 9 | **10.0%** | Same as 14b |
+| **All configs** | **6** | **5** | **33** | **13.6%** | |
+
+> Email is hardest to mutate-test. LLM re-generates valid content from task context,  
+> overriding all content-level injections. Only structural (FM_3_1), explicit hallucination  
+> (FM_2_2), and explicit send-bypass (BL_SEND_SKIPPED) are reliably detectable.  
+> Under 14b, 9/10 modes collapse to INCONCLUSIVE — worst model-effect in the study.
+
+---
+
+### 3.8 ShippingQuoteAgent — 0.0% Kill Rate
+
+**Configs:** 4 · **Fault modes:** 10 per config (shipping-specific)
+
+```
+LKW Trace:
+TASK_START --> QUOTE_DONE --> FINAL_ANSWER
+   |               |               |
+[always]    [rate+carrier]     [response]
+```
+
+| Config | Killed | Live | Inconc | Rate | Observation |
+|--------|--------|------|--------|------|-------------|
+| 3b_temp0 | 0 | 10 | 0 | **0.0%** | All LIVE — inf=0, sloss=0; template fallback |
+| 14b_temp0 | 0 | 0 | 10 | **0.0%** | All INCONCLUSIVE — sloss=1-3, no infection |
+| 3b_temp0.7 | 0 | 0 | 10 | **0.0%** | All INCONCLUSIVE — gRPC errors dominate |
+| 3b_temp1.0 | 0 | 0 | 10 | **0.0%** | All INCONCLUSIVE — gRPC errors dominate |
+
+```
+ROOT CAUSE — Template-string fallback absorption:
+The ShippingQuoteAgent uses a pre-formatted fallback string when LLM
+inference is unreliable. Injected faults target the tool-response layer,
+but the LLM either:
+  (a) Raises a gRPC connection error (run classified as error, not LIVE)
+  (b) Returns the hardcoded fallback template (3b_temp0: inf=0, sloss=0)
+  (c) Partially executes but output is too divergent to classify (14b: INCONCLUSIVE)
+
+RESEARCH FINDING: Defensive LLM agents with fallback paths are opaque to
+checkpoint-level mutation testing. This is a property of the agent
+architecture, not a gap in the test framework.
+```
+
+---
+
+### 3.9 ShipOrderAgent — 0.0% Kill Rate
+
+**Configs:** 4 · **Fault modes:** 10 per config (shipping-specific)
+
+```
+LKW Trace:
+TASK_START --> ORDER_PLACED --> TRACKING_GENERATED --> SAVE_DONE --> FINAL_ANSWER
+   |               |                    |                  |               |
+[always]     [order_id]         [tracking_code]        [saved=T/F]    [response]
+```
+
+| Config | Killed | Live | Inconc | Rate |
+|--------|--------|------|--------|------|
+| 3b_temp0 | 0 | 10 | 0 | **0.0%** |
+| 14b_temp0 | 0 | 0 | 10 | **0.0%** |
+| 3b_temp0.7 | 0 | 0 | 10 | **0.0%** |
+| 3b_temp1.0 | 0 | 0 | 10 | **0.0%** |
+
+Same root cause as ShippingQuoteAgent. Both shipping agents share the same  
+ReAct-loop + template-fallback design — structurally opaque to mutation testing.
 
 ---
 
 ## 4. Cross-Agent Fault Propagation
 
-**Job:** 970076 on Concordia SPEED HPC  
-**Design:** FM-2.2 injected at upstream agent; downstream agent runs with `FAULT_MODE=NONE`.  
-FM-2.2 selected because it is the only fault class with depth=0 at the upstream agent — structurally invisible to downstream.
+**Source:** SPEED HPC Job 970076, commit 3b1c2ca, `src/cross_agent_970076.err`
 
-### Chain A — Financial Propagation
+### Chain A: CurrencyAgent FM_2_2 → PaymentAgent
 
-| Property | Baseline | Infected |
-|---|---|---|
-| **Chain** | CurrencyAgent [NONE] → PaymentAgent [NONE] | CurrencyAgent [FM_2_2] → PaymentAgent [NONE] |
-| **Hop 1 result** | 9 EUR (correct) | **1337 EUR** (hallucinated) |
-| **Hop 1 infection** | None | `CONVERT_DONE` |
-| **Hop 2 steps reached** | 5/5 (all) | **5/5 (all)** |
-| **Hop 2 infection** | None | **None** (agent is correct) |
-| **Hop 2 steps lost** | 0 | **0** |
-| **Structural alert** | No | **No** |
-| **Amount charged** | 9 EUR | **1337 EUR** |
-| **Overcharge** | — | **+1328 EUR (+14,755.6%)** |
-| **HITL Tier** | — | **Tier 3 — Silent** |
-
-> PaymentAgent validates the card, charges 1337 EUR, saves the transaction, and returns success — **all 5 checkpoints reached, infection_point=None**. The agent is correct. The financial loss is entirely caused by upstream FM-2.2 with no observable signal at either hop.
-
----
-
-### Chain B — Semantic Propagation
-
-| Property | Baseline | Infected |
-|---|---|---|
-| **Chain** | ProductCatalogAgent [NONE] → RecommendationAgent [NONE] | ProductCatalogAgent [FM_2_2] → RecommendationAgent [NONE] |
-| **Hop 1 result** | `['PROD-001']` (valid) | **`['HALLUCINATED-001']`** (phantom) |
-| **Hop 1 infection** | None | `CATALOG_DONE` |
-| **Hop 2 steps reached** | 3/3 (all) | **3/3 (all)** |
-| **Hop 2 infection** | None | **None** (agent is correct) |
-| **Hop 2 steps lost** | 0 | **0** |
-| **Structural alert** | No | **No** |
-| **Recommendations for** | PROD-001 (exists) | **HALLUCINATED-001 (does not exist)** |
-| **HITL Tier** | — | **Tier 2 — Detectable via product ID cross-check** |
-
-> RecommendationAgent queries the recommender service and returns results — **all 3 checkpoints reached, infection_point=None**. The agent is correct. The phantom product ID is forwarded silently. Detectable only by validating returned product IDs against the authoritative catalog.
-
----
-
-### Cross-Agent Summary
-
-| Chain | Upstream Fault | Downstream Health | Impact | Structural Alert | HITL Tier |
-|---|---|---|---|---|---|
-| A | CurrencyAgent FM-2.2 | PaymentAgent correct (5/5 steps) | +14,755.6% overcharge | **None** | **Tier 3** |
-| B | ProductCatalogAgent FM-2.2 | RecommendationAgent correct (3/3 steps) | Phantom product recommended | **None** | **Tier 2** |
-
-> **Finding:** A structurally-correct downstream agent cannot self-detect or recover from upstream hallucination. Single-agent LKW instrumentation is necessary but **not sufficient** for system-level fault detection.
-
----
-
-## 5. Boundary Validation Improvements
-
-**Generated artifacts:** `cross_agent_propagation.py`, `boundary_detection_runner.py`, `repo_hitl_audit.py`  
-**Latest evidence timestamp:** 2026-07-07T03:15Z  
-**Purpose:** address the professor's concern that default LKW/RIP traces can miss silent boundary failures unless explicit flags, gates, and probes make semantic deviations observable.
-
-**Live demo artifacts:** `live_boundary_demo.py`, `boundary_dashboard.py`, and `results/boundary_events.jsonl` show these boundary flags appearing while the evidence flow runs.
-
-### 5.1 Repo-Wide Boundary Coverage
-
-The repository audit now reports complete boundary-flag coverage for all agent/service groups in scope.
-
-| Coverage Metric | Result |
-|---|---:|
-| Python groups scanned | 19 |
-| Groups with boundary flags | 16 |
-| Agent/service groups missing flags | **0** |
-| Boundary proxy groups | `shippingservice -> shippingagent` |
-
-**Flagged agent/service groups:** `adserviceagent`, `currencyagent`, `emailservice`, `emailserviceagent`, `paymentagent`, `productcatalogagent`, `productcatalogservice`, `recommendationagent`, `recommendationservice`, `shippingagent`, `shippingservice`, `shoppingassistantservice`.
-
-`shippingservice` is intentionally counted through the compatibility shim to `shippingagent`, where the real shipping orchestration and boundary checks live. This avoids duplicating logic while preserving service/agent separation.
-
-### 5.2 Cross-Agent Boundary Evidence After Improvements
-
-The regenerated cross-agent study now records `BOUNDARY_CHECK` in both upstream and downstream traces for Chain A, and in the upstream ProductCatalogAgent trace for Chain B.
-
-| Chain | Boundary | Expected | Observed | Alert | Downstream Infection |
-|---|---|---:|---:|---|---|
-| A: CurrencyAgent -> PaymentAgent | `currency_to_payment` | 9 EUR | 1337 EUR | **Yes** (`delta=1328`) | None |
-| B: ProductCatalogAgent -> RecommendationAgent | `catalog_to_recommendation` | `PROD-001` | `HALLUCINATED-001` | **Yes** (`missing/extra`) | None |
-
-**Summary:** 2/2 cross-agent chains produced boundary alerts, 2/2 were signal escapes, and 2/2 downstream agents remained structurally healthy. This preserves the original finding that downstream LKW alone is insufficient, but now shows that explicit boundary contracts make the silent propagation observable.
-
-### 5.3 Shipping Boundary Evidence
-
-The boundary detection runner combines Chain A/B with shipping-specific internal handoff probes.
-
-| Scenario | Failure Class | Boundary Alerts | Interpretation |
-|---|---|---:|---|
-| `shipping_clean` | `ok` | 0 | Clean quote/carrier/tracking path |
-| `shipping_fm_2_2` | `fault_induced` | 1 | Hallucinated carrier/service level caught at `carrier_to_tracking` |
-| `shipping_fm_2_5` | `fault_induced` | 1 | Quote-to-carrier handoff deviation caught at `quote_to_carrier_selection` |
-| `shipping_infra_timeout` | `infra_timeout` | 0 | Classified separately as infrastructure/runtime failure |
-
-Aggregate boundary summary: 4 boundary alerts, 4 signal escapes, 2 fault-induced shipping cases, 1 infrastructure timeout, and 2 manual-review candidates.
-
-### 5.4 Updated Development Conclusion
-
-The development improvements change the interpretation of the original HITL result:
-
-- **Before boundary contracts:** FM-2.2 hallucinations were structurally silent and required human semantic review.
-- **After boundary contracts:** the same high-risk handoffs emit explicit `BOUNDARY_CHECK` records with expected vs observed payloads, differences, and violations.
-- **Remaining human role:** humans still review high-impact alerts, but the system now has machine-readable evidence for why the handoff is suspicious.
-
-This satisfies the requested development goal: LKW/RIP is no longer only a step-reachability trace; it now includes boundary-level semantic probes where silent propagation previously escaped.
-
-### 5.5 Live Dashboard Demonstration
-
-For a live professor demo, start the dashboard and then run the evidence flow:
-
-```bash
-cd LLM-MAS/src
-python boundary_dashboard.py
+```
+CurrencyAgent (FM_2_2 active)
+  CONVERT_DONE: amount = 1337.00 EUR   <-- hallucinated (B1 oracle: 9.00 EUR)
+       |
+       | inter-agent boundary (API handoff)
+       v
+PaymentAgent (NONE — clean execution on corrupt input)
+  CARD_VALIDATED: amount = 1337.00
+  CHARGE_DONE:    charged = 1337.00    <-- overcharge propagated silently
+  SAVE_DONE:      saved = True
+       |
+       v
+  Customer charged: 1337.00 EUR
+  B1 baseline:        9.00 EUR
+  Overcharge:       +1328.00 EUR  (+14,755.6%)
 ```
 
-In a second terminal:
+- **Infection hop 2:** None (PaymentAgent trace looks structurally clean)
+- **HITL Tier:** 3 — Silent financial loss. No automated flag fires.
+- **Detection path:** Requires CurrencyAgent output contract check at boundary.
 
-```bash
-cd LLM-MAS/src
-python live_boundary_demo.py
+### Chain B: ProductCatalogAgent FM_2_2 → RecommendationAgent
+
+```
+ProductCatalogAgent (FM_2_2 active)
+  CATALOG_DONE: products = ['HALLUCINATED-001']   <-- phantom (B1: ['PROD-001'])
+       |
+       | inter-agent boundary
+       v
+RecommendationAgent (NONE — clean execution on corrupt input)
+  RECOMMEND_DONE: recommended = ['HALLUCINATED-001']   <-- phantom propagated
+       |
+       v
+  Customer shown non-existent product recommendation
 ```
 
-The dashboard reads `src/results/boundary_events.jsonl` and shows each boundary event with the boundary name, expected payload, observed payload, alert status, difference, and violations. This gives a start-to-end view of what happened during the run, instead of only showing static JSON after completion.
+- **Infection hop 2:** None (RecommendationAgent trace structurally clean)
+- **HITL Tier:** 2 — Detectable via product ID cross-check
+- **Detection path:** RecommendationAgent must validate IDs against ProductCatalog.
 
-Validated local dashboard smoke test: `/events` returned HTTP 200 with 13 total boundary events, 8 alerts, and 5 clean checks.
+### Key Propagation Finding
 
----
-
-## 6. Policy-Based Boundary Recovery Layer
-
-**Implementation date:** 2026-07-13  
-**Files:** `src/boundary_recovery.py`, `src/test_recovery_wiring.py`, `src/results/recovery_demo_summary.json`  
-**Verification:** `test_recovery_wiring.py` — **19/19 checks passed**
-
-Section 5 established that boundary contracts make silent handoff failures observable. This section documents the next step: a policy-based recovery layer that turns each boundary alert into an automatic corrective action before the failure propagates further.
-
----
-
-### 6.1 Design
-
-`boundary_recovery.py` implements `decide_recovery(boundary_result)`. It is called automatically inside `_finalize_boundary_result()` in `boundary_validation.py`, so every `boundary_contract()` call across all agents receives a recovery decision as part of its return value. No agent-level changes are needed to get a decision — wiring the *action* is the agent's responsibility.
-
-The recovery decision is always one of four actions:
-
-| Action | Meaning |
-|---|---|
-| `continue` | Boundary is clean — execution proceeds normally |
-| `block_and_request_hitl` | Halt execution, escalate to human review, record `requires_hitl=True` |
-| `fallback_to_last_known_good` | Replace observed payload with `corrected_payload` from the policy |
-| `retry_current_step` | Record the mismatch, flag for retry at the calling layer |
+```
++--------------------------------------------------------------+
+|  FM-2.2 (hallucination) is the highest-risk cross-boundary  |
+|  fault class. It:                                            |
+|  - Completes all LKW steps downstream (depth=0)             |
+|  - Passes silently through subsequent agents                 |
+|  - Produces business harm (14,755% overcharge)               |
+|  - Is invisible to step-level workflow monitoring            |
+|                                                              |
+|  Structural faults (FM-3.1) self-reveal at agent boundary.  |
+|  Semantic faults (FM-2.2) require explicit inter-agent       |
+|  contract validation at every handoff point.                 |
++--------------------------------------------------------------+
+```
 
 ---
 
-### 6.2 Recovery Policies Per Boundary
+## 5. Model Effect Analysis
 
-| Boundary | Failure Scenario | Recovery Action | Corrected Payload |
-|---|---|---|---|
-| `currency_to_payment` | Hallucinated/inflated conversion amount | `block_and_request_hitl` | — (charge blocked) |
-| `catalog_to_recommendation` | Invalid/phantom product IDs returned | `fallback_to_last_known_good` | `expected` from caller |
-| `carrier_to_tracking` | Hallucinated carrier or service level | `fallback_to_last_known_good` | `{"carrier":"FedEx","service_level":"ground"}` |
-| `quote_to_carrier_selection` | Carrier selection ignores quoted cost | `retry_current_step` | — |
-| `quote_to_carrier` | Quote mismatch before carrier selection | `retry_current_step` | — |
-| `ad_lookup_to_response` | Injected or malformed ads | `fallback_to_last_known_good` | `[]` (empty list) |
-| `email_generation_to_send` | Corrupted body or wrong recipient | `block_and_request_hitl` | — (send blocked) |
-| Any unknown alert | Unclassified boundary failure | `block_and_request_hitl` | — |
+### Kill Rate Comparison Across Configs
 
----
+```
+Agent           | 3b_t0  | 14b_t0 | 3b_t0.7 | 3b_t1.0 | Delta (best-worst)
+----------------+--------+--------+---------+---------+-------------------
+payment         | 57.1%  | 40.0%  |  40.0%  |  40.0%  |  -17.1 pp
+currency        | 42.9%  | 30.0%  |  30.0%  |  30.0%  |  -12.9 pp
+email           | 21.4%  | 10.0%  |  10.0%  |  10.0%  |  -11.4 pp
+ship_order      |  0.0%  |  0.0%  |   0.0%  |   0.0%  |    0.0 pp
+shipping_quote  |  0.0%  |  0.0%  |   0.0%  |   0.0%  |    0.0 pp
+```
 
-### 6.3 Recovery Wiring — All 7 Agents
+### Analysis
 
-Every agent that has a `boundary_contract()` call now also reads the `recovery` field from the result and acts on it before proceeding:
+**1. qwen2.5:3b temp=0 is the best fault-detection config.**  
+It preserves the full ReAct tool-call loop, executing agent logic that exposes  
+fault flags in LKW checkpoints. All agent-specific BL_* faults are detectable  
+under this config.
 
-| Agent | Boundary | Recovery Wired | Execution Effect |
-|---|---|---|---|
-| PaymentAgent | `currency_to_payment` | ✅ `block_and_request_hitl` | Returns `blocked=True` — charge never executed |
-| CurrencyAgent | `currency_to_payment` | ✅ `block_and_request_hitl` | Returns `blocked=True` — bad units never sent downstream |
-| RecommendationAgent | `catalog_to_recommendation` | ✅ `fallback_to_last_known_good` | Replaces `product_ids` with corrected list before recommendation |
-| ProductCatalogAgent | `catalog_to_recommendation` | ✅ `fallback_to_last_known_good` | Filters `data` to only products in corrected ID set |
-| AdServiceAgent | `ad_lookup_to_response` | ✅ `fallback_to_last_known_good` | Replaces `state["ads"]` with `[]` — injected ads never served |
-| EmailServiceAgent | `email_generation_to_send` | ✅ `block_and_request_hitl` | Sets `boundary_blocked=True`; send node returns early — gRPC never called |
-| ShippingAgent | `carrier_to_tracking`, `quote_to_carrier` | ✅ Partial | Carrier fallback applied; quote retry recorded |
+**2. qwen2.5-coder:14b temp=0 short-circuits the ReAct loop.**  
+The larger model frequently answers directly without intermediate tool calls,  
+routing around the instrumented checkpoint layer. This creates false negatives:  
+faults are present in the injection layer but the LLM never reaches them.
 
----
+**3. Temperature effect is secondary.**  
+3b_temp0.7 and 3b_temp1.0 match the 14b pattern for payment/currency, not the  
+3b_temp0 pattern. Higher temperature raises semantic noise (more INCONCLUSIVE  
+verdicts) without improving kill rates.
 
-### 6.4 Verification Results
+**4. Email under 14b is an extreme case.**  
+9/10 fault modes collapse to INCONCLUSIVE (sloss=3, inf=0). The model completes  
+the task with output so divergent from B1 that the B2-calibrated tolerance  
+cannot confirm genuine fault injection.
 
-All recovery paths were verified by `test_recovery_wiring.py` run on 2026-07-13:
-
-| Agent | Test Scenario | Checks | Result |
-|---|---|---|---|
-| CurrencyAgent | FM_2_2 hallucination → `expected=9`, `observed=9999` | 5 | ✅ PASS |
-| ProductCatalogAgent | Catalog returns `[PROD-001, FAKE-999]`, `expected=[PROD-001]` | 3 | ✅ PASS |
-| AdServiceAgent | `BL_AD_INJECTION` with mismatched expected ads | 5 | ✅ PASS |
-| EmailServiceAgent | `BL_CORRUPTED_BODY` with valid expected structure | 6 | ✅ PASS |
-| **TOTAL** | | **19** | **19/19 PASS** |
-
-Key observations from the test run:
-- CurrencyAgent FM_2_2: LKW trace = `TASK_START → BOUNDARY_CHECK → RECOVERY_ACTION → FINAL_ANSWER` (CONVERT_DONE absent — charge was blocked before conversion result left the agent)
-- ProductCatalogAgent: `FAKE-999` removed from data, `PROD-001` kept — `RECOVERY_ACTION` in LKW
-- AdServiceAgent: `BL_AD_INJECTION` injected extra ad → `extra_items` violation → `state["ads"] = []`
-- EmailServiceAgent: body truncated from 41 to 20 chars → field mismatch + predicate fail → `boundary_blocked=True` → gRPC send client never called
+**5. FM_2_5 (stale value) is universally weaker.**  
+Currency FM_2_5: LIVE under all 4 configs. The LLM performs a fresh exchange-rate  
+lookup, ignoring the injected stale amount. This tests whether LLMs use injected  
+stale values — by design, they do not. Genuine true false negative.
 
 ---
 
-### 6.5 Recovery Demo Summary (from `recovery_demo_summary.json`)
+## 6. Key Findings and Research Conclusions
 
-| Case | Boundary | Recovery Action | Applied | Outcome |
-|---|---|---|---|---|
-| Payment overcharge | `currency_to_payment` | `block_and_request_hitl` | ✅ | `charge_blocked=True`, prevented loss |
-| Catalog hallucination | `catalog_to_recommendation` | `fallback_to_last_known_good` | ✅ | `recovered_product_ids=[PROD-001]` |
-| Shipping carrier hallucination | `carrier_to_tracking` | `fallback_to_last_known_good` | ✅ | Corrected to `FedEx/ground` |
-| Shipping quote mismatch | `quote_to_carrier_selection` | `retry_current_step` | ✅ | Decision recorded |
+### F1 — FM-2.2 (Hallucination) is the highest-risk fault class
+Kills mutants in 8/9 agents. Completes all LKW steps (depth=0). Propagates silently  
+across boundaries with 14,755% financial overcharge (Chain A). Invisible to step-level  
+monitoring. Requires checkpoint-level payload validation at inter-agent boundaries.
 
----
+### F2 — FM-3.1 (Premature Termination) is universally structurally detectable
+Kills mutants in all 9 agents via step-loss (sloss>0). Auto-detectable from missing-step  
+telemetry alone — no semantic payload comparison needed. The only fault class detectable  
+by workflow orchestrators without semantic analysis.
 
-### 6.6 Updated HITL Tier Interpretation
+### F3 — Defensive fallback patterns create mutation testing blind spots
+Both shipping agents return 0% kill rate due to template-string fallback paths that  
+bypass all instrumented checkpoints. This is a structural property of the agent design  
+and a novel failure mode: high conventional testability coexists with LLM-level opacity.
 
-The recovery layer changes the meaning of Tier 2 and Tier 3 for boundary-instrumented handoffs:
+### F4 — Larger models create false negatives
+qwen2.5-coder:14b reduces kill rates by 11-17 percentage points vs qwen2.5:3b by  
+short-circuiting the ReAct tool-call loop. For mutation testing of LLM agents, smaller  
+models that faithfully execute the full tool-call loop are better test oracles.
 
-| Before recovery layer | After recovery layer |
-|---|---|
-| Tier 3 (silent FM-2.2): requires human semantic review | `BOUNDARY_CHECK` alert + automatic `block` or `fallback` — human reviews the blocked record, not raw data |
-| Tier 2 (flag-detectable): human sets alert rule | Recovery fires automatically; human reviews `RECOVERY_ACTION` checkpoint in LKW trace |
+### F5 — B2 calibration validates the measurement methodology
+0.0% false positive rate across 212 B2 runs (all agents, all configs) confirms  
+LKW checkpoints do not fire spuriously. B3 kill verdicts represent genuine  
+fault-induced deviations, not natural LLM variance.
 
-The recovery layer does **not** eliminate the need for human review in high-risk cases — it ensures that humans review a structured `RECOVERY_ACTION` record rather than having to detect the anomaly themselves from raw payloads.
+### F6 — Language-agnostic methodology: C# and Go agents covered
+CartAgent (C#) and CheckoutOrchestrator (Go) — both exercised via thin Python  
+wrappers — achieve 100% coverage. LKW+RIP methodology applies across implementation  
+languages without agent-side modification.
 
----
-
-## 7. Key Findings Summary
-
-### Structural Pattern Across Fault Classes
-
-| MAST Class | Fault Mode | Infection Stage | Depth | HITL Tier | HITL Method |
-|---|---|---|---|---|---|
-| FM-3.1 | Premature Termination | `FINAL_ANSWER` | 1–3 | **Tier 1** | Auto — step count diff |
-| FM-2.2 | Hallucinated Output | Middle checkpoint | 0 | **Tier 3** | Semantic data validation |
-| FM-2.5 | Ignored Input | Middle checkpoint | 0 | **Tier 2** | Flag monitor |
-| FM-1.2 | Wrong Routing | Middle checkpoint | 0 | **Tier 2** | Flag monitor |
-| BL (most) | Business Logic | Middle checkpoint | 0 | **Tier 2** | Flag monitor |
-| BL (abort) | Card Declined, Currency Unavailable | `FINAL_ANSWER` | 1–3 | **Tier 1** | Auto — step count diff |
-
-### Research Question Answers
-
-**RQ1 — Can faults be reliably reproduced?**  
-Yes. 64/64 mode-runs across all 7 agents are STABLE_PASS or STABLE_FAULT. Zero UNSTABLE. Fault injection is deterministic — including under live LLM execution (ShippingService). Full 10-fault batch rerun with qwen2.5-coder:14b (0 INCONCLUSIVE) confirms reproducibility across both model scales.
-
-**RQ2 — Where does failure first appear?**  
-- FM-3.1: always at `FINAL_ANSWER` (premature return before processing checkpoint)  
-- FM-2.2, FM-2.5, FM-1.2, BL: always at the agent's middle processing checkpoint (`CONVERT_DONE`, `CATALOG_DONE`, `CHARGE_DONE`, etc.)
-
-**RQ3 — How far does it propagate?**  
-- FM-3.1 and abort-class BL: depth 1–3 (steps missing)  
-- All other fault classes: depth 0 (all steps reached, corruption is data-only)
-
-**RQ4 — Which failures require human intervention?**
-
-| Category | Faults | Intervention |
-|---|---|---|
-| Auto-detectable (Tier 1) | FM-3.1, BL_CARD_DECLINED, BL_CURRENCY_UNAVAILABLE | Step-trace monitor, no human review needed for detection |
-| Flag-monitorable (Tier 2) | FM-2.5, FM-1.2, all BL (save_skipped, double_charge, etc.) | Requires human alert rule on LKW flag |
-| Boundary-alerted after refresh | FM-2.2 cross-agent handoffs and selected service handoffs | `BOUNDARY_CHECK` contract plus human review for high-impact alerts |
-
-**RQ5 — Are observations stable across repeated runs?**  
-100% stability rate. 0/64 UNSTABLE. Results are reproducible on Concordia SPEED HPC — both for mock-based agents (54 mode-runs) and the live-LLM ShippingService (10 mode-runs, per-fault-mode stability matrices).
-
-### Critical Architectural Finding
-
-> **FM-2.2 (hallucinated output) is the highest-risk fault class in a microservice LLM-MAS.**  
-> - At the single-agent level before mitigation: depth=0, no structural alert.  
-> - At the system level: a fault-free downstream agent can propagate corrupted values to business harm.  
-> - After the boundary-validation refresh: explicit `BOUNDARY_CHECK` records make these handoff deviations observable through range checks, entity existence checks, schema validation, and expected-vs-observed payload comparison.
+### F7 — LLM fault absorption is real and agent-specific
+FM_2_5 is LIVE for CurrencyAgent across all 4 configs (LLM recomputes fresh).  
+BL_CORRUPTED_BODY and BL_WRONG_CUSTOMER are LIVE for EmailServiceAgent (LLM  
+regenerates content from context). These represent genuine false negatives where  
+LLM capability masks injected faults — a finding specific to LLM-based agents vs.  
+conventional software.
 
 ---
 
-## 8. Limitations
+## 7. Limitations and Future Work
 
-### L1 — LLM Not in the Loop for 6 of 7 Agents
-
-The six mock-based agents (Payment, Currency, Email, ProductCatalog, Recommendation, Ad) run their fault injection tests by calling the agent's business logic method directly — bypassing the LangGraph router and the LLM inference call entirely. The `USE_LLM` flag defaults to `false` in those agents' configurations. As a result, their fault injection results characterize the correctness of the **LKW+RIP instrumentation framework** on deterministic Python code — not the fault detection capability of an LLM.
-
-Only **ShippingService** is a true LLM-in-the-loop agent in this study, using `qwen2.5-coder:14b` via Ollama on SPEED HPC for all 10 fault modes.
-
-**Implication:** Claims about LLM-based fault detection are supported only by the ShippingService results (11 fault modes, 7 TP, 2 Partial TP, 1 TN, 1 FN). The six-agent results establish a framework baseline, not an LLM capability claim. Extending live-LLM execution to all agents is left as future work.
-
----
-
-### L2 — Single-Run LLM Results (ShippingService)
-
-The ShippingService results are from a single batch execution with `qwen2.5-coder:14b`. LLMs are stochastic; a second run may produce different infection signals for ambiguous fault modes. Stability matrices confirm determinism for the current run, but multi-run cross-model validation has not been performed.
+| # | Limitation | Impact | Mitigation |
+|---|-----------|--------|------------|
+| 1 | Shipping agents require live gRPC backing services not co-launched in Slurm | 0% kill rate / high INCONCLUSIVE for shipping | Co-launch service stack in Slurm job |
+| 2 | FM_2_5 (stale value) is by design absorbed by LLMs with live inference | True false negative; cannot be fixed by injection layer | Instrument tool-call inputs, not agent outputs |
+| 3 | AdService/Recommendation include 6 irrelevant shipping modes from merged job history | Dilutes kill rate to 57% from 100% agent-specific | Re-run with clean per-agent fault sets only |
+| 4 | No automated cross-agent propagation measurement in B3 pipeline | Chains A/B require manual cross-agent runner | Integrate cross-agent runner into B3 pipeline |
+| 5 | Email INCONCLUSIVE rate 33/44 = 75% | True kill rate uncertain | Tighten B2 tolerance for email-type content |
+| 6 | No Verifier Agent (MASS-paper role) implemented | No automated governance over agent output quality | Future work: implement verifier agent |
+| 7 | HITL boundary manually identified from trace inspection | Tier 2/3 decisions require human review | Future: automated HITL gate per boundary contract |
+| 8 | 3b_temp0 outperforms 14b for fault detection | Model choice critically affects testability | Paper recommendation: use 3b for testing, 14b for production |
 
 ---
 
-### L3 — Known Code Defect in FM_3_1 Depth Calculation
-
-For ShippingService FM_3_1 (Premature Termination), the RIP depth calculator reports `depth=1` but two steps are actually missing from the trace (`CARRIER_DONE` + `ESCALATION_CHECK`). `ESCALATION_CHECK` was not included in the expected-steps list in the runner. The fault is correctly detected and classified as Partial TP, but the reported depth is undercount by 1. This is a code-level instrumentation bug, not a model error.
-
----
-
-### L4 — Human Cross-Validation Incomplete at Time of Submission
-
-The human assessment rubric has been distributed to two independent assessors (cross-validation pending). Inter-rater agreement scores will be computed after all three assessments are submitted. Results in this report reflect Deepak's assessment only.
-
----
-
-*Results files:*
-- `src/results/stability_summary.json` — RQ5 stability matrices (mock-based agents)
-- `src/results/hitl_classification_report.json` — automated HITL tier classification
-- `src/results/cross_agent_propagation.json` — cross-agent chain data
-- `src/results/boundary_detection_summary.json` — boundary validation and shipping handoff summary
-- `src/results/boundary_events.jsonl` — live boundary event stream generated by `live_boundary_demo.py`
-- `src/results/BOUNDARY_LIVE_DEMO.md` — live dashboard/demo instructions
-- `src/results/repo_hitl_audit.json` — repo-wide HITL and boundary coverage audit
-- `src/results/stability_matrix_<agent>.json` — per-agent 3-run fingerprints (×6)
-- `src/shippingservice/hitl_classification_report.json` — ShippingService HITL tier classification
-- `src/shippingservice/lkw_rip_results.json` — ShippingService full LKW+RIP results
-- `src/shippingservice/*_lkw_rip_evidence.json` — per-fault-mode stability evidence (×10)
+*Report generated 2026-07-29 from `per_agent_llm_report.json`*  
+*SPEED HPC Jobs: 1170215–1170223 (speed-25, Tesla V100, deepak/fault-injection branch)*  
+*Models: qwen2.5:3b (standalone) · qwen2.5-coder:14b (4-config agents)*

@@ -104,7 +104,7 @@ start_productcatalog_service() {
         env \
         PRODUCT_CATALOG_JSON="${SRCDIR}/productcatalogservice/products.json" \
         GRPC_PORT="$port" \
-        PYTHONPATH="${SRCDIR}:${SRCDIR}/productcatalogservice" \
+        PYTHONPATH="${SRCDIR}:${SRCDIR}/productcatalogservice:${SRCDIR}/productcatalogservice/proto" \
         "$PYTHON" server.py
     wait_for_tcp_port 127.0.0.1 "$port" "productcatalogservice" 60 || return 1
 }

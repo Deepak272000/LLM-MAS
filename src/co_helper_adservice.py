@@ -4,6 +4,7 @@ import importlib
 import json
 import os
 import sys
+import types
 from pathlib import Path
 
 SRC = Path(__file__).parent
@@ -24,18 +25,48 @@ os.environ["LLAMA_TEMPERATURE"] = str(temperature)
 
 import app.fault_injection as fi_mod
 importlib.reload(fi_mod)
+
+langgraph_mod = types.ModuleType("langgraph")
+langgraph_graph_mod = types.ModuleType("langgraph.graph")
+
+
+class _DummyStateGraph:
+    def __init__(self, *_args, **_kwargs):
+        pass
+
+    def add_node(self, *_args, **_kwargs):
+        pass
+
+    def set_entry_point(self, *_args, **_kwargs):
+        pass
+
+    def add_edge(self, *_args, **_kwargs):
+        pass
+
+    def compile(self):
+        return None
+
+
+langgraph_graph_mod.StateGraph = _DummyStateGraph
+langgraph_graph_mod.END = "__end__"
+langgraph_mod.graph = langgraph_graph_mod
+sys.modules.setdefault("langgraph", langgraph_mod)
+sys.modules["langgraph.graph"] = langgraph_graph_mod
+
 import app.graph as graph_mod
 importlib.reload(graph_mod)
 
-graph = graph_mod.build_graph()
 state = {
     "instruction": payload.get("instruction", "show me some clothing ads"),
     "context_keys": payload.get("context_keys", []),
     "handoff_contract": payload.get("handoff_contract"),
 }
-result = graph.invoke(state)
+
+state = graph_mod.input_node(state)
+state = graph_mod.ad_lookup_node(state)
+state = graph_mod.output_node(state)
 
 lkw = fi_mod.get_lkw()
-final_response = result.get("final_response", {}) if isinstance(result, dict) else {}
-ads = final_response.get("ads", result.get("ads", []) if isinstance(result, dict) else [])
+final_response = state.get("final_response", {}) if isinstance(state, dict) else {}
+ads = final_response.get("ads", state.get("ads", []) if isinstance(state, dict) else [])
 print(json.dumps({"lkw": lkw, "ads": ads, "fault_mode": fault_mode}))

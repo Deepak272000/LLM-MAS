@@ -1,4 +1,4 @@
-"""Recommendation helper — live LLM graph path with optional boundary handoff."""
+"""Recommendation helper — live LLM orchestrator path with optional boundary handoff."""
 
 import importlib
 import json
@@ -23,22 +23,16 @@ os.environ["LLAMA_TEMPERATURE"] = str(temperature)
 
 import app.fault_injection as fi_mod
 importlib.reload(fi_mod)
-import app.graph as graph_mod
-importlib.reload(graph_mod)
+import app.orchestrator as orch_mod
+importlib.reload(orch_mod)
 
-graph = graph_mod.build_graph()
-state = {
-    "query": payload.get("query", "recommend related products for this cart"),
-    "user_id": payload.get("user_id", "user-001"),
-    "product_ids": payload.get("product_ids", ["PROD-001"]),
-    "handoff_contract": payload.get("handoff_contract"),
-    "total_input_tokens": 0,
-    "total_output_tokens": 0,
-    "total_llm_calls": 0,
-}
-result = graph.invoke(state)
+orch = orch_mod.RecommendationOrchestrator()
+result = orch.recommend(
+    product_ids=payload.get("product_ids", ["PROD-001"]),
+    user_id=payload.get("user_id", "user-001"),
+    capture_partial_trace=True,
+)
 
-raw_result = result.get("result") or result.get("raw_result") or {}
-lkw = raw_result.get("lkw", [])
-recommended = raw_result.get("recommended_product_ids", [])
+lkw = result.get("_lkw", {}).get("checkpoints", [])
+recommended = result.get("product_ids", [])
 print(json.dumps({"lkw": lkw, "recommended_product_ids": recommended, "fault_mode": fault_mode}))

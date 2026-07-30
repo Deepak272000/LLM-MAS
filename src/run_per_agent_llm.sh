@@ -23,7 +23,7 @@
 #
 #  Agents (all Python agent roles currently in scope):
 #    productcatalog, currency, payment, email, recommendation,
-#    adservice, shipping_quote, ship_order
+#    adservice, shipping_quote, ship_order, cart, checkout
 #
 #  Model configs:
 #    14b_temp0   qwen2.5-coder:14b  temp=0.0  (Retail-bench)
@@ -123,6 +123,13 @@ elif [ "${AGENT}" = "recommendation" ]; then
 elif [ "${AGENT}" = "adservice" ]; then
     echo "  Starting live backend services for adservice ..."
     start_required_live_services adservice
+elif [ "${AGENT}" = "checkout" ]; then
+    # checkout orchestrator calls sub-helpers (productcatalog, currency, payment,
+    # email, shipping) as Python subprocesses — no live gRPC services needed.
+    echo "  checkout: sub-helpers are Python subprocesses — no live gRPC startup needed."
+elif [ "${AGENT}" = "cart" ]; then
+    # cart agent calls Ollama directly — no gRPC services needed.
+    echo "  cart: direct Ollama call — no live gRPC startup needed."
 fi
 echo ""
 

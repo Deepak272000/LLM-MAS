@@ -28,10 +28,16 @@ Two benchmark configurations (professor's "two benchmarks"):
                  qwen2.5:3b        @ temp=0.7  (label: 3b_temp0.7)
                  qwen2.5:3b        @ temp=1.0  (label: 3b_temp1.0)
 
-Fault modes (10 total — same as b3_runner.py):
-  General:  FM_3_1 FM_1_2 FM_2_2 FM_2_5
-  Business: BL_SHIPMENT_LOST BL_INVENTORY_MISMATCH BL_VENDOR_NEGOTIATION
-            BL_CUSTOMER_ESCALATION BL_REFUND_REASONING BL_COMPLIANCE_AMBIGUITY
+Fault modes — AGENT-SPECIFIC (from RESULTS_REPORT.md):
+  General (all agents):  FM_3_1 FM_1_2 FM_2_2 FM_2_5
+  payment:   BL_TRANSACTION_LOST BL_DOUBLE_CHARGE BL_AMOUNT_TAMPERING BL_CARD_DECLINED
+  currency:  BL_RATE_MANIPULATION BL_CURRENCY_UNAVAILABLE BL_STALE_RATE BL_CONVERSION_OVERFLOW
+  email:     BL_SEND_SKIPPED BL_DOUBLE_SEND BL_CORRUPTED_BODY BL_WRONG_CUSTOMER
+  productcatalog: BL_PRICE_MANIPULATION BL_PRODUCT_MISSING BL_DUPLICATE_PRODUCT BL_WRONG_CATEGORY
+  recommendation: BL_EMPTY_RECS BL_SELF_RECOMMENDATION BL_INJECTION_RECS BL_SHUFFLED_RECS
+  adservice: BL_EMPTY_ADS BL_AD_INJECTION BL_WRONG_URL BL_DUPLICATE_ADS
+  shipping/cart/checkout: BL_SHIPMENT_LOST BL_INVENTORY_MISMATCH BL_VENDOR_NEGOTIATION
+                          BL_CUSTOMER_ESCALATION BL_REFUND_REASONING BL_COMPLIANCE_AMBIGUITY
 
 Output:
   results/per_agent_llm/b2/<agent>_<cfg>_none_run<n>.json
@@ -82,12 +88,71 @@ RESULTS.mkdir(parents=True, exist_ok=True)
 B2_RAW_DIR.mkdir(parents=True, exist_ok=True)
 B3_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-# ── Fault modes ───────────────────────────────────────────────────────────────
-ALL_FAULT_MODES = [
-    "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
-    "BL_SHIPMENT_LOST", "BL_INVENTORY_MISMATCH", "BL_VENDOR_NEGOTIATION",
-    "BL_CUSTOMER_ESCALATION", "BL_REFUND_REASONING", "BL_COMPLIANCE_AMBIGUITY",
-]
+# ── Fault modes — agent-specific (from RESULTS_REPORT.md) ────────────────────
+# General structural faults apply to ALL agents.
+# Business-logic faults are AGENT-SPECIFIC — each agent's fault_injection.py
+# only implements its own BL_* modes; shipping modes don't fire in payment etc.
+AGENT_FAULT_MODES: dict[str, list[str]] = {
+    "productcatalog": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_PRICE_MANIPULATION", "BL_PRODUCT_MISSING",
+        "BL_DUPLICATE_PRODUCT", "BL_WRONG_CATEGORY",
+    ],
+    "currency": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_RATE_MANIPULATION", "BL_CURRENCY_UNAVAILABLE",
+        "BL_STALE_RATE", "BL_CONVERSION_OVERFLOW",
+    ],
+    "payment": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_TRANSACTION_LOST", "BL_DOUBLE_CHARGE",
+        "BL_AMOUNT_TAMPERING", "BL_CARD_DECLINED",
+    ],
+    "email": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_SEND_SKIPPED", "BL_DOUBLE_SEND",
+        "BL_CORRUPTED_BODY", "BL_WRONG_CUSTOMER",
+    ],
+    "recommendation": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_EMPTY_RECS", "BL_SELF_RECOMMENDATION",
+        "BL_INJECTION_RECS", "BL_SHUFFLED_RECS",
+    ],
+    "adservice": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_EMPTY_ADS", "BL_AD_INJECTION",
+        "BL_WRONG_URL", "BL_DUPLICATE_ADS",
+    ],
+    "shipping_quote": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_SHIPMENT_LOST", "BL_INVENTORY_MISMATCH",
+        "BL_VENDOR_NEGOTIATION", "BL_CUSTOMER_ESCALATION",
+        "BL_REFUND_REASONING", "BL_COMPLIANCE_AMBIGUITY",
+    ],
+    "ship_order": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_SHIPMENT_LOST", "BL_INVENTORY_MISMATCH",
+        "BL_VENDOR_NEGOTIATION", "BL_CUSTOMER_ESCALATION",
+        "BL_REFUND_REASONING", "BL_COMPLIANCE_AMBIGUITY",
+    ],
+    "cart": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_SHIPMENT_LOST", "BL_INVENTORY_MISMATCH",
+        "BL_VENDOR_NEGOTIATION", "BL_CUSTOMER_ESCALATION",
+        "BL_REFUND_REASONING", "BL_COMPLIANCE_AMBIGUITY",
+    ],
+    "checkout": [
+        "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+        "BL_SHIPMENT_LOST", "BL_INVENTORY_MISMATCH",
+        "BL_VENDOR_NEGOTIATION", "BL_CUSTOMER_ESCALATION",
+        "BL_REFUND_REASONING", "BL_COMPLIANCE_AMBIGUITY",
+    ],
+}
+
+# Union of all fault modes (used for --fault-mode CLI and merge-report parsing)
+ALL_FAULT_MODES: list[str] = sorted({
+    fm for modes in AGENT_FAULT_MODES.values() for fm in modes
+})
 
 # ── B1 oracle — gRPC microservice ground truth per agent ─────────────────────
 # These are the deterministic values a real microservice returns.
@@ -140,6 +205,21 @@ B1_ORACLE = {
         "key_fields":        {},   # tracking_id is random — checked for presence only
         "infection_flags":   ["hallucinated", "tracking_missing", "shipment_lost",
                               "premature_termination"],
+    },
+    "cart": {
+        "expected_steps":    ["TASK_START", "ITEM_ADDED", "QUANTITY_MERGED",
+                              "CART_READ", "FINAL_ANSWER"],
+        "key_fields":        {},
+        "infection_flags":   ["fault_injected", "hallucinated", "qty_overflow",
+                              "cart_lost", "stale_qty", "input_ignored"],
+    },
+    "checkout": {
+        "expected_steps":    ["TASK_START", "PRODUCT_FETCHED", "CURRENCY_CONVERTED",
+                              "SHIPPING_QUOTED", "PAYMENT_CHARGED",
+                              "ORDER_SHIPPED", "CONFIRMATION_SENT", "FINAL_ANSWER"],
+        "key_fields":        {},
+        "infection_flags":   ["hallucinated", "premature_termination", "order_id_missing",
+                              "tracking_missing", "amount_tampered", "tool_skipped"],
     },
 }
 
@@ -211,6 +291,27 @@ def _make_payload(agent: str, fault_mode: str, model: str,
                         "state": "QC", "country": "Canada", "zip_code": "H3A 0A1"},
             "items":   [{"product_id": "PROD-001", "quantity": 2, "weight_kg": 1.5}],
         })
+    elif agent == "cart":
+        base.update({
+            "user_id":      "user-001",
+            "product_id":  "PROD-001",
+            "existing_qty": 2,
+            "incoming_qty": 3,
+        })
+    elif agent == "checkout":
+        base.update({
+            "user_id":                      "user-checkout-001",
+            "user_currency":               "USD",
+            "email":                       "customer@example.com",
+            "user_name":                   "Test Customer",
+            "address": {"street_address": "123 Main St", "city": "Montreal",
+                        "state": "QC", "country": "Canada", "zip_code": "H3A 0A1"},
+            "items":   [{"product_id": "PROD-001", "quantity": 2, "weight_kg": 1.5}],
+            "credit_card_number":          "4111111111111111",
+            "credit_card_cvv":             123,
+            "credit_card_expiration_year":  2030,
+            "credit_card_expiration_month": 12,
+        })
     return base
 
 
@@ -224,15 +325,19 @@ def _co_helper_script(agent: str) -> Path:
         "adservice":      SRC / "co_helper_adservice.py",
         "shipping_quote": SRC / "co_helper_shipping.py",
         "ship_order":     SRC / "co_helper_shipping.py",
+        "cart":           SRC / "co_helper_cart.py",
+        "checkout":       SRC / "co_helper_checkout_orchestrator.py",
     }
     return mapping[agent]
 
 
 # Shipping agents run a multi-step ReAct loop (quote+carrier+tracking = 3+ LLM calls).
 # Each 14b call on V100 can take 30-90s, so 90s is consistently too short.
+# Checkout orchestrator calls 6 sub-helpers in sequence — each up to 300s.
 _AGENT_TIMEOUT: dict[str, int] = {
     "shipping_quote": 600,
     "ship_order":     600,
+    "checkout":       1800,  # 6 sub-helpers × up to 300s each
 }
 
 # ── Core runner ───────────────────────────────────────────────────────────────
@@ -571,7 +676,8 @@ def main():
     ]
     cfgs   = [c for c in all_cfgs if args.cfg is None or c["label"] == args.cfg]
     agents = [args.agent] if args.agent else list(B1_ORACLE.keys())
-    faults = [args.fault_mode] if args.fault_mode else ALL_FAULT_MODES
+    # faults: if --fault-mode specified, use it for all agents; else per-agent specific list
+    force_fault = args.fault_mode  # None means use per-agent list
 
     print("=" * 70)
     print("  PER-AGENT LLM FAULT INJECTION RUNNER")
@@ -579,7 +685,8 @@ def main():
     print(f"  Agents : {agents}")
     print(f"  Configs: {[c['label'] for c in cfgs]}")
     print(f"  B2 runs: {args.b2_runs} × NONE")
-    print(f"  B3 runs: {args.b3_runs} × {len(faults)} fault modes")
+    print(f"  B3 mode: {'forced=' + force_fault if force_fault else 'agent-specific fault lists'}")
+    print(f"  B3 runs: {args.b3_runs} per fault mode")
     print(f"  Started: {datetime.now(timezone.utc).isoformat()}")
     print("=" * 70)
 
@@ -608,8 +715,10 @@ def main():
     if not args.b2_only:
         print("\n  [PHASE B3] Fault Injection — Mutation Detection (USE_LLM=true, faults)")
         for agent in agents:
+            # Use agent-specific fault modes unless --fault-mode is forced
+            faults = [force_fault] if force_fault else AGENT_FAULT_MODES.get(agent, ALL_FAULT_MODES)
             for cfg in cfgs:
-                print(f"\n  Agent: {agent} | Config: {cfg['label']}", flush=True)
+                print(f"\n  Agent: {agent} | Config: {cfg['label']} | Faults: {faults}", flush=True)
                 for fm in faults:
                     print(f"    [{fm}] {args.b3_runs} runs ...", flush=True)
                     key  = f"{agent}__{cfg['label']}__{fm}"

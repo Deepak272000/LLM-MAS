@@ -18,9 +18,6 @@ from concurrent import futures
 import hipstershop_pb2
 import hipstershop_pb2_grpc
 
-# Import the compiled LangGraph graph
-from catalog_graph import graph
-
 try:
     from boundary_validation import boundary_contract
 except ImportError:  # pragma: no cover - fallback for standalone service container
@@ -122,6 +119,8 @@ class ProductCatalogService(hipstershop_pb2_grpc.ProductCatalogServiceServicer):
     def SearchProducts(self, request, context):
         try:
             print(f"[server] SearchProducts called: query={request.query!r}")
+            from catalog_graph import graph
+
             output = graph.invoke({"query": request.query})
             print(f"[server] Graph output: {output}")
 

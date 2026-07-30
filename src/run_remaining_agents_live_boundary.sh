@@ -8,7 +8,7 @@
 #SBATCH --partition=pt
 #SBATCH --gres=gpu:1
 
-set -uo pipefail
+set -euo pipefail
 
 SCRATCH="/speed-scratch/${USER}"
 SRCDIR="${SCRATCH}/LLM-MAS/src"
@@ -16,6 +16,8 @@ VENV="${SCRATCH}/LLM-MAS/src/shippingservice/.venv"
 PYTHON="${VENV}/bin/python"
 LOGDIR="${SCRATCH}/logs"
 mkdir -p "${LOGDIR}" "${SRCDIR}/results"
+
+source "${SRCDIR}/live_service_stack.sh"
 
 export OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434}"
 export MODEL_3B="${MODEL_3B:-qwen2.5:3b}"
@@ -38,6 +40,10 @@ if curl -sf "${OLLAMA_URL}/api/tags" > /dev/null 2>&1; then
 else
     echo "  WARNING: Ollama not reachable — live boundary runs will fail."
 fi
+echo ""
+
+echo "  Starting live backend services for boundary evidence ..."
+start_required_live_services boundary
 echo ""
 
 echo "  Running: python remaining_agents_live_boundary.py"

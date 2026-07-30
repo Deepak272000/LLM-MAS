@@ -59,7 +59,7 @@
 #    tail -f /speed-scratch/$USER/logs/per_agent_llm_<JOBID>.log
 # =============================================================================
 
-set -uo pipefail
+set -euo pipefail
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SCRATCH="/speed-scratch/${USER}"
@@ -68,6 +68,8 @@ VENV="${SCRATCH}/LLM-MAS/src/shippingservice/.venv"
 PYTHON="${VENV}/bin/python"
 LOGDIR="${SCRATCH}/logs"
 mkdir -p "${LOGDIR}" "${SRCDIR}/results/per_agent_llm/b2" "${SRCDIR}/results/per_agent_llm/b3"
+
+source "${SRCDIR}/live_service_stack.sh"
 
 # ── Ollama / model config ─────────────────────────────────────────────────────
 export OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434}"
@@ -108,6 +110,19 @@ if curl -sf "${OLLAMA_URL}/api/tags" > /dev/null 2>&1; then
 else
     echo "  WARNING: Ollama not reachable — LLM calls will fail."
     echo "  Start Ollama before submitting: ollama serve &"
+fi
+echo ""
+
+# ── Start live backend services when this agent needs them ───────────────────
+if [ -z "${AGENT}" ]; then
+    echo "  Starting live backend services for full campaign ..."
+    start_required_live_services all
+elif [ "${AGENT}" = "recommendation" ]; then
+    echo "  Starting live backend services for recommendation ..."
+    start_required_live_services recommendation
+elif [ "${AGENT}" = "adservice" ]; then
+    echo "  Starting live backend services for adservice ..."
+    start_required_live_services adservice
 fi
 echo ""
 

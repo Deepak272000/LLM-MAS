@@ -63,16 +63,24 @@ cleanup_live_services() {
     done
 }
 
+ensure_grpcio_compatible() {
+    # Force grpcio>=1.80.0 — required by generated stubs in recommendationagent/adserviceagent clients.
+    # Must be called AFTER any service-specific requirements.txt installs that may downgrade grpcio.
+    echo "  Pinning grpcio>=1.80.0 (generated stubs requirement) ..."
+    "$PYTHON" -m pip install -q --upgrade "grpcio>=1.80.0" "grpcio-health-checking>=1.76.0"
+}
+
 ensure_recommendation_python_deps() {
     echo "  Ensuring recommendation service Python dependencies ..."
     "$PYTHON" -m pip install -q -r "${SRCDIR}/recommendationservice/requirements.txt"
+    ensure_grpcio_compatible
 }
 
 ensure_productcatalog_python_deps() {
     echo "  Ensuring productcatalogservice Python dependencies ..."
     "$PYTHON" -m pip install -q \
-        "grpcio==1.78.0" \
-        "grpcio-tools==1.78.0" \
+        "grpcio>=1.80.0" \
+        "grpcio-tools>=1.78.0" \
         "protobuf==6.33.2"
 }
 
@@ -82,6 +90,16 @@ ensure_adservice_built() {
         echo "  adservice: existing build found"
         return 0
     fi
+
+    # Try to load a Java 17 or 11 module if available (Lmod-based HPC clusters)
+    if command -v module >/dev/null 2>&1; then
+        module load java/17 2>/dev/null || \
+        module load java/openjdk17 2>/dev/null || \
+        module load java/11 2>/dev/null || \
+        module load java/openjdk11 2>/dev/null || \
+        true
+    fi
+    echo "  adservice: $(java -version 2>&1 | head -1)"
 
     echo "  adservice: building installDist ..."
     (

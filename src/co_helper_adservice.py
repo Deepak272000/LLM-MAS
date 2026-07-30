@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import types
+import urllib.request
 from pathlib import Path
 
 SRC = Path(__file__).parent
@@ -20,11 +21,50 @@ temperature = float(payload.get("temperature", 0.0))
 os.environ["FAULT_MODE"] = fault_mode
 os.environ["USE_LLM"] = "true"
 os.environ["OLLAMA_BASE_URL"] = ollama_url
+os.environ["OLLAMA_MODEL"] = model
 os.environ["LLAMA_MODEL"] = model
 os.environ["LLAMA_TEMPERATURE"] = str(temperature)
 
 import app.fault_injection as fi_mod
 importlib.reload(fi_mod)
+
+
+class _ShimResponse:
+    def __init__(self, content: str, prompt_tokens: int = 0, eval_tokens: int = 0):
+        self.content = content
+        self.usage_metadata = {
+            "input_tokens": prompt_tokens,
+            "output_tokens": eval_tokens,
+            "total_tokens": prompt_tokens + eval_tokens,
+        }
+
+
+class _ShimChatOllama:
+    def __init__(self, model_name: str, base_url: str, temp: float):
+        self.model_name = model_name
+        self.base_url = base_url.rstrip("/")
+        self.temp = temp
+
+    def invoke(self, prompt: str):
+        body = json.dumps({
+            "model": self.model_name,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": self.temp},
+        }).encode("utf-8")
+        request = urllib.request.Request(
+            self.base_url + "/api/generate",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=90) as response:
+            payload_data = json.loads(response.read().decode("utf-8"))
+        return _ShimResponse(
+            payload_data.get("response", ""),
+            int(payload_data.get("prompt_eval_count") or 0),
+            int(payload_data.get("eval_count") or 0),
+        )
 
 langgraph_mod = types.ModuleType("langgraph")
 langgraph_graph_mod = types.ModuleType("langgraph.graph")
@@ -52,6 +92,19 @@ langgraph_graph_mod.END = "__end__"
 langgraph_mod.graph = langgraph_graph_mod
 sys.modules.setdefault("langgraph", langgraph_mod)
 sys.modules["langgraph.graph"] = langgraph_graph_mod
+
+llm_pkg = types.ModuleType("app.llm")
+llm_mod = types.ModuleType("app.llm.qwen")
+
+
+def get_qwen_llm():
+    return _ShimChatOllama(model, ollama_url, temperature)
+
+
+llm_mod.get_qwen_llm = get_qwen_llm
+llm_pkg.qwen = llm_mod
+sys.modules.setdefault("app.llm", llm_pkg)
+sys.modules["app.llm.qwen"] = llm_mod
 
 import app.graph as graph_mod
 importlib.reload(graph_mod)

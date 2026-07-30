@@ -68,6 +68,14 @@ ensure_recommendation_python_deps() {
     "$PYTHON" -m pip install -q -r "${SRCDIR}/recommendationservice/requirements.txt"
 }
 
+ensure_productcatalog_python_deps() {
+    echo "  Ensuring productcatalogservice Python dependencies ..."
+    "$PYTHON" -m pip install -q \
+        "grpcio==1.78.0" \
+        "grpcio-tools==1.78.0" \
+        "protobuf==6.33.2"
+}
+
 ensure_adservice_built() {
     local ad_bin="${SRCDIR}/adservice/build/install/hipstershop/bin/AdService"
     if [ -x "$ad_bin" ]; then
@@ -87,6 +95,7 @@ start_productcatalog_service() {
     local port="${PRODUCT_CATALOG_PORT:-3550}"
     local logfile="${LOGDIR}/productcatalogservice_${SLURM_JOB_ID:-local}.log"
 
+    ensure_productcatalog_python_deps
     echo "  Starting productcatalogservice ..."
     start_background_process \
         "productcatalogservice" \

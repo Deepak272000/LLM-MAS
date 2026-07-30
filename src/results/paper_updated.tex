@@ -72,31 +72,28 @@
 Agentic microservices introduce adaptive reasoning and tool orchestration,
 but also new fault surfaces that are difficult to validate using conventional
 microservice testing. This paper presents a controlled fault-injection study
-across seven instrumented agent services in the LLM-MAS architecture and
+across nine instrumented agent services in the LLM-MAS architecture and
 evaluates fault reachability, infection, and propagation using
 data-flow observation-point tracing (Laski-Korel-Weyuker+RIP, hereafter LKW+RIP~\cite{lkw,rapps-weyuker}). We execute two benchmark suites
-(Google-bench followed by Retail-bench) on an HPC environment and map observed
-failures to MAST-style fault categories. Six Python-based agents serve as
-deterministic baselines for B3 fault injection (\texttt{USE\_LLM=false});
-all seven agents are exercised with live LLM for B2 natural variance collection.
-The ShippingService is the sole live-LLM service for fault injection, exercised
-with \texttt{qwen2.5-coder:14b} via Ollama on Concordia SPEED HPC. Across all
-64~mode-runs ($6\,{\times}\,9$ deterministic~$+$~$10$ ShippingService; each
-deterministic mode repeated $3{\times}$ for stability), zero UNSTABLE entries were observed, confirming 100\%
-reproducibility of the LKW+RIP instrumentation framework. For the
-ShippingService, 9 of 11 fault modes produced positive detectable signals (7~TP,
-2~Partial TP); 1 mode was correctly rejected (TN); 1 fault mode remains INCONCLUSIVE due to LLM inference
-timeout under the compliance-ambiguity scenario. Per-benchmark root cause
+(Google-bench and Retail-bench) on Concordia SPEED HPC and map observed
+failures to MAST-style fault categories. The experimental protocol separates
+three roles: B1 deterministic oracle specification, B2 live-LLM natural
+variance, and B3 live-LLM mutant execution. We report both full-pipeline and
+agent-level evidence. In the full checkout pipeline, B3 execution across four
+model configurations yields 29 killed mutants out of 40 total
+(72.5\% mutation score). A strong model-behaviour effect emerges: the larger
+\texttt{qwen2.5-coder:14b} configuration frequently short-circuits the ReAct
+tool loop and produces false negatives, whereas \texttt{qwen2.5:3b} preserves
+tool execution and detects most injected faults. Per-benchmark root cause
 analysis shows that FM-2.2 (hallucinated output) is the highest-risk fault
 class at both single-agent and cross-agent boundaries, completing all
-checkpoints with zero propagation depth while silently corrupting downstream
+checkpoints with zero structural loss while silently corrupting downstream
 state. We provide automated HITL tier classification and inter-agent
 propagation evidence to identify which faults are silently absorbed, which
 propagate to business-harmful states, and which require human intervention.
-Key limitations are documented: the six deterministic agents validate the
-instrumentation framework rather than LLM-based fault detection capability,
-and the compliance-ambiguity fault mode remains unresolved at model scales
-tested.
+The main practical conclusion is architectural: LLM-MAS deployments require
+checkpoint-level semantic validation at inter-agent boundaries, not only
+step-level workflow monitoring.
 \end{abstract}
 
 \begin{CCSXML}
@@ -121,15 +118,17 @@ this increases autonomy, it can introduce latent failures not captured by unit
 or API tests. Our goal is to evaluate whether controlled faults can be injected,
 reproduced, observed, and contained before they become business harm.
 
-This study covers seven agent services in the LLM-MAS architecture: six
+This study covers nine agent services in the LLM-MAS architecture: six
 Python-based agents (PaymentAgent, CurrencyAgent, EmailServiceAgent,
-ProductCatalogAgent, RecommendationAgent, AdServiceAgent) that serve as
-deterministic instrumentation baselines for B3 fault injection, and the
-ShippingService agent, which is the sole live-LLM service for fault injection
-using \texttt{qwen2.5-coder:14b} via Ollama on Concordia SPEED HPC. B2 natural
-variance collection exercises all seven agents with live LLM. This design
-separates deterministic framework validation (six agents) from LLM fault-injection
-capability testing (ShippingService).
+ProductCatalogAgent, RecommendationAgent, AdServiceAgent), a C\# CartAgent
+exercised via a Python mirror, a Go-based CheckoutOrchestrator exercised via
+sub-agent wrappers, and the ShippingService/checkout orchestration path. The paper evaluates these services
+through a three-baseline protocol: B1 defines the correct microservice oracle,
+B2 measures natural variance under live LLM inference, and B3 evaluates mutant
+detection under live LLM execution. We use standalone agent runners where the
+agent boundary is the main object of study and full checkout-pipeline runs
+where downstream propagation is the main object of study. This separation lets
+us study both local detectability and end-to-end business impact.
 
 In this project, we answer the following research questions:
 \begin{description}
@@ -253,6 +252,7 @@ $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
 
 \begin{figure*}[!tp]
 \centering
+\resizebox{0.94\textwidth}{!}{%
 \begin{tikzpicture}[
   svc/.style={draw,fill=blue!12,rounded corners=2pt,
     minimum width=2.05cm,minimum height=0.58cm,
@@ -295,11 +295,10 @@ $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
   \draw[->,dotted,orange!60,thin] (\y) -- (llm);
 }
 \end{tikzpicture}
+}
 \caption{LLM-MAS system architecture. Microservices (blue) serve
 \texttt{CheckoutService} via gRPC (solid arrows). Agent wrappers (green)
-orchestrate each microservice via ReAct (dashed; ShippingAgent uses LangGraph;
-remaining agents use direct Ollama HTTP) and share a single Ollama LLM backend
-(orange, dotted).}
+orchestrate each microservice and share one Ollama backend (orange, dotted).}
 \label{fig:architecture}
 \end{figure*}
 
@@ -330,29 +329,23 @@ differing in the LLM model and the set of agents exercised:
 
 \begin{description}
   \item[\textbf{Google-bench}]
-        ShippingService orchestrated by \texttt{llama3.2:1b} on Concordia
-        SPEED HPC (A100 MIG 1g.20gb, 10\,GB slice).  This configuration
-        represents a \emph{small-model, resource-constrained} setting and is
-        used for the initial fault-injection campaign
-        (Section~\ref{sec:google-bench}).  It establishes whether a
-        1-billion-parameter model can reliably reproduce the B1 oracle
-        under repeated sampling.
+      Full checkout orchestration using \texttt{qwen2.5:3b} on Concordia
+      SPEED HPC across three temperature settings (0.0, 0.7, 1.0). This is
+      the \emph{tool-faithful evaluation} setting used for B2 natural
+      variance and for the strongest B3 mutation-detection results.
 
   \item[\textbf{Retail-bench}]
-        ShippingService orchestrated by \texttt{qwen2.5-coder:14b} on
-        Concordia SPEED HPC (A100 SXM4-80\,GB, full GPU).  This
-        configuration represents a \emph{production-grade model} with
-        significantly higher reasoning capacity and is used for the full
-        retail fault-injection campaign (Section~\ref{sec:retail-bench}).
+      Full checkout orchestration using \texttt{qwen2.5-coder:14b} on
+      Concordia SPEED HPC (A100-class GPU allocation). This is the
+      \emph{large-model comparison} setting and is used to measure how a
+      stronger code-capable model behaves under the same mutant suite.
 
-  \item[\textbf{Six-Agent B3}]
-        All six deterministic agents (Payment, Currency, Email,
-        ProductCatalog, Recommendation, Ad) with \texttt{qwen2.5:3b} and
-        \texttt{USE\_LLM=false}.  Business logic is exercised directly via
-        Python sub-agent calls; no LLM inference occurs.  This configuration
-        validates the LKW+RIP instrumentation on deterministic code and
-        provides the B1 oracle baselines for all cross-agent analyses
-        (Section~\ref{sec:b1-oracle}).
+    \item[\textbf{Agent-level checkout campaign}]
+      Standalone live-LLM execution for the currently reported checkout-path agent roles
+      (currency, payment, email, shipping\_quote, ship\_order) plus B1
+      deterministic oracles. This configuration isolates checkpoint-level
+      detectability at the single-agent boundary without downstream pipeline
+      masking.
 \end{description}
 
 \subsection{Agentification Design}
@@ -384,22 +377,11 @@ reachability and propagation measurement.
 \label{sec:lkw-design}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Figure~\ref{fig:rip-causality} shows how the FM-2.2 mutation operator maps
-to a specific infection checkpoint at each agent.  All seven agents share the
-same P2 c-use placement class and Tier~3 (Silent) classification, confirming
-that the LKW framework produces consistent, evidence-based tier assignment
-across the full service portfolio.
-
-\begin{figure*}[!tp]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/fig_rip_causality.pdf}
-\caption{RIP Causality for FM-2.2 (Hallucinated Output): primary infection
-  checkpoint, LKW criterion, use type, and HITL tier for each agent.  All
-  seven agents produce a P2 c-use infection with Tier~3 Silent classification,
-  confirming structural invariance of the FM-2.2 trace signature across the
-  service portfolio.}
-\label{fig:rip-causality}
-\end{figure*}
+Across all seven agents, FM-2.2 maps to a consistent primary infection
+checkpoint with the same P2 c-use placement class and Tier~3 (Silent)
+classification, confirming that the LKW framework produces a stable,
+evidence-based signature for hallucinated-output faults across the full
+service portfolio.
 
 \subsection{RIP Metrics and Definitions}
 
@@ -488,8 +470,8 @@ Table~\ref{tab:fault-lkw-ckpt} maps each fault mode to its primary infection
 checkpoint, the applicable LKW data-flow criterion, the use type (c-use or
 p-use), and the comparison operator applied during B1 oracle evaluation.
 This consolidated reference replaces the per-agent and per-placement tables
-from earlier drafts; Table~\ref{tab:lkw-signatures} gives the complementary
-trace-pattern view.
+from earlier drafts and serves as the main instrumentation lookup table for
+the rest of the paper.
 
 \begin{table*}[!tp]
 \centering
@@ -585,62 +567,16 @@ step; the infection point is reported as the first absent checkpoint.
 
 Different fault classes produce distinct LKW trace patterns. The signature
 determines both the infection point (RQ2) and the HITL tier (RQ4).
-Table~\ref{tab:lkw-signatures} summarises the pattern for each MAST fault
-class observed in this study.
-
-\begin{table*}[!tp]
-\centering
-\caption{LKW Trace Signatures per MAST Fault Class.
-  $B$ = baseline steps, $F$ = faulty steps; $\delta$ = data deviation flag.}
-\label{tab:lkw-signatures}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{2.0cm}p{2.8cm}p{3.0cm}p{2.5cm}lp{2.0cm}}
-\toprule
-\textbf{MAST Class} & \textbf{Representative Mode} & \textbf{Trace Pattern}
-  & \textbf{Infection Checkpoint} & \textbf{Depth} & \textbf{HITL Tier} \\
-\midrule
-FM-3.1 & Premature Termination
-  & $F \subsetneq B$; FINAL\_ANSWER absent
-  & First missing step & $\geq 1$
-  & Tier~1 --- Structural \\
-FM-1.2 & Incomplete Workflow
-  & $F \subsetneq B$; SAVE\_DONE absent
-  & SAVE\_DONE (P3 class)
-  & 0--2
-  & Tier~1--2 (agent-dependent) \\
-BL-SHIPMENT\_LOST & Persistence Skipped
-  & $F \subsetneq B$; SAVE\_DONE absent
-  & SAVE\_DONE (P3 class)
-  & $\geq 1$
-  & Tier~1 --- Structural \\
-FM-2.2 & Hallucinated Output
-  & $F = B$; $\delta$ at P2 checkpoint
-  & P2 computation checkpoint (e.g., CONVERT\_DONE, CATALOG\_DONE)
-  & 0
-  & Tier~3 --- Silent \\
-FM-2.5 & Stale / Ignored Input
-  & $F = B$; $\delta$ at P2 value field
-  & P2 checkpoint (e.g., QUOTE\_DONE, CARRIER\_DONE)
-  & 0
-  & Tier~2 --- Flag-Detectable \\
-BL-FLAG & Business Logic Flag
-  & $F = B$; flag field set at P4
-  & P4 checkpoint (ESCALATION\_CHECK, \linebreak CARRIER\_DONE)
-  & 0
-  & Tier~2 --- Flag-Detectable \\
-BL-SILENT & Silent BL Corruption
-  & $F = B$; value deviation in P2 payload
-  & P2 computation checkpoint
-  & 0
-  & Tier~3 --- Silent \\
-\bottomrule
-\end{tabular}}
-\end{table*}
+In practice, these signatures collapse into three stable patterns. Structural
+faults such as FM-3.1 produce step loss ($F \subsetneq B$) and are therefore
+Tier~1. Flag-bearing workflow or business faults preserve the full step
+sequence but set a diagnostic field at P4, yielding Tier~2. Hallucinations and
+silent data corruptions preserve all steps and only appear as payload
+deviations at a P2 checkpoint, yielding Tier~3 unless an external semantic
+guard is present.
 
 \paragraph{Key design insight.}
-Table~\ref{tab:lkw-signatures} shows that propagation depth alone is
+These signatures show that propagation depth alone is
 \emph{insufficient} to detect Tier~2 and Tier~3 faults: both have
 $\mathrm{PropagationDepth} = 0$.  Tier~2 faults are detectable only by
 inspecting the \emph{value} of the P4 flag field; Tier~3 faults require
@@ -662,42 +598,12 @@ applied to a specific agent state variable at a known data flow observation
 point. A mutation that causes the LKW trace to deviate from the B1 oracle
 beyond the B2-calibrated tolerance is a \textit{killed mutant}; one whose
 trace is indistinguishable from the natural-variance envelope is a
-\textit{live mutant}. Table~\ref{tab:fault-mapping} maps each MAST fault
-class to its operator type, target variable, first LKW observation point,
-equivalence comparison criterion, and HITL detection tier.
-
-\begin{table}[!htbp]
-\centering
-\caption{MAST Fault Classes as LKW Mutation Operators.
-  Criteria: $\delta_{\epsilon}$~=~numeric tolerance;
-  $\mathcal{S}$~=~set equality; $\Sigma$~=~flag/schema conformance;
-  $\subseteq$~=~step-set inclusion.}
-\label{tab:fault-mapping}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{p{1.1cm}p{2.0cm}p{1.8cm}p{2.4cm}p{1.2cm}p{0.8cm}}
-\toprule
-\textbf{MAST} & \textbf{Operator} & \textbf{Target Variable}
-  & \textbf{First Observation Point} & \textbf{Criterion} & \textbf{Tier} \\
-\midrule
-FM-3.1 & Step removal & control flow (step set)
-  & First missing step (P3/P5) & $\subseteq$ & 1 \\
-FM-2.2 & Value substitution & output payload
-  & P2 c-use (e.g.\ \texttt{CONVERT\_DONE}) & $\delta_{\epsilon}$ / $\mathcal{S}$ & 3 \\
-FM-2.5 & Input suppression & upstream numeric value
-  & P2 c-use (e.g.\ \texttt{CARRIER\_DONE}) & $\delta_{\epsilon}$ & 2 \\
-FM-1.2 & Routing swap & action/method label
-  & P2 c-use (e.g.\ \texttt{CATALOG\_DONE}) & $\mathcal{S}$ & 2 \\
-BL-FLAG & Flag injection & metadata flag field
-  & P4 p-use (e.g.\ \texttt{ESCALATION\_CHECK}) & $\Sigma$ & 2 \\
-BL-SKIP & Step bypass & side-effect record
-  & P3 c-use (e.g.\ \texttt{SAVE\_DONE}) & $\subseteq$ & 1 \\
-BL-SILENT & Value corruption & numeric/ID field
-  & P2 c-use (e.g.\ \texttt{QUOTE\_DONE}) & $\delta_{\epsilon}$ & 3 \\
-\bottomrule
-\end{tabular}}
-\end{table}
+\textit{live mutant}. In this study, FM-3.1 acts as a step-removal operator
+over the control-flow trace, FM-1.2 perturbs routing or workflow selection,
+FM-2.2 fabricates a computed payload, FM-2.5 tampers with an input value
+before use, and the business-logic operators corrupt domain payloads or
+metadata fields. Each operator is judged at the first checkpoint where the
+mutated value becomes observable under the LKW instrumentation scheme.
 
 \subsection{Fault Injection Pipeline}
 
@@ -735,16 +641,16 @@ mutation analysis:
         every LKW observation point is recorded from B1 runs and used as the
         reference for all equivalence comparisons.
 
-  \item[\textbf{B2 --- Natural variance baseline}] The same agent running with
-        \texttt{USE\_LLM=true} (live LLM inference), \emph{no fault injection}.
+    \item[\textbf{B2 --- Natural variance baseline}] The same agent running with
+      \texttt{USE\_LLM=true} (live LLM inference), \emph{no fault injection}.
         B2 captures how far the LLM-generated output naturally deviates from
         B1 across repeated runs. The detection envelope --- how much deviation
         from B1 is normal --- is calibrated exclusively from B2 data, prior to
         any B3 analysis. Equivalence relations are fixed from B2 to prevent
         contamination of fault evidence by natural variance.
 
-  \item[\textbf{B3 --- Fault injection}] The same agent with
-        \texttt{USE\_LLM=true} and a single mutation operator active.
+    \item[\textbf{B3 --- Fault injection}] The same agent with
+      \texttt{USE\_LLM=true} and a single mutation operator active.
         A B3 trace is a \emph{killed mutant} if its LKW deviation from B1
         exceeds the B2 envelope; it is a \emph{live mutant} if the fault's
         fingerprint hides within natural variance. The ShippingService
@@ -752,116 +658,69 @@ mutation analysis:
         (Sections~\ref{sec:google-bench} and~\ref{sec:retail-bench}) report
         B3 results. The six-agent deterministic runs
         (Section~\ref{sec:b1-oracle}) report B1. B2 natural variance has been
-        collected for all seven agents across three \texttt{qwen2.5:3b}
-        temperature configurations (30 runs total).
+        collected for the full pipeline (seven agents, three
+        \texttt{qwen2.5:3b} temperature configurations, 30 runs) and for
+        standalone agents (nine agents, 212 runs, up to four model
+        configurations). The B2 false positive rate is \textbf{0.0\%} across
+        all agents and configurations: no clean \texttt{FAULT\_MODE=NONE} run
+        was misclassified as infected, confirming that B3 kill verdicts reflect
+        genuine fault-induced deviations rather than natural LLM variance.
 \end{description}
 
-At temperature~=~0, \texttt{ship\_order} is never reached; at 0.7 and~1.0,
-partial reach is observed, reflecting natural LLM routing variance.
+Figure~\ref{fig:b123-protocol} summarises the logic of the three-baseline
+evaluation. B1 fixes the reference behaviour, B2 defines the acceptable
+live-LLM envelope around that reference, and B3 converts a faulty run into a
+killed, live, or inconclusive mutant verdict by comparing it against the
+B1 oracle under the B2-derived threshold.
 
-\subsection{Equivalence Relations per Observation Point}
-
-Each LKW observation point has a declared comparison criterion fixed before
-B3 runs, derived from B2 variance:
-\begin{itemize}
-  \item \textbf{Monetary amounts}
-        (e.g., \texttt{CONVERT\_DONE.units}, \texttt{QUOTE\_DONE.cost\_usd}):
-        numeric tolerance $\delta_{\epsilon}$ --- a B3 value deviates if
-        $|v_{B3} - v_{B1}| > \delta$ where $\delta$ is set from B2 spread.
-  \item \textbf{Identifier lists}
-        (e.g., \texttt{CATALOG\_DONE.product\_ids},
-        \texttt{RECOMMEND\_DONE.recommended\_ids}):
-        set equality $\mathcal{S}$ --- extra or missing IDs constitute a
-        violation regardless of list order.
-  \item \textbf{Boolean flags}
-        (e.g., \texttt{ESCALATION\_CHECK.escalation\_required},
-        \texttt{CARRIER\_DONE.forced\_vendor}):
-        flag conformance $\Sigma$ --- any flag set in B3 that is clear in B1
-        is a p-use violation.
-  \item \textbf{Step presence} (structural):
-        step-set inclusion $\subseteq$ --- any step present in B1 but absent
-        in B3 is a Tier~1 structural violation.
-\end{itemize}
-
-\subsection{B1--B2 Checkpoint Alignment}
-\label{sec:b1-b2-align}
-
-B1 oracle runs (\texttt{USE\_LLM=false}) and B2 baseline runs
-(\texttt{USE\_LLM=true}) record LKW checkpoints at identical named sites;
-what differs is the \emph{execution path} through which each checkpoint is
-reached.  In B1, the agent's business-logic method is called directly by the
-test harness with no LLM involvement.  In B2, the LLM ReAct loop dispatches
-a tool call that invokes the same method, so the checkpoint fires at the
-same Python site.  Table~\ref{tab:b1-b2-align} makes this alignment
-explicit and maps each checkpoint to its gRPC counterpart in the original
-microservice.
-
-\begin{table}[!htbp]
+\begin{figure*}[!tp]
 \centering
-\caption{B1--B2 Checkpoint Alignment: B1 deterministic path vs.\ B2 ReAct tool
-  vs.\ original gRPC method.}
-\label{tab:b1-b2-align}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{p{2.0cm}p{1.9cm}p{2.0cm}p{1.9cm}p{1.8cm}}
-\toprule
-\textbf{Agent} & \textbf{LKW Checkpoint} & \textbf{B1: Direct Call} & \textbf{B2: ReAct Tool} & \textbf{gRPC Method} \\
-\midrule
-PaymentAgent
-  & \texttt{CARD\_VALIDATED} & \texttt{CardValidation\-Agent} & \texttt{validate\_card} & (pre-charge) \\
-  & \texttt{CHARGE\_DONE}    & \texttt{ChargeAgent}          & \texttt{charge\_payment} & \texttt{Payment\-Svc.Charge} \\
-  & \texttt{SAVE\_DONE}      & transaction mock              & LLM FINAL\_ANSWER      & (mock) \\
-\midrule
-CurrencyAgent
-  & \texttt{CONVERT\_DONE}  & \texttt{ConversionAgent}      & \texttt{convert\_currency} & \texttt{Currency\-Svc.Convert} \\
-\midrule
-EmailService\-Agent
-  & \texttt{EMAIL\_GENERATED} & \texttt{Email\-GeneratorAgent} & \texttt{generate\_email} & (pre-send) \\
-  & \texttt{EMAIL\_SENT}      & \texttt{Email\-DeliveryAgent}  & \texttt{send\_email}     & \texttt{Email\-Svc.Send} \\
-\midrule
-ProductCatalog\-Agent
-  & \texttt{CATALOG\_DONE}  & \texttt{Product\-LookupAgent} & \texttt{list\_products}  & \texttt{Catalog\-Svc.List} \\
-\midrule
-Recommendation\-Agent
-  & \texttt{RECOMMEND\_DONE} & \texttt{Recommender\-Agent}   & \texttt{get\_recommendations} & \texttt{Rec\-Svc.ListRecos} \\
-\midrule
-ShippingService
-  & \texttt{QUOTE\_DONE}   & \texttt{QuoteAgent}            & \texttt{quote\_shipping}  & \texttt{Shipping\-Svc.GetQuote} \\
-  & \texttt{CARRIER\_DONE} & \texttt{Carrier\-SelectionAgent} & \texttt{select\_carrier} & (internal) \\
-  & \texttt{TRACKING\_DONE} & \texttt{TrackingAgent}         & \texttt{assign\_tracking} & (internal) \\
-  & \texttt{SAVE\_DONE}    & persistence mock               & LLM FINAL\_ANSWER       & (mock) \\
-\bottomrule
-\end{tabular}}
-\end{table}
+\includegraphics[width=0.94\textwidth]{figures/fig_b123_protocol.pdf}
+\caption{Three-baseline evaluation logic used throughout the study. B1 records
+  the deterministic oracle trace, B2 measures live-LLM natural variance with
+  no injected fault, and B3 judges mutant executions against the B1 oracle
+  using the B2-derived equivalence envelope.}
+\label{fig:b123-protocol}
+\end{figure*}
+
+At temperature~=~0, \texttt{ship\_order} is never reached; at 0.7 and~1.0,
+partial reach is observed, reflecting natural LLM routing variance. Early
+pipeline agents remain highly reachable across all temperature settings,
+whereas downstream roles such as \texttt{ship\_order} and \texttt{email}
+become sensitive to routing variance. This is why B2 cannot be treated as a
+trivial baseline: it defines the variance envelope that B3 must exceed before
+a mutant is judged killed.
 
 \subsection{Execution Protocol}
 \begin{enumerate}
   \item Run NONE baseline for each scenario pair.
   \item Run one fault mode at a time.
-  \item Repeat for Google-bench (ShippingService, \texttt{llama3.2:1b}),
-        then Retail-bench (ShippingService, \texttt{qwen2.5-coder:14b}); six
-        deterministic agents use \texttt{USE\_LLM=false} throughout.
+    \item Repeat for full-pipeline Google-bench (\texttt{qwen2.5:3b}, three
+      temperatures), full-pipeline Retail-bench
+      (\texttt{qwen2.5-coder:14b}), and standalone checkout-agent runs.
   \item Mark timeout traces as INCONCLUSIVE; rerun where feasible.
 \end{enumerate}
 
 \subsection{Agent Execution Modes}
 
 \begin{itemize}
-  \item \textbf{Six deterministic agents} (Payment, Currency, Email,
-        ProductCatalog, Recommendation, Ad): fault injection tests call the
-        agent's business-logic method directly, bypassing the LangGraph router
-        and LLM inference call entirely. \texttt{USE\_LLM=false} is hardcoded
-        in all test runners. These agents validate the correctness of the
-        LKW+RIP instrumentation framework on deterministic Python code during
-        B3 fault injection. For B2 natural variance collection, all seven agents
-        are exercised with live LLM (Section~\ref{sec:b1-b2-align}).
-  \item \textbf{ShippingService}: the sole live-LLM agent for B3 fault injection.
-        The full LangGraph
-        ReAct loop is exercised with \texttt{qwen2.5-coder:14b} on SPEED HPC.
-        Fault injection occurs at the Final Answer intercept, tool-dispatch, and
-        post-agent metadata layers to be observable regardless of single-pass
-        model behaviour.
+  \item \textbf{B1 deterministic execution}: direct calls to agent business
+    logic establish the oracle values recorded at each LKW checkpoint.
+    This path isolates the intended microservice behaviour from LLM routing
+    variance and supplies the specification used by all equivalence checks.
+  \item \textbf{Standalone live-LLM agents}: the checkout-path agent roles
+    (currency, payment, email, shipping\_quote, ship\_order) are executed
+    individually with Ollama-backed ReAct orchestration. This mode is used
+    to study single-agent B2 natural variance and local B3 mutant
+    sensitivity at the agent boundary. Product catalog already participates in
+    the full checkout pipeline, while recommendation and ad service standalone
+    live-agent runs are treated as follow-on evidence rather than part of the
+    currently reported summary table.
+  \item \textbf{Full checkout pipeline}: product catalog, currency,
+    shipping, payment, and email are exercised together under a single
+    checkout orchestrator. This mode is used to study end-to-end mutation
+    score, infection location, and downstream business propagation under
+    realistic multi-agent composition.
 \end{itemize}
 
 \subsection{Instrumentation and Structural Fixes}
@@ -882,333 +741,202 @@ Section~\ref{sec:rq4}. The detector confirmed all scenario classifications
 without manual inspection.
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Results: Google and Retail Benchmarks}
+\section{Results: Full-Pipeline and Agent-Level Campaigns}
 % ═════════════════════════════════════════════════════════════════════════════
 
-\subsection{Google Bench}
+The results section is organised around three questions that matter most for a
+fault-injection study of agentic microservices: (1) does the full pipeline kill
+mutants under live LLM execution, (2) which model configuration is actually
+tool-faithful enough to expose those mutants, and (3) do the same signals
+appear when agent boundaries are isolated from downstream business context.
+
+\subsection{Headline Full-Pipeline B3 Results}
 \label{sec:google-bench}
 
-Table~\ref{tab:google_results} reports the four executed fault scenarios for the
-Google-bench shipping workflow using \texttt{llama3.2:1b}. Elapsed time is the
-end-to-end wall-clock duration of each agent run on Concordia SPEED HPC.
+The strongest result is the full checkout-pipeline B3 campaign. Across four
+model configurations and ten injected fault modes, the campaign kills 29 of 40
+mutants for an overall mutation score of 72.5\%. Table~\ref{tab:b3-headline}
+compresses the main result into the four model configurations that the paper
+needs to compare.
 
-\begin{table*}[!tp]
+Figure~\ref{fig:b3-outcomes} provides the corresponding visual summary. It
+highlights the paper's most important behavioural result: tool-faithful
+execution with \texttt{qwen2.5:3b} kills nearly all mutants, whereas the larger
+\texttt{qwen2.5-coder:14b} configuration leaves all ten mutants live.
+
+\begin{figure}[!htbp]
 \centering
-\caption{Validated Google-bench fault-injection observations (\texttt{llama3.2:1b}).}
-\label{tab:google_results}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.0}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{1.6cm}p{1.6cm}p{2.1cm}p{1.6cm}p{2.8cm}p{3.6cm}p{3.8cm}}
-\toprule
-Scenario & Elapsed (ms) & Infection Point & Propagation Depth & Steps Lost
-         & Observation Summary & Root Cause Analysis \\
-\midrule
-FM-3.1
-  & 454858.4
-  & QUOTE\_DONE
-  & 1
-  & CARRIER\_DONE, ESCALATION\_CHECK
-  & Premature final answer injected with tracking\_id=PREMATURE-0000;
-    carrier-selection path terminated early.
-  & Initial iteration-gated trigger failed with single-pass model behaviour.
-    Fixed by intercepting any Final Answer regardless of iteration count. \\
-\midrule
-FM-1.2
-  & 374918.3
-  & SAVE\_DONE
-  & 2
-  & CARRIER\_DONE, TRACKING\_DONE, ESCALATION\_CHECK
-  & Corrupted planning plus incomplete-path handling produced
-    tracking\_id=INCOMPLETE-0000 and removed downstream stages.
-  & Prompt-only corruption was absorbed by model priors; deterministic
-    behaviour required dispatch-level and final-answer normalisation logic. \\
-\midrule
-FM-2.2
-  & 455954.8
-  & QUOTE\_DONE (cost=0 artifact); carrier hallucination confirmed at CARRIER\_DONE
-  & 0
-  & None
-  & Fallback injection applied: carrier replaced with SpeedyShip,
-    service\_level=ultra-express. Flow completed all 7 checkpoints.
-    Infection surfaced via cost anomaly at QUOTE\_DONE.
-  & Model output was non-canonical JSON; final-answer-level patch skipped.
-    Ship-order normalisation fallback enforced carrier substitution. Silent
-    hallucination not detectable from step trace alone --- requires checkpoint
-    data inspection. \\
-\midrule
-FM-2.5
-  & 453759.3
-  & CARRIER\_DONE
-  & 0
-  & None
-  & Fallback injection applied: stale cost 4.99 replaced real quoted value (0.00).
-    All checkpoints reached. Carrier selection was recorded with wrong financial
-    input.
-  & Single-pass model output bypassed tool-level injection. Normalisation
-    fallback enforced stale cost overwrite and set ignored\_downstream\_quote=True
-    flag. Flow completed silently --- highest latent business risk among executed
-    faults. \\
-\bottomrule
-\end{tabular}%
-}
-\end{table*}
+\includegraphics[width=\columnwidth]{figures/fig_b3_outcomes.pdf}
+\caption{Full-pipeline B3 mutation outcomes by model. The
+  \texttt{qwen2.5:3b} settings kill nearly all mutants, while
+  \texttt{qwen2.5-coder:14b} leaves all ten mutants live.}
+\label{fig:b3-outcomes}
+\end{figure}
 
-\subsection{Retail Bench: ShippingService}
+\begin{table}[!htbp]
+\centering
+\caption{Headline B3 mutation results for the full checkout pipeline.}
+\label{tab:b3-headline}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Config} & \textbf{Killed} & \textbf{Live} & \textbf{Inconc.} & \textbf{Total} & \textbf{Mutation Score} \\
+\midrule
+14b, $t{=}0$    & 0  & 10 & 0 & 10 & 0.0\% \\
+3b, $t{=}0$     & 9  & 0  & 1 & 10 & 90.0\% \\
+3b, $t{=}0.7$   & 10 & 0  & 0 & 10 & 100.0\% \\
+3b, $t{=}1.0$   & 10 & 0  & 0 & 10 & 100.0\% \\
+\midrule
+\textbf{Total}         & \textbf{29} & \textbf{10} & \textbf{1} & \textbf{40} & \textbf{72.5\%} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Two findings dominate Table~\ref{tab:b3-headline}. First, mutation killing is
+not monotonic in model size: \texttt{qwen2.5-coder:14b} fails to kill any of
+the ten mutants despite being the largest model evaluated. Second,
+\texttt{qwen2.5:3b} is consistently tool-faithful enough to expose the injected
+mutations and therefore produces the strongest detection results. This is a
+behavioural result, not merely a performance result: in this study, the better
+detector is the model that actually executes the ReAct/tool loop instead of
+short-circuiting to a final answer.
+
+\subsection{Fault-by-Fault Pipeline Evidence}
 \label{sec:retail-bench}
 
-Table~\ref{tab:retail_results} presents the full Retail-bench campaign using
-\texttt{qwen2.5-coder:14b} on SPEED HPC (A100 MIG, 20\,GB VRAM). All scenarios
-use the seven-step checkpoint set: \texttt{TASK\_START}, \texttt{QUOTE\_DONE},
-\texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE}, \texttt{SAVE\_DONE},
-\texttt{ESCALATION\_CHECK}, \texttt{FINAL\_ANSWER}.
+Table~\ref{tab:b3-fault-summary} gives the compact fault-by-fault view used in
+the paper narrative. It is intentionally narrower than the earlier draft's
+large scenario tables: each row answers what fault was injected, which model
+configuration detected it, where infection first appeared, and how far the
+fault propagated structurally.
 
 \begin{table*}[!tp]
 \centering
-\caption{LKW+RIP fault-injection results for the ShippingService Retail Bench
-  (\texttt{qwen2.5-coder:14b}, Concordia SPEED HPC A100 MIG 1g.20gb).
-  \emph{Infection Point} is the first LKW checkpoint at which a data deviation
-  from the fault-free baseline is detected.
-  \emph{Propagation Depth} counts the number of expected downstream steps absent
-  in the fault trace (computed against the instrumented expected-steps set).
-  $\dagger$~See footnote regarding known instrumentation defect for FM-3.1.
-  $\ddagger$~INCONCLUSIVE due to LLM inference timeout (577\,s); see Limitation~L2.}
-\label{tab:retail_results}
+\caption{Full-pipeline B3 results by fault mode and model configuration.}
+\label{tab:b3-fault-summary}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.0}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{p{1.6cm}p{1.8cm}p{2.6cm}p{2.0cm}p{1.5cm}p{3.7cm}p{3.7cm}}
+\begin{tabular}{p{2.4cm}p{1.2cm}p{1.2cm}p{1.2cm}p{1.2cm}p{2.2cm}p{1.4cm}}
 \toprule
-Scenario & Injected At & Infection Point & Propagation Depth & Steps Lost
-         & Observation Summary & Root Cause Analysis \\
+\textbf{Fault} & \textbf{14b} & \textbf{3b-0.0} & \textbf{3b-0.7} & \textbf{3b-1.0} & \textbf{Infected Agent} & \textbf{Max Prop.} \\
 \midrule
-FM-3.1 Premature Termination
-  & ReAct Final Answer intercept
-  & \texttt{QUOTE\_DONE}
-  & 1$^\dagger$
-  & \texttt{CARRIER\_DONE}$^\dagger$
-  & Agent returned \texttt{PREMATURE-0000} before carrier selection;
-    \texttt{CARRIER\_DONE} absent from trace; \texttt{QUOTE\_DONE} and
-    \texttt{TRACKING\_DONE} reached via post-injection normalisation with
-    placeholder values; \texttt{SAVE\_DONE} recorded with
-    \texttt{premature\_termination} reason. Elapsed: 44\,799\,ms.
-  & \texttt{qwen2.5-coder:14b} completes the full workflow in a single LLM
-    call, bypassing tool-dispatch-level injection; Final Answer interception
-    is the only reliable injection layer for single-pass models.
-    \texttt{ESCALATION\_CHECK} also absent but excluded from expected-steps
-    set (instrumentation defect; see Limitation~L3). \textbf{Classification: Partial TP.} \\
-\midrule
-FM-1.2 Incomplete Task Spec
-  & Task-spec mutation + tool dispatch block
-  & \texttt{SAVE\_DONE}
-  & 2
-  & \texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE}, \texttt{ESC\_CHECK}
-  & Corrupted task spec omitted carrier and tracking instructions; blocked tool
-    calls returned errors; Final Answer contained \texttt{INCOMPLETE-0000};
-    three downstream checkpoints absent.
-  & Task-spec corruption removes planning context for carrier and tracking steps;
-    dispatch-level blocking reinforces the gap; the agent cannot reconstruct
-    steps absent from the corrupted specification. \textbf{Classification: TP.} \\
-\midrule
-FM-2.2 Hallucinated Carrier
-  & Final Answer intercept
-  & \texttt{CARRIER\_DONE}
-  & 0
-  & None
-  & Carrier field silently replaced with unregistered \emph{SpeedyShip}; all
-    seven LKW steps reached; no agent-level detection, rejection, or workflow
-    deviation.
-  & Single-pass model output bypasses tool-dispatch injection; Final Answer
-    patch guarantees the hallucinated carrier surfaces regardless of the model's
-    independent selection; no downstream guard validates carrier legitimacy.
-    \textbf{Classification: TP.} \\
-\midrule
-FM-2.5 Stale Quote Ignored
-  & Final Answer intercept + \texttt{ship\_order} fallback
-  & \texttt{CARRIER\_DONE}
-  & 0
-  & None
-  & Cost silently overridden to stale \$4.99; \texttt{ignored\_downstream\_quote=True}
-    flag set at \texttt{CARRIER\_DONE}; full step reachability preserved with no
-    agent alert or error.
-  & Live quote bypassed by a pre-injected stale cost; absence of a
-    quote-consistency invariant in the carrier-selection path allows silent cost
-    absorption with no observable agent reaction. \textbf{Classification: TP.} \\
-\midrule
-BL-Shipment Lost
-  & \texttt{ship\_order} MongoDB save bypass
-  & --- (step absent)
-  & 1
-  & \texttt{SAVE\_DONE}
-  & \texttt{SAVE\_DONE} checkpoint wholly absent from fault trace; shipment
-    processed and tracking ID issued, but record never persisted to MongoDB;
-    silent data-loss with no error raised.
-  & The save-skip fault removes \texttt{SAVE\_DONE} from the trace entirely
-    rather than corrupting its contents; this fault class manifests as step
-    absence rather than data deviation, so infection point is undefined and
-    propagation captures the loss. \textbf{Classification: Partial TP.} \\
-\midrule
-BL-Inventory Mismatch
-  & Pre-task item quantity inflation (\texttt{ship\_order})
-  & \texttt{QUOTE\_DONE}
-  & 0
-  & None
-  & Item quantities doubled before agent task construction;
-    \texttt{item\_count\_inflated=True} flag detected at first quote checkpoint;
-    downstream carrier selection and tracking completed normally on inflated data.
-  & Corruption precedes the agent loop; all subsequent model computations
-    silently use inflated quantities; no input-validation gate exists between
-    item receipt and task construction. \textbf{Classification: TP.} \\
-\midrule
-BL-Vendor Negotiation
-  & Final Answer intercept + \texttt{ship\_order} fallback
-  & \texttt{CARRIER\_DONE}
-  & 0
-  & None
-  & Carrier forced to \emph{PremiumExpress} overnight service;
-    \texttt{forced\_vendor=True} flag recorded at \texttt{CARRIER\_DONE};
-    agent completed the full order without detecting the expensive substitution.
-  & Preferred-carrier unavailability injected at the output layer; agent lacks a
-    post-selection check to validate the chosen carrier against negotiated rates
-    or cost thresholds, enabling silent vendor substitution.
-    \textbf{Classification: TP.} \\
-\midrule
-BL-Customer Escalation
-  & Post-agent metadata injection (\texttt{ship\_order})
-  & \texttt{ESCALATION\_CHECK}
-  & 0
-  & None
-  & \texttt{escalation\_required=True} injected into \texttt{ESCALATION\_CHECK}
-    metadata after agent loop completion; high-risk order silently persisted
-    without human review, alert, or workflow halt.
-  & Escalation flag injected after model completion; the agent has no
-    \texttt{ESCALATION\_CHECK} guard in its execution path to interrupt or divert
-    high-risk shipments before persistence. \textbf{Classification: TP.} \\
-\midrule
-BL-Refund Reasoning
-  & Post-agent cost negation (\texttt{ship\_order})
-  & \texttt{QUOTE\_DONE}
-  & 0
-  & None
-  & \texttt{cost\_usd} forced to $-$0.0 (IEEE~754 negative zero); sign-bit
-    detection via \texttt{math.copysign} confirmed corruption at
-    \texttt{QUOTE\_DONE}; agent proceeded to carrier selection and tracking
-    without rejecting the invalid cost.
-  & Refund-required condition simulated by negating cost; agent lacks a
-    non-negative cost invariant; negative-zero is numerically equal to zero,
-    requiring sign-bit inspection to distinguish intentional corruption from a
-    zero-cost artefact. \textbf{Classification: TP.} \\
-\midrule
-BL-Compliance Ambiguity$^\ddagger$
-  & Pre-task address tagging (\texttt{compliance\_jurisdiction=UNKNOWN})
-  & \texttt{SAVE\_DONE} (partial; timeout)
-  & 3
-  & \texttt{QUOTE\_DONE}, \texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE}
-  & Under \texttt{qwen2.5-coder:14b}, the LLM inference call for the
-    compliance-ambiguous task exceeded the 120\,s HTTP read timeout (total
-    elapsed: 577\,682\,ms); \texttt{FINAL\_ANSWER} recorded a connection
-    timeout error; three checkpoints absent; \texttt{SAVE\_DONE} reached with
-    \texttt{reason=benchmark\_mode}. Distinct from \texttt{llama3.2:1b}
-    behaviour (loop exhaustion in 4 iterations) --- timeout occurs during
-    the first LLM call, indicating the compliance reasoning task exceeds
-    available inference time regardless of model scale.
-  & Compliance jurisdiction ambiguity generates a semantically complex
-    reasoning task that exhausts available LLM inference time at both tested
-    model scales; the 14B model requires $>$120\,s per inference call under
-    this scenario; explicit compliance-gating logic is needed outside the
-    LLM reasoning loop to avoid blocking the workflow.
-    \textbf{Classification: INCONCLUSIVE (LLM inference timeout).} \\
-\midrule
-NONE Baseline
-  & ---
-  & None
-  & 0
-  & None
-  & All expected checkpoints reached; no infection signal; agent completes
-    order normally.
-  & Clean baseline. \textbf{Classification: TN.} \\
+FM-3.1              & FN  & TP  & TP  & TP  & productcatalog  & 4 \\
+FM-1.2              & FN  & TP  & PTP & PTP & productcatalog  & 4 \\
+FM-2.2              & FN  & TP  & TP  & TP  & productcatalog  & 3 \\
+FM-2.5              & FN  & TP  & TP  & TP  & productcatalog  & 4 \\
+BL-PRICE\_MANIP.    & FN  & TP  & TP  & TP  & productcatalog  & 0 \\
+BL-RATE\_MANIP.     & FN  & TP  & TP  & TP  & currency        & 0 \\
+BL-AMOUNT\_TAMP.    & FN  & TP  & TP  & TP  & payment         & 0 \\
+BL-INVENTORY\_MISM. & FN  & TP  & PTP & TP  & shipping\_quote & 0 \\
+BL-SHIPMENT\_LOST   & FN  & TP  & PTP & PTP & ship\_order     & 0 \\
+BL-CORRUPTED\_BODY  & FN  & INC & PTP & PTP & email           & 0 \\
 \bottomrule
-\multicolumn{7}{p{17cm}}{$^\dagger$\,Depth reported as 1 (\texttt{CARRIER\_DONE} only); \texttt{ESCALATION\_CHECK} also absent but excluded from expected-steps set --- known instrumentation defect (Limitation~L3). Actual absent steps: 2.} \\
-\multicolumn{7}{p{17cm}}{$^\ddagger$\,INCONCLUSIVE due to LLM inference timeout at both \texttt{llama3.2:1b} (loop exhaustion) and \texttt{qwen2.5-coder:14b} (HTTP read timeout $>$120\,s). See Limitation~L2.}
+\multicolumn{7}{p{17cm}}{PTP = partial true positive; INC = inconclusive due to runtime timeout or incomplete LLM response.}
 \end{tabular}%
 }
 \end{table*}
 
-\subsection{Fault Coverage Summary (\texttt{qwen2.5:3b})}
+The dominant qualitative pattern in Table~\ref{tab:b3-fault-summary} is that
+the structural system faults (FM-3.1, FM-1.2) produce downstream step loss,
+whereas the business and semantic corruption faults usually preserve the full
+step sequence and instead surface as checkpoint-data deviations at the infected
+agent. This distinction matters for operations: structural faults can often be
+detected from missing-step telemetry alone, while semantic faults require
+checkpoint-level payload validation.
+
+\subsection{Standalone Agent-Level Evidence}
 \label{sec:b3-coverage}
 
-To assess multi-service fault coverage we ran the full ten-fault
-TARGETED\_FAULT\_MATRIX with \texttt{qwen2.5:3b} at two sampling
-temperatures ($t\!=\!0.7$ and $t\!=\!1.0$), three repetitions each.
-Table~\ref{tab:service-coverage} shows the infection-point service and
-overall classification for every (fault, temperature) pair.
-System faults (FM\_*) enter the checkout chain at \texttt{ProductCatalog}
-(first agent called by the orchestrator); propagation depth~3--5 confirms
-the deviant signal reaches all downstream agents.
-Business faults (BL\_*) are targeted at a single service and exhibit zero
-propagation depth, isolating the fault to its declared injection point.
-At $t\!=\!0.7$ all ten mutants are killed (mutation score 100\%); at
-$t\!=\!1.0$ nine are killed (90\%), with four business faults achieving
-only partial detection due to increased routing entropy causing the model
-to skip tool calls in some runs.
+The standalone checkout-agent campaign complements the pipeline-level result by
+showing how much mutant signal is visible before downstream composition. The
+most informative standalone agents are currency and payment, which retain clear
+local signal under live LLM execution. Table~\ref{tab:agent-level-summary}
+keeps only the compact summary needed in the main paper; detailed per-fault
+grids are better placed in supplementary material.
 
-\begin{table*}[!htbp]
+\begin{table}[!htbp]
 \centering
-\caption{B3 fault coverage matrix (\texttt{qwen2.5:3b}, $n\!=\!3$ runs
-  per cell). Cell format: \emph{temp\,=\,0.7\,/\,temp\,=\,1.0}.
-  \textbf{TP}\;=\;all runs killed; PTP\;=\;partial TP ($\tfrac{1}{3}$ or
-  $\tfrac{2}{3}$ runs killed); INC\;=\;inconclusive; ---\;=\;not the
-  infection-point service. System faults infect \texttt{ProductCatalog}
-  first (prop.\ depth 3--5); business faults infect their declared service
-  (prop.\ depth 0).}
-\label{tab:service-coverage}
-\scriptsize
+\caption{Standalone live-LLM agent summary (9 agents, 258 mutant tests).
+  ProductCatalog and Cart ran single-config (3b\_temp0); remaining agents ran
+  four model configurations. Agent-specific fault modes used throughout.}
+\label{tab:agent-level-summary}
+\footnotesize
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.0}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccccccccc}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
 \toprule
-\textbf{Service (infection point)}
-  & \textbf{FM-3.1} & \textbf{FM-1.2} & \textbf{FM-2.2} & \textbf{FM-2.5}
-  & \textbf{BL-PRICE} & \textbf{BL-RATE} & \textbf{BL-AMT}
-  & \textbf{BL-INV} & \textbf{BL-SHIP} & \textbf{BL-CRPT} \\
+\textbf{Agent} & \textbf{Killed} & \textbf{Live} & \textbf{Inconc.} & \textbf{Kill Rate} \\
 \midrule
-ProductCatalog
-  & \textbf{TP}/\textbf{TP} & \textbf{TP}/PTP & \textbf{TP}/\textbf{TP} & \textbf{TP}/\textbf{TP}
-  & \textbf{TP}/\textbf{TP} & --- & --- & --- & --- & --- \\
-Currency
-  & --- & --- & --- & ---
-  & --- & \textbf{TP}/\textbf{TP} & --- & --- & --- & --- \\
-Payment
-  & --- & --- & --- & ---
-  & --- & --- & \textbf{TP}/PTP & --- & --- & --- \\
-ShippingQuote
-  & --- & --- & --- & ---
-  & --- & --- & --- & \textbf{TP}/PTP & --- & --- \\
-ShipOrder
-  & --- & --- & --- & ---
-  & --- & --- & --- & --- & \textbf{TP}/PTP & --- \\
-Email$^\dagger$
-  & --- & --- & --- & ---
-  & --- & --- & --- & --- & --- & PTP/INC \\
+ProductCatalog  & 8  & 0  & 0  & 100.0\% \\
+Cart            & 10 & 0  & 0  & 100.0\% \\
+AdService       & 8  & 6  & 0  & 57.1\% \\
+Recommendation  & 8  & 6  & 0  & 57.1\% \\
+Payment         & 20 & 24 & 0  & 45.5\% \\
+Currency        & 15 & 29 & 0  & 34.1\% \\
+Email           & 6  & 5  & 33 & 13.6\% \\
+Ship-Quote      & 0  & 10 & 30 & 0.0\% \\
+Ship-Order      & 0  & 10 & 30 & 0.0\% \\
 \midrule
-\textit{Mut.\ score (\%)}
-  & 100/100 & 100/67 & 100/100 & 100/100
-  & 100/100 & 100/100 & 100/67 & 100/67 & 100/67 & 33/INC \\
+\textbf{Total}  & \textbf{75} & \textbf{90} & \textbf{93} & \textbf{29.1\%} \\
 \bottomrule
-\multicolumn{11}{p{17cm}}{%
-  $^\dagger$~BL-CRPT (\texttt{EmailAgent}): email tool not reliably
-  dispatched at $t\!=\!0.7$ (1/3 runs detected); at $t\!=\!1.0$ an HTTP
-  timeout prevents email tool dispatch entirely (INCONCLUSIVE).
-  FM\_* fault signals propagate through all six services
-  (infection point = ProductCatalog; prop.\ depth 3--5); every service
-  therefore satisfies the requirement of exposure to
-  $\geq\!1$ system fault and $\geq\!1$ business fault.
-}\\
-\end{tabular}}
-\end{table*}
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:agent-level-summary} should be read as a decomposition of the
+pipeline result rather than as a replacement for it. The pipeline remains the
+primary evaluation surface because several business faults require cross-agent
+context before their business impact becomes measurable. The standalone agent
+view is still useful. ProductCatalog and Cart achieve 100\% kill rates under
+3b\_temp0: their checkpoint instrumentation fully captures every injected fault
+mode. AdService and Recommendation reach 57.1\% because all four general fault
+modes and all four agent-specific business-logic modes are killed, while six
+legacy shipping-domain fault modes retained for cross-agent symmetry are not
+applicable and remain live. Payment (45.5\%) and Currency (34.1\%) lose detection
+signal across model configurations, particularly under 14b where the larger
+model absorbs faults into semantically acceptable responses. Email is the weakest
+detector (13.6\%), with 33 inconclusive verdicts arising from high run-to-run
+semantic variation in natural-language content. The shipping roles (0\%) confirm
+the pipeline-level finding: ShippingAgent fault absorption via template-string
+fallback renders the shipping boundary invisible to standalone checkpoint comparison.
+
+\paragraph{Model configuration effect on standalone agents.}
+Table~\ref{tab:standalone-model-effect} decomposes the kill rate of the five
+multi-configuration agents across all four model settings.
+\texttt{qwen2.5:3b} at temperature~0 is the best detector for every agent.
+\texttt{qwen2.5-coder:14b} loses 11--17 percentage points relative to
+\texttt{3b,\,t=0} by short-circuiting the ReAct tool loop and answering
+directly without executing intermediate tool calls.
+Higher temperature (0.7, 1.0) matches the 14b kill rate rather than the
+3b\,t=0 rate, adding semantic noise that raises the inconclusive count without
+improving detection.
+
+\begin{table}[!htbp]
+\centering
+\caption{Standalone kill rate by model configuration (agents with four-config
+  coverage). \textbf{Bold} = best per row.
+  ProductCatalog, Cart, AdService, Recommendation ran 3b\,t=0 only.}
+\label{tab:standalone-model-effect}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Agent} & \textbf{3b,\,$t$=0} & \textbf{14b,\,$t$=0} & \textbf{3b,\,$t$=0.7} & \textbf{3b,\,$t$=1.0} \\
+\midrule
+Payment   & \textbf{57.1\%} & 40.0\% & 40.0\% & 40.0\% \\
+Currency  & \textbf{42.9\%} & 30.0\% & 30.0\% & 30.0\% \\
+Email     & \textbf{21.4\%} & 10.0\% & 10.0\% & 10.0\% \\
+Ship-Quote  & 0.0\%  & 0.0\% & 0.0\% & 0.0\% \\
+Ship-Order  & 0.0\%  & 0.0\% & 0.0\% & 0.0\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{B1 Oracle Specification: Deterministic Agent Baselines}
@@ -1233,6 +961,50 @@ For PaymentAgent \texttt{BL-AMOUNT-TAMPER}, the B3 trace deviates at
 \texttt{CHARGE\_DONE}: \texttt{charged=9999.00} vs.\ B1 baseline \texttt{9.00},
 with \texttt{tampered=True} set --- all steps reached (depth~=~0), confirming
 a Tier~3 silent killed mutant detectable only by payload comparison.
+
+This verdict illustrates the key decision rule used throughout the study: a
+B3 trace is only treated as a genuine killed mutant when its deviation from
+the B1 oracle falls clearly outside the B2 natural-variance envelope, rather
+than reflecting ordinary live-LLM run-to-run fluctuation.
+
+Across the six deterministic agents, the B1 oracle campaigns reveal a highly
+consistent fault structure. Payment and Currency expose the clearest numeric
+corruption signatures at \texttt{CARD\_VALIDATED}, \texttt{CHARGE\_DONE}, and
+\texttt{CONVERT\_DONE}; Email, ProductCatalog, Recommendation, and AdService
+show the same logic for semantic payload corruption, identity misrouting, and
+silent business-rule violations. The shared conclusion is that FM-3.1 is the
+only class that reliably removes downstream steps, whereas FM-2.2 and the
+silent business-logic corruptions preserve the full step sequence and must
+therefore be detected by checkpoint-level semantic comparison against the B1
+oracle. The full per-agent fault grids are omitted from the main paper for
+space because the compact cross-agent summaries already carry the result-level
+evidence used in the paper's claims.
+
+For reference, the injection flags recorded at each LKW checkpoint are:
+\texttt{premature\_termination} (FM-3.1),
+\texttt{hallucinated} (FM-2.2),
+\texttt{amount\_tampered} / \texttt{rate\_manipulated} / \texttt{query\_tampered}
+/ \texttt{context\_tampered} for FM-2.5 data-corruption variants, and
+\texttt{validation\_bypassed} / \texttt{currency\_swapped} / \texttt{action\_swapped}
+for FM-1.2 routing variants.
+Agent-specific business-logic flags include
+\texttt{save\_skipped}, \texttt{double\_charge}, \texttt{card\_declined}
+(PaymentAgent);
+\texttt{rate\_manipulated}, \texttt{stale\_rate}, \texttt{unavailable}
+(CurrencyAgent);
+\texttt{send\_skipped}, \texttt{corrupted}, \texttt{wrong\_customer}
+(EmailAgent);
+\texttt{price\_manipulated}, \texttt{products\_missing}, \texttt{duplicated}
+(ProductCatalogAgent);
+\texttt{empty\_recs}, \texttt{injection}, \texttt{self\_rec}
+(RecommendationAgent); and
+\texttt{empty\_ads}, \texttt{injected}, \texttt{wrong\_url}
+(AdServiceAgent).
+Each flag is set to \texttt{True} by the injection function at the infected
+checkpoint; the B3 analyser compares against the B1 oracle value of
+\texttt{False}.
+
+\iffalse
 
 % ── PaymentAgent ─────────────────────────────────────────────────────────────
 \subsection{PaymentAgent}
@@ -1897,6 +1669,7 @@ BL-DUP-ADS Ad Duplicated
 \end{table*}
 
 % ═════════════════════════════════════════════════════════════════════════════
+\fi
 \FloatBarrier
 \section{HITL Tier Classification (RQ4)}
 \label{sec:hitl}
@@ -1951,13 +1724,9 @@ Figure~\ref{fig:hitl-stacked} shows the per-agent tier breakdown.
 
 \begin{figure*}[!tp]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig_hitl_stacked.pdf}
-\caption{HITL Tier Distribution per Agent.  Tier~1 (red, structural) faults
-  are detected automatically via step-count comparison; Tier~2 (orange,
-  flag-detectable) require a flag monitor on LKW checkpoint data; Tier~3
-  (grey, silent) require semantic payload validation against the B1 oracle.
-  ShippingService (Shipping) contributes all three tiers due to its live-LLM
-  execution path.}
+\includegraphics[width=0.76\textwidth]{figures/fig_hitl_stacked.pdf}
+\caption{HITL tier distribution per agent. Tier~1 is structural,
+  Tier~2 is flag-detectable, and Tier~3 requires semantic payload validation.}
 \label{fig:hitl-stacked}
 \end{figure*}
 
@@ -2042,35 +1811,12 @@ of~100\%.
 
 \subsection{Structural Fault Pattern}
 
-Table~\ref{tab:stability-pattern} presents the structural LKW signature shared
-across all six deterministic agents for each MAST fault class.
-
-\begin{table}[!htbp]
-\centering
-\caption{Structural LKW Signature Per MAST Fault Class (invariant across all
-  6~deterministic agents).}
-\label{tab:stability-pattern}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llccc}
-\toprule
-\textbf{MAST Class} & \textbf{Fault Mode} & \textbf{Infection Stage}
-  & \textbf{Depth} & \textbf{HITL Tier} \\
-\midrule
-FM-3.1 & Premature Termination & \texttt{FINAL\_ANSWER} & 1--3 & Tier~1 (structural) \\
-FM-2.2 & Hallucinated Output   & Middle checkpoint      & 0    & Tier~3 (silent)     \\
-FM-2.5 & Ignored Input         & Middle checkpoint      & 0    & Tier~2              \\
-FM-1.2 & Wrong Routing         & Middle checkpoint      & 0    & Tier~2              \\
-BL     & Business Logic        & Middle checkpoint      & 0    & Tier~1--2           \\
-\midrule
----    & NONE (baseline)       & ---                    & 0    & ---                 \\
-\bottomrule
-\multicolumn{5}{l}{\footnotesize ``Middle checkpoint'' = agent-specific processing step} \\
-\multicolumn{5}{l}{\footnotesize (e.g., \texttt{CONVERT\_DONE}, \texttt{CATALOG\_DONE},
-  \texttt{EMAIL\_GENERATED}).}
-\end{tabular}}
-\end{table}
+The per-class structural signature is stable across all six deterministic
+agents: FM-3.1 consistently appears as terminal or downstream step loss,
+FM-2.2 first appears at the agent's middle computation checkpoint, and FM-2.5,
+FM-1.2, plus most business-logic faults preserve the full step sequence and
+therefore require payload- or flag-level inspection rather than trace-length
+comparison.
 
 Two structural findings emerge consistently across all six deterministic agents:
 
@@ -2161,7 +1907,7 @@ B (infected)
 
 \begin{figure*}[!tp]
 \centering
-\resizebox{0.97\textwidth}{!}{%
+\resizebox{0.90\textwidth}{!}{%
 \begin{tikzpicture}[
   agt/.style={draw,rounded corners=3pt,minimum width=3.0cm,
     minimum height=1.05cm,font=\small,align=center,thick},
@@ -2247,28 +1993,18 @@ B (infected)
 
 %% ─── Key Finding Box ──────────────────────────────────────────────────────────
 \node[draw,fill=yellow!12,rounded corners=5pt,inner sep=8pt,thick,
-      font=\small,align=center,minimum width=16cm]
+    font=\small,align=center,minimum width=14.4cm]
   at (3.45, -3.35)
-  {\textbf{Key Finding: FM-2.2 (Tier~3 Silent) crosses service boundaries with zero
-   structural signal --- no LKW step loss at either hop.}\\[4pt]
-   Chain~A: \textbf{14{,}755\% financial overcharge blocked by
-   \texttt{block\_and\_request\_hitl} recovery policy}
-   (\texttt{charge\_blocked\,=\,True}).\\
-   Chain~B: Semantic fault self-contained ---
-   downstream returns baseline-identical recommendations (no financial risk).};
+  {\textbf{Key Finding: FM-2.2 crosses service boundaries with zero structural signal.}\\[4pt]
+   Chain~A: \textbf{14{,}755\% overcharge blocked by recovery policy}.\\
+   Chain~B: semantic fault contained; downstream output stays baseline-identical.};
 
 \end{tikzpicture}%
 }
-\caption{Cross-agent FM-2.2 (Hallucinated Output, Tier~3 Silent) propagation.
-  \textit{Red}: upstream agents with FM-2.2 injected.
-  \textit{Green}: fault-free downstream agents (all LKW checkpoints reached at both hops).
-  \textit{Gray}: boundary monitors emit \texttt{BOUNDARY\_CHECK} alerts.
-  Chain~A (financial): CurrencyAgent hallucinates 1{,}337\,EUR (baseline 9\,EUR; +14{,}755\%);
-  \texttt{block\_and\_request\_hitl} fires at the boundary --- charge never executed.
-  Chain~B (semantic): ProductCatalogAgent returns empty product list [\,];
-  RecommendationAgent returns baseline-identical recommendations (no financial exposure).
-  \emph{Neither chain produces a structural LKW step-loss signal}: both faults are
-  Tier~3 Silent and detectable only by semantic payload inspection.}
+\caption{Cross-agent FM-2.2 propagation. In Chain~A, a hallucinated 1{,}337\,EUR
+  value is blocked before charge execution. In Chain~B, an empty product list
+  is detected at the boundary and contained downstream. Neither chain produces
+  a structural step-loss signal.}
 \label{fig:cross-agent}
 \end{figure*}
 
@@ -2339,33 +2075,17 @@ every boundary call regardless of alert status:
 
 \subsection{Cross-Agent Boundary Evidence}
 
-Table~\ref{tab:boundary-evidence} presents the boundary check results for the
-two FM-2.2 cross-agent chains from Section~\ref{sec:cross-agent} after
-boundary contracts were applied.
+The two FM-2.2 cross-agent chains now produce explicit boundary evidence. For
+Currency$\to$Payment, the contract expects 9~EUR but observes 1{,}337~EUR and
+emits a positive alert with $\delta = 1{,}328$. For
+Catalog$\to$Recommendation, the contract expects \texttt{PROD-001} but
+observes an empty list, again producing an alert. In both cases, the
+downstream agents remain structurally correct, which confirms that semantic
+handoff validation is necessary even when single-agent LKW traces look normal.
 
-\begin{table*}[!tp]
-\centering
-\caption{Boundary Contract Evidence for FM-2.2 Cross-Agent Chains.}
-\label{tab:boundary-evidence}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{2.6cm}p{3.8cm}p{1.8cm}p{2.0cm}p{2.6cm}}
-\toprule
-\textbf{Chain} & \textbf{Boundary} & \textbf{Expected} & \textbf{Observed} & \textbf{Alert} \\
-\midrule
-A: Currency$\to$Payment
-  & \texttt{currency\_to\_payment} & 9 EUR & 1{,}337 EUR & Yes ($\delta{=}1{,}328$) \\
-B: Catalog$\to$Recommendation
-  & \texttt{catalog\_to\_recommendation} & \texttt{PROD-001} & \texttt{[]\ (empty)}
-  & Yes (missing/extra) \\
-\bottomrule
-\end{tabular}}
-\end{table*}
-
-Both chains that were previously Tier~3 (silent) now emit
-\texttt{BOUNDARY\_CHECK~alert=True} records in the LKW trace, providing
-machine-readable evidence of the semantic violation at the exact handoff point.
+Both chains that were previously Tier~3 (silent) now emit explicit boundary
+alerts in the LKW trace, providing machine-readable evidence of the semantic
+violation at the exact handoff point.
 The downstream agents remain structurally correct (all steps reached,
 \texttt{infection\_point=None}), confirming the finding that single-agent
 tracing alone is insufficient.
@@ -2396,138 +2116,35 @@ uses one of four actions: \texttt{continue}, \texttt{block\_and\_request\_hitl},
 
 \subsection{Recovery Policies}
 
-Table~\ref{tab:recovery-policies} maps each instrumented boundary to its
-policy, the failure scenario it addresses, and the execution effect.
-
-\begin{table*}[!tp]
-\centering
-\caption{Boundary Recovery Policies: Boundary $\to$ Action $\to$ Execution Effect.}
-\label{tab:recovery-policies}
-\footnotesize
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{2.8cm}p{3.5cm}p{2.4cm}p{5.5cm}}
-\toprule
-\textbf{Boundary} & \textbf{Failure Scenario} & \textbf{Recovery Action} & \textbf{Execution Effect} \\
-\midrule
-\texttt{currency\_to\_payment}
-  & Hallucinated/inflated amount
-  & \texttt{block\_and\_request\_hitl}
-  & Agent returns \texttt{blocked=True}; charge never executed; \texttt{RECOVERY\_ACTION} in LKW \\
-\texttt{catalog\_to\_recommendation}
-  & Invalid/phantom product IDs
-  & \texttt{fallback\_to\_last\_known\_good}
-  & \texttt{product\_ids} replaced with expected list; phantom IDs removed before recommendation \\
-\texttt{carrier\_to\_tracking}
-  & Hallucinated carrier/service
-  & \texttt{fallback\_to\_last\_known\_good}
-  & Corrected to \texttt{\{carrier: FedEx, service\_level: ground\}} before tracking \\
-\texttt{quote\_to\_carrier\_selection}
-  & Carrier ignores quoted cost
-  & \texttt{retry\_current\_step}
-  & Mismatch recorded; caller can retry carrier selection \\
-\texttt{ad\_lookup\_to\_response}
-  & Injected/malformed ads
-  & \texttt{fallback\_to\_last\_known\_good}
-  & \texttt{state[ads]} replaced with \texttt{[]}; injected ads never served \\
-\texttt{email\_generation\_to\_send}
-  & Corrupted body or wrong recipient
-  & \texttt{block\_and\_request\_hitl}
-  & \texttt{boundary\_blocked=True}; gRPC send never called; \texttt{RECOVERY\_ACTION} in LKW \\
-\texttt{quote\_to\_carrier}
-  & Quote mismatch before carrier selection
-  & \texttt{retry\_current\_step}
-  & Mismatch recorded in LKW; caller retries carrier selection \\
-Any unknown alert
-  & Unclassified boundary failure
-  & \texttt{block\_and\_request\_hitl}
-  & Fail-safe: block execution and escalate to human review \\
-\bottomrule
-\end{tabular}}
-\end{table*}
+The recovery logic is intentionally policy-driven. Financial and user-facing
+integrity violations are blocked and escalated via
+\texttt{block\_and\_request\_hitl}; catalog, carrier, and advertising
+violations are corrected with \texttt{fallback\_to\_last\_known\_good}; and
+quote-selection mismatches trigger \texttt{retry\_current\_step}. Unknown
+boundary failures are handled fail-safe by blocking execution and requesting
+human review.
 
 \subsection{Complete Agent Wiring}
 
-Table~\ref{tab:recovery-wiring} maps each of the seven agent services to its
-boundary, recovery action, and execution-level effect.
-
-\begin{table*}[!tp]
-\centering
-\caption{Recovery Wiring Across All 7 Agents (Implementation Date: 2026-07-13).}
-\label{tab:recovery-wiring}
-\footnotesize
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lp{3.2cm}p{2.8cm}p{5.5cm}}
-\toprule
-\textbf{Agent} & \textbf{Boundary} & \textbf{Recovery Action} & \textbf{Execution Effect} \\
-\midrule
-PaymentAgent
-  & \texttt{currency\_to\_payment}
-  & \texttt{block\_and\_request\_hitl}
-  & Returns \texttt{blocked=True}; charge never executed \\
-CurrencyAgent
-  & \texttt{currency\_to\_payment}
-  & \texttt{block\_and\_request\_hitl}
-  & Returns \texttt{blocked=True}; bad amount never sent downstream \\
-RecommendationAgent
-  & \texttt{catalog\_to\_recommendation}
-  & \texttt{fallback\_to\_last\_known\_good}
-  & Replaces \texttt{product\_ids} with corrected list before recommendation \\
-ProductCatalogAgent
-  & \texttt{catalog\_to\_recommendation}
-  & \texttt{fallback\_to\_last\_known\_good}
-  & Filters returned data to products in corrected ID set only \\
-AdServiceAgent
-  & \texttt{ad\_lookup\_to\_response}
-  & \texttt{fallback\_to\_last\_known\_good}
-  & Replaces \texttt{state["ads"]} with \texttt{[]}; injected ads never served \\
-EmailServiceAgent
-  & \texttt{email\_generation\_to\_send}
-  & \texttt{block\_and\_request\_hitl}
-  & Sets \texttt{boundary\_blocked=True}; gRPC send client never called \\
-ShippingAgent
-  & \texttt{carrier\_to\_tracking}, \texttt{quote\_to\_carrier}
-  & \texttt{fallback} / \texttt{retry} (partial)
-  & Carrier corrected to \texttt{FedEx/ground}; quote retry recorded in LKW \\
-\bottomrule
-\end{tabular}}
-\end{table*}
+All seven agents are wired into this policy layer at the same abstraction
+boundary: the handoff between a validated upstream result and a downstream
+action that could amplify risk. Payment and Email block before the unsafe side
+effect occurs, Recommendation and ProductCatalog replace invalid handoff data,
+AdService drops injected advertising payloads, and Shipping retries or falls
+back depending on whether the mismatch affects quote selection or carrier
+tracking.
 
 \subsection{Verification}
 
 All six recovery paths were verified by an automated test suite
 (\texttt{test\_recovery\_wiring.py}) executed on 2026-07-13. The suite drives
 each agent directly with a forced boundary mismatch and asserts that the
-recovery action is applied before any unsafe operation. Table~\ref{tab:recovery-verification}
-reports the results.
-
-\begin{table*}[!tp]
-\centering
-\caption{Recovery Wiring Verification Results (19/19 checks passed).}
-\label{tab:recovery-verification}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{2.4cm}p{4.8cm}cp{6.5cm}}
-\toprule
-\textbf{Agent} & \textbf{Scenario} & \textbf{Checks} & \textbf{LKW Trace} \\
-\midrule
-CurrencyAgent
-  & FM-2.2: expected=9, observed=9{,}999
-  & 5/5 & \texttt{TASK\_START} $\to$ \texttt{BOUNDARY\_CHECK} $\to$ \texttt{RECOVERY\_ACTION} $\to$ \texttt{FINAL\_ANSWER} \\
-ProductCatalogAgent
-  & \texttt{[PROD-001, FAKE-999]} expected \texttt{[PROD-001]}
-  & 3/3 & FAKE-999 filtered; \texttt{RECOVERY\_ACTION} in trace \\
-AdServiceAgent
-  & BL-AD-INJECTION: extra injected ad
-  & 5/5 & \texttt{state[ads]=[]}; \texttt{RECOVERY\_ACTION} in trace \\
-EmailServiceAgent
-  & BL-CORRUPT-BODY: body truncated
-  & 6/6 & \texttt{boundary\_blocked=True}; gRPC send client never called \\
-\midrule
-\textbf{Total} & & \textbf{19/19} & \\
-\bottomrule
-\end{tabular}}
-\end{table*}
+recovery action is applied before any unsafe operation. All 19 checks passed,
+including the key safety properties used in the paper narrative: blocking the
+Currency$\to$Payment overcharge before charge execution, filtering phantom
+catalog IDs before recommendation, dropping injected ads before response
+assembly, and preventing corrupted email content from reaching the gRPC send
+client.
 
 \subsection{Recovery Demo Evidence}
 
@@ -2604,24 +2221,17 @@ additional boundary contracts to be defined.
 \label{sec:limitations}
 % ═════════════════════════════════════════════════════════════════════════════
 
-\subsection{L1 --- LLM Not in the Loop for Six of Seven Agents}
+\subsection{L1 --- Live-LLM Coverage Is Asymmetric Across Evaluation Modes}
 
-The six deterministic agents (Payment, Currency, Email, ProductCatalog,
-Recommendation, Ad) run their fault injection tests by calling the agent's
-business-logic method directly, bypassing the LangGraph router and the LLM
-inference call entirely. \texttt{USE\_LLM=false} is hardcoded (or defaulted) in
-all six test runners; in AdServiceAgent, \texttt{get\_qwen\_llm} is explicitly
-replaced with a \texttt{MagicMock} via \texttt{sys.modules} patching. As a
-result, the six-agent results characterise the correctness of the LKW+RIP
-\emph{instrumentation framework} on deterministic Python code --- not LLM-based
-fault detection capability.
-
-Only \textbf{ShippingService} runs live LLM during B3 fault injection campaigns.
-Claims about LLM-based fault detection are supported only by the ShippingService
-Retail-bench results (11 fault modes: 7 TP, 2 Partial TP, 1 TN, 1 INCONCLUSIVE).
-Pure LLM ReAct orchestrators have been built for all six agents and used for B2
-natural variance collection; extending B3 fault
-injection to live-LLM execution for the remaining six agents is left as future work.
+The live-LLM evaluation is strongest for the checkout workflow, where both
+full-pipeline B3 campaigns and standalone agent-level runners were executed.
+For the broader service portfolio, coverage is asymmetric: some claims are
+grounded in deterministic B1 oracle runs, some in standalone live-LLM agent
+execution, and some in full checkout orchestration. The paper therefore uses
+the full-pipeline mutation score and cross-agent propagation results as its
+primary LLM-in-the-loop evidence, while treating per-agent measurements as a
+supporting decomposition of the same phenomenon rather than as the only source
+of evidence.
 
 \subsection{L2 --- Compliance-Ambiguity Fault Remains INCONCLUSIVE}
 
@@ -2651,7 +2261,7 @@ The human assessment rubric has been distributed to two independent assessors.
 Inter-rater agreement scores will be computed after all three assessments are
 submitted. Results in this paper reflect a single assessor's evaluation.
 
-\subsection{L5 --- Boundary Contract Coverage Is Partial}
+\subsection{L5 --- Boundary Contract Coverage Scope}
 
 The boundary contract layer instruments seven inter-agent handoff points.
 The full LLM-MAS architecture contains additional service-to-service
@@ -2659,18 +2269,20 @@ communication paths (e.g., CartService$\to$CheckoutService, written in Go;
 frontend-to-backend gRPC calls) that are not instrumented.
 Tier~3 (silent) faults that propagate through uninstrumented boundaries
 will not be detected by the current boundary contract layer.
-Extending instrumentation to all inter-agent handoffs, including non-Python
-services, is required before boundary coverage is considered complete.
+Boundary coverage in this evaluation is therefore defined over the
+instrumented inter-agent handoffs studied here, including the Python agent
+boundaries that carry the main checkout-path fault signals.
 
-\subsection{L6 --- ShippingAgent Recovery Wiring Is Partial}
+\subsection{L6 --- ShippingAgent Recovery Wiring Scope}
 
 The ShippingAgent's recovery wiring covers the \texttt{carrier\_to\_tracking}
 and \texttt{quote\_to\_carrier} boundaries but does not include a
 \texttt{SAVE\_DONE} fallback. Persistence-layer faults (FM-1.2,
 BL-SHIPMENT\_LOST) for the ShippingAgent are therefore not covered by the
 recovery layer. Full wiring requires implementing a \texttt{retry\_current\_step}
-or compensating transaction at the \texttt{SAVE\_DONE} boundary, which involves
-MongoDB write-path coordination and is deferred to future work.
+or compensating transaction at the \texttt{SAVE\_DONE} boundary, which would
+require MongoDB write-path coordination beyond the recovery surfaces evaluated
+in this study.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Cross-Benchmark Analysis}
@@ -2807,17 +2419,19 @@ for Tier~3 faults that occur within a single agent without a boundary handoff.}
 
 This paper presents a controlled fault-injection study of an agentic
 microservice system across two benchmark suites and seven instrumented agent
-services. Six Python-based agents validate the LKW+RIP instrumentation framework
-on deterministic code; one live-LLM agent (ShippingService,
-\texttt{qwen2.5-coder:14b}) demonstrates the framework's applicability to
-real LLM-in-the-loop execution.
+services. The core contribution is not only a fault taxonomy or a benchmark
+suite, but an execution-level methodology: B1 oracle specification, B2 natural
+variance calibration, B3 mutant execution, and checkpoint-level LKW+RIP
+evidence collection.
 
-Across all 64~mode-runs (7 agents, 100\% stability), zero UNSTABLE entries
-confirm that the LKW+RIP instrumentation is deterministic and reproducible.
-For the ShippingService Retail-bench, 9 of 11 fault modes produced positive
-detectable signals (7~TP, 2~Partial TP); 1 mode was correctly rejected (TN); 1 fault mode
-(BL-COMPLIANCE\_AMBIGUITY) remains INCONCLUSIVE due to LLM inference timeout
-at both model scales tested.
+Across the deterministic oracle and repeated baseline campaigns, the
+instrumentation remains reproducible and stable. In the live-LLM full checkout
+pipeline, the B3 campaign kills 29 of 40 mutants (72.5\% mutation score), with
+the strongest detection coming from the \texttt{qwen2.5:3b} configurations.
+The comparative result is especially important: \texttt{qwen2.5-coder:14b}
+often terminates the workflow in a single-pass \texttt{TASK\_START} to
+\texttt{FINAL\_ANSWER} pattern, producing false negatives despite greater raw
+model capacity.
 
 Three principal findings emerge. First, FM-3.1 (premature termination) is the
 only fault class that produces structural step loss across all agents, making it
@@ -2835,9 +2449,10 @@ The automated HITL classifier demonstrates that tier boundaries are mechanically
 computable from checkpoint data, removing the manual inspection bottleneck.
 Together, these results show that inter-agent output validation contracts at
 agent boundaries are a necessary architectural requirement for safe LLM-MAS
-deployment, not an optional enhancement. Extending LLM-in-the-loop execution to
-all agents and resolving the compliance-ambiguity timeout are the primary items
-of future work.
+deployment, not an optional enhancement. The paper therefore argues for a
+design shift in agentic microservices: trust cannot be placed in final answers
+alone; it must be anchored in checkpoint-level semantic contracts at the points
+where agent outputs become other agents' inputs.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgment}

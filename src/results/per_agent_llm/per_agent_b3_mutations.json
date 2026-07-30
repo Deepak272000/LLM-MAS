@@ -1,0 +1,1376 @@
+{
+  "generated_at": "2026-07-30T02:42:39.688439+00:00",
+  "fault_modes": {
+    "BL_COMPLIANCE_AMBIGUITY": {
+      "adservice@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 1
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "BL_CUSTOMER_ESCALATION": {
+      "adservice@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "BL_INVENTORY_MISMATCH": {
+      "adservice@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "BL_REFUND_REASONING": {
+      "adservice@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "BL_SHIPMENT_LOST": {
+      "adservice@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "BL_VENDOR_NEGOTIATION": {
+      "adservice@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "FM_1_2": {
+      "adservice@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "FM_2_2": {
+      "adservice@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "FM_2_5": {
+      "adservice@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "currency@14b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "LIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "email@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 0
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    },
+    "FM_3_1": {
+      "adservice@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 3,
+        "step_loss_runs": 3
+      },
+      "currency@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "currency@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "currency@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "currency@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "email@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@14b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@3b_temp0.7": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "payment@3b_temp1.0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "recommendation@3b_temp0": {
+        "verdict": "KILLED",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "ship_order@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "ship_order@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@14b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 3
+      },
+      "shipping_quote@3b_temp0.7": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      },
+      "shipping_quote@3b_temp1.0": {
+        "verdict": "INCONCLUSIVE",
+        "runs": 3,
+        "infected_runs": 0,
+        "step_loss_runs": 0
+      }
+    }
+  },
+  "per_agent_kill_rates": {
+    "adservice@3b_temp0": 0.4,
+    "currency@14b_temp0": 0.3,
+    "currency@3b_temp0.7": 0.3,
+    "currency@3b_temp0": 0.3,
+    "currency@3b_temp1.0": 0.3,
+    "email@14b_temp0": 0.1,
+    "email@3b_temp0.7": 0.1,
+    "email@3b_temp0": 0.1,
+    "email@3b_temp1.0": 0.1,
+    "payment@14b_temp0": 0.4,
+    "payment@3b_temp0.7": 0.4,
+    "payment@3b_temp0": 0.4,
+    "payment@3b_temp1.0": 0.4,
+    "recommendation@3b_temp0": 0.4,
+    "ship_order@14b_temp0": 0.0,
+    "ship_order@3b_temp0.7": 0.0,
+    "ship_order@3b_temp0": 0.0,
+    "ship_order@3b_temp1.0": 0.0,
+    "shipping_quote@14b_temp0": 0.0,
+    "shipping_quote@3b_temp0.7": 0.0,
+    "shipping_quote@3b_temp0": 0.0,
+    "shipping_quote@3b_temp1.0": 0.0
+  },
+  "summary": {
+    "total_tests": 220,
+    "killed": 40,
+    "live": 64,
+    "inconclusive": 116,
+    "mutation_kill_rate": 0.182
+  }
+}

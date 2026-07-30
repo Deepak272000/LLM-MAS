@@ -1,5 +1,5 @@
-"""
-Generate all 6 paper figures for LLM-MAS fault injection study.
+r"""
+Generate all paper figures for LLM-MAS fault injection study.
 Run from: e:\Summer ai Agent Project\LLM-MAS\src\results\
 Output:   figures/*.pdf  (included via \includegraphics in paper)
 """
@@ -20,7 +20,7 @@ os.makedirs(OUT, exist_ok=True)
 # Shared style
 # ──────────────────────────────────────────────────────────────────────────────
 plt.rcParams.update({
-    "font.family": "sans-serif",
+    "font.family": "serif",
     "font.size": 10,
     "axes.titlesize": 11,
     "axes.labelsize": 10,
@@ -28,11 +28,40 @@ plt.rcParams.update({
     "ytick.labelsize": 9,
     "legend.fontsize": 9,
     "figure.dpi": 150,
+    "axes.spines.top": False,
+    "axes.spines.right": False,
+    "axes.edgecolor": "#444444",
+    "axes.linewidth": 0.8,
+    "grid.color": "#d9d9d9",
+    "grid.linewidth": 0.6,
+    "savefig.facecolor": "white",
 })
 
 TIER_COLORS = {0: "#d9d9d9", 1: "#e74c3c", 2: "#f39c12", 3: "#95a5a6"}
 TIER_LABELS = {0: "Tier 0 – Baseline", 1: "Tier 1 – Structural",
                2: "Tier 2 – Flag", 3: "Tier 3 – Silent"}
+GOOD = "#5b8c5a"
+NEUTRAL = "#5b7c99"
+WARN = "#d9a441"
+BAD = "#b85c5c"
+LIGHT_GOOD = "#e8f1e7"
+LIGHT_NEUTRAL = "#e8eef5"
+LIGHT_WARN = "#f7efd9"
+LIGHT_BAD = "#f7e4e4"
+
+
+def draw_round_box(ax, x, y, w, h, label, facecolor, edgecolor, fontsize=8.5):
+    rect = mpatches.FancyBboxPatch(
+        (x, y), w, h,
+        boxstyle="round,pad=0.04",
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=1.3,
+    )
+    ax.add_patch(rect)
+    ax.text(x + w / 2, y + h / 2, label, ha="center", va="center",
+            fontsize=fontsize, fontweight="bold")
+    return rect
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Figure 1: B2 Natural Variance Heatmap
@@ -82,6 +111,60 @@ def fig_b2_heatmap():
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Figure 1b: B1/B2/B3 protocol story
+# ──────────────────────────────────────────────────────────────────────────────
+def fig_b123_protocol():
+    fig, ax = plt.subplots(figsize=(9.2, 3.2))
+    ax.set_xlim(0, 15)
+    ax.set_ylim(0, 4)
+    ax.axis("off")
+
+    draw_round_box(
+        ax, 0.4, 1.3, 4.0, 1.5,
+        "B1 ORACLE\nUSE_LLM=false\nDeterministic mock-backed trace\nExpected checkpoints + values",
+        LIGHT_GOOD, GOOD, fontsize=9,
+    )
+    draw_round_box(
+        ax, 5.4, 1.3, 4.0, 1.5,
+        "B2 NATURAL VARIANCE\nUSE_LLM=true, no fault\nRepeated live-LLM runs\nCalibrate equivalence envelope",
+        LIGHT_WARN, WARN, fontsize=9,
+    )
+    draw_round_box(
+        ax, 10.4, 1.3, 4.1, 1.5,
+        "B3 MUTANT EXECUTION\nUSE_LLM=true + single fault\nCompare against B1 using\nB2-derived thresholds",
+        LIGHT_BAD, BAD, fontsize=9,
+    )
+
+    ax.annotate("", xy=(5.15, 2.05), xytext=(4.45, 2.05),
+                arrowprops=dict(arrowstyle="->", lw=2.0, color="#666"))
+    ax.annotate("", xy=(10.15, 2.05), xytext=(9.45, 2.05),
+                arrowprops=dict(arrowstyle="->", lw=2.0, color="#666"))
+
+    ax.text(2.4, 0.85, "Reference trace", ha="center", fontsize=8, color="#4d4d4d")
+    ax.text(7.4, 0.85, "Variance envelope", ha="center", fontsize=8, color="#4d4d4d")
+    ax.text(12.45, 0.85, "Killed / Live / Inconclusive", ha="center", fontsize=8, color="#4d4d4d")
+
+    verdicts = [
+        (10.7, 0.3, 1.05, 0.45, "Killed", LIGHT_GOOD, GOOD),
+        (11.95, 0.3, 1.05, 0.45, "Live", LIGHT_NEUTRAL, NEUTRAL),
+        (13.2, 0.3, 1.05, 0.45, "Inc.", LIGHT_BAD, BAD),
+    ]
+    for x, y, w, h, label, fc, ec in verdicts:
+        draw_round_box(ax, x, y, w, h, label, fc, ec, fontsize=8)
+
+    ax.set_title(
+        "Three-Baseline Evaluation Logic: B1 Oracle, B2 Variance, B3 Mutant Verdict",
+        fontsize=11,
+        pad=8,
+    )
+    fig.tight_layout()
+    path = os.path.join(OUT, "fig_b123_protocol.pdf")
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+    print("Saved:", path)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Figure 2: HITL Tier Distribution Stacked Bar
 # ──────────────────────────────────────────────────────────────────────────────
 def fig_hitl_stacked():
@@ -116,11 +199,13 @@ def fig_hitl_stacked():
     tiers = [1, 2, 3]
     tier_data = {t: [counts[a].get(t, 0) for a in agent_order] for t in tiers}
 
+    x = np.arange(len(agent_order))
+
     fig, ax = plt.subplots(figsize=(6.5, 3.2))
     bottoms = np.zeros(len(agent_order))
     for t in tiers:
         vals = np.array(tier_data[t], dtype=float)
-        ax.bar(labels, vals, bottom=bottoms, color=TIER_COLORS[t],
+        ax.bar(x, vals, bottom=bottoms, color=TIER_COLORS[t],
                label=TIER_LABELS[t], edgecolor="white", linewidth=0.5)
         for i, (v, b) in enumerate(zip(vals, bottoms)):
             if v > 0:
@@ -132,6 +217,7 @@ def fig_hitl_stacked():
     ax.set_title("HITL Tier Distribution Across 7 Agents")
     ax.legend(loc="upper right", framealpha=0.9)
     ax.set_ylim(0, bottoms.max() * 1.2)
+    ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=25, ha="right")
     fig.tight_layout()
     path = os.path.join(OUT, "fig_hitl_stacked.pdf")
@@ -205,6 +291,57 @@ def fig_stability_scatter():
     ax.legend(loc="lower right", framealpha=0.9, fontsize=8)
     fig.tight_layout()
     path = os.path.join(OUT, "fig_stability_scatter.pdf")
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+    print("Saved:", path)
+
+
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Figure 3b: Full-pipeline B3 outcome comparison by model config
+# ──────────────────────────────────────────────────────────────────────────────
+def fig_b3_outcomes():
+    configs = ["14b_temp0", "3b_temp0", "3b_temp0.7", "3b_temp1.0"]
+    killed = np.array([0, 9, 10, 10], dtype=float)
+    live = np.array([10, 0, 0, 0], dtype=float)
+    inconc = np.array([0, 1, 0, 0], dtype=float)
+    total = killed + live + inconc
+    scores = (killed / total) * 100
+
+    labels = ["14b\nt=0", "3b\nt=0", "3b\nt=0.7", "3b\nt=1.0"]
+    x = np.arange(len(configs))
+
+    fig, ax = plt.subplots(figsize=(6.8, 3.5))
+    ax.bar(x, killed, color=GOOD, label="Killed", edgecolor="white", linewidth=0.6)
+    ax.bar(x, live, bottom=killed, color=NEUTRAL, label="Live", edgecolor="white", linewidth=0.6)
+    ax.bar(x, inconc, bottom=killed + live, color=BAD, label="Inconclusive", edgecolor="white", linewidth=0.6)
+
+    for i in range(len(x)):
+        ax.text(x[i], killed[i] / 2 if killed[i] > 0 else 0.25,
+                f"{int(killed[i])}", ha="center", va="center",
+                fontsize=8.5, fontweight="bold", color="black")
+        if live[i] > 0:
+            ax.text(x[i], killed[i] + live[i] / 2,
+                    f"{int(live[i])}", ha="center", va="center",
+                    fontsize=8.5, fontweight="bold", color="white")
+        if inconc[i] > 0:
+            ax.text(x[i], killed[i] + live[i] + inconc[i] / 2,
+                    f"{int(inconc[i])}", ha="center", va="center",
+                    fontsize=8.5, fontweight="bold", color="white")
+        ax.text(x[i], total[i] + 0.35, f"{scores[i]:.0f}%",
+                ha="center", va="bottom", fontsize=8.5,
+                fontweight="bold", color="#333")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.set_ylim(0, 11.6)
+    ax.set_ylabel("Fault outcomes across 10 mutants")
+    ax.set_title("Full-Pipeline B3 Mutation Outcomes by Model Configuration")
+    ax.legend(loc="upper center", ncol=3, framealpha=0.9)
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+    path = os.path.join(OUT, "fig_b3_outcomes.pdf")
     fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
     print("Saved:", path)
@@ -293,7 +430,7 @@ def fig_lkw_trace_diff():
         ("CARD_VALIDATED","validated=True\nbypass=False", "P2", "clean"),
         ("CHARGE_DONE",   "charged=9999.00\ntampered=True", "P3", "infected"),
         ("SAVE_DONE",     "skipped=False\nrecord_id=TXN-…", "P3", "propagated"),
-        ("FINAL_ANSWER",  "status=success\n⚠ corrupt amount", "P5", "propagated"),
+        ("FINAL_ANSWER",  "status=success\ncorrupt amount", "P5", "propagated"),
     ]
 
     state_color = {
@@ -351,6 +488,64 @@ def fig_lkw_trace_diff():
                  fontsize=10, y=1.01)
     fig.tight_layout()
     path = os.path.join(OUT, "fig_lkw_trace_diff.pdf")
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+    print("Saved:", path)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Figure 5b: B1/B2/B3 exemplar verdict for one fault
+# ──────────────────────────────────────────────────────────────────────────────
+def fig_b123_example_verdict():
+    fig, axes = plt.subplots(1, 3, figsize=(9.4, 2.9), gridspec_kw={"wspace": 0.3})
+
+    panel_titles = [
+        "B1 Oracle",
+        "B2 Natural Variance",
+        "B3 Fault Run",
+    ]
+    panel_subtitles = [
+        "PaymentAgent\nBL-AMOUNT-TAMPER inactive",
+        "Live LLM, no fault\nExpected envelope around oracle",
+        "Live LLM + mutant\nKilled by checkpoint deviation",
+    ]
+
+    oracle_value = 9.0
+    b2_values = [9.0, 9.0, 9.0, 9.0, 9.0]
+    b3_value = 9999.0
+
+    for idx, ax in enumerate(axes):
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 10500)
+        ax.set_xticks([])
+        ax.grid(axis="y", alpha=0.2)
+        ax.set_title(panel_titles[idx], fontsize=10, fontweight="bold")
+        ax.text(0.5, 10150, panel_subtitles[idx], ha="center", va="top", fontsize=8, color="#444")
+
+    for ax in axes:
+        ax.set_yscale("log")
+        ax.set_ylim(1, 20000)
+        ax.set_yticks([1, 10, 100, 1000, 10000])
+        ax.set_yticklabels(["1", "10", "100", "1000", "10000"])
+
+    axes[0].plot([0.5], [oracle_value], marker="o", markersize=8, color=GOOD)
+    axes[0].hlines(oracle_value, 0.25, 0.75, colors=GOOD, linewidth=2)
+    axes[0].text(0.5, oracle_value + 220, "B1 = 9.00 EUR", ha="center", fontsize=8.5, fontweight="bold")
+
+    axes[1].scatter([0.35, 0.43, 0.5, 0.57, 0.65], b2_values, s=38, color=WARN, zorder=3)
+    axes[1].fill_between([0.22, 0.78], [8.5, 8.5], [9.5, 9.5], color=LIGHT_WARN, alpha=0.95)
+    axes[1].hlines(oracle_value, 0.22, 0.78, colors=WARN, linewidth=2)
+    axes[1].text(0.5, 2.2, "B2 envelope\nno meaningful deviation", ha="center", fontsize=8.5)
+
+    axes[2].plot([0.5], [b3_value], marker="o", markersize=10, color=BAD)
+    axes[2].vlines(0.5, oracle_value, b3_value, colors=BAD, linestyles="--", linewidth=1.6)
+    axes[2].text(0.5, b3_value / 1.8, "B3 = 9999.00", ha="center", fontsize=8.5, fontweight="bold", color=BAD)
+    axes[2].text(0.5, 2.2, "Outside B2 envelope\n=> killed mutant", ha="center", fontsize=8.5)
+
+    axes[0].set_ylabel("Charged amount")
+    fig.suptitle("B1/B2/B3 Verdict Example: PaymentAgent BL-AMOUNT-TAMPER", fontsize=10.5, y=1.02)
+    fig.tight_layout()
+    path = os.path.join(OUT, "fig_b123_example_verdict.pdf")
     fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
     print("Saved:", path)
@@ -436,9 +631,12 @@ def state_edge_for_tier(t):
 if __name__ == "__main__":
     print("Generating figures...")
     fig_b2_heatmap()
+    fig_b123_protocol()
     fig_hitl_stacked()
     fig_stability_scatter()
+    fig_b3_outcomes()
     fig_cross_agent_chain()
     fig_lkw_trace_diff()
+    fig_b123_example_verdict()
     fig_rip_causality()
     print("Done. All figures saved to", OUT)

@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-07-30T02:34:57.869576+00:00",
+  "ollama_url": "http://localhost:11434",
+  "model": "qwen2.5:3b",
+  "scenarios": [
+    {
+      "name": "recommendation_boundary_recovery",
+      "agent": "recommendation",
+      "fault_mode": "FM_2_2",
+      "error": null,
+      "steps": [
+        "TASK_START",
+        "BOUNDARY_CHECK",
+        "RECOVERY_ACTION",
+        "RECOMMEND_DONE",
+        "FINAL_ANSWER"
+      ],
+      "boundary_check": {
+        "boundary": "catalog_to_recommendation",
+        "alert": true,
+        "status": "signal_escape",
+        "expected": [
+          "PROD-001"
+        ],
+        "observed": [
+          "HALLUCINATED-001"
+        ],
+        "difference": {
+          "missing": [
+            "PROD-001"
+          ],
+          "extra": [
+            "HALLUCINATED-001"
+          ]
+        },
+        "detail": "missing=['PROD-001'], extra=['HALLUCINATED-001']",
+        "violations": [
+          {
+            "type": "missing_items",
+            "items": [
+              "PROD-001"
+            ]
+          },
+          {
+            "type": "extra_items",
+            "items": [
+              "HALLUCINATED-001"
+            ]
+          },
+          {
+            "type": "predicate_failed",
+            "fields": [
+              {
+                "field": "__value__",
+                "reason": "predicate returned false"
+              }
+            ]
+          }
+        ],
+        "recovery": {
+          "action": "fallback_to_last_known_good",
+          "should_continue": true,
+          "requires_hitl": false,
+          "reason": "invalid product IDs can be replaced with the last validated catalog payload",
+          "corrected_payload": [
+            "PROD-001"
+          ]
+        }
+      },
+      "recovery_action": {
+        "action": "fallback_to_last_known_good",
+        "should_continue": true,
+        "requires_hitl": false,
+        "reason": "invalid product IDs can be replaced with the last validated catalog payload",
+        "corrected_payload": [
+          "PROD-001"
+        ]
+      },
+      "final_answer": {
+        "count": 3
+      }
+    },
+    {
+      "name": "adservice_boundary_recovery",
+      "agent": "adservice",
+      "fault_mode": "BL_AD_INJECTION",
+      "error": null,
+      "steps": [
+        "TASK_START",
+        "CONTEXT_EXTRACTED",
+        "BOUNDARY_CHECK",
+        "RECOVERY_ACTION",
+        "ADS_FETCHED",
+        "FINAL_ANSWER"
+      ],
+      "boundary_check": {
+        "boundary": "ad_lookup_to_response",
+        "alert": true,
+        "status": "signal_escape",
+        "expected": [
+          {
+            "redirect_url": "https://shop.example.com/hats",
+            "text": "Buy stylish hats!"
+          }
+        ],
+        "observed": [
+          {
+            "redirect_url": "https://unauthorized.example.com/ad",
+            "text": "INJECTED: Unauthorized advertisement"
+          },
+          {
+            "redirect_url": "/product/66VCHSJNUP",
+            "text": "Tank top for sale. 20% off."
+          }
+        ],
+        "difference": {
+          "missing": [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            }
+          ],
+          "extra": [
+            {
+              "redirect_url": "https://unauthorized.example.com/ad",
+              "text": "INJECTED: Unauthorized advertisement"
+            },
+            {
+              "redirect_url": "/product/66VCHSJNUP",
+              "text": "Tank top for sale. 20% off."
+            }
+          ]
+        },
+        "detail": "missing=[{'redirect_url': 'https://shop.example.com/hats', 'text': 'Buy stylish hats!'}], extra=[{'redirect_url': 'https://unauthorized.example.com/ad', 'text': 'INJECTED: Unauthorized advertisement'}, {'redirect_url': '/product/66VCHSJNUP', 'text': 'Tank top for sale. 20% off.'}]",
+        "violations": [
+          {
+            "type": "missing_items",
+            "items": [
+              {
+                "redirect_url": "https://shop.example.com/hats",
+                "text": "Buy stylish hats!"
+              }
+            ]
+          },
+          {
+            "type": "extra_items",
+            "items": [
+              {
+                "redirect_url": "https://unauthorized.example.com/ad",
+                "text": "INJECTED: Unauthorized advertisement"
+              },
+              {
+                "redirect_url": "/product/66VCHSJNUP",
+                "text": "Tank top for sale. 20% off."
+              }
+            ]
+          }
+        ]
+      },
+      "recovery_action": {
+        "action": "fallback_to_last_known_good",
+        "should_continue": true,
+        "requires_hitl": false,
+        "reason": "invalid ads replaced with empty list to avoid serving injected or malformed ads",
+        "corrected_payload": []
+      },
+      "final_answer": {
+        "ads_count": 0
+      }
+    }
+  ]
+}

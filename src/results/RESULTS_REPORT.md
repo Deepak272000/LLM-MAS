@@ -641,3 +641,120 @@ sequenceDiagram
 
     Note over FI,CK: Root cause: template-string fallback bypasses<br/>all instrumented tool calls<br/>Architecture-level blind spot — not a test gap
 ```
+
+---
+
+## 8. AgenTracer Attribution Results (SPEED HPC — Job 1170403)
+
+**What this is:** We ran our full `agentracer_adapter` pipeline on SPEED HPC against all 67 trajectories (54 single-agent + 11 shipping + 2 cross-agent chains). Two attributors were evaluated: a rule-based attributor (deterministic, using LKW tier/flag evidence) and an LLM attributor (`qwen2.5:3b` via Ollama). Ground truth `(i*, t*)` pairs come from deterministic fault injection — stronger than AgenTracer's counterfactual construction.
+
+**SPEED job:** 1170403 on `speed-40.encs.concordia.ca` — Thu Jul 30 22:43 EDT 2026
+
+---
+
+### 8.1 Overall Attribution Accuracy
+
+| Method | Agent Accuracy | Step Accuracy |
+|---|---|---|
+| Rule-Based (LKW tier/flag) | **98.3%** (59/60) | **63.3%** (38/60) |
+| LLM — qwen2.5:3b (Ollama) | **96.7%** (58/60) | **5.0%** (3/60) |
+
+- **60 evaluated** (7 baseline NONE scenarios excluded from accuracy count — correct by definition)
+- The LLM correctly identifies *which agent* failed (96.7%) but cannot reliably name the exact step (5%) — the 3B model reads the trajectory text and picks the right agent, but step names like `CONVERT_DONE` or `TASK_COMPLETE` require precision it doesn't have at this scale
+- Rule-based step accuracy of 63.3% reflects cases where the LKW evidence points to the correct step name in the checkpoint log; misses are Tier 3 silent faults where the infection step has no structural marker
+
+---
+
+### 8.2 Tier Breakdown (Rule-Based)
+
+| Tier | Total | Correct | Accuracy |
+|---|---|---|---|
+| Baseline (NONE) | 10 | 10 | **100.0%** |
+| Tier 1 — Structural | 8 | 8 | **100.0%** |
+| Tier 2 — Flag-Det. | 34 | 34 | **100.0%** |
+| Tier 3 — Silent | 8 | 7 | **87.5%** |
+| **Overall** | **60** | **59** | **98.3%** |
+
+- Tier 1 and Tier 2 are perfectly attributable because structural step loss and flag injection are deterministic LKW signals
+- Tier 3 misses: 1 case — CurrencyAgent Chain A (see §8.4)
+
+---
+
+### 8.3 Per-Agent Accuracy (Rule-Based)
+
+| Agent | Correct | Total | Accuracy |
+|---|---|---|---|
+| ProductCatalogAgent | 9 | 9 | **100.0%** |
+| AdServiceAgent | 8 | 8 | **100.0%** |
+| EmailServiceAgent | 8 | 8 | **100.0%** |
+| PaymentAgent | 8 | 8 | **100.0%** |
+| RecommendationAgent | 8 | 8 | **100.0%** |
+| ShippingAgent | 10 | 10 | **100.0%** |
+| CurrencyAgent | 8 | 9 | **88.9%** |
+
+CurrencyAgent is the only agent below 100%. The one miss is the cross-agent Chain A scenario (see §8.4).
+
+---
+
+### 8.4 Cross-Agent Chain Attribution
+
+| Chain | True Agent | Rule-Based | LLM |
+|---|---|---|---|
+| Chain A — FM-2.2 Currency→Payment | `currencyagent` | ✗ pred=`multi_agent` | ✗ |
+| Chain B — FM-2.2 Catalog→Recommendation | `productcatalogagent` | ✓ | ✗ |
+
+**Chain A miss — why this is a finding, not a bug:**
+
+The boundary contract intercepted the flow before the `__fault_injected` flag propagated. `BOUNDARY_CHECK` replaced `CONVERT_DONE` as the final CurrencyAgent checkpoint, so `hop1_rip.infection_point` is null. The rule-based attributor correctly returns `multi_agent` — it has no positive evidence for a single agent. This means **boundary contracts actively change the observable fault signature**, making attribution harder at the same time as they make recovery easier. This is the key cross-agent tension.
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant CA as CurrencyAgent
+    participant BC as Boundary Contract
+    participant PA as PaymentAgent
+
+    FI->>CA: inject FM-2.2 (hallucinated rate)
+    CA->>BC: output with __fault_injected flag
+    Note over BC: BOUNDARY_CHECK fires<br/>flag consumed — CONVERT_DONE replaced
+    BC-->>PA: sanitised / blocked output
+    Note over PA: No __fault_injected in trajectory<br/>Attributor sees: multi_agent (no single-agent signal)
+    Note over FI: True agent = currencyagent<br/>Rule-based pred = multi_agent ✗<br/>Finding: contract hides injection marker
+```
+
+**Chain B success:** The ProductCatalog→Recommendation chain injected a fault where the flag survived the boundary (Catalog outputs directly to Recommendation without an intercepting contract at that checkpoint). The attributor correctly identified `productcatalogagent`.
+
+---
+
+### 8.5 Key Finding: Boundary Contracts vs. Attribution Observability
+
+The cross-agent results surface a fundamental tension:
+
+| Property | Without Boundary Contract | With Boundary Contract |
+|---|---|---|
+| Downstream harm | Propagates silently (+14,755% overcharge) | Blocked or flagged |
+| Attribution from trajectory | Possible (fault flag survives) | Harder (flag consumed at boundary) |
+| HITL burden | High — manual payload inspection | Lower — structured RECOVERY_ACTION |
+
+**Bottom line:** boundary contracts reduce runtime harm but reduce post-hoc attribution accuracy. Both properties are needed. The architectural implication is that boundary contracts should log a structured `ATTRIBUTION_HINT` record when they intercept a flagged payload, so the attributor can still identify the originating agent.
+
+---
+
+### 8.6 Diagram — Attribution Pipeline Results
+
+```mermaid
+xychart-beta
+    title "Rule-Based Attribution Accuracy by Tier"
+    x-axis ["Baseline", "Tier 1 Structural", "Tier 2 Flag-Det.", "Tier 3 Silent"]
+    y-axis "Accuracy %" 0 --> 100
+    bar [100, 100, 100, 87.5]
+```
+
+```mermaid
+xychart-beta
+    title "Agent vs Step Accuracy: Rule-Based vs LLM (qwen2.5:3b)"
+    x-axis ["Agent Accuracy", "Step Accuracy"]
+    y-axis "%" 0 --> 100
+    bar [98.3, 63.3]
+    bar [96.7, 5.0]
+```

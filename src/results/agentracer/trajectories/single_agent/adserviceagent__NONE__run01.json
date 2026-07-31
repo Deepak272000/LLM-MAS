@@ -1,0 +1,59 @@
+{
+  "trajectory_id": "adserviceagent__NONE__run01",
+  "agent_under_test": "adserviceagent",
+  "fault_mode": "NONE",
+  "outcome": "PASSED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "adserviceagent",
+      "action": "TASK_START",
+      "observation": {
+        "checkpoint": "TASK_START"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "adserviceagent",
+      "action": "CONTEXT_EXTRACTED",
+      "observation": {
+        "context_keys": [
+          "['clothing']"
+        ]
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "adserviceagent",
+      "action": "ADS_FETCHED",
+      "observation": {
+        "count": {
+          "min": 2.0,
+          "max": 2.0,
+          "mean": 2.0
+        },
+        "hallucinated": false
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "adserviceagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": null,
+    "error_step": null,
+    "tier": 0,
+    "tier_label": "BASELINE",
+    "infection_point": null,
+    "flags_found": [],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

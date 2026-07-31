@@ -1,0 +1,70 @@
+{
+  "trajectory_id": "paymentagent__FM_2_5__run01",
+  "agent_under_test": "paymentagent",
+  "fault_mode": "FM_2_5",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "paymentagent",
+      "action": "TASK_START",
+      "observation": {
+        "currency_code": "USD",
+        "units": 10,
+        "nanos": 990000000
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "paymentagent",
+      "action": "CARD_VALIDATED",
+      "observation": {
+        "validation_bypassed": false,
+        "amount_tampered": true,
+        "__fault_injected": true,
+        "__fault_mode": "FM_2_5"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "paymentagent",
+      "action": "CHARGE_DONE",
+      "observation": {
+        "transaction_id": "fc3ab88b-4c3c-406d-8674-6fd3f5e96314",
+        "units_charged": 10,
+        "hallucinated": false
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "paymentagent",
+      "action": "SAVE_DONE",
+      "observation": {
+        "saved": true,
+        "double_charge": false
+      }
+    },
+    {
+      "step_id": 4,
+      "agent": "paymentagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "paymentagent",
+    "error_step": "CARD_VALIDATED",
+    "tier": 2,
+    "tier_label": "TIER 2 \u2014 Flag-Detectable",
+    "infection_point": "CARD_VALIDATED",
+    "flags_found": [
+      "amount_tampered"
+    ],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

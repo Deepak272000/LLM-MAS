@@ -1,0 +1,89 @@
+{
+  "trajectory_id": "cross_chain_A__FM_2_2__run01",
+  "agent_under_test": "multi_agent",
+  "fault_mode": "FM_2_2",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "currencyagent",
+      "action": "TASK_START",
+      "observation": {
+        "units": 10,
+        "to_currency": "EUR"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "currencyagent",
+      "action": "BOUNDARY_CHECK",
+      "observation": {
+        "checkpoint": "BOUNDARY_CHECK"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "currencyagent",
+      "action": "RECOVERY_ACTION",
+      "observation": {
+        "checkpoint": "RECOVERY_ACTION"
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "currencyagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    },
+    {
+      "step_id": 4,
+      "agent": "paymentagent",
+      "action": "TASK_START",
+      "observation": {
+        "currency_code": "USD",
+        "units": 10,
+        "nanos": 990000000
+      }
+    },
+    {
+      "step_id": 5,
+      "agent": "paymentagent",
+      "action": "BOUNDARY_CHECK",
+      "observation": {
+        "checkpoint": "BOUNDARY_CHECK"
+      }
+    },
+    {
+      "step_id": 6,
+      "agent": "paymentagent",
+      "action": "RECOVERY_ACTION",
+      "observation": {
+        "checkpoint": "RECOVERY_ACTION"
+      }
+    },
+    {
+      "step_id": 7,
+      "agent": "paymentagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "currencyagent",
+    "error_step": null,
+    "tier": 3,
+    "tier_label": "TIER 3 \u2014 Silent (cross-agent)",
+    "infection_point": null,
+    "flags_found": [
+      "hallucinated"
+    ],
+    "steps_lost": [],
+    "cross_agent": true,
+    "overcharge_pct": 14755.6
+  }
+}

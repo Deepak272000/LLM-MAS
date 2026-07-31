@@ -1,0 +1,116 @@
+{
+  "trajectory_id": "cross_chain_B__FM_2_2__run01",
+  "agent_under_test": "multi_agent",
+  "fault_mode": "FM_2_2",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "productcatalogagent",
+      "action": "TASK_START",
+      "observation": {
+        "action": "list_products"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "productcatalogagent",
+      "action": "BOUNDARY_CHECK",
+      "observation": {
+        "checkpoint": "BOUNDARY_CHECK"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "productcatalogagent",
+      "action": "RECOVERY_ACTION",
+      "observation": {
+        "checkpoint": "RECOVERY_ACTION"
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "productcatalogagent",
+      "action": "CATALOG_DONE",
+      "observation": {
+        "product_ids": [
+          "['PROD-001', 'PROD-002']"
+        ],
+        "count": 2,
+        "price_manipulated": false,
+        "__fault_injected": true,
+        "__fault_mode": "FM_2_2",
+        "hallucinated": true,
+        "units": "?"
+      }
+    },
+    {
+      "step_id": 4,
+      "agent": "productcatalogagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    },
+    {
+      "step_id": 5,
+      "agent": "recommendationagent",
+      "action": "TASK_START",
+      "observation": {
+        "user_id": "user-abc123"
+      }
+    },
+    {
+      "step_id": 6,
+      "agent": "recommendationagent",
+      "action": "BOUNDARY_CHECK",
+      "observation": {
+        "checkpoint": "BOUNDARY_CHECK"
+      }
+    },
+    {
+      "step_id": 7,
+      "agent": "recommendationagent",
+      "action": "RECOVERY_ACTION",
+      "observation": {
+        "checkpoint": "RECOVERY_ACTION"
+      }
+    },
+    {
+      "step_id": 8,
+      "agent": "recommendationagent",
+      "action": "RECOMMEND_DONE",
+      "observation": {
+        "count": {
+          "min": 3.0,
+          "max": 3.0,
+          "mean": 3.0
+        },
+        "hallucinated": false,
+        "injection": false
+      }
+    },
+    {
+      "step_id": 9,
+      "agent": "recommendationagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "productcatalogagent",
+    "error_step": "CATALOG_DONE",
+    "tier": 3,
+    "tier_label": "TIER 3 \u2014 Silent (cross-agent)",
+    "infection_point": "CATALOG_DONE",
+    "flags_found": [
+      "hallucinated"
+    ],
+    "steps_lost": [],
+    "cross_agent": true,
+    "overcharge_pct": null
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "trajectory_id": "currencyagent__FM_3_1__run01",
+  "agent_under_test": "currencyagent",
+  "fault_mode": "FM_3_1",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "currencyagent",
+      "action": "TASK_START",
+      "observation": {
+        "units": 10,
+        "to_currency": "EUR"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "currencyagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER",
+        "__fault_injected": true,
+        "__fault_mode": "FM_3_1",
+        "premature_termination": true
+      }
+    }
+  ],
+  "missing_steps": [
+    "CONVERT_DONE"
+  ],
+  "ground_truth": {
+    "error_agent": "currencyagent",
+    "error_step": "FINAL_ANSWER",
+    "tier": 1,
+    "tier_label": "TIER 1 \u2014 Structural",
+    "infection_point": "FINAL_ANSWER",
+    "flags_found": [
+      "premature_termination"
+    ],
+    "steps_lost": [
+      "CONVERT_DONE"
+    ],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

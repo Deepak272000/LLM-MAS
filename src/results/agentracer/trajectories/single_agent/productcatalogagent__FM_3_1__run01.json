@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "productcatalogagent__FM_3_1__run01",
+  "agent_under_test": "productcatalogagent",
+  "fault_mode": "FM_3_1",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "productcatalogagent",
+      "action": "TASK_START",
+      "observation": {
+        "action": "list_products"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "productcatalogagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER",
+        "__fault_injected": true,
+        "__fault_mode": "FM_3_1",
+        "premature_termination": true
+      }
+    }
+  ],
+  "missing_steps": [
+    "CATALOG_DONE"
+  ],
+  "ground_truth": {
+    "error_agent": "productcatalogagent",
+    "error_step": "FINAL_ANSWER",
+    "tier": 1,
+    "tier_label": "TIER 1 \u2014 Structural",
+    "infection_point": "FINAL_ANSWER",
+    "flags_found": [
+      "premature_termination"
+    ],
+    "steps_lost": [
+      "CATALOG_DONE"
+    ],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

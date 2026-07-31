@@ -1,0 +1,52 @@
+{
+  "trajectory_id": "emailserviceagent__NONE__run01",
+  "agent_under_test": "emailserviceagent",
+  "fault_mode": "NONE",
+  "outcome": "PASSED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "emailserviceagent",
+      "action": "TASK_START",
+      "observation": {
+        "email": "customer@example.com"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "emailserviceagent",
+      "action": "PREPARE_DONE",
+      "observation": {
+        "checkpoint": "PREPARE_DONE"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "emailserviceagent",
+      "action": "SEND_DONE",
+      "observation": {
+        "checkpoint": "SEND_DONE"
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "emailserviceagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": null,
+    "error_step": null,
+    "tier": 0,
+    "tier_label": "BASELINE",
+    "infection_point": null,
+    "flags_found": [],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

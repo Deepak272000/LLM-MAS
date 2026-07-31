@@ -1,0 +1,63 @@
+{
+  "trajectory_id": "emailserviceagent__FM_3_1__run01",
+  "agent_under_test": "emailserviceagent",
+  "fault_mode": "FM_3_1",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "emailserviceagent",
+      "action": "TASK_START",
+      "observation": {
+        "email": "customer@example.com"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "emailserviceagent",
+      "action": "PREPARE_DONE",
+      "observation": {
+        "checkpoint": "PREPARE_DONE"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "emailserviceagent",
+      "action": "SEND_DONE",
+      "observation": {
+        "checkpoint": "SEND_DONE"
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "emailserviceagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER",
+        "__fault_injected": true,
+        "__fault_mode": "FM_3_1",
+        "premature_termination": true
+      }
+    }
+  ],
+  "missing_steps": [
+    "EMAIL_GENERATED",
+    "EMAIL_SENT"
+  ],
+  "ground_truth": {
+    "error_agent": "emailserviceagent",
+    "error_step": "FINAL_ANSWER",
+    "tier": 1,
+    "tier_label": "TIER 1 \u2014 Structural",
+    "infection_point": "FINAL_ANSWER",
+    "flags_found": [
+      "premature_termination"
+    ],
+    "steps_lost": [
+      "EMAIL_GENERATED",
+      "EMAIL_SENT"
+    ],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

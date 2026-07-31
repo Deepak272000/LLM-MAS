@@ -1,0 +1,50 @@
+{
+  "trajectory_id": "recommendationagent__NONE__run01",
+  "agent_under_test": "recommendationagent",
+  "fault_mode": "NONE",
+  "outcome": "PASSED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "recommendationagent",
+      "action": "TASK_START",
+      "observation": {
+        "user_id": "user-abc123"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "recommendationagent",
+      "action": "RECOMMEND_DONE",
+      "observation": {
+        "count": {
+          "min": 3.0,
+          "max": 3.0,
+          "mean": 3.0
+        },
+        "hallucinated": false,
+        "injection": false
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "recommendationagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": null,
+    "error_step": null,
+    "tier": 0,
+    "tier_label": "BASELINE",
+    "infection_point": null,
+    "flags_found": [],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

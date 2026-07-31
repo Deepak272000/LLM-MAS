@@ -1,0 +1,64 @@
+{
+  "trajectory_id": "adserviceagent__BL_AD_INJECTION__run01",
+  "agent_under_test": "adserviceagent",
+  "fault_mode": "BL_AD_INJECTION",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "adserviceagent",
+      "action": "TASK_START",
+      "observation": {
+        "checkpoint": "TASK_START"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "adserviceagent",
+      "action": "CONTEXT_EXTRACTED",
+      "observation": {
+        "context_keys": [
+          "['clothing']"
+        ]
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "adserviceagent",
+      "action": "ADS_FETCHED",
+      "observation": {
+        "count": {
+          "min": 2.0,
+          "max": 2.0,
+          "mean": 2.0
+        },
+        "hallucinated": false,
+        "__fault_injected": true,
+        "__fault_mode": "BL_AD_INJECTION",
+        "injected": true
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "adserviceagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "adserviceagent",
+    "error_step": "ADS_FETCHED",
+    "tier": 2,
+    "tier_label": "TIER 2 \u2014 Flag-Detectable",
+    "infection_point": "ADS_FETCHED",
+    "flags_found": [
+      "injected"
+    ],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

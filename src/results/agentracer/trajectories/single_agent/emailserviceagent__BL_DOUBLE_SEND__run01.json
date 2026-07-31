@@ -1,0 +1,54 @@
+{
+  "trajectory_id": "emailserviceagent__BL_DOUBLE_SEND__run01",
+  "agent_under_test": "emailserviceagent",
+  "fault_mode": "BL_DOUBLE_SEND",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "emailserviceagent",
+      "action": "TASK_START",
+      "observation": {
+        "email": "customer@example.com"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "emailserviceagent",
+      "action": "PREPARE_DONE",
+      "observation": {
+        "checkpoint": "PREPARE_DONE"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "emailserviceagent",
+      "action": "SEND_DONE",
+      "observation": {
+        "checkpoint": "SEND_DONE"
+      }
+    },
+    {
+      "step_id": 3,
+      "agent": "emailserviceagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "emailserviceagent",
+    "error_step": "EMAIL_SENT",
+    "tier": 2,
+    "tier_label": "TIER 2 \u2014 Flag-Detectable",
+    "infection_point": "EMAIL_SENT",
+    "flags_found": [
+      "double_send"
+    ],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

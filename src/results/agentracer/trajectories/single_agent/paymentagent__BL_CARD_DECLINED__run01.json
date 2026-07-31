@@ -1,0 +1,51 @@
+{
+  "trajectory_id": "paymentagent__BL_CARD_DECLINED__run01",
+  "agent_under_test": "paymentagent",
+  "fault_mode": "BL_CARD_DECLINED",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "paymentagent",
+      "action": "TASK_START",
+      "observation": {
+        "currency_code": "USD",
+        "units": 10,
+        "nanos": 990000000
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "paymentagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER",
+        "__fault_injected": true,
+        "__fault_mode": "BL_CARD_DECLINED",
+        "forced_decline": true
+      }
+    }
+  ],
+  "missing_steps": [
+    "CARD_VALIDATED",
+    "CHARGE_DONE",
+    "SAVE_DONE"
+  ],
+  "ground_truth": {
+    "error_agent": "paymentagent",
+    "error_step": "FINAL_ANSWER",
+    "tier": 1,
+    "tier_label": "TIER 1 \u2014 Structural",
+    "infection_point": "FINAL_ANSWER",
+    "flags_found": [
+      "forced_decline"
+    ],
+    "steps_lost": [
+      "CARD_VALIDATED",
+      "CHARGE_DONE",
+      "SAVE_DONE"
+    ],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

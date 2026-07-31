@@ -1,0 +1,44 @@
+{
+  "trajectory_id": "shippingagent__BL_VENDOR_NEGOTIATION__run01",
+  "agent_under_test": "shippingagent",
+  "fault_mode": "BL_VENDOR_NEGOTIATION",
+  "outcome": "INCONCLUSIVE",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "shippingagent",
+      "action": "TASK_START",
+      "observation": {
+        "checkpoint": "TASK_START"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "shippingagent",
+      "action": "QUOTE_DONE",
+      "observation": {
+        "checkpoint": "QUOTE_DONE"
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "shippingagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "shippingagent",
+    "error_step": null,
+    "tier": 0,
+    "tier_label": "BASELINE",
+    "infection_point": null,
+    "flags_found": [],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

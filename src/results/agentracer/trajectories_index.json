@@ -1,0 +1,678 @@
+{
+  "generated_at": "2026-07-31T01:19:53.756707+00:00",
+  "total": 67,
+  "single_agent": [
+    {
+      "id": "paymentagent__NONE__run01",
+      "agent": "paymentagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__NONE__run01.json"
+    },
+    {
+      "id": "paymentagent__FM_3_1__run01",
+      "agent": "paymentagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "paymentagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "paymentagent__FM_2_2__run01",
+      "agent": "paymentagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "tier": 3,
+      "error_agent": "paymentagent",
+      "error_step": "CHARGE_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "paymentagent__FM_2_5__run01",
+      "agent": "paymentagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "paymentagent",
+      "error_step": "CARD_VALIDATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "paymentagent__FM_1_2__run01",
+      "agent": "paymentagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "paymentagent",
+      "error_step": "CARD_VALIDATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "paymentagent__BL_TRANSACTION_LOST__run01",
+      "agent": "paymentagent",
+      "fault_mode": "BL_TRANSACTION_LOST",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "paymentagent",
+      "error_step": "SAVE_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__BL_TRANSACTION_LOST__run01.json"
+    },
+    {
+      "id": "paymentagent__BL_DOUBLE_CHARGE__run01",
+      "agent": "paymentagent",
+      "fault_mode": "BL_DOUBLE_CHARGE",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "paymentagent",
+      "error_step": "SAVE_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__BL_DOUBLE_CHARGE__run01.json"
+    },
+    {
+      "id": "paymentagent__BL_AMOUNT_TAMPERING__run01",
+      "agent": "paymentagent",
+      "fault_mode": "BL_AMOUNT_TAMPERING",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "paymentagent",
+      "error_step": "CARD_VALIDATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__BL_AMOUNT_TAMPERING__run01.json"
+    },
+    {
+      "id": "paymentagent__BL_CARD_DECLINED__run01",
+      "agent": "paymentagent",
+      "fault_mode": "BL_CARD_DECLINED",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "paymentagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\paymentagent__BL_CARD_DECLINED__run01.json"
+    },
+    {
+      "id": "currencyagent__NONE__run01",
+      "agent": "currencyagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__NONE__run01.json"
+    },
+    {
+      "id": "currencyagent__FM_3_1__run01",
+      "agent": "currencyagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "currencyagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "currencyagent__FM_2_2__run01",
+      "agent": "currencyagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "tier": 3,
+      "error_agent": "currencyagent",
+      "error_step": "CONVERT_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "currencyagent__FM_2_5__run01",
+      "agent": "currencyagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "currencyagent",
+      "error_step": "CONVERT_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "currencyagent__FM_1_2__run01",
+      "agent": "currencyagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "currencyagent",
+      "error_step": "CONVERT_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "currencyagent__BL_RATE_MANIPULATION__run01",
+      "agent": "currencyagent",
+      "fault_mode": "BL_RATE_MANIPULATION",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "currencyagent",
+      "error_step": "CONVERT_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__BL_RATE_MANIPULATION__run01.json"
+    },
+    {
+      "id": "currencyagent__BL_CURRENCY_UNAVAILABLE__run01",
+      "agent": "currencyagent",
+      "fault_mode": "BL_CURRENCY_UNAVAILABLE",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "currencyagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__BL_CURRENCY_UNAVAILABLE__run01.json"
+    },
+    {
+      "id": "currencyagent__BL_STALE_RATE__run01",
+      "agent": "currencyagent",
+      "fault_mode": "BL_STALE_RATE",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "currencyagent",
+      "error_step": "CONVERT_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__BL_STALE_RATE__run01.json"
+    },
+    {
+      "id": "currencyagent__BL_CONVERSION_OVERFLOW__run01",
+      "agent": "currencyagent",
+      "fault_mode": "BL_CONVERSION_OVERFLOW",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "currencyagent",
+      "error_step": "CONVERT_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\currencyagent__BL_CONVERSION_OVERFLOW__run01.json"
+    },
+    {
+      "id": "emailserviceagent__NONE__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__NONE__run01.json"
+    },
+    {
+      "id": "emailserviceagent__FM_3_1__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "emailserviceagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "emailserviceagent__FM_2_2__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "tier": 3,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_GENERATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "emailserviceagent__FM_2_5__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_GENERATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "emailserviceagent__FM_1_2__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_GENERATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "emailserviceagent__BL_SEND_SKIPPED__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "BL_SEND_SKIPPED",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_SENT",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__BL_SEND_SKIPPED__run01.json"
+    },
+    {
+      "id": "emailserviceagent__BL_DOUBLE_SEND__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "BL_DOUBLE_SEND",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_SENT",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__BL_DOUBLE_SEND__run01.json"
+    },
+    {
+      "id": "emailserviceagent__BL_CORRUPTED_BODY__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "BL_CORRUPTED_BODY",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_GENERATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__BL_CORRUPTED_BODY__run01.json"
+    },
+    {
+      "id": "emailserviceagent__BL_WRONG_CUSTOMER__run01",
+      "agent": "emailserviceagent",
+      "fault_mode": "BL_WRONG_CUSTOMER",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "emailserviceagent",
+      "error_step": "EMAIL_GENERATED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\emailserviceagent__BL_WRONG_CUSTOMER__run01.json"
+    },
+    {
+      "id": "productcatalogagent__NONE__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__NONE__run01.json"
+    },
+    {
+      "id": "productcatalogagent__FM_3_1__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "productcatalogagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "productcatalogagent__FM_2_2__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "tier": 3,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "productcatalogagent__FM_2_5__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "productcatalogagent__FM_1_2__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "productcatalogagent__BL_PRODUCT_MISSING__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "BL_PRODUCT_MISSING",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__BL_PRODUCT_MISSING__run01.json"
+    },
+    {
+      "id": "productcatalogagent__BL_PRICE_MANIPULATION__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "BL_PRICE_MANIPULATION",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__BL_PRICE_MANIPULATION__run01.json"
+    },
+    {
+      "id": "productcatalogagent__BL_DUPLICATE_PRODUCT__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "BL_DUPLICATE_PRODUCT",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__BL_DUPLICATE_PRODUCT__run01.json"
+    },
+    {
+      "id": "productcatalogagent__BL_WRONG_CATEGORY__run01",
+      "agent": "productcatalogagent",
+      "fault_mode": "BL_WRONG_CATEGORY",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\productcatalogagent__BL_WRONG_CATEGORY__run01.json"
+    },
+    {
+      "id": "recommendationagent__NONE__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__NONE__run01.json"
+    },
+    {
+      "id": "recommendationagent__FM_3_1__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "recommendationagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "recommendationagent__FM_2_2__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "tier": 3,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "recommendationagent__FM_2_5__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "recommendationagent__FM_1_2__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "recommendationagent__BL_EMPTY_RECS__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "BL_EMPTY_RECS",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__BL_EMPTY_RECS__run01.json"
+    },
+    {
+      "id": "recommendationagent__BL_SELF_RECOMMENDATION__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "BL_SELF_RECOMMENDATION",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__BL_SELF_RECOMMENDATION__run01.json"
+    },
+    {
+      "id": "recommendationagent__BL_INJECTION_RECS__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "BL_INJECTION_RECS",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__BL_INJECTION_RECS__run01.json"
+    },
+    {
+      "id": "recommendationagent__BL_SHUFFLED_RECS__run01",
+      "agent": "recommendationagent",
+      "fault_mode": "BL_SHUFFLED_RECS",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "recommendationagent",
+      "error_step": "RECOMMEND_DONE",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\recommendationagent__BL_SHUFFLED_RECS__run01.json"
+    },
+    {
+      "id": "adserviceagent__NONE__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__NONE__run01.json"
+    },
+    {
+      "id": "adserviceagent__FM_3_1__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "FAILED",
+      "tier": 1,
+      "error_agent": "adserviceagent",
+      "error_step": "FINAL_ANSWER",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "adserviceagent__FM_2_2__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "tier": 3,
+      "error_agent": "adserviceagent",
+      "error_step": "ADS_FETCHED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "adserviceagent__FM_2_5__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "adserviceagent",
+      "error_step": "CONTEXT_EXTRACTED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "adserviceagent__FM_1_2__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "adserviceagent",
+      "error_step": "CONTEXT_EXTRACTED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "adserviceagent__BL_EMPTY_ADS__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "BL_EMPTY_ADS",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "adserviceagent",
+      "error_step": "ADS_FETCHED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__BL_EMPTY_ADS__run01.json"
+    },
+    {
+      "id": "adserviceagent__BL_AD_INJECTION__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "BL_AD_INJECTION",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "adserviceagent",
+      "error_step": "ADS_FETCHED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__BL_AD_INJECTION__run01.json"
+    },
+    {
+      "id": "adserviceagent__BL_WRONG_URL__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "BL_WRONG_URL",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "adserviceagent",
+      "error_step": "ADS_FETCHED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__BL_WRONG_URL__run01.json"
+    },
+    {
+      "id": "adserviceagent__BL_DUPLICATE_ADS__run01",
+      "agent": "adserviceagent",
+      "fault_mode": "BL_DUPLICATE_ADS",
+      "outcome": "FAILED",
+      "tier": 2,
+      "error_agent": "adserviceagent",
+      "error_step": "ADS_FETCHED",
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\adserviceagent__BL_DUPLICATE_ADS__run01.json"
+    },
+    {
+      "id": "shippingagent__NONE__run01",
+      "agent": "shippingagent",
+      "fault_mode": "NONE",
+      "outcome": "PASSED",
+      "tier": 0,
+      "error_agent": null,
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__NONE__run01.json"
+    },
+    {
+      "id": "shippingagent__FM_3_1__run01",
+      "agent": "shippingagent",
+      "fault_mode": "FM_3_1",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__FM_3_1__run01.json"
+    },
+    {
+      "id": "shippingagent__FM_1_2__run01",
+      "agent": "shippingagent",
+      "fault_mode": "FM_1_2",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__FM_1_2__run01.json"
+    },
+    {
+      "id": "shippingagent__FM_2_2__run01",
+      "agent": "shippingagent",
+      "fault_mode": "FM_2_2",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__FM_2_2__run01.json"
+    },
+    {
+      "id": "shippingagent__FM_2_5__run01",
+      "agent": "shippingagent",
+      "fault_mode": "FM_2_5",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__FM_2_5__run01.json"
+    },
+    {
+      "id": "shippingagent__BL_SHIPMENT_LOST__run01",
+      "agent": "shippingagent",
+      "fault_mode": "BL_SHIPMENT_LOST",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__BL_SHIPMENT_LOST__run01.json"
+    },
+    {
+      "id": "shippingagent__BL_INVENTORY_MISMATCH__run01",
+      "agent": "shippingagent",
+      "fault_mode": "BL_INVENTORY_MISMATCH",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__BL_INVENTORY_MISMATCH__run01.json"
+    },
+    {
+      "id": "shippingagent__BL_VENDOR_NEGOTIATION__run01",
+      "agent": "shippingagent",
+      "fault_mode": "BL_VENDOR_NEGOTIATION",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__BL_VENDOR_NEGOTIATION__run01.json"
+    },
+    {
+      "id": "shippingagent__BL_CUSTOMER_ESCALATION__run01",
+      "agent": "shippingagent",
+      "fault_mode": "BL_CUSTOMER_ESCALATION",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__BL_CUSTOMER_ESCALATION__run01.json"
+    },
+    {
+      "id": "shippingagent__BL_REFUND_REASONING__run01",
+      "agent": "shippingagent",
+      "fault_mode": "BL_REFUND_REASONING",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__BL_REFUND_REASONING__run01.json"
+    },
+    {
+      "id": "shippingagent__BL_COMPLIANCE_AMBIGUITY__run01",
+      "agent": "shippingagent",
+      "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+      "outcome": "INCONCLUSIVE",
+      "tier": 0,
+      "error_agent": "shippingagent",
+      "error_step": null,
+      "file": "src\\results\\agentracer\\trajectories\\single_agent\\shippingagent__BL_COMPLIANCE_AMBIGUITY__run01.json"
+    }
+  ],
+  "cross_agent": [
+    {
+      "id": "cross_chain_A__FM_2_2__run01",
+      "chain": "A",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "error_agent": "currencyagent",
+      "error_step": null,
+      "overcharge": 14755.6,
+      "file": "src\\results\\agentracer\\trajectories\\cross_agent\\cross_chain_A__FM_2_2__run01.json"
+    },
+    {
+      "id": "cross_chain_B__FM_2_2__run01",
+      "chain": "B",
+      "fault_mode": "FM_2_2",
+      "outcome": "FAILED",
+      "error_agent": "productcatalogagent",
+      "error_step": "CATALOG_DONE",
+      "overcharge": null,
+      "file": "src\\results\\agentracer\\trajectories\\cross_agent\\cross_chain_B__FM_2_2__run01.json"
+    }
+  ]
+}

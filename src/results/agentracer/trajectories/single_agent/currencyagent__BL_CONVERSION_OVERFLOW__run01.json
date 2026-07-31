@@ -1,0 +1,55 @@
+{
+  "trajectory_id": "currencyagent__BL_CONVERSION_OVERFLOW__run01",
+  "agent_under_test": "currencyagent",
+  "fault_mode": "BL_CONVERSION_OVERFLOW",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "currencyagent",
+      "action": "TASK_START",
+      "observation": {
+        "units": 10,
+        "to_currency": "EUR"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "currencyagent",
+      "action": "CONVERT_DONE",
+      "observation": {
+        "units_out": {
+          "min": 9.0,
+          "max": 9.0,
+          "mean": 9.0
+        },
+        "currency_swapped": false,
+        "__fault_injected": true,
+        "__fault_mode": "BL_CONVERSION_OVERFLOW",
+        "overflow": true
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "currencyagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "currencyagent",
+    "error_step": "CONVERT_DONE",
+    "tier": 2,
+    "tier_label": "TIER 2 \u2014 Flag-Detectable",
+    "infection_point": "CONVERT_DONE",
+    "flags_found": [
+      "overflow"
+    ],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "trajectory_id": "productcatalogagent__FM_2_5__run01",
+  "agent_under_test": "productcatalogagent",
+  "fault_mode": "FM_2_5",
+  "outcome": "FAILED",
+  "trajectory": [
+    {
+      "step_id": 0,
+      "agent": "productcatalogagent",
+      "action": "TASK_START",
+      "observation": {
+        "action": "list_products"
+      }
+    },
+    {
+      "step_id": 1,
+      "agent": "productcatalogagent",
+      "action": "CATALOG_DONE",
+      "observation": {
+        "product_ids": [
+          "['PROD-001', 'PROD-002']"
+        ],
+        "count": 2,
+        "price_manipulated": false,
+        "__fault_injected": true,
+        "__fault_mode": "FM_2_5",
+        "query_tampered": true
+      }
+    },
+    {
+      "step_id": 2,
+      "agent": "productcatalogagent",
+      "action": "FINAL_ANSWER",
+      "observation": {
+        "checkpoint": "FINAL_ANSWER"
+      }
+    }
+  ],
+  "missing_steps": [],
+  "ground_truth": {
+    "error_agent": "productcatalogagent",
+    "error_step": "CATALOG_DONE",
+    "tier": 2,
+    "tier_label": "TIER 2 \u2014 Flag-Detectable",
+    "infection_point": "CATALOG_DONE",
+    "flags_found": [
+      "query_tampered"
+    ],
+    "steps_lost": [],
+    "cross_agent": false,
+    "overcharge_pct": null
+  }
+}

@@ -607,7 +607,9 @@ the rest of the paper.
 
 \begin{table*}[!tp]
 \centering
-\caption{Fault $\times$ LKW Criterion $\times$ Checkpoint mapping (replaces Tables~1--2).
+\caption{Fault $\times$ LKW Criterion $\times$ Checkpoint mapping.
+  Agents marked \textbf{(RB)} are from the RetailBen benchmark;
+  all others are Google Boutique agents.
   For each fault mode and agent the \emph{primary infection checkpoint},
   applicable criterion (\textbf{AU}~=~All-Uses; \textbf{ADP}~=~All-DU-Paths),
   use type (C~=~c-use; P~=~p-use), and comparison operator are listed.
@@ -621,11 +623,11 @@ the rest of the paper.
 \toprule
 \textbf{Agent} & \textbf{Fault Mode} & \textbf{Infect.\ Checkpoint} & \textbf{Criterion} & \textbf{Use} & \textbf{Cmp.} \\
 \midrule
-ShippingQuoteAgent & \texttt{BL-INV-MISMATCH} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
+ShippingQuoteAgent \textbf{(RB)} & \texttt{BL-INV-MISMATCH} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
  & \texttt{BL-REFUND} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
  & \texttt{FM-2.5} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
 \midrule
-ShipOrderAgent & \texttt{BL-ESCALATION} & \texttt{ESCALATION\_CHECK} & \textbf{AU} & P-use & $\Sigma$ \\
+ShipOrderAgent \textbf{(RB)} & \texttt{BL-ESCALATION} & \texttt{ESCALATION\_CHECK} & \textbf{AU} & P-use & $\Sigma$ \\
  & \texttt{BL-SHIP-LOST} & \texttt{SAVE\_DONE} & \textbf{ADP} & C-use/P-use & $\Sigma$ \\
  & \texttt{BL-VENDOR} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
  & \texttt{FM-1.2} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
@@ -773,6 +775,7 @@ vs.\ \texttt{qwen2.5-coder:14b}).
 \begin{table}[!htbp]
 \centering
 \caption{Fault mode coverage across all nine agent services.
+  \textbf{GB}~=~Google Boutique; \textbf{RB}~=~RetailBen.
   \checkmark\,=\,covered.  BL\,=\,number of agent-specific business-logic
   fault modes.  Every service has at least one general and one BL fault.}
 \label{tab:service-coverage}
@@ -783,15 +786,15 @@ vs.\ \texttt{qwen2.5-coder:14b}).
 \toprule
 \textbf{Service} & \textbf{FM-1.2} & \textbf{FM-2.2} & \textbf{FM-2.5} & \textbf{FM-3.1} & \textbf{BL count} & \textbf{Benchmarks} \\
 \midrule
-PaymentService        & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
-CurrencyService       & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
-EmailService          & \checkmark & \checkmark & \checkmark & \checkmark & 2 & Both \\
-ProductCatalogService & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
-RecommendationService & \checkmark & \checkmark & \checkmark & \checkmark & 2 & Both \\
-AdService             & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
-CartService           & \checkmark & \checkmark & \checkmark & \checkmark & 6 & Both \\
-ShipOrderAgent        & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
-ShippingQuoteAgent    & --         & --         & \checkmark & --         & 2 & Both \\
+PaymentService        & \checkmark & \checkmark & \checkmark & \checkmark & 3 & GB \\
+CurrencyService       & \checkmark & \checkmark & \checkmark & \checkmark & 3 & GB \\
+EmailService          & \checkmark & \checkmark & \checkmark & \checkmark & 2 & GB \\
+ProductCatalogService & \checkmark & \checkmark & \checkmark & \checkmark & 3 & GB \\
+RecommendationService & \checkmark & \checkmark & \checkmark & \checkmark & 2 & GB \\
+AdService             & \checkmark & \checkmark & \checkmark & \checkmark & 3 & GB \\
+CartService           & \checkmark & \checkmark & \checkmark & \checkmark & 6 & GB \\
+ShipOrderAgent        & \checkmark & \checkmark & \checkmark & \checkmark & 3 & RB \\
+ShippingQuoteAgent    & --         & --         & \checkmark & --         & 2 & RB \\
 \midrule
 \textbf{Coverage (9 services)} & \textbf{8/9} & \textbf{9/9} & \textbf{9/9} & \textbf{8/9} & & \\
 \bottomrule
@@ -1210,7 +1213,15 @@ Ship-Order  & 0.0\%  & 0.0\% & 0.0\% & 0.0\% \\
 \label{sec:b1-oracle}
 % ═════════════════════════════════════════════════════════════════════════════
 
-To enable mutation analysis, the B1 oracle must first be established: the
+\paragraph{Benchmark legend.}
+All agents in this section are from the \textbf{Google Boutique} benchmark
+unless explicitly marked \textbf{(RetailBen)}. Google Boutique agents:
+CurrencyAgent, PaymentAgent, EmailServiceAgent, ProductCatalogAgent,
+RecommendationAgent, AdServiceAgent.
+RetailBen agents: ShippingQuoteAgent, ShipOrderAgent.
+This labeling convention is used throughout all results sections.
+
+To enable fault detection analysis, the B1 oracle must first be established: the
 ground-truth LKW trace of each agent state variable under correct,
 deterministic behaviour with no mutation operator active. We run each of
 the six Python-based agents with \texttt{USE\_LLM=false} and gRPC dependencies

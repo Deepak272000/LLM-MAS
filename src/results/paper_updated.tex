@@ -265,12 +265,14 @@ policies.
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Target Workflow}
-\textbf{Benchmark scope:} This section describes the \textbf{Google Online
-Boutique} (6-agent) workflow. The RetailBen benchmark (ShippingQuoteAgent,
-ShipOrderAgent) is described in Section~\ref{sec:bench-configs}. All agent
-references are labeled by benchmark throughout the paper.
+\textbf{Benchmark scope:} This section describes the \textbf{RetailBen}
+benchmark's shipping-orchestration workflow (ShipOrderAgent). The
+Google Boutique benchmark (PaymentAgent, CurrencyAgent, EmailServiceAgent,
+ProductCatalogAgent, RecommendationAgent, AdServiceAgent) uses per-agent
+workflows described alongside each agent in Section~\ref{sec:bench-configs}.
+All agent references are labeled by benchmark throughout the paper.
 
-We evaluate an order orchestration flow with agentic steps (checkpoint
+We evaluate a shipping order orchestration flow with agentic steps (checkpoint
 sequence): \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$
 \texttt{CARRIER\_DONE} $\to$ \texttt{TRACKING\_DONE} $\to$ \texttt{SAVE\_DONE}
 $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.

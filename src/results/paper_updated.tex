@@ -2680,9 +2680,10 @@ Tier~3 Silent & 8 & 7 & 87.5\% \\
 \end{tabular}
 \end{table}
 
-The single rule-based miss is the Tier~3 silent case where the LKW
-\texttt{infection\_point} is null (FM-2.2 on CurrencyAgent in cross-agent
-Chain~A): the boundary contract intercepted the flow before the
+Per-agent rule-based accuracy is 100\% for all six agents except
+CurrencyAgent (88.9\%, 8/9). The single miss is the Tier~3 silent case where
+the LKW \texttt{infection\_point} is null (FM-2.2 on CurrencyAgent in
+cross-agent Chain~A): the boundary contract intercepted the flow before the
 \texttt{\_\_fault\_injected} flag propagated, returning \texttt{multi\_agent}
 instead of \texttt{currencyagent}. This is a finding, not a bug --- boundary
 intervention actively obscures deterministic attribution, confirming that

@@ -228,12 +228,11 @@ patterns. Neither framework includes built-in fault injection tooling or
 inter-agent data validation contracts. Testing methodologies for LLM-based
 multi-agent systems are nascent: existing work focuses on functional output
 evaluation~\cite{agenteval} rather than on characterising failure propagation
-across agent boundaries. Our study addresses this gap by providing a complete
-test infrastructure (LKW instrumentation, RIP analyser, HITL classifier,
-boundary contract layer, and recovery policy engine) validated on two
-LangGraph-based benchmarks. The infrastructure is applicable to any
-LangGraph-based MAS that exposes named tool-call boundaries where
-checkpoint instrumentation can be placed.
+across agent boundaries. Our study addresses this gap by designing and evaluating
+a test infrastructure --- LKW checkpoint instrumentation, RIP fault
+propagation analysis, HITL tier classification, boundary contracts, and
+recovery policies --- on two concrete LangGraph-based benchmarks
+(Google Online Boutique and RetailBen).
 
 \paragraph{Fault propagation in distributed systems}
 The concept of propagation depth originates in the Laski-Korel-Weyuker (LKW)

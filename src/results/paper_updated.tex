@@ -118,17 +118,25 @@ this increases autonomy, it can introduce latent failures not captured by unit
 or API tests. Our goal is to evaluate whether controlled faults can be injected,
 reproduced, observed, and contained before they become business harm.
 
-This study covers nine agent services in the LLM-MAS architecture: six
-Python-based agents (PaymentAgent, CurrencyAgent, EmailServiceAgent,
-ProductCatalogAgent, RecommendationAgent, AdServiceAgent), a C\# CartAgent
-exercised via a Python mirror, a Go-based CheckoutOrchestrator exercised via
-sub-agent wrappers, and the ShippingService/checkout orchestration path. The paper evaluates these services
-through a three-baseline protocol: B1 defines the correct microservice oracle,
-B2 measures natural variance under live LLM inference, and B3 evaluates mutant
-detection under live LLM execution. We use standalone agent runners where the
-agent boundary is the main object of study and full checkout-pipeline runs
-where downstream propagation is the main object of study. This separation lets
-us study both local detectability and end-to-end business impact.
+This study covers nine agent services from the Google Online Boutique
+e-commerce application. Six are full Python ReAct agents. Two
+(CartService in C\#, CheckoutService in Go) are exercised via thin Python
+wrappers that share the same instrumentation schema. One is the shipping
+orchestration path.
+
+We evaluate all nine using a three-baseline protocol.
+\textbf{B1} runs each agent without a live LLM and records the correct
+deterministic output --- the ground truth.
+\textbf{B2} runs with a live LLM and no fault injected, measuring how
+much the output naturally varies across repeated runs.
+\textbf{B3} runs with a live LLM and a specific fault active, then
+judges whether the fault caused a detectable deviation beyond the B2
+noise envelope.
+
+We run two evaluation modes. In \emph{standalone} mode each agent is
+tested in isolation to measure local fault detectability. In
+\emph{full-pipeline} mode all agents run end-to-end to measure whether
+a fault in one agent silently corrupts a downstream agent's output.
 
 In this project, we answer the following research questions:
 \begin{description}
@@ -141,7 +149,8 @@ In this project, we answer the following research questions:
   \item[\textbf{RQ5}] How stable are these observations across repeated runs in
         a controlled compute environment?
   \item[\textbf{RQ6}] Can policy-based boundary recovery contracts reduce the
-        manual intervention burden for Tier~2 and Tier~3 boundary violations,
+        manual intervention burden for silent and flag-detectable faults
+        (Tier~2 and Tier~3, defined in Section~\ref{sec:lkw-signatures}),
         and can their application be verified at execution level?
 \end{description}
 
@@ -417,11 +426,11 @@ CheckoutService (order) & Go   & Python sub-agent wrapper & 6 \\
 \label{sec:lkw-design}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Across all nine agents, FM-2.2 maps to a consistent primary infection
-checkpoint with the same P2 c-use placement class and Tier~3 (Silent)
-classification, confirming that the LKW framework produces a stable,
-evidence-based signature for hallucinated-output faults across the full
-service portfolio.
+This section defines how the LKW data-flow testing criterion is applied
+to agent workflows: where to place observation checkpoints, what to
+record at each point, and how to classify fault signatures.
+These definitions are the shared vocabulary for all B1, B2, and B3
+measurements in the paper.
 
 \subsection{RIP Metrics and Definitions}
 
@@ -656,25 +665,38 @@ step; the infection point is reported as the first absent checkpoint.
 \subsection{Per-Failure-Type LKW Signature}
 \label{sec:lkw-signatures}
 
-Different fault classes produce distinct LKW trace patterns. The signature
-determines both the infection point (RQ2) and the HITL tier (RQ4).
-In practice, these signatures collapse into three stable patterns. Structural
-faults such as FM-3.1 produce step loss ($F \subsetneq B$) and are therefore
-Tier~1. Flag-bearing workflow or business faults preserve the full step
-sequence but set a diagnostic field at P4, yielding Tier~2. Hallucinations and
-silent data corruptions preserve all steps and only appear as payload
-deviations at a P2 checkpoint, yielding Tier~3 unless an external semantic
-guard is present.
+Different fault classes leave different fingerprints in the LKW trace.
+The fingerprint determines both where the infection point is (RQ2) and
+how much effort a human needs to detect it (RQ4).
+
+In practice, all fault classes reduce to three trace patterns, which we
+call tiers.
+\textbf{Tier~1 --- structural} (FM-3.1): steps are removed entirely
+($F \subsetneq B$). The missing checkpoint is the infection signal.
+Auto-detectable from step telemetry alone.
+\textbf{Tier~2 --- flag} (FM-1.2 and BL-* workflow faults): all steps
+execute, but a boolean diagnostic field at a P4 checkpoint is set.
+Detectable by checking the flag value against B1.
+\textbf{Tier~3 --- silent} (FM-2.2, FM-2.5, and BL-* data faults): all
+steps execute, no flag fires. The only signal is a numeric or semantic
+payload difference at a P2 checkpoint, visible only by comparison
+against the B1 oracle.
 
 \paragraph{Key design insight.}
-These signatures show that propagation depth alone is
-\emph{insufficient} to detect Tier~2 and Tier~3 faults: both have
-$\mathrm{PropagationDepth} = 0$.  Tier~2 faults are detectable only by
-inspecting the \emph{value} of the P4 flag field; Tier~3 faults require
-semantic comparison of P2 payload contents against a known-good baseline.
-This design decision --- recording guarded data at P2 and P4 checkpoints, not
-only step presence --- is what makes the instrumentation framework capable of
-evidence-based tier classification without manual trace inspection.
+Propagation depth alone is \emph{insufficient} to detect Tier~2 and
+Tier~3 faults: both complete all steps, so
+$\mathrm{PropagationDepth} = 0$.
+A Tier~2 fault is visible only by reading the P4 flag field.
+A Tier~3 fault is visible only by comparing the P2 payload against the
+B1 oracle value.
+This is why the checkpoints record guarded data, not just step presence.
+Without payload recording, silent corruption (e.g., a hallucinated
+currency amount) would produce a trace indistinguishable from a clean run.
+
+The evidence from running all nine agents confirms this framework
+produces stable, cross-service signatures: FM-2.2 (hallucination) maps
+to a P2 c-use checkpoint across every agent, always at Tier~3, with no
+step loss and deviation visible only in the payload.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Fault Injection as Mutant Operators}
@@ -684,17 +706,29 @@ evidence-based tier classification without manual trace inspection.
 \subsection{Fault Taxonomy and Mutation Operators}
 \label{sec:fault-taxonomy}
 
-Each injected MAST fault mode is a \emph{mutation operator}~\cite{lkw}
-applied to a specific agent state variable at a known data flow observation
-point. A mutation that causes the LKW trace to deviate from the B1 oracle
-beyond the B2-calibrated tolerance is a \textit{killed mutant}; one whose
-trace is indistinguishable from the natural-variance envelope is a
-\textit{live mutant}. In this study, FM-3.1 acts as a step-removal operator
-over the control-flow trace, FM-1.2 perturbs routing or workflow selection,
-FM-2.2 fabricates a computed payload, FM-2.5 tampers with an input value
-before use, and the business-logic operators corrupt domain payloads or
-metadata fields. Each operator is judged at the first checkpoint where the
-mutated value becomes observable under the LKW instrumentation scheme.
+Each injected fault is a \emph{mutation operator}~\cite{lkw} on a
+specific agent state variable. The idea is straightforward: inject a
+known change into one agent, run it with a live LLM, and check whether
+the LKW checkpoints catch the deviation from the B1 oracle.
+
+A fault that produces a detectable deviation is a \textbf{killed mutant}.
+A fault whose trace stays inside the B2 natural-variance envelope is a
+\textbf{live mutant} --- the fault was present, but the LLM did not
+expose it.
+
+The four general fault classes each target a different part of the trace.
+\textbf{FM-3.1} removes steps --- the agent terminates before completing
+its workflow.
+\textbf{FM-1.2} mis-routes the workflow --- the agent takes the wrong
+action branch.
+\textbf{FM-2.2} fabricates a computed value --- the agent produces a
+plausible but incorrect result.
+\textbf{FM-2.5} corrupts an input before the agent processes it ---
+the agent uses a stale or tampered value.
+Business-logic faults (BL-*) corrupt domain-specific fields such as
+charge amounts, email recipients, product lists, or carrier selections.
+Each operator is judged at the first LKW checkpoint where the
+mutated value becomes observable.
 
 \paragraph{Service and benchmark coverage.}
 Table~\ref{tab:service-coverage} shows which fault modes cover which

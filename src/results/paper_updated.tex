@@ -2746,9 +2746,11 @@ in this study.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Cross-Benchmark Analysis}
+\label{sec:cross-benchmark}
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{RQ1: Reproducibility of Fault Injection}
+\label{sec:rq1}
 Controlled injection is reproducible for all fault modes in the six deterministic
 agents (100\% stability, 54 mode-runs $\times$ 3 repetitions). For the
 ShippingService Retail-bench, all fault modes except BL-COMPLIANCE\_AMBIGUITY
@@ -2757,6 +2759,7 @@ BL-COMPLIANCE\_AMBIGUITY remains INCONCLUSIVE at both model scales tested due
 to inference timeout (see Limitation~L2).
 
 \subsection{RQ2: First Failure Appearance}
+\label{sec:rq2}
 Across scenarios, infection first appears at:
 \begin{itemize}
   \item \texttt{CARRIER\_DONE} for hallucination and ignored-input faults
@@ -2770,6 +2773,7 @@ Across scenarios, infection first appears at:
 \end{itemize}
 
 \subsection{RQ3: Downstream Propagation}
+\label{sec:rq3}
 Propagation depth is highest when structural steps are skipped: FM-3.1 and
 FM-1.2 each lost 2--3 downstream checkpoints, and BL-SHIPMENT\_LOST removed
 \texttt{SAVE\_DONE} entirely. In contrast, semantic corruption faults (FM-2.2,
@@ -2802,6 +2806,7 @@ We classify the scenarios into three intervention tiers:
 LKW checkpoint evidence files in under one second.
 
 \subsection{RQ5: Stability Across Repeated Runs}
+\label{sec:rq5}
 As reported in Section~\ref{sec:stability}, all 64 mode-runs across all seven
 agents produced identical outcome classes with zero UNSTABLE entries (100\%
 stability rate). For the six deterministic agents, 54 mode-runs $\times$ 3
@@ -2811,6 +2816,7 @@ traces for each of the 10 assessed fault modes under
 \texttt{qwen2.5-coder:14b}.
 
 \subsection{RQ6: Policy-Based Recovery and HITL Burden Reduction}
+\label{sec:rq6}
 
 Yes, with scope qualifications. Of the 57 injected fault scenarios, 7 are
 Tier~3 (silent). The 2 cross-agent Tier~3 cases (Currency$\to$Payment FM-2.2,

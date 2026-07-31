@@ -948,25 +948,56 @@ without manual inspection.
 \section{Results: Full-Pipeline and Agent-Level Campaigns}
 % ═════════════════════════════════════════════════════════════════════════════
 
-The results section is organised around three questions that matter most for a
-fault-injection study of agentic microservices: (1) does the full pipeline kill
-mutants under live LLM execution, (2) which model configuration is actually
-tool-faithful enough to expose those mutants, and (3) do the same signals
-appear when agent boundaries are isolated from downstream business context.
+\paragraph{Results navigation.}
+Each research question (RQ) has a dedicated subsection in Section~\ref{sec:cross-benchmark}
+(Cross-Benchmark Analysis) that follows the format: \emph{Experiment Design} $\to$
+\emph{Measurement/Metrics} $\to$ \emph{Answer}. The sections below present the
+raw evidence organised by evidence type. Table~\ref{tab:rq-map} maps each RQ
+to its evidence section and the Cross-Benchmark answer.
 
-\subsection{Headline Full-Pipeline B3 Results}
+\begin{table}[!htbp]
+\centering
+\caption{Research question to evidence section mapping.}
+\label{tab:rq-map}
+\footnotesize
+\begin{tabular}{p{0.5cm}p{3.5cm}p{2.2cm}p{1.2cm}}
+\toprule
+\textbf{RQ} & \textbf{Question} & \textbf{Evidence Section} & \textbf{Answer §} \\
+\midrule
+RQ1 & Fault reproducibility & §\ref{sec:google-bench}, §\ref{sec:b3-coverage} & §\ref{sec:rq1} \\
+RQ2 & First failure appearance & §\ref{sec:retail-bench} & §\ref{sec:rq2} \\
+RQ3 & Downstream propagation & §\ref{sec:retail-bench}, §\ref{sec:cross-agent} & §\ref{sec:rq3} \\
+RQ4 & Auto-resolution vs.\ HITL & §\ref{sec:hitl} & §\ref{sec:rq4} \\
+RQ5 & Stability across runs & §\ref{sec:stability} & §\ref{sec:rq5} \\
+RQ6 & Policy-based recovery & §\ref{sec:recovery} & §\ref{sec:rq6} \\
+RQ7 & Attribution validation & §\ref{sec:rq7} & §\ref{sec:rq7} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{RQ1 Evidence --- Fault Detection Across Configurations (Google Boutique)}
 \label{sec:google-bench}
 
-The strongest result is the full checkout-pipeline B3 campaign. Across four
-model configurations and ten injected fault modes, the campaign kills 29 of 40
-mutants for an overall mutation score of 72.5\%. Table~\ref{tab:b3-headline}
-compresses the main result into the four model configurations that the paper
-needs to compare.
+\textbf{Experiment Design.}
+The full checkout pipeline (Google Boutique) is exercised under four model
+configurations (14b\_temp0, 3b\_temp0, 3b\_temp0.7, 3b\_temp1.0) with ten
+fault modes injected one at a time. Each fault mode runs 3 independent
+repetitions per configuration (120 total runs).
 
-Figure~\ref{fig:b3-outcomes} provides the corresponding visual summary. It
-highlights the paper's most important behavioural result: tool-faithful
-execution with \texttt{qwen2.5:3b} kills nearly all mutants, whereas the larger
-\texttt{qwen2.5-coder:14b} configuration leaves all ten mutants live.
+\textbf{Measurement/Metrics.}
+Primary metric: fault detection rate (proportion of runs where LKW deviation
+from B1 exceeds the B2 envelope). Secondary: within-configuration std across
+3 runs.
+
+\textbf{Answer.}
+Across four model configurations and ten injected fault modes, the campaign
+detects 29 of 40 faults for an overall detection rate of 72.5\%.
+Within-configuration std\,=\,0.00 for all entries (Table~\ref{tab:b3-headline}).
+Table~\ref{tab:b3-headline} compresses the main result into the four model
+configurations. Figure~\ref{fig:b3-outcomes} provides the corresponding
+visual summary. The dominant result: tool-faithful execution with
+\texttt{qwen2.5:3b} detects nearly all faults, whereas the larger
+\texttt{qwen2.5-coder:14b} configuration detects none.
 
 \begin{figure}[!htbp]
 \centering
@@ -1009,12 +1040,22 @@ behavioural result, not merely a performance result: in this study, the better
 detector is the model that actually executes the ReAct/tool loop instead of
 short-circuiting to a final answer.
 
-\subsection{Fault-by-Fault Pipeline Evidence}
+\subsection{RQ2/RQ3 Evidence --- Fault-by-Fault Pipeline Results (Google Boutique)}
 \label{sec:retail-bench}
 
-Table~\ref{tab:b3-fault-summary} gives the compact fault-by-fault view used in
-the paper narrative. It is intentionally narrower than the earlier draft's
-large scenario tables: each row answers what fault was injected, which model
+\textbf{Experiment Design.}
+Each of the 10 fault modes is injected into the full checkout pipeline
+(Google Boutique) and the LKW trace is compared against the B1 oracle.
+For each fault, we record: which agent's checkpoint first shows infection
+(answers RQ2) and how many downstream steps are absent (answers RQ3).
+
+\textbf{Measurement/Metrics.}
+Infection checkpoint (first LKW step where value deviates from B1 oracle);
+propagation depth (number of downstream checkpoints absent in faulty trace).
+
+\textbf{Answer.}
+See Table~\ref{tab:b3-fault-summary} and Section~\ref{sec:rq2}/\ref{sec:rq3}
+for the per-fault answers.
 configuration detected it, where infection first appeared, and how far the
 fault propagated structurally.
 
@@ -1054,15 +1095,27 @@ agent. This distinction matters for operations: structural faults can often be
 detected from missing-step telemetry alone, while semantic faults require
 checkpoint-level payload validation.
 
-\subsection{Standalone Agent-Level Evidence}
+\subsection{RQ1 Evidence --- Standalone Agent-Level Fault Detection}
 \label{sec:b3-coverage}
 
+\textbf{Experiment Design.}
+Each Google Boutique agent is tested in isolation (standalone mode) with
+synthetic task inputs matching its expected input contract. 9 agents ×
+agent-specific fault modes × up to 4 model configurations × 3 runs each.
+RetailBen agents (Ship-Quote, Ship-Order) are included for cross-benchmark
+comparison.
+
+\textbf{Measurement/Metrics.}
+Kill rate per agent (fraction of fault modes detected); within-config std
+across 3 runs; across-fault-mode mean$\pm$std.
+
+\textbf{Answer.}
+See Table~\ref{tab:agent-level-summary}. Google Boutique agents range from
+100\% (ProductCatalog, Cart) to 0\% (Email in isolation). RetailBen shipping
+agents score 0\% due to template-string bypass (Section~\ref{sec:rq1}).
+
 The standalone checkout-agent campaign complements the pipeline-level result by
-showing how much mutant signal is visible before downstream composition. The
-most informative standalone agents are currency and payment, which retain clear
-local signal under live LLM execution. Table~\ref{tab:agent-level-summary}
-keeps only the compact summary needed in the main paper; detailed per-fault
-grids are better placed in supplementary material.
+showing how much fault signal is visible before downstream composition.
 
 \begin{table}[!htbp]
 \centering
@@ -1885,14 +1938,25 @@ BL-DUP-ADS Ad Duplicated
 % ═════════════════════════════════════════════════════════════════════════════
 \fi
 \FloatBarrier
-\section{HITL Tier Classification (RQ4)}
+\section{RQ4 --- HITL Tier Classification}
 \label{sec:hitl}
 % ═════════════════════════════════════════════════════════════════════════════
 
-We classify all 57 injected fault scenarios across all seven agents into three
+\textbf{Experiment Design.}
+All 57 injected fault scenarios across seven agents are classified into
 intervention tiers using the automated \texttt{hitl\_detector.py} classifier,
-which parses LKW checkpoint evidence files and assigns each scenario without
-manual inspection.
+which parses LKW checkpoint evidence files without manual inspection.
+
+\textbf{Measurement/Metrics.}
+Tier assignment (Tier~1/2/3) per scenario; distribution of scenarios across
+tiers; automated classification runtime.
+
+\textbf{Answer.}
+All 57 scenarios are classifiable mechanically from LKW evidence in under
+one second. Distribution: 8 Tier~1 (structural), 34 Tier~2
+(flag-detectable), 7 Tier~3 (silent) --- full details in Section~\ref{sec:rq4}.
+
+Detailed tier definitions and aggregate distribution follow.
 
 \subsection{Tier Definitions}
 
@@ -2022,9 +2086,26 @@ detection requires external semantic validation at the agent boundary.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \FloatBarrier
-\section{Fault Injection Stability (RQ5)}
+\section{RQ5 --- Fault Injection Stability}
 \label{sec:stability}
 % ═════════════════════════════════════════════════════════════════════════════
+
+\textbf{Experiment Design.}
+Each of the six deterministic Google Boutique agents' complete fault-mode
+suites is executed three independent times under identical conditions.
+LKW checkpoint fingerprints (infection point, steps reached, steps lost,
+propagation depth) are compared across all three runs.
+For RetailBen ShippingService, per-fault-mode evidence from the
+\texttt{qwen2.5-coder:14b} campaign confirms stable traces for each fault mode.
+
+\textbf{Measurement/Metrics.}
+Stability label per fault mode (STABLE\_PASS, STABLE\_FAULT, UNSTABLE);
+fraction of fault modes with identical LKW fingerprints across all 3 runs;
+mean detection rate $\pm$ std across 3 runs per fault mode.
+
+\textbf{Answer.}
+100\% of fault modes are STABLE\_FAULT or STABLE\_PASS; std\,=\,0.00 across
+all runs. No UNSTABLE entries --- full details in Section~\ref{sec:rq5}.
 
 A central threat to construct validity in any fault injection study is
 non-determinism: if re-running the same injected fault produces a different LKW
@@ -2118,14 +2199,27 @@ Two structural findings emerge consistently across all six deterministic agents:
 
 % ═════════════════════════════════════════════════════════════════════════════
 \FloatBarrier  % force stability tables before this section
-\section{Cross-Agent Fault Propagation}
+\section{RQ3 Evidence --- Cross-Agent Fault Propagation}
 \label{sec:cross-agent}
 % ═════════════════════════════════════════════════════════════════════════════
 
-All prior single-agent fault injection characterises how a fault manifests
-\emph{within} one agent. In a microservice LLM-MAS, agents compose: the output
-of Agent~$A$ is the input of Agent~$B$. We design two two-hop propagation
-chains to quantify inter-agent fault propagation.
+\textbf{Experiment Design.}
+Two two-hop propagation chains are designed to measure inter-agent fault
+propagation (Google Boutique agents). FM-2.2 (hallucinated output,
+propagation depth~$=0$) is injected at the upstream agent; the downstream
+agent runs with \texttt{FAULT\_MODE=NONE}. FM-2.2 is selected because it is
+structurally invisible at the upstream agent --- making it the worst case
+for cross-boundary propagation.
+
+\textbf{Measurement/Metrics.}
+Downstream LKW deviation from B1 oracle; quantified business harm (financial
+overcharge, phantom recommendations); propagation depth at each hop.
+
+\textbf{Answer.}
+Both chains produce downstream harm with upstream propagation depth~$=0$,
+confirming silent cross-boundary propagation. Chain~A: $+14{,}755.6\%$
+financial overcharge (Currency\,$\to$\,Payment). Chain~B: phantom product
+recommendations (Catalog\,$\to$\,Recommendation). Full answer in Section~\ref{sec:rq3}.
 Figure~\ref{fig:cross-agent} summarises both chains and their recovery outcomes.
 
 \subsection{Experimental Design}
@@ -2419,9 +2513,30 @@ Figure~\ref{fig:cross-agent-prop} illustrates Chain~A end-to-end.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \FloatBarrier
-\section{Policy-Based Boundary Recovery (RQ6)}
+\section{RQ6 --- Policy-Based Boundary Recovery}
 \label{sec:recovery}
 % ═════════════════════════════════════════════════════════════════════════════
+
+\textbf{Experiment Design.}
+A policy-based recovery pipeline is implemented on top of the boundary
+contract layer (Google Boutique). For each inter-agent handoff, a
+\texttt{boundary\_contract()} call evaluates the upstream agent's output
+and triggers a recovery action before propagation. 19 boundary checks are
+wired across 6 agent pairs.
+
+\textbf{Measurement/Metrics.}
+Number of boundary checks passing (\texttt{test\_recovery\_wiring.py});
+HITL burden before vs.\ after recovery (fraction of Tier~3 faults requiring
+raw payload inspection); recovery action distribution
+(block / fallback / retry / continue).
+
+\textbf{Answer.}
+19/19 boundary checks pass. 2 cross-agent Tier~3 faults (Currency$\to$Payment,
+Catalog$\to$Recommendation) no longer require human payload inspection ---
+they now emit a structured \texttt{RECOVERY\_ACTION} record instead.
+HITL burden for boundary-instrumented Tier~3 faults reduced from
+``inspect raw payload'' to ``review structured record''.
+Full answer in Section~\ref{sec:rq6}.
 
 Section~\ref{sec:boundary} established that boundary contracts make silent
 handoff failures observable. This section presents the third layer of the

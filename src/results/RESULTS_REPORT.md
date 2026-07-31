@@ -336,3 +336,308 @@ cross-agent contract validation at the boundary.
 
 *Data source: `per_agent_llm_report.json`*  
 *SPEED HPC Jobs: 1170215–1170223, speed-25, Tesla V100, branch `deepak/fault-injection`*
+
+---
+
+## 7. Evidence Diagrams
+
+All diagrams use Mermaid sequence notation (rendered on GitHub). Each shows real observed behaviour from the B3 runs.
+
+---
+
+### 7.1 B1 / B2 / B3 Protocol — How the Three Baselines Work
+
+```mermaid
+sequenceDiagram
+    participant R as Researcher
+    participant A as Agent
+    participant LLM as Ollama LLM
+    participant O as B1 Oracle Store
+    participant V as B3 Verdict Engine
+
+    Note over R,V: ── B1: Deterministic Oracle Capture ──
+    R->>A: USE_LLM=false, FAULT_MODE=NONE
+    A->>A: Run with mocked gRPC (no LLM call)
+    A->>O: Record checkpoint values at every def/use site
+    Note over O: Stored: charged=9.00, saved=True,<br/>amount_tampered=False, all steps present
+
+    Note over R,V: ── B2: Natural Variance Calibration ──
+    R->>A: USE_LLM=true, FAULT_MODE=NONE (× 10 runs)
+    A->>LLM: Task description
+    LLM-->>A: Natural response
+    A->>V: Compare to B1 oracle
+    Note over V: Result: 0 false positives across 212 runs<br/>LKW never fires on clean output — B2 envelope valid
+
+    Note over R,V: ── B3: Fault Injection (Mutation Testing) ──
+    R->>A: USE_LLM=true, FAULT_MODE=BL_AMOUNT_TAMPERING
+    A->>LLM: Task description
+    LLM-->>A: Response on corrupted tool output
+    A->>V: Compare to B1 oracle
+    alt Deviation outside B2 envelope
+        Note over V: ✓ KILLED MUTANT — fault detected
+    else Deviation inside B2 envelope
+        Note over V: ✗ LIVE MUTANT — LLM absorbed the fault
+    else Run incomplete / gRPC error
+        Note over V: INCONCLUSIVE
+    end
+```
+
+---
+
+### 7.2 How Flag Injection Works — The Mechanism
+
+```mermaid
+sequenceDiagram
+    participant Env as os.environ["FAULT_MODE"]
+    participant LLM as Ollama LLM
+    participant Tool as charge_payment() tool
+    participant FI as fault_injection.py
+    participant CK as LKW Checkpoint
+
+    LLM->>Tool: charge_payment(amount=9.00)
+    Tool->>FI: inject_fault(amount=9.00, fault_mode)
+    Note over FI: Reads FAULT_MODE env var<br/>if "BL_AMOUNT_TAMPERING": corrupt the value
+    FI-->>Tool: return 9999.00, {amount_tampered: True}
+    Tool-->>LLM: Tool result: charged=9999.00
+    Note over LLM: LLM receives 9999.00 and treats it as real<br/>No way to detect the injection
+    LLM->>CK: CHARGE_DONE logged
+    Note over CK: charged=9999.00, amount_tampered=True<br/>B1 oracle: charged=9.00<br/>→ Deviation = +11,000% → KILLED ✓
+```
+
+---
+
+### 7.3 Tier 1 Pattern — FM-3.1 Premature Termination (PaymentAgent — KILLED)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant A as PaymentAgent (ReAct)
+    participant LLM as Ollama qwen2.5:3b
+    participant CK as LKW Checkpoint
+
+    FI->>A: FAULT_MODE=FM_3_1
+    A->>CK: TASK_START ✓ (t=0 ms)
+    A->>LLM: "Validate card and process payment of 9.00 USD"
+    Note over LLM: FM-3.1 active — agent terminates early<br/>Skips all intermediate tool calls
+    LLM-->>A: "Payment complete." (no tool calls made)
+    A->>CK: FINAL_ANSWER ✓ (t=12 ms)
+
+    Note over CK: CARD_VALIDATED — NOT LOGGED ✗<br/>CHARGE_DONE — NOT LOGGED ✗<br/>SAVE_DONE — NOT LOGGED ✗<br/>StepsLost = 3,  PropagationDepth = 3<br/>Tier 1 — KILLED ✓ (auto-detectable from missing steps)
+```
+
+---
+
+### 7.4 Tier 2 Pattern — FM-1.2 Validation Bypass (PaymentAgent — KILLED)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant A as PaymentAgent (ReAct)
+    participant LLM as Ollama qwen2.5:3b
+    participant Tool as validate_card() tool
+    participant CK as LKW Checkpoint
+
+    FI->>A: FAULT_MODE=FM_1_2
+    A->>CK: TASK_START ✓
+    A->>LLM: "Process payment — validate card first"
+    LLM->>Tool: validate_card(card_number)
+    Note over Tool: FM-1.2 active — clears the validation flag
+    Tool-->>LLM: validated=False, validation_bypassed=True
+    A->>CK: CARD_VALIDATED ✓
+    Note over CK: validated=False, validation_bypassed=True<br/>B1 oracle: validated=True<br/>P-use flag deviant → Tier 2 — KILLED ✓
+    A->>CK: CHARGE_DONE ✓
+    A->>CK: SAVE_DONE ✓
+    A->>CK: FINAL_ANSWER ✓
+    Note over CK: All steps present (PropagationDepth=0)<br/>Fault visible only by checking flag value at P4<br/>Would be invisible to step-level monitoring
+```
+
+---
+
+### 7.5 Tier 3 Pattern — FM-2.2 Hallucination (CurrencyAgent — KILLED)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant A as CurrencyAgent (ReAct)
+    participant LLM as Ollama qwen2.5:3b
+    participant Tool as convert_currency() tool
+    participant CK as LKW Checkpoint
+
+    FI->>A: FAULT_MODE=FM_2_2
+    A->>CK: TASK_START ✓ (t=0 ms)
+    A->>LLM: "Convert 9 USD to EUR"
+    LLM->>Tool: convert_currency(9, USD, EUR)
+    Note over Tool: FM-2.2 active — fabricates result
+    Tool-->>LLM: units=1337, nanos=0, hallucinated=True
+    A->>CK: CONVERT_DONE ✓ (t=38 ms)
+    Note over CK: units=1337, hallucinated=True<br/>B1 oracle: units=9<br/>Deviation: +14,755% at P2 c-use checkpoint
+    A->>CK: FINAL_ANSWER ✓
+    Note over CK: All steps present (PropagationDepth=0)<br/>No flag visible to step monitor<br/>Tier 3 — KILLED ✓ (oracle comparison only)
+```
+
+---
+
+### 7.6 Tier 3 LIVE — FM-2.5 Stale Rate (CurrencyAgent — LIVE across all 4 configs)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant A as CurrencyAgent (ReAct)
+    participant LLM as Ollama qwen2.5:3b
+    participant Tool as get_exchange_rate() tool
+    participant CK as LKW Checkpoint
+
+    FI->>A: FAULT_MODE=FM_2_5
+    A->>CK: TASK_START ✓
+    A->>LLM: "Convert 9 USD to EUR"
+    LLM->>Tool: get_exchange_rate(USD, EUR)
+    Note over Tool: FM-2.5 active — returns stale cached rate
+    Tool-->>LLM: rate=0.75 (stale from 24h ago), stale_rate=True
+    Note over LLM: LLM reasons: "I should verify this rate is current"
+    LLM->>Tool: get_exchange_rate(USD, EUR) [second call — bypasses injection]
+    Tool-->>LLM: rate=0.91 (fresh — injection only on first call)
+    LLM-->>A: Uses fresh rate=0.91
+    A->>CK: CONVERT_DONE ✓
+    Note over CK: units=8.19 (matches B1 oracle: 8.19)<br/>stale_rate=True was set, but LLM used fresh value
+    Note over CK: PropagationDepth=0, payload within B2 tolerance<br/>Tier 3 — LIVE ✗  GENUINE FALSE NEGATIVE<br/>LLM self-corrects using its own reasoning
+```
+
+---
+
+### 7.7 Business-Logic Fault — BL_AMOUNT_TAMPERING (PaymentAgent — KILLED)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant A as PaymentAgent (ReAct)
+    participant LLM as Ollama qwen2.5:3b
+    participant CK as LKW Checkpoint
+
+    FI->>A: FAULT_MODE=BL_AMOUNT_TAMPERING
+    A->>CK: TASK_START (input amount=9.00)
+    A->>LLM: "Process payment of 9.00 USD"
+    LLM->>LLM: Action: validate_card(card_number)
+    LLM-->>LLM: Observation: validated=True, amount=9.00
+    A->>CK: CARD_VALIDATED ✓ (amount=9.00, amount_tampered=False)
+    LLM->>LLM: Action: charge_payment(9.00)
+    Note over LLM: Tool returns 9999.00 with amount_tampered=True
+    LLM-->>LLM: Observation: charged=9999.00
+    A->>CK: CHARGE_DONE ✓ (charged=9999.00, amount_tampered=True)
+    Note over CK: B1 oracle: charged=9.00<br/>Observed: 9999.00 — Delta = +11,000%<br/>amount_tampered flag = True<br/>Tier 3 — KILLED ✓
+    LLM->>LLM: Action: save_transaction(9999.00)
+    A->>CK: SAVE_DONE ✓
+    A->>CK: FINAL_ANSWER ✓
+```
+
+---
+
+### 7.8 Cross-Agent Propagation — Chain A: Currency → Payment (+14,755% overcharge)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant CA as CurrencyAgent (FM_2_2 active)
+    participant CL as LKW Logger (Currency)
+    participant PA as PaymentAgent (NONE — running clean)
+    participant PL as LKW Logger (Payment)
+
+    FI->>CA: FAULT_MODE=FM_2_2
+    CA->>CL: TASK_START ✓
+    CA->>CA: Hallucinate: amount=1337 EUR  (B1: 9 EUR)
+    CA->>CL: CONVERT_DONE ✓
+    Note over CL: hop1_infection = CONVERT_DONE<br/>units=1337, hallucinated=True ← caught here
+
+    Note over CA,PA: ── Inter-agent boundary: API handoff ──
+    CA-->>PA: Passes amount=1337.00 EUR to PaymentAgent
+
+    Note over PA: PaymentAgent has FAULT_MODE=NONE — no fault active
+    PA->>PL: TASK_START (amount=1337.00)
+    PA->>PL: CARD_VALIDATED ✓ (amount=1337.00)
+    PA->>PL: CHARGE_DONE ✓ (charged=1337.00)
+    PA->>PL: SAVE_DONE ✓ (saved=True)
+    PA->>PL: FINAL_ANSWER ✓
+    Note over PL: hop2_infection = null<br/>hop2_steps_lost = 0 of 5<br/>PaymentAgent trace looks COMPLETELY CLEAN
+    Note over PL: Customer charged: 1337.00 EUR<br/>B1 baseline:        9.00 EUR<br/>Overcharge:     +1328 EUR  (+14,755%)<br/>No alarm fired anywhere — Tier 3 silent cross-boundary fault
+```
+
+---
+
+### 7.9 Cross-Agent Propagation — Chain B: ProductCatalog → Recommendation (phantom products)
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant PC as ProductCatalogAgent (FM_2_2)
+    participant PL as LKW Logger (Catalog)
+    participant RA as RecommendationAgent (NONE)
+    participant RL as LKW Logger (Recommendation)
+
+    FI->>PC: FAULT_MODE=FM_2_2
+    PC->>PL: TASK_START ✓
+    PC->>PC: Fabricate: products=["HALLUCINATED-001"] (B1: ["PROD-001"])
+    PC->>PL: CATALOG_DONE ✓
+    Note over PL: hop1_infection = CATALOG_DONE<br/>products=["HALLUCINATED-001"] ← caught
+
+    Note over PC,RA: ── Inter-agent boundary ──
+    PC-->>RA: Passes ["HALLUCINATED-001"] as catalog input
+
+    RA->>RL: TASK_START ✓
+    RA->>RL: RECOMMEND_DONE ✓ (recommended=["HALLUCINATED-001"])
+    RA->>RL: FINAL_ANSWER ✓
+    Note over RL: hop2_infection = null  (RA trace structurally clean)<br/>Customer shown non-existent product<br/>Detectable via product ID cross-check at boundary
+```
+
+---
+
+### 7.10 Model Effect — Why 14b Kills Fewer Mutants than 3b
+
+```mermaid
+sequenceDiagram
+    participant A as PaymentAgent (ReAct loop)
+    participant LLM3b as qwen2.5:3b  temp=0
+    participant LLM14b as qwen2.5-coder:14b  temp=0
+
+    Note over A,LLM3b: ── With qwen2.5:3b (kill rate 57.1%) ──
+    A->>LLM3b: "Process payment of 9.00 USD"
+    LLM3b->>LLM3b: Thought: I need to validate the card first
+    LLM3b->>LLM3b: Action: validate_card(card_number)
+    LLM3b->>LLM3b: Observation: validated=True
+    LLM3b->>LLM3b: Thought: Now I must charge the payment
+    LLM3b->>LLM3b: Action: charge_payment(9.00)
+    Note over LLM3b: ✓ All tools called<br/>Injection activates → checkpoint fires → KILLED
+
+    Note over A,LLM14b: ── With qwen2.5-coder:14b (kill rate 40.0%) ──
+    A->>LLM14b: "Process payment of 9.00 USD"
+    LLM14b->>LLM14b: "Payment of 9.00 USD processed successfully."
+    Note over LLM14b: ✗ Skips ReAct tool-call loop entirely<br/>Answers directly from context<br/>Injection never activates<br/>Checkpoint never fires → fault becomes LIVE
+```
+
+---
+
+### 7.11 Shipping Agent Blind Spot — Why Both Shipping Agents Score 0%
+
+```mermaid
+sequenceDiagram
+    participant FI as Fault Injector
+    participant A as ShippingQuoteAgent (ReAct)
+    participant LLM as Ollama qwen2.5:3b
+    participant Tool as get_quote() tool
+    participant CK as LKW Checkpoint
+
+    FI->>A: FAULT_MODE=BL_RATE_MANIPULATION
+
+    alt Path A — 3b temp=0: Template fallback
+        A->>LLM: "Get shipping quote for cart"
+        Note over LLM: LLM uncertain about gRPC tool<br/>Uses hardcoded fallback string instead
+        LLM-->>A: "Shipping: $5.00 (standard delivery)"
+        A->>CK: QUOTE_DONE (rate=5.00 — from fallback, not tool)
+        Note over CK: Injection never activated (tool not called)<br/>inf=0, sloss=0 — LIVE ✗<br/>Kill rate: 0%
+    else Path B — 14b / higher temp: gRPC error
+        A->>Tool: Attempt gRPC call to CartService
+        Note over Tool: CartService not running in Slurm job
+        Tool-->>A: gRPC connection error
+        Note over CK: Run fails before any checkpoint after TASK_START<br/>INCONCLUSIVE<br/>Kill rate: 0%
+    end
+
+    Note over FI,CK: Root cause: template-string fallback bypasses<br/>all instrumented tool calls<br/>Architecture-level blind spot — not a test gap
+```

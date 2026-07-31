@@ -55,7 +55,9 @@ echo "  Job: $SLURM_JOB_ID  Node: $(hostname)  $(date)"
 echo "================================================================"
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-SCRATCH="/speed-scratch/$USER"
+SCRATCH="${SPEED_SCRATCH:-/nfs/speed-scratch/$USER}"
+# Fallback: try both common SPEED mount points
+if [ ! -d "$SCRATCH" ]; then SCRATCH="/speed-scratch/$USER"; fi
 REPO="$SCRATCH/LLM-MAS"
 VENV="$SCRATCH/venv"
 SRC="$REPO/src"

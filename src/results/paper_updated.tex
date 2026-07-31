@@ -792,7 +792,57 @@ step loss and deviation visible only in the payload.
 \subsection{Fault Taxonomy and Mutation Operators}
 \label{sec:fault-taxonomy}
 
-Each injected fault is a \emph{mutation operator}~\cite{lkw} on a
+\paragraph{How the three components are linked.}
+The study combines three distinct mechanisms whose roles must be kept separate:
+
+\begin{itemize}
+  \item \textbf{LKW dataflow checkpoints} are the \emph{detection layer}.
+        Each checkpoint is a named observation point at a tool-function
+        boundary that records the value of a guarded variable at a def or
+        use site. LKW's role is to identify whether a hidden operation on a
+        variable is non-compliant with the expected value range or schema ---
+        it is a conformance oracle, not a test generator.
+
+  \item \textbf{B1 oracle traces} are the \emph{correctness specification}.
+        B1 records the ground-truth value at every LKW checkpoint under
+        deterministic, fault-free execution. B1 is not itself a test ---
+        it is the reference state against which all B3 deviations are judged.
+        Without B1, a LKW checkpoint has no threshold to evaluate against.
+
+  \item \textbf{Fault injection operators} are the \emph{evaluation stimulus}.
+        Each injected fault is a controlled perturbation introduced into
+        a specific tool-function boundary.  Running the agent under a known
+        fault and asking ``did the LKW checkpoint detect the deviation from
+        B1?'' is the evaluation question.  A \emph{killed} fault means the
+        LKW layer was sensitive enough to catch this class of perturbation;
+        a \emph{live} fault means it was not.
+\end{itemize}
+
+The three are therefore linked as follows: \textbf{B1 defines what
+``correct'' looks like at every LKW checkpoint; fault injection
+introduces a known deviation; LKW measures whether that deviation is
+observable.}  The resulting kill rate is a measure of
+\emph{LKW checkpoint sensitivity under fault}, not classical
+mutation-testing adequacy (which evaluates whether a test suite can
+detect code-level syntactic mutations).  We borrow the
+killed/live vocabulary because the experimental structure is isomorphic,
+but the purpose is robustness characterisation of the LKW monitoring
+layer, not test-suite improvement.
+
+\paragraph{Why FM-3.1 (premature termination) is a valid fault operator.}
+Classical mutation testing operates on source-code syntax (e.g., replace
+\texttt{+} with \texttt{-}).  In LLM-driven agents the equivalent
+structural fault is an agent that \emph{exits its workflow before
+completing all required checkpoints} --- the LLM produces a
+\texttt{Final Answer} after fewer tool calls than B1 requires.  FM-3.1
+models exactly this: the agent terminates early, leaving downstream
+checkpoints (e.g.\ \texttt{CHARGE\_DONE}, \texttt{SAVE\_DONE}) absent
+from the trace.  The purpose is not to measure termination rate as an
+end goal; the purpose is to ask whether the LKW step-loss detector can
+identify this class of structural deviation.  The ``kill'' verdict for
+FM-3.1 therefore means: LKW detected the missing checkpoints.
+
+Each injected fault is a \emph{mutation operator} on a
 specific agent state variable. The idea is straightforward: inject a
 known change into one agent, run it with a live LLM, and check whether
 the LKW checkpoints catch the deviation from the B1 oracle.

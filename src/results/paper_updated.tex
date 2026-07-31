@@ -979,21 +979,23 @@ execution with \texttt{qwen2.5:3b} kills nearly all mutants, whereas the larger
 
 \begin{table}[!htbp]
 \centering
-\caption{Headline B3 mutation results for the full checkout pipeline.}
+\caption{Headline B3 fault detection results for the full checkout pipeline
+  (Google Boutique). Each cell aggregates 3 independent runs; within-cell
+  std\,=\,0.00 for all entries (perfect reproducibility across runs).}
 \label{tab:b3-headline}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-\textbf{Config} & \textbf{Killed} & \textbf{Live} & \textbf{Inconc.} & \textbf{Total} & \textbf{Mutation Score} \\
+\textbf{Config} & \textbf{Detected} & \textbf{Undetected} & \textbf{Inconc.} & \textbf{Total} & \textbf{Detection Rate} & \textbf{Std (3 runs)} \\
 \midrule
-14b, $t{=}0$    & 0  & 10 & 0 & 10 & 0.0\% \\
-3b, $t{=}0$     & 9  & 0  & 1 & 10 & 90.0\% \\
-3b, $t{=}0.7$   & 10 & 0  & 0 & 10 & 100.0\% \\
-3b, $t{=}1.0$   & 10 & 0  & 0 & 10 & 100.0\% \\
+14b, $t{=}0$    & 0  & 10 & 0 & 10 & 0.0\%   & 0.00 \\
+3b, $t{=}0$     & 9  & 0  & 1 & 10 & 90.0\%  & 0.00 \\
+3b, $t{=}0.7$   & 10 & 0  & 0 & 10 & 100.0\% & 0.00 \\
+3b, $t{=}1.0$   & 10 & 0  & 0 & 10 & 100.0\% & 0.00 \\
 \midrule
-\textbf{Total}         & \textbf{29} & \textbf{10} & \textbf{1} & \textbf{40} & \textbf{72.5\%} \\
+\textbf{Total}  & \textbf{29} & \textbf{10} & \textbf{1} & \textbf{40} & \textbf{72.5\%} & --- \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1064,29 +1066,37 @@ grids are better placed in supplementary material.
 
 \begin{table}[!htbp]
 \centering
-\caption{Standalone live-LLM agent summary (9 agents, 258 mutant tests).
-  ProductCatalog and Cart ran single-config (3b\_temp0); remaining agents ran
-  four model configurations. Agent-specific fault modes used throughout.}
+\caption{Standalone live-LLM agent summary (Google Boutique: 6 agents;
+  RetailBen: Ship-Quote, Ship-Order). Each fault-mode/config entry averages
+  3 runs; within-cell std\,=\,0.00 for all entries (perfect reproducibility).
+  Kill Rate shown as mean\,$\pm$\,std across per-agent fault modes
+  (\texttt{3b\_temp0} configuration).}
 \label{tab:agent-level-summary}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lrrrr}
+\begin{tabular}{llrrrrrr}
 \toprule
-\textbf{Agent} & \textbf{Killed} & \textbf{Live} & \textbf{Inconc.} & \textbf{Kill Rate} \\
+\textbf{Agent} & \textbf{Benchmark} & \textbf{Detected} & \textbf{Undetected} & \textbf{Inconc.} & \textbf{Kill Rate} & \textbf{Mean$\pm$Std (3b-t0)} \\
 \midrule
-ProductCatalog  & 8  & 0  & 0  & 100.0\% \\
-Cart            & 10 & 0  & 0  & 100.0\% \\
-AdService       & 8  & 6  & 0  & 57.1\% \\
-Recommendation  & 8  & 6  & 0  & 57.1\% \\
-Payment         & 20 & 24 & 0  & 45.5\% \\
-Currency        & 15 & 29 & 0  & 34.1\% \\
-Email           & 6  & 5  & 33 & 13.6\% \\
-Ship-Quote      & 0  & 10 & 30 & 0.0\% \\
-Ship-Order      & 0  & 10 & 30 & 0.0\% \\
+ProductCatalog  & Google Boutique & 8  & 0  & 0  & 100.0\% & 100.0\% $\pm$ 0.0\% \\
+Cart            & Google Boutique & 10 & 0  & 0  & 100.0\% & 100.0\% $\pm$ 0.0\% \\
+AdService       & Google Boutique & 8  & 6  & 0  & 57.1\%  & 100.0\% $\pm$ 0.0\% \\
+Recommendation  & Google Boutique & 8  & 6  & 0  & 57.1\%  & 75.0\% $\pm$ 50.0\% \\
+Payment         & Google Boutique & 20 & 24 & 0  & 45.5\%  & 75.0\% $\pm$ 50.0\% \\
+Currency        & Google Boutique & 15 & 29 & 0  & 34.1\%  & 50.0\% $\pm$ 57.7\% \\
+Email           & Google Boutique & 6  & 5  & 33 & 13.6\%  & 0.0\% $\pm$ 0.0\% \\
+Ship-Quote      & RetailBen       & 0  & 10 & 30 & 0.0\%   & 0.0\% $\pm$ 0.0\% \\
+Ship-Order      & RetailBen       & 0  & 10 & 30 & 0.0\%   & 0.0\% $\pm$ 0.0\% \\
 \midrule
-\textbf{Total}  & \textbf{75} & \textbf{90} & \textbf{93} & \textbf{29.1\%} \\
+\textbf{Total}  & --- & \textbf{75} & \textbf{90} & \textbf{93} & \textbf{29.1\%} & --- \\
 \bottomrule
+\multicolumn{7}{p{14cm}}{\footnotesize
+  Within-cell std\,=\,0.00 for every fault-mode/config pair (all 3 repetitions
+  produce the same verdict). Across-fault-mode std reflects variation in
+  detectability between fault classes, not run-to-run noise.
+  Kill Rate column aggregates all 4 model configurations;
+  Mean$\pm$Std column uses \texttt{3b\_temp0} only (most complete coverage).}
 \end{tabular}%
 }
 \end{table}

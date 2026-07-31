@@ -277,18 +277,24 @@ Section~\ref{sec:agentification} describes the uniform ReAct agent design
 shared by all nine agents.
 All agent names are tagged \textbf{(GB)} or \textbf{(RB)} throughout the paper.
 
-\subsection{Target Workflow}
-\textbf{Benchmark scope:} This section describes the \textbf{RetailBen}
-benchmark's shipping-orchestration workflow (ShipOrderAgent). The
-Google Boutique benchmark (PaymentAgent, CurrencyAgent, EmailServiceAgent,
-ProductCatalogAgent, RecommendationAgent, AdServiceAgent) uses per-agent
-workflows described alongside each agent in Section~\ref{sec:bench-configs}.
-All agent references are labeled by benchmark throughout the paper.
+\subsection{Google Online Boutique Application}
+\label{sec:google-boutique}
 
-We evaluate a shipping order orchestration flow with agentic steps (checkpoint
-sequence): \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$
-\texttt{CARRIER\_DONE} $\to$ \texttt{TRACKING\_DONE} $\to$ \texttt{SAVE\_DONE}
-$\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
+The \emph{Google Online Boutique}~\cite{google-ob} is an open-source,
+cloud-native e-commerce reference application comprising ten
+interdependent microservices: \texttt{Frontend}, \texttt{CheckoutService},
+\texttt{CartService}, \texttt{ProductCatalogService},
+\texttt{CurrencyService}, \texttt{PaymentService},
+\texttt{ShippingService}, \texttt{RecommendationService},
+\texttt{EmailService}, and \texttt{AdService}.
+Services communicate over gRPC with protobuf-encoded contracts and are
+deployed on Kubernetes.  The application provides a realistic multi-service
+call graph for a complete retail checkout that exercises monetary computation
+(currency conversion, payment), catalogue lookup, personalisation
+(recommendations, ads), fulfilment (shipping), and notification (email).
+All seven services exercised in this study are drawn directly from this
+benchmark; their gRPC interface contracts are defined in
+\texttt{protos/demo.proto}.
 
 \begin{figure*}[!tp]
 \centering
@@ -336,30 +342,11 @@ $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
 }
 \end{tikzpicture}
 }
-\caption{LLM-MAS system architecture. Microservices (blue) serve
-\texttt{CheckoutService} via gRPC (solid arrows). Agent wrappers (green)
+\caption{Google Online Boutique (GB) LLM-MAS architecture. Microservices (blue)
+serve \texttt{CheckoutService} via gRPC (solid arrows). Agent wrappers (green)
 orchestrate each microservice and share one Ollama backend (orange, dotted).}
 \label{fig:architecture}
 \end{figure*}
-
-\subsection{Google Online Boutique Application}
-\label{sec:google-boutique}
-
-The \emph{Google Online Boutique}~\cite{google-ob} is an open-source,
-cloud-native e-commerce reference application comprising ten
-interdependent microservices: \texttt{Frontend}, \texttt{CheckoutService},
-\texttt{CartService}, \texttt{ProductCatalogService},
-\texttt{CurrencyService}, \texttt{PaymentService},
-\texttt{ShippingService}, \texttt{RecommendationService},
-\texttt{EmailService}, and \texttt{AdService}.
-Services communicate over gRPC with protobuf-encoded contracts and are
-deployed on Kubernetes.  The application provides a realistic multi-service
-call graph for a complete retail checkout that exercises monetary computation
-(currency conversion, payment), catalogue lookup, personalisation
-(recommendations, ads), fulfilment (shipping), and notification (email).
-All seven services exercised in this study are drawn directly from this
-benchmark; their gRPC interface contracts are defined in
-\texttt{protos/demo.proto}.
 
 \subsection{RetailBen Shipping-Orchestration Benchmark}
 \label{sec:retailben}

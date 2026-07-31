@@ -612,11 +612,16 @@ the rest of the paper.
 \caption{Fault $\times$ LKW Criterion $\times$ Checkpoint mapping.
   Agents marked \textbf{(RB)} are from the RetailBen benchmark;
   all others are Google Boutique agents.
-  For each fault mode and agent the \emph{primary infection checkpoint},
-  applicable criterion (\textbf{AU}~=~All-Uses; \textbf{ADP}~=~All-DU-Paths),
-  use type (C~=~c-use; P~=~p-use), and comparison operator are listed.
-  Comparison: $\delta_{\epsilon}$~=~numeric tolerance;
-  $\mathcal{S}$~=~set/schema equality; $\Sigma$~=~flag/bool conformance.}
+  \textbf{Column definitions:}
+  \emph{Infect.\ Checkpoint} = the first LKW observation point at which the
+  injected fault becomes observable (i.e.\ where the monitored variable first
+  deviates from the B1 oracle value);
+  \emph{Criterion} = the LKW data-flow criterion applied
+  (\textbf{AU}~=~All-Uses; \textbf{ADP}~=~All-DU-Paths);
+  \emph{Use} = use-site type (C~=~c-use; P~=~p-use);
+  \emph{Cmp.} = comparison operator used during B1 oracle evaluation
+  ($\delta_{\epsilon}$~=~numeric tolerance within relative threshold;
+  $\mathcal{S}$~=~set/schema equality; $\Sigma$~=~flag/bool conformance).}
 \label{tab:fault-lkw-ckpt}
 \footnotesize
 \setlength{\tabcolsep}{3pt}

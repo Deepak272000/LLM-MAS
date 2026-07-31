@@ -3,10 +3,13 @@
 #SBATCH --output=/speed-scratch/%u/logs/agentracer_%j.log
 #SBATCH --error=/speed-scratch/%u/logs/agentracer_%j.err
 #SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --time=04:00:00
 #SBATCH --partition=pt
 #SBATCH --gres=gpu:1
+#SBATCH --mail-type=FAIL,END
+#SBATCH --mail-user=d_chavan@encs.concordia.ca
 
 # =============================================================================
 #  LLM-MAS × AgenTracer — All-Phase Attribution Pipeline
@@ -55,11 +58,10 @@ echo "  Job: $SLURM_JOB_ID  Node: $(hostname)  $(date)"
 echo "================================================================"
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-SCRATCH="${SPEED_SCRATCH:-/nfs/speed-scratch/$USER}"
-# Fallback: try both common SPEED mount points
-if [ ! -d "$SCRATCH" ]; then SCRATCH="/speed-scratch/$USER"; fi
+SCRATCH="/speed-scratch/${USER}"
 REPO="$SCRATCH/LLM-MAS"
-VENV="$SCRATCH/venv"
+VENV="$SCRATCH/LLM-MAS/src/shippingservice/.venv"
+PYTHON="$VENV/bin/python"
 SRC="$REPO/src"
 LOGS="$SCRATCH/logs"
 mkdir -p "$LOGS"
@@ -69,15 +71,9 @@ source "$VENV/bin/activate"
 echo "[setup] Python: $(python --version)"
 echo "[setup] Working dir: $SRC"
 
-# ── Start Ollama in background ────────────────────────────────────────────────
-echo "[setup] Starting Ollama…"
-ollama serve &
-OLLAMA_PID=$!
-sleep 8   # wait for Ollama to initialise
-
-# Pull model if not already cached
-ollama pull qwen2.5:3b 2>/dev/null || true
-echo "[setup] Ollama ready (PID $OLLAMA_PID)"
+# ── Start Ollama via live_service_stack (same as all other SPEED jobs) ────────
+echo "[setup] Starting Ollama via live_service_stack.sh..."
+source "${SRC}/live_service_stack.sh"
 
 export OLLAMA_URL="http://localhost:11434"
 export LLAMA_MODEL="qwen2.5:3b"
@@ -94,9 +90,6 @@ python agentracer_adapter/run_attribution_pipeline.py \
 echo ""
 echo "[pipeline] Checking outputs…"
 ls -lh "$SRC/results/agentracer/"
-
-# ── Cleanup Ollama ────────────────────────────────────────────────────────────
-kill $OLLAMA_PID 2>/dev/null || true
 
 echo ""
 echo "================================================================"

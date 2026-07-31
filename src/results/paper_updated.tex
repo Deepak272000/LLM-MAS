@@ -134,9 +134,15 @@ judges whether the fault caused a detectable deviation beyond the B2
 noise envelope.
 
 We run two evaluation modes. In \emph{standalone} mode each agent is
-tested in isolation to measure local fault detectability. In
-\emph{full-pipeline} mode all agents run end-to-end to measure whether
-a fault in one agent silently corrupts a downstream agent's output.
+tested in isolation to measure local fault detectability; each agent
+receives a synthetic task description constructed to match its expected
+input contract (e.g., CurrencyAgent receives a fixed cart total and
+target currency pair, mirroring the output the orchestrator would
+produce in full-pipeline mode). In \emph{full-pipeline} mode
+(\emph{full checkout orchestration}: the end-to-end sequence in which
+all agent services execute in order to complete a customer purchase)
+all agents run end-to-end to measure whether a fault in one agent
+silently corrupts a downstream agent's output.
 
 In this project, we answer the following research questions:
 \begin{description}
@@ -191,14 +197,17 @@ multi-agent pipeline, enabling causal attribution at the agent boundary level.
 MAST~\cite{mast} proposes a taxonomy of failures in multi-agent systems
 covering specification, design, and execution layers. We adopt MAST fault
 class identifiers (FM-1.x, FM-2.x, FM-3.x, BL-*) as our injection vocabulary,
-mapping each category to a concrete Python-level injection function. Our
-empirical study is the first, to our knowledge, to operationalise the MAST
-taxonomy through systematic controlled injection across multiple agents in a
-realistic LLM-MAS and report propagation depth, stability, and HITL tier for
-each fault class. We also identify a gap: MAST characterises failures at the
-classification level but does not specify how to instrument execution to
-distinguish Tier~3 silent faults (FM-2.2) from structurally correct runs.
-The LKW placement taxonomy (P1--P5) fills this gap.
+mapping each category to a concrete Python-level injection function.
+MAST characterises failures at the \emph{classification} level but leaves two
+operational gaps: (1) it does not specify how to instrument an LLM-MAS execution
+to distinguish Tier~3 silent faults (FM-2.2) from structurally correct runs ---
+because all checkpoints complete normally even when values are corrupt; and
+(2) it does not address cross-boundary propagation, where a structurally
+correct but semantically wrong output from agent~A silently corrupts
+agent~B with no observable signal at either hop.
+This work fills both gaps: the LKW placement taxonomy (P1--P5) provides the
+instrumentation criterion for gap~(1), and the cross-agent boundary contract
+layer provides the detection and containment mechanism for gap~(2).
 
 \paragraph{LLM output validation and guardrails}
 NeMo Guardrails~\cite{nemoguar} and Guardrails AI~\cite{llmguardrails} provide
@@ -221,8 +230,10 @@ multi-agent systems are nascent: existing work focuses on functional output
 evaluation~\cite{agenteval} rather than on characterising failure propagation
 across agent boundaries. Our study addresses this gap by providing a complete
 test infrastructure (LKW instrumentation, RIP analyser, HITL classifier,
-boundary contract layer, and recovery policy engine) that can be adopted in
-any LangGraph-compatible or similarly structured MAS.
+boundary contract layer, and recovery policy engine) validated on two
+LangGraph-based benchmarks. The infrastructure is applicable to any
+LangGraph-based MAS that exposes named tool-call boundaries where
+checkpoint instrumentation can be placed.
 
 \paragraph{Fault propagation in distributed systems}
 The concept of propagation depth originates in the Laski-Korel-Weyuker (LKW)
@@ -254,6 +265,11 @@ policies.
 % ═════════════════════════════════════════════════════════════════════════════
 
 \subsection{Target Workflow}
+\textbf{Benchmark scope:} This section describes the \textbf{Google Online
+Boutique} (6-agent) workflow. The RetailBen benchmark (ShippingQuoteAgent,
+ShipOrderAgent) is described in Section~\ref{sec:bench-configs}. All agent
+references are labeled by benchmark throughout the paper.
+
 We evaluate an order orchestration flow with agentic steps (checkpoint
 sequence): \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$
 \texttt{CARRIER\_DONE} $\to$ \texttt{TRACKING\_DONE} $\to$ \texttt{SAVE\_DONE}
@@ -366,17 +382,20 @@ LLM-directed orchestration layer.  All wrappers follow a uniform
 \emph{ReAct}~\cite{react} pattern:
 \begin{enumerate}
   \item The LLM receives a structured task description and a manifest of
-        available tools (one tool per deterministic sub-agent).
+        available tools (one deterministic tool function per microservice
+        operation).
   \item It emits a sequence of \texttt{Thought / Action / Observation}
         steps until it produces a \texttt{Final Answer}.
-  \item Each \texttt{Action} is dispatched to a deterministic sub-agent
-        (e.g., \texttt{CardValidationAgent}, \texttt{ConversionAgent})
-        that executes the microservice business logic without LLM
-        involvement and returns a structured result.
+  \item Each \texttt{Action} is dispatched to a \textbf{deterministic tool
+        function} (e.g., \texttt{convert\_currency()},
+        \texttt{validate\_card()}) that executes the microservice business
+        logic without LLM involvement and returns a structured result.
+        These are ordinary Python functions --- not agents --- and always
+        produce the same output for the same input.
   \item The result is appended as an \texttt{Observation} and the loop
         continues.
 \end{enumerate}
-This design isolates LKW checkpoints at sub-agent call boundaries ---
+This design isolates LKW checkpoints at tool-function call boundaries ---
 well-defined definition and use sites that are independent of LLM token
 sampling --- while still exercising the full LLM reasoning path for
 reachability and propagation measurement.
@@ -467,12 +486,25 @@ pair for each variable under test.
 We apply this framework to agent state variables --- monetary amounts, product
 ID lists, carrier selections, tracking IDs, and boolean flag fields --- by
 placing named observation points at the corresponding def and use sites within
-the agent's LangGraph execution graph. Each observation point records a
-\textbf{step name} (identifying the def or use site), a \textbf{data payload}
-(the observed value of the guarded variable, deep-copied at recording time),
-and a \textbf{timestamp}. The ordered sequence of observation points for a
-single agent run forms the \emph{LKW trace}, which is the primary evidence
-object for all RIP (Reachability, Infection, Propagation) measurements.
+the agent's LangGraph execution graph.
+
+\paragraph{Variable selection criterion.}
+A variable is selected as an LKW observation point if all three of the
+following hold: (1)~it is the primary output of an agent's tool-function call
+(the value the LLM acts on next); (2)~its value flows downstream --- either
+to another agent or to a side-effecting operation (persistence, payment,
+email); and (3)~its corruption would produce quantifiable business harm
+(financial loss, incorrect recommendation, lost shipment). This gives one
+primary LKW observation point per agent per tool call. Secondary points
+are added at predicate-use (flag) sites per the All-DU-Paths criterion
+for high-risk monetary and identifier variables (see §\ref{sec:placement-taxonomy}).
+
+Each observation point records a \textbf{step name} (identifying the def or
+use site), a \textbf{data payload} (the observed value of the guarded
+variable, deep-copied at recording time), and a \textbf{timestamp}. The
+ordered sequence of observation points for a single agent run forms the
+\emph{LKW trace}, which is the primary evidence object for all RIP
+(Reachability, Infection, Propagation) measurements.
 
 The instrumentation is:
 \begin{itemize}
@@ -813,9 +845,19 @@ mutation analysis:
 
     \item[\textbf{B3 --- Fault injection}] The same agent with
       \texttt{USE\_LLM=true} and a single mutation operator active.
-        A B3 trace is a \emph{killed mutant} if its LKW deviation from B1
-        exceeds the B2 envelope; it is a \emph{live mutant} if the fault's
-        fingerprint hides within natural variance. The ShippingService
+        A B3 trace is a \emph{detected fault} (classically: killed mutant) if
+        its LKW deviation from B1 exceeds the B2 envelope; it is an
+        \emph{undetected fault} (classically: live mutant) if the fault's
+        fingerprint hides within natural variance.
+
+        \textbf{Terminology note.} We adapt the mutation testing metaphor: each
+        injected fault is treated as a mutant operator, and a fault is
+        ``killed'' if the LKW checkpoint evidence shows deviation from the B1
+        oracle beyond the B2-derived threshold. This measures
+        \emph{fault detection rate} --- how robustly the system's observable
+        state reflects injected failures --- rather than test-suite adequacy in
+        the classical sense. The B3 kill rate is therefore equivalent to the
+        fault detection rate for the given agent and fault mode. The ShippingService
         Retail-bench and Google-bench campaigns
         (Sections~\ref{sec:google-bench} and~\ref{sec:retail-bench}) report
         B3 results. The six-agent deterministic runs

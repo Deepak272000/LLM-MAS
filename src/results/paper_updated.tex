@@ -367,17 +367,57 @@ LLM-directed orchestration layer.  All wrappers follow a uniform
   \item The result is appended as an \texttt{Observation} and the loop
         continues.
 \end{enumerate}
-This design isolates LKW checkpoints at sub-agent call boundaries --- 
+This design isolates LKW checkpoints at sub-agent call boundaries ---
 well-defined definition and use sites that are independent of LLM token
 sampling --- while still exercising the full LLM reasoning path for
 reachability and propagation measurement.
+
+Not all nine services are implemented in Python.
+Table~\ref{tab:agent-impl} lists the implementation type for each service.
+Six services are full Python ReAct agents with LangGraph execution graphs
+and native LKW instrumentation.
+\texttt{CartService}~(C\#) is exercised via a thin Python mirror
+(\texttt{co\_helper\_cart.py}) that reproduces the cart business logic and
+the same checkpoint schema.
+The \texttt{CheckoutService}~(Go) is covered by two Python sub-agent
+wrappers for the quote and order paths.
+All nine share the same ReAct loop structure, tool manifest format, and
+LKW checkpoint schema, so the fault injection and oracle comparison
+pipeline treats them uniformly.
+
+\begin{table}[!htbp]
+\centering
+\caption{Agent implementation type and LKW checkpoint count per service.
+  Six services are full Python ReAct agents; two are language-bridge
+  wrappers. All nine share the same checkpoint schema.}
+\label{tab:agent-impl}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llll}
+\toprule
+\textbf{Service} & \textbf{Lang.} & \textbf{Implementation} & \textbf{Checkpoints} \\
+\midrule
+PaymentService        & Python & Full ReAct agent      & 5 \\
+CurrencyService       & Python & Full ReAct agent      & 3 \\
+EmailService          & Python & Full ReAct agent      & 4 \\
+ProductCatalogService & Python & Full ReAct agent      & 3 \\
+RecommendationService & Python & Full ReAct agent      & 3 \\
+AdService             & Python & Full ReAct agent      & 4 \\
+CartService           & C\#    & Python mirror wrapper & 5 \\
+CheckoutService (quote) & Go   & Python sub-agent wrapper & 3 \\
+CheckoutService (order) & Go   & Python sub-agent wrapper & 6 \\
+\midrule
+\textbf{Total} & & & \textbf{36} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{LKW and RIP Checkpoint Design}
 \label{sec:lkw-design}
 % ═════════════════════════════════════════════════════════════════════════════
 
-Across all seven agents, FM-2.2 maps to a consistent primary infection
+Across all nine agents, FM-2.2 maps to a consistent primary infection
 checkpoint with the same P2 c-use placement class and Tier~3 (Silent)
 classification, confirming that the LKW framework produces a stable,
 evidence-based signature for hallucinated-output faults across the full
@@ -462,6 +502,57 @@ measurement for workflow-skip faults.
 primary logic, enabling Tier-2 p-use flag detection.
 \textbf{P5}~(Terminal) records the value returned to the caller at the agent
 handoff boundary, enabling cross-agent propagation comparison.
+
+\subsection{Agent Checkpoint to Microservice Observation Point Mapping}
+\label{sec:checkpoint-alignment}
+
+The LKW checkpoints live in the agent layer; the deterministic microservices
+do not have them.
+For each agent checkpoint there is a corresponding observation point in the
+original microservice --- typically the gRPC request or response value at
+the analogous call site.
+Table~\ref{tab:ckpt-align} makes this mapping explicit for all nine agents.
+The B1 oracle records the clean gRPC response value at each call site under
+deterministic execution; the agent checkpoint records the same field when
+the LLM-directed agent calls the equivalent tool.
+This alignment is what makes it valid to compare B3 agent traces against
+B1 microservice ground truth.
+
+\begin{table}[!htbp]
+\centering
+\caption{Agent checkpoint to microservice gRPC observation point alignment
+  (B1\;$\leftrightarrow$\;B2 mapping). The B1 oracle records the clean value
+  at each gRPC call site; the agent checkpoint records the corresponding
+  tool response during live-LLM execution.}
+\label{tab:ckpt-align}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+\textbf{Agent Checkpoint} & \textbf{Microservice gRPC Call} & \textbf{Guarded Variable(s)} \\
+\midrule
+\texttt{CARD\_VALIDATED}   & PaymentService.Validate(card)      & validated, amount \\
+\texttt{CHARGE\_DONE}      & PaymentService.Charge(amount)      & charged \\
+\texttt{SAVE\_DONE} (pay)  & PaymentService.Save(txn)           & saved \\
+\texttt{CONVERT\_DONE}    & CurrencyService.Convert(from,to)   & units, nanos \\
+\texttt{EMAIL\_GENERATED} & EmailService.Generate(type,data)   & body, to\_address \\
+\texttt{EMAIL\_SENT}      & EmailService.Send(body,to)         & sent \\
+\texttt{CATALOG\_DONE}    & ProductCatalogService.ListProducts & products \\
+\texttt{RECOMMEND\_DONE}  & RecommendationService.ListRecs     & product\_ids \\
+\texttt{CONTEXT\_EXTRACTED} & AdService.GetAds (input)         & context\_keys \\
+\texttt{ADS\_FETCHED}     & AdService.GetAds (output)          & ad\_list \\
+\texttt{ITEM\_ADDED}      & CartService.AddItem(id,qty)        & quantity \\
+\texttt{QUANTITY\_MERGED} & CartService.GetCart (merge)        & merged\_qty \\
+\texttt{CART\_READ}       & CartService.GetCart (final)        & cart\_items \\
+\texttt{QUOTE\_DONE}      & ShippingService.GetQuote           & rate, carrier \\
+\texttt{CARRIER\_DONE}    & ShippingService.ShipOrder (carrier)& carrier \\
+\texttt{TRACKING\_DONE}   & ShippingService.ShipOrder (track)  & tracking\_code \\
+\texttt{SAVE\_DONE} (ship) & ShippingService.ShipOrder (persist)& saved \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \subsection{Fault $\times$ LKW Criterion $\times$ Checkpoint Mapping}
 \label{sec:fault-lkw-ckpt}
@@ -604,6 +695,43 @@ FM-2.2 fabricates a computed payload, FM-2.5 tampers with an input value
 before use, and the business-logic operators corrupt domain payloads or
 metadata fields. Each operator is judged at the first checkpoint where the
 mutated value becomes observable under the LKW instrumentation scheme.
+
+\paragraph{Service and benchmark coverage.}
+Table~\ref{tab:service-coverage} shows which fault modes cover which
+services.  Every service receives at least one general fault (FM-*) and
+at least one business-specific fault (BL-*).  Both benchmarks
+(Google-bench and Retail-bench) exercise the same nine services; the only
+difference is the model configuration (\texttt{qwen2.5:3b}
+vs.\ \texttt{qwen2.5-coder:14b}).
+
+\begin{table}[!htbp]
+\centering
+\caption{Fault mode coverage across all nine agent services.
+  \checkmark\,=\,covered.  BL\,=\,number of agent-specific business-logic
+  fault modes.  Every service has at least one general and one BL fault.}
+\label{tab:service-coverage}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Service} & \textbf{FM-1.2} & \textbf{FM-2.2} & \textbf{FM-2.5} & \textbf{FM-3.1} & \textbf{BL count} & \textbf{Benchmarks} \\
+\midrule
+PaymentService        & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
+CurrencyService       & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
+EmailService          & \checkmark & \checkmark & \checkmark & \checkmark & 2 & Both \\
+ProductCatalogService & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
+RecommendationService & \checkmark & \checkmark & \checkmark & \checkmark & 2 & Both \\
+AdService             & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
+CartService           & \checkmark & \checkmark & \checkmark & \checkmark & 6 & Both \\
+ShipOrderAgent        & \checkmark & \checkmark & \checkmark & \checkmark & 3 & Both \\
+ShippingQuoteAgent    & --         & --         & \checkmark & --         & 2 & Both \\
+\midrule
+\textbf{Coverage (9 services)} & \textbf{8/9} & \textbf{9/9} & \textbf{9/9} & \textbf{8/9} & & \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \subsection{Fault Injection Pipeline}
 

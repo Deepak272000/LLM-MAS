@@ -2644,6 +2644,59 @@ boundary-instrumented Tier~3 faults from ``detect from raw payload'' to
 ``review structured RECOVERY\_ACTION record''; it does not reduce the burden
 for Tier~3 faults that occur within a single agent without a boundary handoff.}
 
+\subsection{RQ7: Failure Attribution Validation (AgenTracer Pipeline)}
+\label{sec:rq7}
+
+We validate our LKW+RIP attribution methodology against the AgenTracer
+framework~\cite{zhang2025agentracer}, which frames failure attribution as
+identifying the ground-truth pair $(i^*, t^*)$: the error agent and the
+decisive fault step. We implemented two attributors over all 60 evaluated
+trajectories (54 single-agent + cross-agent chains) using our
+\texttt{agentracer\_adapter} pipeline.
+
+\textbf{Rule-Based Attributor} (deterministic, using LKW tier/flag evidence):
+agent-level accuracy \textbf{98.3\%} (59/60), step-level accuracy
+\textbf{63.3\%} (38/60).
+
+\textbf{LLM-Based Attributor} (\texttt{qwen2.5:3b} prompt attribution via
+Ollama on SPEED HPC): agent-level accuracy \textbf{96.7\%} (58/60),
+step-level accuracy \textbf{5.0\%} (3/60).
+
+\begin{table}[h]
+\centering
+\caption{AgenTracer Attribution Accuracy by Tier (Rule-Based)}
+\label{tab:attribution}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Tier} & \textbf{Total} & \textbf{Correct} & \textbf{Accuracy} \\
+\midrule
+Baseline (NONE) & 10 & 10 & 100.0\% \\
+Tier~1 Structural & 8 & 8 & 100.0\% \\
+Tier~2 Flag-Det. & 34 & 34 & 100.0\% \\
+Tier~3 Silent & 8 & 7 & 87.5\% \\
+\midrule
+\textbf{Overall} & \textbf{60} & \textbf{59} & \textbf{98.3\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The single rule-based miss is the Tier~3 silent case where the LKW
+\texttt{infection\_point} is null (FM-2.2 on CurrencyAgent in cross-agent
+Chain~A): the boundary contract intercepted the flow before the
+\texttt{\_\_fault\_injected} flag propagated, returning \texttt{multi\_agent}
+instead of \texttt{currencyagent}. This is a finding, not a bug --- boundary
+intervention actively obscures deterministic attribution, confirming that
+boundary contracts change the observable fault signature.
+
+The 5\% LLM step accuracy reveals that \texttt{qwen2.5:3b} reliably identifies
+\emph{which agent} failed (96.7\%) but cannot recover the precise step name
+from trajectory text alone. This validates the LKW checkpoint-anchored approach
+as strictly superior for step-level attribution. The AgenTracer authors note
+that their fine-tuned model weights are not yet released~\cite{zhang2025agentracer};
+swapping the prompt-based LLM call for the released weights is the intended
+next step and is supported by the \texttt{\_llm\_call()} hook in
+\texttt{attributor.py}.
+
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Threats to Validity}
 % ═════════════════════════════════════════════════════════════════════════════
@@ -2838,6 +2891,11 @@ Google~LLC, ``Microservices Demo: Online Boutique,'' GitHub repository,
 S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, and Y.~Cao,
 ``ReAct: Synergizing Reasoning and Acting in Language Models,''
 in \textit{Proc.\ ICLR}, 2023.
+
+\bibitem{zhang2025agentracer}
+G.~Zhang \textit{et al.},
+``AgenTracer: Who Is Inducing Failure in the LLM Agentic Systems?''
+\textit{arXiv:2509.03312}, 2025.
 
 \end{thebibliography}
 

@@ -1855,6 +1855,74 @@ manual inspection.
         of checkpoint data contents against expected ranges or schemas.
 \end{description}
 
+Figure~\ref{fig:tier-patterns} shows the LKW trace fingerprint produced by
+each tier using PaymentAgent examples: FM-3.1 for Tier~1,
+FM-1.2 for Tier~2, and BL\_AMOUNT\_TAMPERING for Tier~3.
+
+\begin{figure*}[!tp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, minimum width=3.4cm, minimum height=0.65cm,
+              align=center, text width=3.2cm},
+  okbox/.style={box,   fill=green!15, draw=green!50!black},
+  missbox/.style={box,  fill=red!12,   draw=red!50!black},
+  flagbox/.style={box,  fill=orange!22, draw=orange!65!black},
+  paybox/.style={box,   fill=red!15,   draw=red!55!black},
+  detbox/.style={draw, rounded corners=3pt, fill=gray!12, minimum width=3.4cm,
+                 align=center, text width=3.2cm, inner sep=5pt},
+  hdr/.style={font=\normalsize\bfseries, align=center, text width=3.6cm},
+  arr/.style={->, >=Stealth, color=gray!70}
+]
+%% === TIER 1 (x=2.0) ===
+\node[hdr] at (2.0, 5.6) {Tier~1 --- Structural};
+\node[okbox]   (a1) at (2.0, 4.8) {TASK\_START $\checkmark$};
+\node[missbox] (a2) at (2.0, 3.9) {CARD\_VALID.\ $\times$};
+\node[missbox] (a3) at (2.0, 3.0) {CHARGE\_DONE $\times$};
+\node[missbox] (a4) at (2.0, 2.1) {SAVE\_DONE $\times$};
+\node[okbox]   (a5) at (2.0, 1.2) {FINAL\_ANSWER $\checkmark$};
+\draw[arr] (a1.south) -- (a2.north);
+\draw[arr] (a2.south) -- (a3.north);
+\draw[arr] (a3.south) -- (a4.north);
+\draw[arr] (a4.south) -- (a5.north);
+\node[detbox] at (2.0, 0.3) {step count\\ PropDepth\,=\,3};
+%% === TIER 2 (x=7.5) ===
+\node[hdr] at (7.5, 5.6) {Tier~2 --- Flag-Detectable};
+\node[okbox]   (b1) at (7.5, 4.8) {TASK\_START $\checkmark$};
+\node[flagbox] (b2) at (7.5, 3.9) {CARD\_VALID.\ $\checkmark$\\ {\small\texttt{bypassed=True}}};
+\node[okbox]   (b3) at (7.5, 3.0) {CHARGE\_DONE $\checkmark$};
+\node[okbox]   (b4) at (7.5, 2.1) {SAVE\_DONE $\checkmark$};
+\node[okbox]   (b5) at (7.5, 1.2) {FINAL\_ANSWER $\checkmark$};
+\draw[arr] (b1.south) -- (b2.north);
+\draw[arr] (b2.south) -- (b3.north);
+\draw[arr] (b3.south) -- (b4.north);
+\draw[arr] (b4.south) -- (b5.north);
+\node[detbox] at (7.5, 0.3) {flag monitor\\ P-use at checkpoint};
+%% === TIER 3 (x=13.0) ===
+\node[hdr] at (13.0, 5.6) {Tier~3 --- Silent};
+\node[okbox]   (c1) at (13.0, 4.8) {TASK\_START $\checkmark$};
+\node[okbox]   (c2) at (13.0, 3.9) {CARD\_VALID.\ $\checkmark$};
+\node[paybox]  (c3) at (13.0, 3.0) {CHARGE\_DONE $\checkmark$\\ {\small charged\,=\,\textbf{9999}}};
+\node[okbox]   (c4) at (13.0, 2.1) {SAVE\_DONE $\checkmark$};
+\node[okbox]   (c5) at (13.0, 1.2) {FINAL\_ANSWER $\checkmark$};
+\draw[arr] (c1.south) -- (c2.north);
+\draw[arr] (c2.south) -- (c3.north);
+\draw[arr] (c3.south) -- (c4.north);
+\draw[arr] (c4.south) -- (c5.north);
+\node[detbox] at (13.0, 0.3) {oracle diff\\ c-use at CHARGE\_DONE};
+%% vertical dividers
+\draw[dashed, gray!40] (4.85, -0.1) -- (4.85, 6.0);
+\draw[dashed, gray!40] (10.35, -0.1) -- (10.35, 6.0);
+\end{tikzpicture}}
+\caption{HITL intervention tiers as LKW trace fingerprints (PaymentAgent
+  examples). Green boxes: step logged with clean value. Red dashed: step not
+  logged (Tier~1). Orange: step logged with deviant boolean flag (Tier~2).
+  Dark red: step logged, flag clean, but payload deviates from B1 oracle
+  (Tier~3). Detection complexity increases from left to right.}
+\label{fig:tier-patterns}
+\end{figure*}
+
 \subsection{Aggregate Tier Distribution}
 
 Table~\ref{tab:hitl-summary} reports the tier distribution across all 64
@@ -2251,6 +2319,51 @@ violation at the exact handoff point.
 The downstream agents remain structurally correct (all steps reached,
 \texttt{infection\_point=None}), confirming the finding that single-agent
 tracing alone is insufficient.
+Figure~\ref{fig:cross-agent-prop} illustrates Chain~A end-to-end.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  agentbox/.style={draw, rounded corners=4pt, align=center, text width=3.2cm,
+                   minimum height=2.2cm, inner sep=5pt},
+  infected/.style={agentbox, fill=red!12, draw=red!55!black},
+  clean/.style={agentbox, fill=green!12, draw=green!50!black},
+  impactbox/.style={draw, rounded corners=3pt, fill=red!18, align=center,
+                    text width=6.2cm, inner sep=5pt},
+  arr/.style={->, >=Stealth, thick}
+]
+\node[infected] (CA) at (0, 0) {
+  \textbf{CurrencyAgent}\\[2pt]
+  FM-2.2 active\\
+  \texttt{units\,=\,1337}\\[2pt]
+  {\color{red}KILLED $\checkmark$}
+};
+\node[clean] (PA) at (6.4, 0) {
+  \textbf{PaymentAgent}\\[2pt]
+  FAULT\_MODE=NONE\\
+  all steps present\\[2pt]
+  {\color{orange!80!black}no alarm raised}
+};
+\draw[arr, red!65!black, line width=1.2pt]
+  (CA.east) -- node[above, font=\small]{1\,337\,EUR passed}
+               node[below, font=\small]{\textit{(oracle: 9\,EUR)}}
+              (PA.west);
+\draw[dashed, blue!50!black, thick] (3.2, -1.6) -- (3.2, 1.6);
+\node[font=\scriptsize, text=blue!60!black, align=center, text width=1.6cm] at (3.2, 2.1)
+  {inter-agent\\boundary};
+\node[impactbox] at (3.2, -2.6) {
+  Charged: 1\,337\,EUR \quad Expected: 9\,EUR\\
+  Overcharge: \textbf{+14\,755\%} \quad No alarm fired
+};
+\end{tikzpicture}}
+\caption{Cross-agent propagation Chain~A (FM-2.2). CurrencyAgent's hallucinated
+  value is silently passed to PaymentAgent, which processes it without error.
+  PaymentAgent's LKW trace is structurally clean; the overcharge is detectable
+  only via a boundary contract at the handoff point.}
+\label{fig:cross-agent-prop}
+\end{figure}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \FloatBarrier

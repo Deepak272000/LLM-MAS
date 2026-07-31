@@ -264,6 +264,20 @@ policies.
 \label{sec:benchmarks}
 % ═════════════════════════════════════════════════════════════════════════════
 
+This section is organised as follows.
+We use two benchmarks: (1)~\textbf{Google Online Boutique} (GB) --- a
+seven-service cloud e-commerce application providing monetary, catalogue,
+personalisation, fulfilment, and notification agents; and
+(2)~\textbf{RetailBen} (RB) --- a two-agent LangGraph shipping-orchestration
+benchmark whose agents handle quote retrieval and order placement.
+Section~\ref{sec:google-boutique} describes the GB application;
+Section~\ref{sec:retailben} describes the RB application;
+Section~\ref{sec:bench-configs} defines the three experimental configurations
+(Google-bench, Retail-bench, Agent-level); and
+Section~\ref{sec:agentification} describes the uniform ReAct agent design
+shared by all nine agents.
+All agent names are tagged \textbf{(GB)} or \textbf{(RB)} throughout the paper.
+
 \subsection{Target Workflow}
 \textbf{Benchmark scope:} This section describes the \textbf{RetailBen}
 benchmark's shipping-orchestration workflow (ShipOrderAgent). The
@@ -347,6 +361,37 @@ call graph for a complete retail checkout that exercises monetary computation
 All seven services exercised in this study are drawn directly from this
 benchmark; their gRPC interface contracts are defined in
 \texttt{protos/demo.proto}.
+
+\subsection{RetailBen Shipping-Orchestration Benchmark}
+\label{sec:retailben}
+
+\emph{RetailBen} is a two-agent LangGraph-based shipping-orchestration
+benchmark constructed for this study to evaluate fault injection in
+LLM-directed workflow agents beyond the GB monolith.
+It comprises two agents:
+
+\begin{description}
+  \item[\textbf{ShippingQuoteAgent (RB)}]
+      Handles shipping quote retrieval.
+      Input: cart contents and destination address.
+      Checkpoint sequence:
+      \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$ \texttt{FINAL\_ANSWER}.
+      The agent calls a single tool function (\texttt{get\_shipping\_quote()})
+      and returns a quoted price and estimated delivery window.
+  \item[\textbf{ShipOrderAgent (RB)}]
+      Handles end-to-end shipping order placement.
+      Input: approved quote ID and order details.
+      Checkpoint sequence:
+      \texttt{TASK\_START} $\to$ \texttt{QUOTE\_DONE} $\to$ \texttt{CARRIER\_DONE}
+      $\to$ \texttt{TRACKING\_DONE} $\to$ \texttt{SAVE\_DONE}
+      $\to$ \texttt{ESCALATION\_CHECK} $\to$ \texttt{FINAL\_ANSWER}.
+      The agent selects a carrier, creates a tracking record, persists the
+      order, and checks for escalation conditions before finalising.
+\end{description}
+
+Both agents are implemented as LangGraph state machines with the same
+ReAct loop and LKW checkpoint schema used by the GB agents, allowing
+direct comparison of fault detection rates across the two benchmarks.
 
 \subsection{Benchmark Configurations}
 \label{sec:bench-configs}

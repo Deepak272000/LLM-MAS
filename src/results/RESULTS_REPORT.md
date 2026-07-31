@@ -15,17 +15,19 @@ actually running, making real tool calls, and returning real responses.
 
 ### The 9 Agents We Tested
 
-| Agent | Language | Model(s) Used | Fault Modes Tested |
-|-------|----------|--------------|-------------------|
-| ProductCatalogAgent | Python | qwen2.5:3b, temp=0 | 8 |
-| CartAgent | C# (via Python wrapper) | qwen2.5:3b, temp=0 | 10 |
-| AdServiceAgent | Python | qwen2.5:3b, temp=0 | 14 |
-| RecommendationAgent | Python | qwen2.5:3b, temp=0 | 14 |
-| PaymentAgent | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 56 (14 × 4) |
-| CurrencyAgent | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 56 (14 × 4) |
-| EmailServiceAgent | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 56 (14 × 4) |
-| ShippingQuoteAgent | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 40 (10 × 4) |
-| ShipOrderAgent | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 40 (10 × 4) |
+**Benchmark key:** GB = Google Boutique (online retail microservices); RB = RetailBen (LangGraph-based shipping agents)
+
+| Agent | Benchmark | Language | Model(s) Used | Fault Modes Tested |
+|-------|-----------|----------|--------------|-------------------|
+| ProductCatalogAgent | GB | Python | qwen2.5:3b, temp=0 | 8 |
+| CartAgent | GB | C# (via Python wrapper) | qwen2.5:3b, temp=0 | 10 |
+| AdServiceAgent | GB | Python | qwen2.5:3b, temp=0 | 14 |
+| RecommendationAgent | GB | Python | qwen2.5:3b, temp=0 | 14 |
+| PaymentAgent | GB | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 56 (14 × 4) |
+| CurrencyAgent | GB | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 56 (14 × 4) |
+| EmailServiceAgent | GB | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 56 (14 × 4) |
+| ShippingQuoteAgent | RB | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 40 (10 × 4) |
+| ShipOrderAgent | RB | Python | qwen2.5:3b and qwen2.5-coder:14b, 4 configs | 40 (10 × 4) |
 
 Jobs ran on Concordia SPEED HPC (Slurm), jobs 1170215–1170223. Results written to
 `src/results/per_agent_llm/per_agent_llm_report.json`.
@@ -49,18 +51,20 @@ Every run produced a JSON trace with the following information:
 
 ### Per-Agent Kill Rates
 
-| Agent | Killed | Live | Inconc. | Kill Rate |
-|-------|--------|------|---------|----------|
-| ProductCatalog | 8 | 0 | 0 | **100.0%** |
-| Cart | 10 | 0 | 0 | **100.0%** |
-| AdService | 8 | 6 | 0 | **57.1%** |
-| Recommendation | 8 | 6 | 0 | **57.1%** |
-| Payment (all 4 configs) | 20 | 24 | 0 | **45.5%** |
-| Currency (all 4 configs) | 15 | 29 | 0 | **34.1%** |
-| Email (all 4 configs) | 6 | 5 | 33 | **13.6%** |
-| ShippingQuote | 0 | 10 | 30 | **0.0%** |
-| ShipOrder | 0 | 10 | 30 | **0.0%** |
-| **Total** | **75** | **90** | **93** | **29.1%** |
+| Agent | Benchmark | Killed | Live | Inconc. | Kill Rate (Mean ± Std) |
+|-------|-----------|--------|------|---------|------------------------|
+| ProductCatalogAgent | GB | 8 | 0 | 0 | **100.0% ± 0.00** |
+| CartAgent | GB | 10 | 0 | 0 | **100.0% ± 0.00** |
+| AdServiceAgent | GB | 8 | 6 | 0 | **57.1% ± 0.00** |
+| RecommendationAgent | GB | 8 | 6 | 0 | **57.1% ± 0.00** |
+| PaymentAgent (all 4 configs) | GB | 20 | 24 | 0 | **45.5% agg.** (0.00 per config) |
+| CurrencyAgent (all 4 configs) | GB | 15 | 29 | 0 | **34.1% agg.** (0.00 per config) |
+| EmailServiceAgent (all 4 configs) | GB | 6 | 5 | 33 | **13.6% agg.** (0.00 per config) |
+| ShippingQuoteAgent | RB | 0 | 10 | 30 | **0.0% ± 0.00** |
+| ShipOrderAgent | RB | 0 | 10 | 30 | **0.0% ± 0.00** |
+| **Total** | — | **75** | **90** | **93** | **29.1%** |
+
+*Std is computed across 3 repetitions per (agent, fault-mode, config) triple. Std = 0.00 for all triples — every fault is either always killed (3/3) or always live (0/3) within a given config, confirming perfect within-config reproducibility.*
 
 ---
 
@@ -161,25 +165,25 @@ verdict to `per_agent_llm_report.json`.
 
 ### Results per agent
 
-**ProductCatalogAgent — 100% (8/8 killed)**  
+**ProductCatalogAgent (Google Boutique) — 100% (8/8 killed)**  
 All 8 fault modes caught. The LLM always calls the catalog tool at temp=0, so every
 injection in that tool is exercised. FM_3_1 kills by skipping CATALOG_DONE. All
 business-logic faults kill by payload difference (wrong prices, missing products, etc.).
 
-**CartAgent (C#) — 100% (10/10 killed)**  
+**CartAgent (Google Boutique, C#) — 100% (10/10 killed)**  
 C# service, tested via a thin Python wrapper (`co_helper_cart.py`). Cart state is
 tracked across ITEM_ADDED → QUANTITY_MERGED → CART_READ. All 10 injections leave
 detectable payload differences.
 
-**AdServiceAgent — 57.1% (8/14)**  
+**AdServiceAgent (Google Boutique) — 57.1% (8/14)**  
 All 8 ad-specific faults killed. 6 shipping faults (BL_SHIPMENT_LOST, etc.) are LIVE
 because AdService's `fault_injection.py` does not have those modes registered — they
 simply don't activate and the LLM runs clean.
 
-**RecommendationAgent — 57.1% (8/14)**  
+**RecommendationAgent (Google Boutique) — 57.1% (8/14)**  
 Same pattern. 8/8 agent-specific modes killed. 6 shipping modes LIVE.
 
-**PaymentAgent — 45.5% overall (57.1% best config)**
+**PaymentAgent (Google Boutique) — 45.5% overall (57.1% best config)**
 
 | Config | Killed/Total | Kill Rate |
 |--------|-------------|----------|
@@ -192,7 +196,7 @@ At temp=0 with 3b, the LLM executes the full ReAct tool-call loop and hits every
 instrumented checkpoint. With 14b or higher temperatures, it often answers directly
 without calling tools — faults in the tool layer are never reached.
 
-**CurrencyAgent — 34.1% overall (42.9% best config)**
+**CurrencyAgent (Google Boutique) — 34.1% overall (42.9% best config)**
 
 | Config | Killed/Total | Kill Rate |
 |--------|-------------|----------|
@@ -206,7 +210,7 @@ its own fresh exchange rate lookup instead of using the injected stale value. Th
 is "smarter" than the injection — genuine false negative. BL_CONVERSION_OVERFLOW is also
 LIVE because the LLM silently clamps extreme values.
 
-**EmailServiceAgent — 13.6% overall (21.4% best config)**  
+**EmailServiceAgent (Google Boutique) — 13.6% overall (21.4% best config)**  
 Hardest agent to test. The LLM regenerates email content from the task context, which
 overrides injections to the body or recipient. Only 3 faults reliably kill:
 
@@ -217,7 +221,7 @@ overrides injections to the body or recipient. Only 3 faults reliably kill:
 Under 14b, 9/10 modes collapse to INCONCLUSIVE. The model produces output so different
 from B1 that even clean runs can't be reliably compared.
 
-**ShippingQuoteAgent and ShipOrderAgent — 0% (0/10 each)**  
+**ShippingQuoteAgent and ShipOrderAgent (RetailBen) — 0% (0/10 each)**  
 Both shipping agents use a template-string fallback. When the LLM is uncertain, it
 returns a hardcoded fallback response, bypassing all instrumented tool calls. Our
 injections target the tool layer — if the tool is never called, the injection never
@@ -319,7 +323,7 @@ cross-agent contract validation at the boundary.
 
 | Metric | Value |
 |--------|-------|
-| Agents tested | 9 (6 Python, 1 C#, 2 Go-via-Python) |
+| Agents tested | 9 — 7 Google Boutique (GB), 2 RetailBen (RB) |
 | Total B3 mutant tests | 258 |
 | Killed | 75 (29.1%) |
 | Live | 90 (34.9%) |

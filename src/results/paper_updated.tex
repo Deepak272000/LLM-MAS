@@ -342,9 +342,19 @@ benchmark; their gRPC interface contracts are defined in
 }
 \end{tikzpicture}
 }
-\caption{Google Online Boutique (GB) LLM-MAS architecture. Microservices (blue)
-serve \texttt{CheckoutService} via gRPC (solid arrows). Agent wrappers (green)
-orchestrate each microservice and share one Ollama backend (orange, dotted).}
+\caption{Google Online Boutique (GB) three-layer LLM-MAS architecture.
+  \textbf{Layer 1 --- Microservices (blue):} the original deterministic gRPC
+  services (CurrencyService, PaymentService, etc.). They are deterministic
+  adapters: same input always produces the same output. No LLM involvement.
+  \textbf{Layer 2 --- Agent wrappers (green):} one LLM-directed ReAct agent
+  per microservice. Each agent is \emph{non-deterministic}: the LLM decides
+  which tool to call and in what order. Inside each agent, thin Python tool
+  functions (e.g.\ \texttt{convert\_currency()}) serve as the interface to
+  Layer 1 --- these functions are deterministic adapters, not agents.
+  \textbf{Layer 3 --- LLM backend (orange):} the shared Ollama instance
+  (\texttt{qwen2.5-coder:14b}) that drives all agent reasoning loops.
+  The LKW checkpoints are placed inside Layer~2 at the boundary between
+  the LLM reasoning loop and the Layer~1 tool-function call.}
 \label{fig:architecture}
 \end{figure*}
 
@@ -409,10 +419,30 @@ differing in the LLM model and the set of agents exercised:
 \subsection{Agentification Design}
 \label{sec:agentification}
 
-Each microservice is paired with a dedicated \emph{agent wrapper} (green
-nodes in Figure~\ref{fig:architecture}) that implements the
-LLM-directed orchestration layer.  All wrappers follow a uniform
-\emph{ReAct}~\cite{react} pattern:
+Figure~\ref{fig:architecture} shows three distinct layers.
+\textbf{Layer~1 (blue)} is the original microservice: a deterministic gRPC
+service that always returns the same output for the same input and contains
+no LLM logic. It is an adapter, not an agent.
+\textbf{Layer~2 (green)} is the agent wrapper: a LangGraph state machine
+that runs an LLM-directed ReAct reasoning loop. This layer is
+\emph{non-deterministic} --- the LLM decides which tool to call, in what
+order, and how to interpret the result. Inside each agent wrapper, thin
+Python \emph{tool functions} (e.g.\ \texttt{convert\_currency()},
+\texttt{validate\_card()}) provide the interface to Layer~1. These tool
+functions are deterministic adapters --- ordinary Python functions, not
+agents --- that call the gRPC stub and return a structured result to the
+LLM. They are the only deterministic component inside an otherwise
+non-deterministic agent.
+\textbf{Layer~3 (orange)} is the shared Ollama LLM backend that drives
+the reasoning loop of every agent in Layer~2.
+
+The LKW checkpoints are placed at the Layer~2/Layer~1 boundary --- inside
+the tool function, immediately after the gRPC call returns. This position
+is chosen because it is independent of LLM token sampling (deterministic
+per call) while still being reachable only if the LLM's reasoning correctly
+invoked the tool (exercising the full reasoning path).
+
+All wrappers follow a uniform \emph{ReAct}~\cite{react} pattern:
 \begin{enumerate}
   \item The LLM receives a structured task description and a manifest of
         available tools (one deterministic tool function per microservice

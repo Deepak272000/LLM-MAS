@@ -512,39 +512,35 @@ but attribution accuracy remains unanswered.**
 
 ---
 
-## 13. Recommended Research and Development Steps
+## 13. Fault-Level B3 Results
 
-### Immediate development
+The table below pools the three runs at temperature 0.7 and the three runs at
+temperature 1.0 for each fault. Therefore, each row contains six runs. The
+**location** column identifies the targeted agent for business faults and the first
+observed infection point for globally injected system faults. The **captured evidence**
+column reports the principal LKW fields or structural condition recorded in the saved
+summaries.
 
-1. Add production-style validators that infer Tier 2 conditions from real values
-   instead of trusting injected diagnostic flags.
-2. Add semantic contracts for Tier 3 fields, beginning with email body/recipient,
-   payment amount, product IDs, and shipping quote consistency.
-3. Preserve an `ATTRIBUTION_HINT` whenever a boundary blocks or repairs a payload so
-   recovery does not erase the source evidence.
-4. Automate HITL routing: auto-resolve only low-risk cases with explicit policy;
-   escalate financial, ambiguous, or irreversible operations.
-5. Re-run targeted chains without globally injecting the downstream agents, and add
-   more than two chains before estimating a recovery rate.
+| Fault | Category | Injection or first-observation location | Captured LKW evidence | TP | Partial TP | FN | Inc. | Detected / conclusive |
+|---|---|---|---|---:|---:|---:|---:|---:|
+| `FM_3_1` Premature termination | System, global | ProductCatalogAgent first; later agents also compared | Missing required steps plus deviations in `action`, `product_ids`, and `count` | 6 | 0 | 0 | 0 | **6/6 (100%)** |
+| `FM_1_2` Wrong action/routing | System, global | ProductCatalogAgent first | `action`, `product_ids`, `to_currency`, `currency_swapped`, and amount fields | 5 | 0 | 0 | 1 | **5/5 (100%)** |
+| `FM_2_2` Hallucinated output | System, global | ProductCatalogAgent first | `product_ids`, `units_out`, currency, and related guarded values | 6 | 0 | 0 | 0 | **6/6 (100%)** |
+| `FM_2_5` Input ignored/replaced | System, global | ProductCatalogAgent first | Changed `units`, `product_ids`, `to_currency`, and downstream amount fields | 6 | 0 | 0 | 0 | **6/6 (100%)** |
+| `BL_PRICE_MANIPULATION` | Business | ProductCatalogAgent | `price_manipulated`, product action, and product IDs | 0 | 6 | 0 | 0 | **6/6 (100%)** |
+| `BL_RATE_MANIPULATION` | Business | CurrencyAgent | `units`, `to_currency`, and `units_out` | 0 | 6 | 0 | 0 | **6/6 (100%)** |
+| `BL_AMOUNT_TAMPERING` | Business | PaymentAgent | `amount_tampered`, `units`, `units_charged`, and currency/validation fields | 0 | 5 | 1 | 0 | **5/6 (83.3%)** |
+| `BL_INVENTORY_MISMATCH` | Business | ShippingQuoteAgent | `item_count_inflated` and `cost_usd` | 0 | 5 | 1 | 0 | **5/6 (83.3%)** |
+| `BL_SHIPMENT_LOST` | Business | ShipOrderAgent | Missing/changed save state, `tracking_id`, and `ignored_downstream_quote` | 0 | 5 | 1 | 0 | **5/6 (83.3%)** |
+| `BL_CORRUPTED_BODY` | Business | EmailServiceAgent | `body_len` and `corrupted`; no deviation was captured in four conclusive runs | 0 | 1 | 4 | 1 | **1/5 (20.0%)** |
+| **Total** | 4 system + 6 business | Six service-agent surfaces | Structural and guarded-value deviations | **23** | **28** | **7** | **2** | **51/58 (87.9%)** |
 
-### Next experiments
-
-1. Run all services in a real deployed gRPC environment and compare results with the
-   controlled-helper environment.
-2. Increase repetitions per fault/configuration to narrow confidence intervals.
-3. Add a held-out B2 calibration set and a separate B3 evaluation set.
-4. Test larger and different model families while keeping the same fault matrix.
-5. Evaluate latency, token, and storage overhead of checkpoint instrumentation.
-6. Run the AgentTracer attribution pipeline on independent measured trajectories and
-   report agent accuracy, step accuracy, and abstention behavior.
-
-### Research-level direction
-
-The next contribution should be a **Verifier Agent** that consumes LKW traces and
-boundary contracts, checks whether a plan/output is valid, proposes a recovery action,
-and explains when human approval is required. It should be evaluated separately from
-the current annotation pipeline so detection, recovery, and attribution do not share
-their own ground truth.
+The fault-level totals reconcile with the configuration-level result in Section 7.
+The four system faults were injected globally, so ProductCatalogAgent being listed as
+the first infection point does not establish that it caused every later deviation.
+Business faults were targeted to their owning service-agent surface. `TP` indicates
+that at least two compared agents deviated, while `Partial TP` indicates one compared
+agent deviation; both count as detected runs.
 
 ---
 
@@ -556,7 +552,7 @@ their own ground truth.
 | Which variables are guarded? | `src/results/checkpoint_variable_map.json` |
 | What is the B1 oracle? | `src/results/b1_oracle_values.json` |
 | What variation is accepted in B2? | `src/results/b2_equivalence_thresholds.json`, `src/results/b2_systematic/` |
-| What happened in the complete B3 matrix? | `src/results/b3/`, paper Tables 12 and 13 |
+| What happened in the complete B3 matrix? | Paired `src/results/b3/b3_<FAULT>_3b_temp0.7_summary.json` and `b3_<FAULT>_3b_temp1.0_summary.json` files; paper Tables 12 and 13 |
 | What happened across agent boundaries? | `src/results/cross_agent_propagation.json` |
 | Which cases need HITL? | `src/results/hitl_classification_report.json` |
 | How stable was the shipping fingerprint? | `src/results/stability_matrix_shippingagent.json` |
@@ -570,7 +566,6 @@ their own ground truth.
 The experiments show that agentic microservices need value-aware observation, not only
 step or success monitoring. The complete B3 campaign detected 51 of 58 conclusive runs.
 The cross-agent demonstrations show why handoff contracts matter: one unsafe amount was
-blocked and one invalid product context was repaired. The remaining work is to replace
-experiment-only flags with production predicates, automate carefully bounded HITL
-routing, evaluate more targeted chains, and test AgentTracer attribution on independent
-measured trajectories.
+blocked and one invalid product context was repaired. Detection was strongest for the
+global system faults and targeted price/rate faults, while corrupted email content was
+the principal observed blind spot.

@@ -353,6 +353,54 @@ For globally injected FM modes, later deviations can be independent effects of t
 same global injection. They are not automatically causal propagation from the first
 agent.
 
+### 8.1 LKW/RIP test criteria and rationale
+
+The declared LKW test inventory contains 38 guarded-variable checks across 21
+checkpoints and eight agent surfaces. It also declares four inter-agent def-use
+handoffs for RIP analysis. The complete row-level inventory, expected relations,
+fault mappings, and rationales are provided in
+[`LKW_RIP_TEST_CASES.md`](LKW_RIP_TEST_CASES.md).
+
+The data-flow coverage criteria are:
+
+- **All-Uses:** at least one test path exercises every selected variable definition
+   to each reachable computation use (C-use) and predicate use (P-use).
+- **All-DU-Paths:** used for high-impact values whose complete definition-to-use path
+   must remain observable, including charged amount, manipulated price, shipping cost,
+   and shipment persistence.
+
+The run-level decision rules are:
+
+| Decision | Exact criterion | Rationale |
+|---|---|---|
+| Reachable | The relevant required checkpoint appears in the ordered trace | A value cannot be evaluated at a step that was never executed |
+| Structurally infected | A checkpoint required by B1 is absent or out of the expected order | Detects premature termination and skipped mandatory operations |
+| Value infected | The earliest guarded value that fails its fixed comparison relation | Localizes the first observable data deviation rather than relying on final status |
+| Propagated | A related deviation is observed at a later agent checkpoint or validated handoff | Tests whether infected data crosses a def-use boundary |
+| Detected | At least one required-step or guarded-value check fails | Combines structural and semantic observation |
+| TP | At least two compared agents deviate | Records multi-agent observation in the current B3 classifier |
+| Partial TP | Exactly one compared agent deviates | Records successful single-surface detection |
+| FN | The fault is injected but no compared check fails | Identifies an observability gap |
+| Inconclusive | Infrastructure or execution failure prevents a valid judgment | Prevents unrelated runtime failures from being counted as detections or misses |
+
+The comparison relation is selected according to the variable's semantics:
+
+| Relation | Applied criterion | Selection rationale |
+|---|---|---|
+| Exact string | Observed string equals the declared B1 value | Stable categories such as currency, action, recipient, and status should not vary |
+| Exact boolean | Observed boolean equals the declared B1 value | State and diagnostic predicates have binary semantics |
+| Exact integer | Observed integer equals the B1/input value | Deterministic counts and charged units require identity |
+| Numeric tolerance | Absolute percentage deviation is within the declared tolerance | Allows bounded numeric variation without accepting material amount changes |
+| Set equality | Observed and expected members are equal regardless of order | Product/context ID order is not semantically important |
+| Set membership | Observed value belongs to a declared valid set | Carrier choice may vary while remaining within approved values |
+| Schema regular expression | Observed identifier matches the declared format | Generated identifiers vary per run, so exact equality would create false alarms |
+| Range check | Declared minimum is less than or equal to the value, which is less than or equal to the maximum | LLM-generated lengths, counts, and costs can vary within valid bounds |
+| Non-negative float | Value is numerically non-negative, including rejection of negative zero | Prevents invalid monetary values when no reliable upper oracle exists |
+
+Diagnostic fields such as `hallucinated`, `amount_tampered`, and `corrupted` are
+controlled ground truth. The independent observational criteria are checkpoint
+presence, business-value relations, and validated handoff consistency.
+
 ---
 
 ## 9. Cross-Agent Chains
@@ -550,6 +598,7 @@ agent deviation; both count as detected runs.
 |---|---|
 | Which agents and evidence types are covered? | `src/results/coverage_matrix.json` |
 | Which variables are guarded? | `src/results/checkpoint_variable_map.json` |
+| What are all LKW/RIP test cases and rationales? | `src/results/LKW_RIP_TEST_CASES.md` |
 | What is the B1 oracle? | `src/results/b1_oracle_values.json` |
 | What variation is accepted in B2? | `src/results/b2_equivalence_thresholds.json`, `src/results/b2_systematic/` |
 | What happened in the complete B3 matrix? | Paired `src/results/b3/b3_<FAULT>_3b_temp0.7_summary.json` and `b3_<FAULT>_3b_temp1.0_summary.json` files; paper Tables 12 and 13 |

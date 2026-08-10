@@ -1,14 +1,16 @@
-# LLM-MAS Results Report
+# LLM-MAS Results and Evidence Report
 
-**Meeting version:** August 2026
-**Study:** Data-Flow Fault Observation for Agentic Microservices
-**Benchmarks:** Google Online Boutique (GB) and RetailBen shipping (RB)
-**Execution platform:** Concordia SPEED HPC with Ollama
-**Paper:** `src/results/paper_updated.pdf`
+| Document metadata | Value |
+|---|---|
+| Version | August 2026 |
+| Study | Data-Flow Fault Observation for Agentic Microservices |
+| Benchmarks | Google Online Boutique (GB) and RetailBen shipping (RB) |
+| Execution platform | Concordia SPEED HPC with Ollama |
+| Associated manuscript | `src/results/paper_updated.pdf` |
 
 ---
 
-## 1. What to Show First
+## 1. Executive Summary
 
 The study asks a simple question: when an LLM-facing agent calls a service, can a
 wrong business value pass through a workflow even though every call appears to
@@ -18,7 +20,7 @@ The answer from the current evidence is yes. Step completion alone is not enough
 Named LKW checkpoints must also record important values such as amount, currency,
 product ID, recipient, carrier, quote, and tracking state.
 
-The strongest complete result is the targeted B3 matrix:
+The primary complete result is the targeted B3 matrix:
 
 | Measure | Verified result |
 |---|---:|
@@ -45,16 +47,24 @@ general recovery-rate estimate.
 
 ---
 
-## 2. What Is Ready to Present
+## 2. Experimental Scope and Evidence Boundaries
 
-The paper and this report are ready for a review meeting. The current claims are
-aligned with the saved evidence and use explicit denominators.
+The results are derived from saved execution traces and use explicit denominators.
+The following scope boundaries define what those results support:
 
-The following boundaries must remain clear during the presentation:
-
-- Systematic experiments use live Ollama decisions with controlled helpers and mock
-  service responses. They do not prove that every call reached a deployed gRPC
-  service.
+- The systematic B2 and B3 executions invoked actual `qwen2.5-coder:14b` or
+   `qwen2.5:3b` models through the Ollama server. These were live model inferences,
+   not prerecorded or manually supplied LLM responses.
+- The checkout inputs were controlled synthetic benchmark fixtures, including fixed
+   products, address, card, currency, and package values. They were not customer or
+   production data.
+- Service responses in the systematic runners were controlled mocks or stubs that
+   preserve the expected gRPC/API response shapes. Therefore, the evidence measures
+   agent reasoning and fault observability at controlled service interfaces; it does
+   not establish that every request reached a separately deployed microservice.
+- B1 combines cached deterministic `NONE`-mode traces for six service agents with a
+   selected live-LLM `qwen2.5-coder:14b`, temperature 0 shipping baseline. B1 should
+   not be described as live LLM inference for every agent.
 - The complete pooled B3 estimate uses only `3b_temp0.7` and `3b_temp1.0`.
   Earlier or lower-temperature campaigns are separate evidence.
 - Later deviations under globally injected FM faults are descriptive. They are not
@@ -63,6 +73,19 @@ The following boundaries must remain clear during the presentation:
   verifier agent.
 - AgentTracer-compatible files have been produced, but no saved prediction report
   establishes attribution accuracy.
+
+### Execution method by phase
+
+| Phase | LLM execution | Inputs and service behavior | Role in the study |
+|---|---|---|---|
+| B1 | Deterministic no-fault traces for six service agents; live `qwen2.5-coder:14b` at temperature 0 for shipping | Controlled benchmark fixtures and service-shaped deterministic responses | Establish expected checkpoints and guarded values |
+| B2 isolated | Deterministic no-fault agent runs | Controlled benchmark fixtures | Characterize stable fields for isolated surfaces |
+| B2 systematic | Live Ollama inference across the checkout orchestration and agent helpers | Controlled benchmark fixtures with mocked/stubbed service responses | Measure normal model-dependent trace variation |
+| B3 | Live `qwen2.5:3b` Ollama inference at temperatures 0.7 and 1.0 | The same controlled fixtures and service interfaces, with one configured fault condition per run | Measure fault observability against fixed B1/B2 relations |
+
+Accordingly, the accurate description is **live-LLM experiments over controlled
+benchmark data and controlled service interfaces**. The saved JSON files are measured
+execution evidence, but the input records are not production datasets.
 
 ---
 
@@ -121,7 +144,7 @@ pooled unless they contain the same current fault matrix.
 
 ---
 
-## 5. Agent and Service Code Walkthrough
+## 5. Agent and Service Implementation
 
 ### 5.1 Common GB agent pattern
 
@@ -348,15 +371,15 @@ sequenceDiagram
     participant R as Recovery policy
     participant P as PaymentAgent (NONE)
 
-    C->>B: Observed amount = 1337; expected = 9
+   C->>B: Observed amount = 1337, expected = 9
     B->>B: delta = 1328, alert = true
     B->>R: Financial mismatch
-    R-->>P: Block charge; do not continue
+   R-->>P: Block charge and do not continue
     R-->>B: requires_hitl = true
     Note over C,P: Prevented loss = 1328 units<br/>No charge was realized
 ```
 
-What this proves:
+Observed outcome:
 
 - The corrupted value reached the payment boundary.
 - A range/consistency contract exposed the mismatch.
@@ -373,14 +396,14 @@ sequenceDiagram
     participant A as RecommendationAgent (NONE)
 
     C->>B: Observed product IDs = []
-    B->>B: Expected PROD-001 is missing; alert = true
+   B->>B: Expected PROD-001 is missing, alert = true
     B->>R: Invalid catalog context
     R-->>A: Replace with last-known-good [PROD-001]
     A-->>R: Normal recommendation output
     Note over C,A: requires_hitl = false<br/>Downstream operation remains clean
 ```
 
-What this proves:
+Observed outcome:
 
 - The invalid product context reached the recommendation boundary.
 - The policy restored validated context.
@@ -525,29 +548,7 @@ their own ground truth.
 
 ---
 
-## 14. Suggested Meeting Walkthrough
-
-1. Open `src/results/paper_updated.pdf` and show the abstract result: 51/58 detected.
-2. Open `src/currencyagent/app/graph.py` to show LLM routing and LangGraph execution.
-3. Open `src/currencyagent/app/agent.py` to show the service-facing action.
-4. Open `src/currencyagent/app/fault_injection.py` to show one configured fault and
-   the LKW checkpoint record.
-5. Open `src/b1_oracle_runner.py`, `src/b2_systematic_runner.py`, and
-   `src/b3_runner.py` in that order.
-6. Open `src/results/b3/b3_full_report.json` and explain TP, Partial TP, FN, and
-   inconclusive counts.
-7. Open `src/cross_agent_propagation.py`, then
-   `src/results/cross_agent_propagation.json`, and show Chain A and Chain B.
-8. Open `src/results/hitl_classification_report.json` and explain why detection is not
-   the same as resolution.
-9. Open `src/agentracer_adapter/lkw_to_trajectory.py` and
-   `src/results/agentracer/trajectories_index.json` to show conversion readiness.
-10. Finish with the next-step list: production predicates, verifier agent, larger
-    targeted chain campaign, and independent attribution evaluation.
-
----
-
-## 15. Evidence Index
+## 14. Evidence and Reproducibility Index
 
 | Question | Controlling artifact |
 |---|---|
@@ -564,7 +565,7 @@ their own ground truth.
 
 ---
 
-## 16. One-Minute Closing Summary
+## 15. Conclusion
 
 The experiments show that agentic microservices need value-aware observation, not only
 step or success monitoring. The complete B3 campaign detected 51 of 58 conclusive runs.

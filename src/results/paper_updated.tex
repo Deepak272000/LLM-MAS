@@ -730,109 +730,133 @@ cannot.
 
 \begin{table*}[t]
 \footnotesize
-\caption{Stage~1 LKW DU-Pair Verification --- CurrencyAgent.
-  All observed values are execution-measured, not code-derived.
+\caption{Stage~1 LKW DU-Pair Verification --- CurrencyAgent (Table~A).
+  All values are execution-measured, not code-derived.
   \textbf{B1}: three no-fault runs (\texttt{FAULT\_MODE=NONE},
     \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json}).
   \textbf{B2}: direct \texttt{agent.run()}, no LLM, gRPC mocked to
-    $\{\texttt{units{:}9},\allowbreak\texttt{nanos{:}230000000}\}$,
+    $\{\texttt{units{:}9},\texttt{nanos{:}230000000}\}$,
     Concordia Speed HPC Job~1219224
     (\texttt{currencyagent/test\_fault\_injection.py}).
   \textbf{B3}: three live-LLM runs per fault
     (\texttt{temp}$=1.0$,
-    \texttt{b3/raw/b3\_\textless FAULT\textgreater\_3b\_temp1.0\_run\{1,2,3\}.json}).}
+    \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json}).}
 \label{tab:lkw-stage1}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}p{1.3cm}p{1.9cm}p{1.1cm}p{2.2cm}p{2.5cm}p{3.2cm}p{1.6cm}p{2.3cm}p{2.7cm}p{1.4cm}@{}}
+\begin{tabular}{@{}p{1.15cm}p{1.85cm}p{2.05cm}p{2.4cm}p{2.85cm}p{2.0cm}p{1.75cm}p{1.5cm}p{1.95cm}p{2.4cm}p{2.1cm}p{1.2cm}@{}}
 \toprule
 \textbf{TC-ID} &
 \textbf{Variable} &
-\textbf{Fault} &
 \textbf{Def (file:line)} &
 \textbf{Use (file:line, type)} &
 \textbf{Def-clear path} &
+\textbf{Test input} &
+\textbf{Expected (B1)} &
 \textbf{B1 observed} &
-\textbf{B2 true (no LLM)} &
-\textbf{B3 (\texttt{temp}=1.0, 3\,runs)} &
+\textbf{B2 observed (no LLM)} &
+\textbf{B3 observed (\texttt{temp}=1.0)} &
+\textbf{LKW verdict} &
 \textbf{Group} \\
 \midrule
 TC-CUR-01 &
-  \texttt{units} & --- &
+  \texttt{units} &
   \texttt{agent.py:29} (param) &
   \texttt{agent.py:40} \emph{c-use} (TASK\_START) &
   L29$\to$L36$\to$L40 &
-  10, 10, 10 & 10 & 10 &
+  units=10, no fault &
+  10 &
+  10, 10, 10 &
+  10 &
+  10 &
+  PASS &
   info \\[4pt]
 TC-CUR-03 &
-  \texttt{units} & FM-2.5 &
+  \texttt{units} &
   \texttt{agent.py:56} (after tamper) &
   \texttt{agent.py:73} \emph{c-use} (gRPC arg) &
   L56$\to$L61$\to$L70$\to$L73 &
+  units=10, FM-2.5 &
+  gRPC receives 10 &
   10, 10, 10 &
-  \textbf{50} \emph{(FAIL)} &
+  \textbf{50} &
   not measured$^{\dagger}$ &
+  \textbf{FAIL} (B2) &
   Group~1 \\[4pt]
 TC-CUR-07 &
-  \texttt{to\_currency} & FM-1.2 &
+  \texttt{to\_currency} &
   \texttt{agent.py:58} (after swap) &
   \texttt{agent.py:75} \emph{c-use} (gRPC arg) &
   L58$\to$L61$\to$L70$\to$L75 &
+  to\_cur=EUR, FM-1.2 &
+  gRPC receives EUR &
   EUR, EUR, EUR &
-  \textbf{JPY} \emph{(FAIL)} &
-  CAD, CAD, CAD \emph{(FAIL)} &
+  \textbf{JPY} &
+  CAD, CAD, CAD &
+  \textbf{FAIL} &
   Group~1 \\[4pt]
 TC-CUR-09 &
-  \texttt{data[``units'']} & FM-3.1 &
+  \texttt{data[``units'']} &
   \texttt{agent.py:71} (gRPC return) &
   \texttt{agent.py:128} \emph{c-use} (CONVERT\_DONE) &
   L71$\to$\emph{early return at L47--50 kills path}$\to$L128 unreachable &
+  units=10, FM-3.1 &
+  $\approx9$ &
   9, 9, 9 &
-  \textsc{Path\_Infeasible} &
-  \textsc{Path\_Infeasible} (3/3) &
+  \textsc{Path\_Infeas.} &
+  \textsc{Path\_Infeas.} (3/3) &
+  \textsc{Path\_Infeas.} &
   \textbf{Group~2} \\[4pt]
 TC-CUR-10 &
-  \texttt{data[``units'']} & FM-2.2 &
+  \texttt{data[``units'']} &
   \texttt{agent.py:79} (hallucinate) &
   \texttt{agent.py:128} \emph{c-use} (CONVERT\_DONE) &
   L79$\to$L81$\to$L85$\to$L128 &
+  units=10, FM-2.2 &
+  $\approx9$ &
   9, 9, 9 &
-  \textbf{1337} \emph{(FAIL)} &
-  1337, 1337, 1337 \emph{(FAIL)} &
+  \textbf{1337} &
+  1337, 1337, 1337 &
+  \textbf{FAIL} &
   Group~1 \\[4pt]
 TC-CUR-11 &
-  \texttt{data[``units'']} & BL-RATE &
+  \texttt{data[``units'']} &
   \texttt{agent.py:81} (inflate) &
   \texttt{agent.py:128} \emph{c-use} (CONVERT\_DONE) &
   L81$\to$L83$\to$L85$\to$L128 &
+  units=10, BL-RATE &
+  $\approx9$ &
   9, 9, 9 &
-  \textbf{90} \emph{(FAIL)} &
-  20, 20, 190 \emph{(FAIL)} &
+  \textbf{90} &
+  20, 20, 190 &
+  \textbf{FAIL} &
   Group~1 \\[4pt]
 TC-CUR-12 &
-  \texttt{currency\_swapped} & FM-1.2 &
-  \texttt{agent.py:134} (boolean expr) &
+  \texttt{currency\_swapped} &
+  \texttt{agent.py:134} (boolean) &
   \texttt{fi.py:74} \emph{p-use} (rip\_summary) &
   L134$\to$fi.py:74 &
+  to\_cur=EUR, FM-1.2 &
+  False &
   F, F, F &
-  \textbf{True} \emph{(FAIL)} &
-  T, T, T \emph{(FAIL)} &
+  \textbf{True} &
+  T, T, T &
+  \textbf{FAIL} &
   Group~1 \\
 \bottomrule
 \end{tabular}}
 \smallskip\par\noindent
-\textbf{Group~1}: Fault mutates variable at Def; def-clear path to Use still
-executes; wrong value arrives at use point; LKW comparison (observed $\neq$
-B1 oracle) flags \textsc{Fail}.
-\textbf{Group~2} (TC-CUR-09 only): FM-3.1 early return at \texttt{agent.py:47--50}
-fires before \texttt{client.convert()} at line~71; both the definition point and
-use point are unreachable at runtime; there is no wrong value to observe --- the
-sole observable signal is the absence of \texttt{CONVERT\_DONE} from the required
-step set $\{\texttt{TASK\_START},\texttt{CONVERT\_DONE},\texttt{FINAL\_ANSWER}\}$.
-Confirmed across 4 executions (1 B2 + 3 B3).
+\textbf{Group~1}: Fault mutates variable at Def; def-clear path to Use executes; wrong
+value arrives at use point; observed~$\neq$~B1 oracle $\Rightarrow$ \textsc{Fail}.
+\textbf{Group~2} (TC-CUR-09 only): FM-3.1 inserts an early return at
+\texttt{agent.py:47--50}, before \texttt{client.convert()} at line~71.
+Both the definition point and the use point are unreachable at runtime---no wrong
+value to observe. Sole signal: \texttt{CONVERT\_DONE} absent from required step set
+$\{\texttt{TASK\_START},\texttt{CONVERT\_DONE},\texttt{FINAL\_ANSWER}\}$.
+Confirmed in 4 independent executions (1 B2 + 3 B3).
 \smallskip\par\noindent
-$^{\dagger}$\,\texttt{units\_in} absent from B3 oracle comparison framework;
-FM-2.5 confirmed via \texttt{amount\_tampered=True} at payment layer in all three
-B3 runs. B2 direct measurement (\texttt{units\_in}=50) fills this gap.
+$^{\dagger}$\texttt{units\_in} absent from B3 oracle comparison framework;
+FM-2.5 confirmed via \texttt{amount\_tampered=True} in all 3 B3 runs.
+B2 direct measurement (\texttt{units\_in}=50) fills this oracle gap.
 \end{table*}
 
 % =============================================================================

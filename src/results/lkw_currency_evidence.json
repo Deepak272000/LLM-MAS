@@ -1,0 +1,354 @@
+{
+  "generated_by": "parse_lkw_currency_evidence.py",
+  "b1_source": "b2_raw_runs/currencyagent_b2_run{1,2,3}.json",
+  "b3_det_source": "b3/raw/b3_<FAULT>_3b_temp0_run{1,2,3}.json",
+  "b3_ndet_source": "b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json",
+  "tc_rows": [
+    {
+      "tc_id": "TC-CUR-01",
+      "group": "info",
+      "fault_mode": "N/A",
+      "checkpoint_field": "TASK_START.units",
+      "b1_oracle": 10,
+      "b1_observed": [
+        10,
+        10,
+        10
+      ],
+      "b3_temp0_observed": [
+        "N/A"
+      ],
+      "b3_temp0_verdict": "N/A",
+      "b3_temp1.0_observed": [
+        "N/A"
+      ],
+      "b3_temp1.0_verdict": "N/A",
+      "note": "fault fires after this use; always equals input",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": []
+    },
+    {
+      "tc_id": "TC-CUR-03",
+      "group": 1,
+      "fault_mode": "FM_2_5",
+      "checkpoint_field": "CONVERT_DONE.units_in",
+      "b1_oracle": "see_b1_trace",
+      "b1_observed": [
+        10,
+        10,
+        10
+      ],
+      "b3_temp0_observed": [
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON"
+      ],
+      "b3_temp0_verdict": "PASS",
+      "b3_temp1.0_observed": [
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON"
+      ],
+      "b3_temp1.0_verdict": "PASS",
+      "note": "FM_2_5 tamper: units*5 before client.convert(); not tracked in oracle comparison",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_2_5_3b_temp0_run1.json",
+        "b3_FM_2_5_3b_temp0_run2.json",
+        "b3_FM_2_5_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-04",
+      "group": 1,
+      "fault_mode": "FM_2_5",
+      "checkpoint_field": "CONVERT_DONE.units_in",
+      "b1_oracle": "see_b1_trace",
+      "b1_observed": [
+        10,
+        10,
+        10
+      ],
+      "b3_temp0_observed": [
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON"
+      ],
+      "b3_temp0_verdict": "PASS",
+      "b3_temp1.0_observed": [
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON",
+        "NOT_IN_ORACLE_COMPARISON"
+      ],
+      "b3_temp1.0_verdict": "PASS",
+      "note": "Same field as TC-CUR-03; confirms tampered value persists to checkpoint",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_2_5_3b_temp0_run1.json",
+        "b3_FM_2_5_3b_temp0_run2.json",
+        "b3_FM_2_5_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-05",
+      "group": "info",
+      "fault_mode": "N/A",
+      "checkpoint_field": "TASK_START.to_currency",
+      "b1_oracle": "EUR",
+      "b1_observed": [
+        "EUR",
+        "EUR",
+        "EUR"
+      ],
+      "b3_temp0_observed": [
+        "N/A"
+      ],
+      "b3_temp0_verdict": "N/A",
+      "b3_temp1.0_observed": [
+        "N/A"
+      ],
+      "b3_temp1.0_verdict": "N/A",
+      "note": "fault fires after this use; always equals input",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": []
+    },
+    {
+      "tc_id": "TC-CUR-07",
+      "group": 1,
+      "fault_mode": "FM_1_2",
+      "checkpoint_field": "CONVERT_DONE.to_currency",
+      "b1_oracle": "EUR",
+      "b1_observed": [
+        "EUR",
+        "EUR",
+        "EUR"
+      ],
+      "b3_temp0_observed": [
+        "USD",
+        "USD",
+        "USD"
+      ],
+      "b3_temp0_verdict": "FAIL",
+      "b3_temp1.0_observed": [
+        "CAD",
+        "CAD",
+        "CAD"
+      ],
+      "b3_temp1.0_verdict": "FAIL",
+      "note": "FM_1_2 swap: to_currency\u2192JPY/BRL before client.convert(); comparison at TASK_START level",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_1_2_3b_temp0_run1.json",
+        "b3_FM_1_2_3b_temp0_run2.json",
+        "b3_FM_1_2_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-08",
+      "group": 1,
+      "fault_mode": "FM_1_2",
+      "checkpoint_field": "CONVERT_DONE.to_currency",
+      "b1_oracle": "EUR",
+      "b1_observed": [
+        "EUR",
+        "EUR",
+        "EUR"
+      ],
+      "b3_temp0_observed": [
+        "USD",
+        "USD",
+        "USD"
+      ],
+      "b3_temp0_verdict": "FAIL",
+      "b3_temp1.0_observed": [
+        "CAD",
+        "CAD",
+        "CAD"
+      ],
+      "b3_temp1.0_verdict": "FAIL",
+      "note": "Redundant with TC-CUR-07; confirms swapped currency propagates to checkpoint",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_1_2_3b_temp0_run1.json",
+        "b3_FM_1_2_3b_temp0_run2.json",
+        "b3_FM_1_2_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-09",
+      "group": 2,
+      "fault_mode": "FM_3_1",
+      "checkpoint_field": "CONVERT_DONE.units_out",
+      "b1_oracle": {
+        "min": 9.0,
+        "max": 9.0,
+        "mean": 9.0
+      },
+      "b1_observed": [
+        9,
+        9,
+        9
+      ],
+      "b3_temp0_observed": [
+        null,
+        null,
+        null
+      ],
+      "b3_temp0_verdict": "PATH_INFEASIBLE",
+      "b3_temp1.0_observed": [
+        null,
+        null,
+        null
+      ],
+      "b3_temp1.0_verdict": "PATH_INFEASIBLE",
+      "note": "FM_3_1 early return: client.convert() never called; CONVERT_DONE absent; units_out=None",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_3_1_3b_temp0_run1.json",
+        "b3_FM_3_1_3b_temp0_run2.json",
+        "b3_FM_3_1_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-10",
+      "group": 1,
+      "fault_mode": "FM_2_2",
+      "checkpoint_field": "CONVERT_DONE.units_out",
+      "b1_oracle": {
+        "min": 9.0,
+        "max": 9.0,
+        "mean": 9.0
+      },
+      "b1_observed": [
+        9,
+        9,
+        9
+      ],
+      "b3_temp0_observed": [
+        1337,
+        1337,
+        1337
+      ],
+      "b3_temp0_verdict": "FAIL",
+      "b3_temp1.0_observed": [
+        1337,
+        1337,
+        1337
+      ],
+      "b3_temp1.0_verdict": "FAIL",
+      "note": "FM_2_2 hallucinate: units_out hardcoded to 1337",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_2_2_3b_temp0_run1.json",
+        "b3_FM_2_2_3b_temp0_run2.json",
+        "b3_FM_2_2_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-11",
+      "group": 1,
+      "fault_mode": "BL_RATE_MANIPULATION",
+      "checkpoint_field": "CONVERT_DONE.units_out",
+      "b1_oracle": {
+        "min": 9.0,
+        "max": 9.0,
+        "mean": 9.0
+      },
+      "b1_observed": [
+        9,
+        9,
+        9
+      ],
+      "b3_temp0_observed": [
+        10,
+        20,
+        20
+      ],
+      "b3_temp0_verdict": "FAIL",
+      "b3_temp1.0_observed": [
+        20,
+        20,
+        190
+      ],
+      "b3_temp1.0_verdict": "FAIL",
+      "note": "BL_RATE_MANIPULATION: units_out inflated 10x; no temp0 runs available; temp0.7 used",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_BL_RATE_MANIPULATION_3b_temp0_run1.json",
+        "b3_BL_RATE_MANIPULATION_3b_temp0_run2.json",
+        "b3_BL_RATE_MANIPULATION_3b_temp0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-CUR-12",
+      "group": 1,
+      "fault_mode": "FM_1_2",
+      "checkpoint_field": "CONVERT_DONE.currency_swapped",
+      "b1_oracle": false,
+      "b1_observed": [
+        false,
+        false,
+        false
+      ],
+      "b3_temp0_observed": [
+        true,
+        true,
+        true
+      ],
+      "b3_temp0_verdict": "FAIL",
+      "b3_temp1.0_observed": [
+        true,
+        true,
+        true
+      ],
+      "b3_temp1.0_verdict": "FAIL",
+      "note": "FM_1_2: currency_swapped=True when swap fires",
+      "source_b1": [
+        "currencyagent_b2_run1.json",
+        "currencyagent_b2_run2.json",
+        "currencyagent_b2_run3.json"
+      ],
+      "source_b3_det": [
+        "b3_FM_1_2_3b_temp0_run1.json",
+        "b3_FM_1_2_3b_temp0_run2.json",
+        "b3_FM_1_2_3b_temp0_run3.json"
+      ]
+    }
+  ]
+}

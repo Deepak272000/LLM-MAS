@@ -403,6 +403,43 @@ presence, business-value relations, and validated handoff consistency.
 
 ---
 
+### 8.2 Stage 1 LKW DU-Pair Test Cases — CurrencyAgent (Table A)
+
+Every value in the B1, B2, and B3 columns below is taken from an actual execution artifact, not derived by reading the code.
+Source files are cited per row.
+Full JSON evidence: [`lkw_currency_evidence.json`](lkw_currency_evidence.json)
+Executable parser: [`parse_lkw_currency_evidence.py`](parse_lkw_currency_evidence.py)
+
+**B1 source:** `b2_raw_runs/currencyagent_b2_run{1,2,3}.json` — deterministic agent run, `FAULT_MODE=NONE`, real LKW trace.
+**B2 source:** `b3/raw/b3_<FAULT>_3b_temp0_run{1,2,3}.json` — deterministic greedy LLM (`temp=0`) with fault active.
+**B3 source:** `b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json` — non-deterministic LLM (`temp=1.0`) with fault active.
+
+| TC-ID | Variable | Def (file:line) | Use (file:line, type) | Def-clear path | Test input | Expected (B1 oracle) | B1 observed | B2 observed | B3 observed | LKW verdict | Group |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TC-CUR-01 | `units` | `agent.py:29` (param) | `agent.py:40` c-use (TASK\_START) | L29→L36→L40 | units=10, action=convert | 10 | **10, 10, 10** | 10 (fault fires after this use point) | 10 (LLM does not affect L36–40) | PASS | info — fault not yet visible |
+| TC-CUR-03 | `units` | `agent.py:56` (after tamper) | `agent.py:73` c-use (gRPC arg) | L56→L61→L70→L73 | units=10, action=convert, FM\_2\_5 | gRPC receives 10 | **10, 10, 10** ¹ | NOT\_MEASURED ² | NOT\_MEASURED ² | FAIL expected — gap noted | **Group 1** — LKW catches FM\_2\_5 |
+| TC-CUR-07 | `to_currency` | `agent.py:58` (after swap) | `agent.py:75` c-use (gRPC arg) | L58→L61→L70→L75 | to\_currency=EUR, FM\_1\_2 | gRPC receives EUR | **EUR, EUR, EUR** | **USD, USD, USD** (FAIL) ³ | **CAD, CAD, CAD** (FAIL) ³ | FAIL — observed ≠ EUR | **Group 1** — LKW catches FM\_1\_2 |
+| TC-CUR-09 | `data["units"]` | `agent.py:71` (gRPC return) | `agent.py:128` c-use (CONVERT\_DONE) | L71→(early return kills path)→L128 unreachable | units=10, to\_currency=EUR, FM\_3\_1 | ~9 | **9, 9, 9** | **None, None, None** (PATH\_INFEASIBLE) | **None, None, None** (PATH\_INFEASIBLE) | PATH\_INFEASIBLE — use point never reached | **Group 2** — LKW misses FM\_3\_1; checkpoint detects missing CONVERT\_DONE step |
+| TC-CUR-10 | `data["units"]` | `agent.py:79` (hallucinate) | `agent.py:128` c-use (CONVERT\_DONE) | L79→L81→L85→L128 | units=10, to\_currency=EUR, FM\_2\_2 | ~9 | **9, 9, 9** | **1337, 1337, 1337** (FAIL) | **1337, 1337, 1337** (FAIL) | FAIL — 1337 ≠ 9 | **Group 1** — LKW catches FM\_2\_2 |
+| TC-CUR-11 | `data["units"]` | `agent.py:81` (inflate rate) | `agent.py:128` c-use (CONVERT\_DONE) | L81→L83→L85→L128 | units=10, to\_currency=EUR, BL\_RATE\_MANIPULATION | ~9 | **9, 9, 9** | **10, 20, 20** (FAIL) ⁴ | **20, 20, 190** (FAIL) ⁴ | FAIL — inflated value ≠ 9 | **Group 1** — LKW catches BL\_RATE\_MANIPULATION |
+| TC-CUR-12 | `currency_swapped` | `agent.py:134` (boolean expr) | `fault_injection.py:74` p-use (rip\_summary) | L134→rip\_summary→fi.py:74 | to\_currency=EUR, FM\_1\_2 | False | **False, False, False** | **True, True, True** (FAIL) | **True, True, True** (FAIL) | FAIL — infection flag set | **Group 1** — LKW catches FM\_1\_2 via infection flag |
+
+**Footnotes:**
+
+¹ B1 `units_in` measured from `CONVERT_DONE["units_in"]` in `b2_raw_runs/currencyagent_b2_run{1,2,3}.json`.
+
+² `units_in` was not included in the oracle comparison framework (`b1_oracle_values.json`). The comparison reports only deviating fields; `units_in` is absent. FM\_2\_5 firing is confirmed indirectly: `payment.amount_tampered=True` in all 3 temp0 runs (`b3/raw/b3_FM_2_5_3b_temp0_run{1,2,3}.json`). A dedicated single-agent run with `FAULT_MODE=FM_2_5` is needed to directly observe `units_in=50` at `CONVERT_DONE`.
+
+³ The `to_currency` field in the comparison framework is evaluated at `TASK_START` (pre-swap). Deviation shown reflects the LLM choosing a different target currency (USD in temp0; CAD in temp1.0) from the B1 oracle (EUR). The FM\_1\_2 swap then acts on this LLM-chosen value. `currency_swapped=True` in TC-CUR-12 confirms the swap fired in all runs.
+
+⁴ BL\_RATE\_MANIPULATION has no temp0 runs; `temp0.7` runs used as B2 evidence. Values vary with the live checkout amount the LLM requested; the 10x inflation is present in all runs.
+
+**Group 2 finding — FM\_3\_1 justification:**
+
+TC-CUR-09 is the sole Group 2 case. In 6 consecutive runs (3 × temp0, 3 × temp1.0), `CONVERT_DONE["units_out"]` is `null` with severity `missing` in every trace. The use point at `agent.py:128` is never reached because the early return at `agent.py:47–50` fires before `client.convert()` at `agent.py:71`. No def-use path test can produce a wrong-value failure for this pair; the fault is only detectable via the structural trace invariant `EXPECTED_STEPS = ["TASK_START", "CONVERT_DONE", "FINAL_ANSWER"]`. This is the concrete, evidence-backed justification for the checkpoint contribution.
+
+---
+
 ## 9. Cross-Agent Chains
 
 **Runner:** `src/cross_agent_propagation.py`

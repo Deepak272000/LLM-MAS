@@ -1,8 +1,8 @@
 {
   "generated_by": "parse_lkw_currency_evidence.py",
   "b1_source": "b2_raw_runs/currencyagent_b2_run{1,2,3}.json",
-  "b3_det_source": "b3/raw/b3_<FAULT>_3b_temp0_run{1,2,3}.json",
-  "b3_ndet_source": "b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json",
+  "b2_source": "b2_currency_true_b2.json",
+  "b3_source": "b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json",
   "tc_rows": [
     {
       "tc_id": "TC-CUR-01",
@@ -15,10 +15,8 @@
         10,
         10
       ],
-      "b3_temp0_observed": [
-        "N/A"
-      ],
-      "b3_temp0_verdict": "N/A",
+      "b2_true_observed": "N/A",
+      "b2_true_verdict": "N/A",
       "b3_temp1.0_observed": [
         "N/A"
       ],
@@ -29,7 +27,8 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": []
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": []
     },
     {
       "tc_id": "TC-CUR-03",
@@ -42,12 +41,8 @@
         10,
         10
       ],
-      "b3_temp0_observed": [
-        "NOT_IN_ORACLE_COMPARISON",
-        "NOT_IN_ORACLE_COMPARISON",
-        "NOT_IN_ORACLE_COMPARISON"
-      ],
-      "b3_temp0_verdict": "PASS",
+      "b2_true_observed": 50,
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         "NOT_IN_ORACLE_COMPARISON",
         "NOT_IN_ORACLE_COMPARISON",
@@ -60,10 +55,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_2_5_3b_temp0_run1.json",
-        "b3_FM_2_5_3b_temp0_run2.json",
-        "b3_FM_2_5_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_2_5_3b_temp1.0_run1.json",
+        "b3_FM_2_5_3b_temp1.0_run2.json",
+        "b3_FM_2_5_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -77,12 +73,8 @@
         10,
         10
       ],
-      "b3_temp0_observed": [
-        "NOT_IN_ORACLE_COMPARISON",
-        "NOT_IN_ORACLE_COMPARISON",
-        "NOT_IN_ORACLE_COMPARISON"
-      ],
-      "b3_temp0_verdict": "PASS",
+      "b2_true_observed": 50,
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         "NOT_IN_ORACLE_COMPARISON",
         "NOT_IN_ORACLE_COMPARISON",
@@ -95,10 +87,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_2_5_3b_temp0_run1.json",
-        "b3_FM_2_5_3b_temp0_run2.json",
-        "b3_FM_2_5_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_2_5_3b_temp1.0_run1.json",
+        "b3_FM_2_5_3b_temp1.0_run2.json",
+        "b3_FM_2_5_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -112,10 +105,8 @@
         "EUR",
         "EUR"
       ],
-      "b3_temp0_observed": [
-        "N/A"
-      ],
-      "b3_temp0_verdict": "N/A",
+      "b2_true_observed": "N/A",
+      "b2_true_verdict": "N/A",
       "b3_temp1.0_observed": [
         "N/A"
       ],
@@ -126,7 +117,8 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": []
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": []
     },
     {
       "tc_id": "TC-CUR-07",
@@ -139,12 +131,8 @@
         "EUR",
         "EUR"
       ],
-      "b3_temp0_observed": [
-        "USD",
-        "USD",
-        "USD"
-      ],
-      "b3_temp0_verdict": "FAIL",
+      "b2_true_observed": "JPY",
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         "CAD",
         "CAD",
@@ -157,10 +145,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_1_2_3b_temp0_run1.json",
-        "b3_FM_1_2_3b_temp0_run2.json",
-        "b3_FM_1_2_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_1_2_3b_temp1.0_run1.json",
+        "b3_FM_1_2_3b_temp1.0_run2.json",
+        "b3_FM_1_2_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -174,12 +163,8 @@
         "EUR",
         "EUR"
       ],
-      "b3_temp0_observed": [
-        "USD",
-        "USD",
-        "USD"
-      ],
-      "b3_temp0_verdict": "FAIL",
+      "b2_true_observed": "JPY",
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         "CAD",
         "CAD",
@@ -192,10 +177,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_1_2_3b_temp0_run1.json",
-        "b3_FM_1_2_3b_temp0_run2.json",
-        "b3_FM_1_2_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_1_2_3b_temp1.0_run1.json",
+        "b3_FM_1_2_3b_temp1.0_run2.json",
+        "b3_FM_1_2_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -213,12 +199,8 @@
         9,
         9
       ],
-      "b3_temp0_observed": [
-        null,
-        null,
-        null
-      ],
-      "b3_temp0_verdict": "PATH_INFEASIBLE",
+      "b2_true_observed": null,
+      "b2_true_verdict": "PATH_INFEASIBLE",
       "b3_temp1.0_observed": [
         null,
         null,
@@ -231,10 +213,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_3_1_3b_temp0_run1.json",
-        "b3_FM_3_1_3b_temp0_run2.json",
-        "b3_FM_3_1_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_3_1_3b_temp1.0_run1.json",
+        "b3_FM_3_1_3b_temp1.0_run2.json",
+        "b3_FM_3_1_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -252,12 +235,8 @@
         9,
         9
       ],
-      "b3_temp0_observed": [
-        1337,
-        1337,
-        1337
-      ],
-      "b3_temp0_verdict": "FAIL",
+      "b2_true_observed": 1337,
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         1337,
         1337,
@@ -270,10 +249,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_2_2_3b_temp0_run1.json",
-        "b3_FM_2_2_3b_temp0_run2.json",
-        "b3_FM_2_2_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_2_2_3b_temp1.0_run1.json",
+        "b3_FM_2_2_3b_temp1.0_run2.json",
+        "b3_FM_2_2_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -291,12 +271,8 @@
         9,
         9
       ],
-      "b3_temp0_observed": [
-        10,
-        20,
-        20
-      ],
-      "b3_temp0_verdict": "FAIL",
+      "b2_true_observed": 90,
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         20,
         20,
@@ -309,10 +285,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_BL_RATE_MANIPULATION_3b_temp0_run1.json",
-        "b3_BL_RATE_MANIPULATION_3b_temp0_run2.json",
-        "b3_BL_RATE_MANIPULATION_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_BL_RATE_MANIPULATION_3b_temp1.0_run1.json",
+        "b3_BL_RATE_MANIPULATION_3b_temp1.0_run2.json",
+        "b3_BL_RATE_MANIPULATION_3b_temp1.0_run3.json"
       ]
     },
     {
@@ -326,12 +303,8 @@
         false,
         false
       ],
-      "b3_temp0_observed": [
-        true,
-        true,
-        true
-      ],
-      "b3_temp0_verdict": "FAIL",
+      "b2_true_observed": true,
+      "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         true,
         true,
@@ -344,10 +317,11 @@
         "currencyagent_b2_run2.json",
         "currencyagent_b2_run3.json"
       ],
-      "source_b3_det": [
-        "b3_FM_1_2_3b_temp0_run1.json",
-        "b3_FM_1_2_3b_temp0_run2.json",
-        "b3_FM_1_2_3b_temp0_run3.json"
+      "source_b2": "b2_currency_true_b2.json",
+      "source_b3": [
+        "b3_FM_1_2_3b_temp1.0_run1.json",
+        "b3_FM_1_2_3b_temp1.0_run2.json",
+        "b3_FM_1_2_3b_temp1.0_run3.json"
       ]
     }
   ]

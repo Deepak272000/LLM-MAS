@@ -26,9 +26,10 @@ import os
 import glob
 from pathlib import Path
 
-RESULTS_DIR = Path(__file__).parent
-B2_RAW_DIR  = RESULTS_DIR / "b2_raw_runs"
-B3_RAW_DIR  = RESULTS_DIR / "b3" / "raw"
+RESULTS_DIR    = Path(__file__).parent
+B2_RAW_DIR     = RESULTS_DIR / "b2_raw_runs"
+B3_RAW_DIR     = RESULTS_DIR / "b3" / "raw"
+B2_TRUE_FILE   = RESULTS_DIR / "b2_currency_true_b2.json"
 
 # ---------------------------------------------------------------------------
 # DU-pair test case definitions
@@ -154,6 +155,27 @@ TC_DEFINITIONS = [
         "note": "FM_1_2: currency_swapped=True when swap fires",
     },
 ]
+
+# ---------------------------------------------------------------------------
+# Load true B2 results (no LLM, direct agent.run(), mocked gRPC)
+# Returns {fault_mode -> {"CHECKPOINT.field": value}}
+# ---------------------------------------------------------------------------
+def load_b2_true():
+    if not B2_TRUE_FILE.exists():
+        return {}
+    with open(B2_TRUE_FILE) as f:
+        d = json.load(f)
+    result = {}
+    for r in d.get("results", []):
+        fm = r["fault_mode"]
+        trace = {}
+        for cp in r.get("lkw", []):
+            step = cp["step"]
+            for field, val in cp.get("data", {}).items():
+                trace[f"{step}.{field}"] = val
+        result[fm] = {"trace": trace, "steps_reached": r.get("steps_reached", [])}
+    return result
+
 
 # ---------------------------------------------------------------------------
 # Load B1 oracle
@@ -289,10 +311,13 @@ def main():
                 b1_direct[fpath] = []
             b1_direct[fpath].append(val)
 
+    b2_true = load_b2_true()
+
     print("=" * 90)
     print("LKW DU-PAIR EVIDENCE TABLE — CurrencyAgent")
-    print("B1 source : b2_raw_runs/currencyagent_b2_run{1,2,3}.json  (fault_mode=NONE)")
-    print("B3 source : b3/raw/b3_<FAULT>_3b_temp0_run{1,2,3}.json   (deterministic LLM)")
+    print("B1 source : b2_raw_runs/currencyagent_b2_run{1,2,3}.json  (fault_mode=NONE, no LLM)")
+    print("B2 source : b2_currency_true_b2.json  (direct agent.run(), no LLM, mocked gRPC)")
+    print("B3 source : b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json  (LLM temp=1.0 + fault)")
     print("=" * 90)
 
     rows = []
@@ -317,31 +342,52 @@ def main():
         direct_key = f"{ckpt}.{field}"
         b1_observed = b1_direct.get(direct_key, ["not_in_trace"])
 
+        # --- B2 true observed (no LLM, direct call) ---
+        if fault and fault in b2_true:
+            b2_entry = b2_true[fault]
+            direct_key = f"{ckpt}.{field}"
+            b2_steps = b2_entry["steps_reached"]
+            if direct_key in b2_entry["trace"]:
+                raw_b2_val = b2_entry["trace"][direct_key]
+                if isinstance(b1_oracle_val, dict):
+                    mn = b1_oracle_val.get("min", b1_oracle_val.get("mean"))
+                    b2_verdict = "PASS" if raw_b2_val is not None and abs(float(raw_b2_val) - float(mn)) < 0.5 else "FAIL"
+                elif b1_oracle_val == "see_b1_trace":
+                    b1_ref = b1_direct.get(direct_key, [None])[0]
+                    b2_verdict = "PASS" if raw_b2_val == b1_ref else "FAIL"
+                else:
+                    b2_verdict = "PASS" if raw_b2_val == b1_oracle_val else "FAIL"
+            elif ckpt not in b2_steps:
+                raw_b2_val = None
+                b2_verdict = "PATH_INFEASIBLE"
+            else:
+                raw_b2_val = "(matches_b1)"
+                b2_verdict = "PASS"
+        else:
+            raw_b2_val = "N/A"
+            b2_verdict = "N/A"
+
         # --- B3 observed ---
         if fault:
-            det_label = tc.get("alt_temp", "temp0")
-            b3_summary = summarize_b3_field(fault, field, b1_oracle_val, temp_label=det_label)
-            b3_det_summary = summarize_b3_field(fault, field, b1_oracle_val, temp_label="temp1.0")
+            b3_summary = summarize_b3_field(fault, field, b1_oracle_val, temp_label="temp1.0")
         else:
             b3_summary = {"runs": 0, "observed": ["N/A"], "overall_verdict": "N/A", "steps_reached_per_run": []}
-            b3_det_summary = {"runs": 0, "observed": ["N/A"], "overall_verdict": "N/A", "steps_reached_per_run": []}
 
         row = {
-            "tc_id":            tc_id,
-            "group":            group,
-            "fault_mode":       fault or "N/A",
-            "checkpoint_field": f"{ckpt}.{field}",
-            "b1_oracle":        b1_oracle_val,
-            "b1_observed":      b1_observed,
-            "b3_temp0_observed": b3_summary["observed"],
-            "b3_temp0_verdict": b3_summary["overall_verdict"],
-            "b3_temp1.0_observed": b3_det_summary["observed"],
-            "b3_temp1.0_verdict": b3_det_summary["overall_verdict"],
+            "tc_id":              tc_id,
+            "group":              group,
+            "fault_mode":         fault or "N/A",
+            "checkpoint_field":   f"{ckpt}.{field}",
+            "b1_oracle":          b1_oracle_val,
+            "b1_observed":        b1_observed,
+            "b2_true_observed":   raw_b2_val,
+            "b2_true_verdict":    b2_verdict,
+            "b3_temp1.0_observed": b3_summary["observed"],
+            "b3_temp1.0_verdict": b3_summary["overall_verdict"],
             "note": note,
-            "source_b1": [t["file"] for t in b1_traces],
-            "source_b3_det": [
-                f"b3_{fault}_3b_temp0_run{i}.json" for i in [1,2,3]
-            ] if fault else [],
+            "source_b1":  [t["file"] for t in b1_traces],
+            "source_b2":  "b2_currency_true_b2.json",
+            "source_b3":  [f"b3_{fault}_3b_temp1.0_run{i}.json" for i in [1,2,3]] if fault else [],
         }
         rows.append(row)
 
@@ -350,17 +396,17 @@ def main():
         print(f"  B1 oracle  : {b1_oracle_val}")
         print(f"  B1 measured: {b1_observed}  (from b2_raw_runs LKW trace)")
         if fault:
-            print(f"  B3 temp=0  : observed={b3_summary['observed']}  verdict={b3_summary['overall_verdict']}")
-            print(f"  B3 temp=1.0: observed={b3_det_summary['observed']}  verdict={b3_det_summary['overall_verdict']}")
+            print(f"  B2 true    : observed={raw_b2_val}  verdict={b2_verdict}  (no LLM, mocked gRPC)")
+            print(f"  B3 temp1.0 : observed={b3_summary['observed']}  verdict={b3_summary['overall_verdict']}")
         print(f"  Note: {note}")
 
     # --- Save JSON evidence file ---
     out_path = RESULTS_DIR / "lkw_currency_evidence.json"
     out = {
         "generated_by": "parse_lkw_currency_evidence.py",
-        "b1_source": "b2_raw_runs/currencyagent_b2_run{1,2,3}.json",
-        "b3_det_source": "b3/raw/b3_<FAULT>_3b_temp0_run{1,2,3}.json",
-        "b3_ndet_source": "b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json",
+        "b1_source":    "b2_raw_runs/currencyagent_b2_run{1,2,3}.json",
+        "b2_source":    "b2_currency_true_b2.json",
+        "b3_source":    "b3/raw/b3_<FAULT>_3b_temp1.0_run{1,2,3}.json",
         "tc_rows": rows,
     }
     with open(out_path, "w") as f:
@@ -375,7 +421,7 @@ def main():
     print(f"Group 1 (LKW catches via wrong value at use point) : {[r['tc_id'] for r in group1]}")
     print(f"Group 2 (checkpoint-only detection, path killed)   : {[r['tc_id'] for r in group2]}")
     for r in group2:
-        print(f"  {r['tc_id']} ({r['fault_mode']}) — B3 temp=0 observed={r['b3_temp0_observed']}")
+        print(f"  {r['tc_id']} ({r['fault_mode']}) — B2 true observed={r['b2_true_observed']}  B3 temp1.0 observed={r['b3_temp1.0_observed']}")
         print(f"    => Use point never reached; checkpoint detects missing CONVERT_DONE step")
 
 

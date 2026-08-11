@@ -731,19 +731,21 @@ cannot.
 \begin{table*}[t]
 \footnotesize
 \caption{Stage~1 LKW DU-Pair Verification --- CurrencyAgent (Table~A).
-  All values are execution-measured, not code-derived.
-  \textbf{B1}: three no-fault runs (\texttt{FAULT\_MODE=NONE},
-    \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json}).
-  \textbf{B2}: direct \texttt{agent.run()}, no LLM, gRPC mocked to
-    $\{\texttt{units{:}9},\texttt{nanos{:}230000000}\}$,
-    Concordia Speed HPC Job~1219224
-    (\texttt{currencyagent/test\_fault\_injection.py}).
-  \textbf{B3}: three live-LLM runs per fault
-    (\texttt{temp}$=1.0$,
-    \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json}).}
+Every value in the B1, B2, and B3 columns is from an actual execution artifact, not derived by reading the code.
+\textbf{B1 source:}
+  \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json} ---
+  \texttt{FAULT\_MODE=NONE}, real LKW trace, no LLM.
+\textbf{B2 source:}
+  \texttt{b2\_currency\_true\_b2.json} ---
+  \texttt{agent.run()} called directly, no LLM, mocked gRPC
+  (\texttt{units}$\to$9 fixed return), each fault mode run once.
+  Run: \texttt{currencyagent/test\_fault\_injection.py}.
+\textbf{B3 source:}
+  \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json} ---
+  non-deterministic LLM (\texttt{temp}$=1.0$) with fault active, 3 runs per fault.}
 \label{tab:lkw-stage1}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}p{1.15cm}p{1.85cm}p{2.05cm}p{2.4cm}p{2.85cm}p{2.0cm}p{1.75cm}p{1.5cm}p{1.95cm}p{2.4cm}p{2.1cm}p{1.2cm}@{}}
+\begin{tabular}{@{}p{1.1cm}p{1.75cm}p{2.05cm}p{2.25cm}p{2.7cm}p{2.05cm}p{1.7cm}p{1.45cm}p{1.85cm}p{2.5cm}p{2.2cm}p{2.85cm}@{}}
 \toprule
 \textbf{TC-ID} &
 \textbf{Variable} &
@@ -753,8 +755,8 @@ cannot.
 \textbf{Test input} &
 \textbf{Expected (B1)} &
 \textbf{B1 observed} &
-\textbf{B2 observed (no LLM)} &
-\textbf{B3 observed (\texttt{temp}=1.0)} &
+\textbf{B2 observed} &
+\textbf{B3 observed} &
 \textbf{LKW verdict} &
 \textbf{Group} \\
 \midrule
@@ -763,10 +765,10 @@ TC-CUR-01 &
   \texttt{agent.py:29} (param) &
   \texttt{agent.py:40} \emph{c-use} (TASK\_START) &
   L29$\to$L36$\to$L40 &
-  units=10, no fault &
+  units=10, action= convert &
   10 &
-  10, 10, 10 &
-  10 &
+  \textbf{10}$^{1}$ &
+  10 (fault fires after this use) &
   10 &
   PASS &
   info \\[4pt]
@@ -777,11 +779,11 @@ TC-CUR-03 &
   L56$\to$L61$\to$L70$\to$L73 &
   units=10, FM-2.5 &
   gRPC receives 10 &
-  10, 10, 10 &
-  \textbf{50} &
-  not measured$^{\dagger}$ &
-  \textbf{FAIL} (B2) &
-  Group~1 \\[4pt]
+  \textbf{10}$^{1}$ &
+  \textbf{50}$^{2}$ (FAIL) &
+  NOT\_MEASURED$^{3}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches FM-2.5 \\[4pt]
 TC-CUR-07 &
   \texttt{to\_currency} &
   \texttt{agent.py:58} (after swap) &
@@ -789,74 +791,104 @@ TC-CUR-07 &
   L58$\to$L61$\to$L70$\to$L75 &
   to\_cur=EUR, FM-1.2 &
   gRPC receives EUR &
-  EUR, EUR, EUR &
-  \textbf{JPY} &
-  CAD, CAD, CAD &
-  \textbf{FAIL} &
-  Group~1 \\[4pt]
+  \textbf{EUR}$^{1}$ &
+  \textbf{JPY}$^{2}$ (FAIL) &
+  \textbf{CAD$\to$JPY}$^{3}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches FM-1.2 \\[4pt]
 TC-CUR-09 &
   \texttt{data[``units'']} &
   \texttt{agent.py:71} (gRPC return) &
   \texttt{agent.py:128} \emph{c-use} (CONVERT\_DONE) &
-  L71$\to$\emph{early return at L47--50 kills path}$\to$L128 unreachable &
+  L71$\to$\emph{early return kills path}$\to$L128 unreachable &
   units=10, FM-3.1 &
-  $\approx9$ &
-  9, 9, 9 &
-  \textsc{Path\_Infeas.} &
-  \textsc{Path\_Infeas.} (3/3) &
-  \textsc{Path\_Infeas.} &
-  \textbf{Group~2} \\[4pt]
+  $\approx$9 &
+  \textbf{9}$^{1}$ &
+  \textbf{PATH\_INFEAS.}$^{2}$ &
+  \textbf{PATH\_INFEAS.}$^{3}$ &
+  PATH\_INFEAS. --- use never reached &
+  \textbf{Group~2} --- checkpoint catches FM-3.1 \\[4pt]
 TC-CUR-10 &
   \texttt{data[``units'']} &
   \texttt{agent.py:79} (hallucinate) &
   \texttt{agent.py:128} \emph{c-use} (CONVERT\_DONE) &
   L79$\to$L81$\to$L85$\to$L128 &
   units=10, FM-2.2 &
-  $\approx9$ &
-  9, 9, 9 &
-  \textbf{1337} &
-  1337, 1337, 1337 &
-  \textbf{FAIL} &
-  Group~1 \\[4pt]
+  $\approx$9 &
+  \textbf{9}$^{1}$ &
+  \textbf{1337}$^{2}$ (FAIL) &
+  \textbf{1337, 1337, 1337}$^{3}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches FM-2.2 \\[4pt]
 TC-CUR-11 &
   \texttt{data[``units'']} &
   \texttt{agent.py:81} (inflate) &
   \texttt{agent.py:128} \emph{c-use} (CONVERT\_DONE) &
   L81$\to$L83$\to$L85$\to$L128 &
   units=10, BL-RATE &
-  $\approx9$ &
-  9, 9, 9 &
-  \textbf{90} &
-  20, 10, 10 &
-  \textbf{FAIL} &
-  Group~1 \\[4pt]
+  $\approx$9 &
+  \textbf{9}$^{1}$ &
+  \textbf{90}$^{2}$ (FAIL) &
+  \textbf{20, 10, 10}$^{3}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches BL-RATE \\[4pt]
 TC-CUR-12 &
   \texttt{currency\_swapped} &
-  \texttt{agent.py:134} (boolean) &
-  \texttt{fi.py:74} \emph{p-use} (rip\_summary) &
-  L134$\to$fi.py:74 &
+  \texttt{agent.py:134} (boolean expr) &
+  \texttt{fault\_injection.py:74} \emph{p-use} &
+  L134$\to$fi.py:63$\to$fi.py:74 &
   to\_cur=EUR, FM-1.2 &
   False &
-  F, F, F &
-  \textbf{True} &
-  T, T, T &
-  \textbf{FAIL} &
-  Group~1 \\
+  \textbf{False}$^{1}$ &
+  \textbf{True}$^{2}$ (FAIL) &
+  \textbf{True, True, True}$^{3}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- confirms FM-1.2 infection flag \\
 \bottomrule
 \end{tabular}}
+
 \smallskip\par\noindent
-\textbf{Group~1}: Fault mutates variable at Def; def-clear path to Use executes; wrong
-value arrives at use point; observed~$\neq$~B1 oracle $\Rightarrow$ \textsc{Fail}.
-\textbf{Group~2} (TC-CUR-09 only): FM-3.1 inserts an early return at
-\texttt{agent.py:47--50}, before \texttt{client.convert()} at line~71.
-Both the definition point and the use point are unreachable at runtime---no wrong
-value to observe. Sole signal: \texttt{CONVERT\_DONE} absent from required step set
-$\{\texttt{TASK\_START},\texttt{CONVERT\_DONE},\texttt{FINAL\_ANSWER}\}$.
-Confirmed in 4 independent executions (1 B2 + 3 B3).
+$^{1}$~B1 values measured from \texttt{CONVERT\_DONE} and \texttt{TASK\_START}
+checkpoints in \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json}
+(3 runs, all identical).
+
 \smallskip\par\noindent
-$^{\dagger}$\texttt{units\_in} absent from B3 oracle comparison framework;
-FM-2.5 confirmed via \texttt{amount\_tampered=True} in all 3 B3 runs.
-B2 direct measurement (\texttt{units\_in}=50) fills this oracle gap.
+$^{2}$~B2 values measured from \texttt{b2\_currency\_true\_b2.json} ---
+generated by \texttt{currencyagent/test\_fault\_injection.py} which calls
+\texttt{agent.run()} directly with no LLM and a mocked gRPC client returning
+\texttt{\{"units":9,"nanos":230000000\}}.
+This matches the B2 definition: microservice-level execution with fault, no LLM in the loop.
+TC-CUR-03 FM-2.5: \texttt{CONVERT\_DONE[units\_in]}$=50$ (tamper log: ``Amount tampered: 10.0$\to$50.0'').
+TC-CUR-07 FM-1.2: \texttt{CONVERT\_DONE[to\_currency]}$=$\texttt{JPY} (swap log: ``Currency swapped: EUR$\to$JPY'').
+TC-CUR-09 FM-3.1: \texttt{CONVERT\_DONE} absent --- steps reached: \texttt{[TASK\_START, FINAL\_ANSWER]} only.
+TC-CUR-10 FM-2.2: \texttt{CONVERT\_DONE[units\_out]}$=1337$.
+TC-CUR-11 BL-RATE: \texttt{CONVERT\_DONE[units\_out]}$=90$ ($9{\times}10$); log: ``Rate inflated: 9$\to$90''.
+TC-CUR-12 FM-1.2: \texttt{CONVERT\_DONE[currency\_swapped]}$=$\texttt{True}.
+
+\smallskip\par\noindent
+$^{3}$~B3 values from \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json}.
+TC-CUR-03 B3 shows NOT\_MEASURED because \texttt{units\_in} was not included in the
+oracle comparison framework; FM-2.5 firing is confirmed by
+\texttt{payment.amount\_tampered=True} in all 3 runs.
+TC-CUR-07 B3: LLM chose \texttt{to\_currency=CAD}; FM-1.2 swapped CAD$\to$JPY;
+CAD deviation reflects LLM input variance; \texttt{currency\_swapped=True}
+confirms the swap fired.
+TC-CUR-09 B3: \texttt{units\_out=None} with severity \texttt{missing} in all 3 runs,
+both temp0 and temp1.0 --- 6 consecutive executions confirm PATH\_INFEASIBLE.
+
+\smallskip\par\noindent
+\textbf{Group~2 finding --- FM-3.1 justification.}
+TC-CUR-09 is the sole Group~2 fault for CurrencyAgent.
+In B2 (no LLM, direct run) and across 6 B3 runs ($3{\times}$temp0, $3{\times}$temp1.0),
+\texttt{CONVERT\_DONE["units\_out"]} is absent in every trace.
+The early return at \texttt{agent.py:47--50} fires before \texttt{client.convert()}
+at \texttt{agent.py:71}.
+No wrong-value failure at a use point is possible; the only observable signal is the
+missing \texttt{CONVERT\_DONE} step.
+The checkpoint detects this via
+\texttt{EXPECTED\_STEPS = ["TASK\_START",\allowbreak"CONVERT\_DONE",\allowbreak"FINAL\_ANSWER"]}.
+This is the concrete, multi-run evidence that justifies the checkpoint contribution
+for premature termination faults.
 \end{table*}
 
 % =============================================================================

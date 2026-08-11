@@ -1,0 +1,539 @@
+{
+  "generated_at": "2026-08-11T02:17:36.320331+00:00",
+  "results": [
+    {
+      "fault_mode": "NONE",
+      "elapsed_ms": 0.1,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": null,
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 9,
+        "nanos": 230000000
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.278324+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "NONE"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.278403+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 9,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.278414+00:00",
+          "fault_mode": "NONE",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9,
+              "nanos": 230000000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_3_1",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CONVERT_DONE"
+      ],
+      "infection_point": "FINAL_ANSWER",
+      "propagation_depth": 1,
+      "data": {
+        "currency_code": "PREMATURE",
+        "units": 0,
+        "nanos": 0,
+        "premature_termination": true
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.283106+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "FM_3_1"
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.283348+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "currency_code": "PREMATURE",
+            "units": 0,
+            "nanos": 0,
+            "premature_termination": true
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_2_2",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CONVERT_DONE",
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 1337,
+        "nanos": 420000000,
+        "hallucinated": true,
+        "original_suppressed": {
+          "currency_code": "EUR",
+          "units": 9,
+          "nanos": 230000000
+        }
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.287509+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "FM_2_2"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.287775+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 1337,
+            "hallucinated": true,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.287814+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 1337,
+              "nanos": 420000000,
+              "hallucinated": true,
+              "original_suppressed": {
+                "currency_code": "EUR",
+                "units": 9,
+                "nanos": 230000000
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_2_5",
+      "elapsed_ms": 0.3,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CONVERT_DONE",
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 9,
+        "nanos": 230000000
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.291992+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "FM_2_5"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.292219+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 50,
+            "units_out": 9,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": true,
+            "currency_swapped": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.292248+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9,
+              "nanos": 230000000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_1_2",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CONVERT_DONE",
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 9,
+        "nanos": 230000000
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.297317+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "FM_1_2"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.297624+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "JPY",
+            "units_in": 10,
+            "units_out": 9,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": true
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.297653+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9,
+              "nanos": 230000000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_RATE_MANIPULATION",
+      "elapsed_ms": 0.3,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CONVERT_DONE",
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 90,
+        "nanos": 230000000,
+        "rate_manipulated": true,
+        "original_units": 9
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.303114+00:00",
+          "fault_mode": "BL_RATE_MANIPULATION",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "BL_RATE_MANIPULATION"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.303326+00:00",
+          "fault_mode": "BL_RATE_MANIPULATION",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 90,
+            "hallucinated": false,
+            "rate_manipulated": true,
+            "stale_rate": false,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.303369+00:00",
+          "fault_mode": "BL_RATE_MANIPULATION",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 90,
+              "nanos": 230000000,
+              "rate_manipulated": true,
+              "original_units": 9
+            }
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_CURRENCY_UNAVAILABLE",
+      "elapsed_ms": 0.2,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CONVERT_DONE"
+      ],
+      "infection_point": "FINAL_ANSWER",
+      "propagation_depth": 1,
+      "data": {
+        "error": "Currency conversion unavailable: unsupported currency pair (fault injection)"
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.307471+00:00",
+          "fault_mode": "BL_CURRENCY_UNAVAILABLE",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "BL_CURRENCY_UNAVAILABLE"
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.307627+00:00",
+          "fault_mode": "BL_CURRENCY_UNAVAILABLE",
+          "data": {
+            "unavailable": true,
+            "error": "Currency conversion unavailable: unsupported currency pair (fault injection)"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_STALE_RATE",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CONVERT_DONE",
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 0,
+        "nanos": 850000000,
+        "stale_rate": true,
+        "cached_at": "2026-01-01T00:00:00Z"
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.311380+00:00",
+          "fault_mode": "BL_STALE_RATE",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "BL_STALE_RATE"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.311677+00:00",
+          "fault_mode": "BL_STALE_RATE",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 0,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": true,
+            "overflow": false,
+            "amount_tampered": false,
+            "currency_swapped": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.311702+00:00",
+          "fault_mode": "BL_STALE_RATE",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 0,
+              "nanos": 850000000,
+              "stale_rate": true,
+              "cached_at": "2026-01-01T00:00:00Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_CONVERSION_OVERFLOW",
+      "elapsed_ms": 0.3,
+      "steps_reached": [
+        "TASK_START",
+        "CONVERT_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CONVERT_DONE",
+      "propagation_depth": 0,
+      "data": {
+        "currency_code": "EUR",
+        "units": 9007199254740992,
+        "nanos": 999999999,
+        "overflow": true
+      },
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-11T02:17:36.316700+00:00",
+          "fault_mode": "BL_CONVERSION_OVERFLOW",
+          "data": {
+            "action": "convert",
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units": 10,
+            "nanos": 0,
+            "fault_mode": "BL_CONVERSION_OVERFLOW"
+          }
+        },
+        {
+          "step": "CONVERT_DONE",
+          "timestamp": "2026-08-11T02:17:36.316931+00:00",
+          "fault_mode": "BL_CONVERSION_OVERFLOW",
+          "data": {
+            "from_currency": "USD",
+            "to_currency": "EUR",
+            "units_in": 10,
+            "units_out": 9007199254740992,
+            "hallucinated": false,
+            "rate_manipulated": false,
+            "stale_rate": false,
+            "overflow": true,
+            "amount_tampered": false,
+            "currency_swapped": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-11T02:17:36.316958+00:00",
+          "fault_mode": "BL_CONVERSION_OVERFLOW",
+          "data": {
+            "result": {
+              "currency_code": "EUR",
+              "units": 9007199254740992,
+              "nanos": 999999999,
+              "overflow": true
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

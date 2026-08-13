@@ -706,7 +706,7 @@ The fault mutates the variable at its definition~D\@.
 The def-clear path from D to use point~U is still executed, the wrong value
 arrives at~U, and the comparison (observed~$\neq$~B1~oracle) flags a
 failure.
-Five of seven DU pairs fall here (TC-CUR-03, 07, 10, 11, 12).
+Five of six DU pairs fall here (TC-CUR-03, 07, 10, 11, 12).
 For example, FM-2.5 sets \texttt{units}$=50$ (tamper $\times5$) at
 line~56; the path L56$\to$L73 executes; the gRPC call receives 50, not
 the expected 10 (\texttt{units\_in}=50, verdict \textsc{Fail}).
@@ -718,8 +718,8 @@ FM-3.1 inserts an early return at \texttt{agent.py:47--50}, before
 Both the definition point (line~71, gRPC return) and the use point
 (line~128, \texttt{CONVERT\_DONE}) are therefore unreachable at runtime:
 there is no wrong value to observe---there is no value at all.
-The LKW verdict is \textsc{Path\_Infeasible}, confirmed across four
-independent executions (one B2 + three B3 at \texttt{temp}$=1.0$).
+The LKW verdict is \textsc{Path\_Infeasible}, confirmed across seven
+independent executions (one B2 + three B3 at \texttt{temp}$=0$ + three B3 at \texttt{temp}$=1.0$).
 The sole observable signal is the absence of \texttt{CONVERT\_DONE} from
 the required-step set
 $\{\texttt{TASK\_START},\allowbreak\texttt{CONVERT\_DONE},\allowbreak%
@@ -728,21 +728,27 @@ This is the non-redundant contribution of the checkpoint mechanism: it
 detects \emph{structural path death} that value-based LKW comparison
 cannot.
 
+Table~\ref{tab:lkw-stage1} is read row-by-row; each row covers one DU pair.
+\textbf{Def\,/\,Use}: source line where the variable is assigned~(D) or consumed~(U),
+with use type \emph{c-use} (used in a computation or call argument) or
+\emph{p-use} (used in a branch condition).
+\textbf{Def-clear path}: execution lines from D to U with no re-assignment in between.
+\textbf{Test input}: agent inputs and active fault mode
+(FM-$x$.$y$ = fault mode identifier; BL-RATE = rate inflation fault).
+\textbf{Expected (B1)}: oracle value at~U with no fault active.
+\textbf{B1\,/\,B2\,/\,B3 observed}: value at~U in the no-fault run~[1],
+the deterministic fault run without LLM~[2], and the live-LLM fault
+runs (3 per fault, \texttt{temp}$=1.0$)~[3].
+\textbf{LKW verdict}: PASS (observed $=$ oracle), FAIL (observed $\neq$ oracle),
+or PATH\_INFEASIBLE (U not reached at runtime).
+
 \begin{table*}[t]
 \footnotesize
-\caption{Stage~1 LKW DU-Pair Verification --- CurrencyAgent (Table~A).
-Every value in the B1, B2, and B3 columns is from an actual execution artifact, not derived by reading the code.
-\textbf{B1 source:}
-  \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json} ---
-  \texttt{FAULT\_MODE=NONE}, real LKW trace, no LLM.
-\textbf{B2 source:}
-  \texttt{b2\_currency\_true\_b2.json} ---
-  \texttt{agent.run()} called directly, no LLM, mocked gRPC
-  (\texttt{units}$\to$9 fixed return), each fault mode run once.
-  Run: \texttt{currencyagent/test\_fault\_injection.py}.
-\textbf{B3 source:}
-  \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json} ---
-  non-deterministic LLM (\texttt{temp}$=1.0$) with fault active, 3 runs per fault.}
+\caption{Stage~1 LKW DU-pair verification --- CurrencyAgent (Table~A).
+All values are from execution artifacts:
+B1 from \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json} (\texttt{FAULT\_MODE=NONE}, no LLM);
+B2 from \texttt{b2\_currency\_true\_b2.json} (direct \texttt{agent.run()}, no LLM, mocked gRPC);
+B3 from \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json} (live LLM, \texttt{temp}$=1.0$, 3 runs per fault).}
 \label{tab:lkw-stage1}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}p{1.1cm}p{1.75cm}p{2.05cm}p{2.25cm}p{2.7cm}p{2.05cm}p{1.7cm}p{1.45cm}p{1.85cm}p{2.5cm}p{2.2cm}p{2.85cm}@{}}
@@ -767,7 +773,7 @@ TC-CUR-01 &
   L29$\to$L36$\to$L40 &
   units=10, action= convert &
   10 &
-  \textbf{10}$^{1}$ &
+  \textbf{10}$^{[1]}$ &
   10 (fault fires after this use) &
   10 &
   PASS &
@@ -779,9 +785,9 @@ TC-CUR-03 &
   L56$\to$L61$\to$L70$\to$L73 &
   units=10, FM-2.5 &
   gRPC receives 10 &
-  \textbf{10}$^{1}$ &
-  \textbf{50}$^{2}$ (FAIL) &
-  NOT\_MEASURED$^{3}$ &
+  \textbf{10}$^{[1]}$ &
+  \textbf{50}$^{[2]}$ (FAIL) &
+  NOT\_MEASURED$^{[3]}$ &
   \textbf{FAIL} in B2 &
   \textbf{Group~1} --- LKW catches FM-2.5 \\[4pt]
 TC-CUR-07 &
@@ -791,9 +797,9 @@ TC-CUR-07 &
   L58$\to$L61$\to$L70$\to$L75 &
   to\_cur=EUR, FM-1.2 &
   gRPC receives EUR &
-  \textbf{EUR}$^{1}$ &
-  \textbf{JPY}$^{2}$ (FAIL) &
-  \textbf{CAD$\to$JPY}$^{3}$ (FAIL) &
+  \textbf{EUR}$^{[1]}$ &
+  \textbf{JPY}$^{[2]}$ (FAIL) &
+  \textbf{CAD$\to$JPY}$^{[3]}$ (FAIL) &
   \textbf{FAIL} in B2 and B3 &
   \textbf{Group~1} --- LKW catches FM-1.2 \\[4pt]
 TC-CUR-09 &
@@ -803,9 +809,9 @@ TC-CUR-09 &
   L71$\to$\emph{early return kills path}$\to$L128 unreachable &
   units=10, FM-3.1 &
   $\approx$9 &
-  \textbf{9}$^{1}$ &
-  \textbf{PATH\_INFEAS.}$^{2}$ &
-  \textbf{PATH\_INFEAS.}$^{3}$ &
+  \textbf{9}$^{[1]}$ &
+  \textbf{PATH\_INFEAS.}$^{[2]}$ &
+  \textbf{PATH\_INFEAS.}$^{[3]}$ &
   PATH\_INFEAS. --- use never reached &
   \textbf{Group~2} --- checkpoint catches FM-3.1 \\[4pt]
 TC-CUR-10 &
@@ -815,9 +821,9 @@ TC-CUR-10 &
   L79$\to$L81$\to$L85$\to$L128 &
   units=10, FM-2.2 &
   $\approx$9 &
-  \textbf{9}$^{1}$ &
-  \textbf{1337}$^{2}$ (FAIL) &
-  \textbf{1337, 1337, 1337}$^{3}$ (FAIL) &
+  \textbf{9}$^{[1]}$ &
+  \textbf{1337}$^{[2]}$ (FAIL) &
+  \textbf{1337, 1337, 1337}$^{[3]}$ (FAIL) &
   \textbf{FAIL} in B2 and B3 &
   \textbf{Group~1} --- LKW catches FM-2.2 \\[4pt]
 TC-CUR-11 &
@@ -827,9 +833,9 @@ TC-CUR-11 &
   L81$\to$L83$\to$L85$\to$L128 &
   units=10, BL-RATE &
   $\approx$9 &
-  \textbf{9}$^{1}$ &
-  \textbf{90}$^{2}$ (FAIL) &
-  \textbf{20, 10, 10}$^{3}$ (FAIL) &
+  \textbf{9}$^{[1]}$ &
+  \textbf{90}$^{[2]}$ (FAIL) &
+  \textbf{20, 10, 10}$^{[3]}$ (FAIL) &
   \textbf{FAIL} in B2 and B3 &
   \textbf{Group~1} --- LKW catches BL-RATE \\[4pt]
 TC-CUR-12 &
@@ -839,21 +845,21 @@ TC-CUR-12 &
   L134$\to$fi.py:63$\to$fi.py:74 &
   to\_cur=EUR, FM-1.2 &
   False &
-  \textbf{False}$^{1}$ &
-  \textbf{True}$^{2}$ (FAIL) &
-  \textbf{True, True, True}$^{3}$ (FAIL) &
+  \textbf{False}$^{[1]}$ &
+  \textbf{True}$^{[2]}$ (FAIL) &
+  \textbf{True, True, True}$^{[3]}$ (FAIL) &
   \textbf{FAIL} in B2 and B3 &
   \textbf{Group~1} --- confirms FM-1.2 infection flag \\
 \bottomrule
 \end{tabular}}
 
 \smallskip\par\noindent
-$^{1}$~B1 values measured from \texttt{CONVERT\_DONE} and \texttt{TASK\_START}
+\textbf{[1]}~B1 values measured from \texttt{CONVERT\_DONE} and \texttt{TASK\_START}
 checkpoints in \texttt{b2\_raw\_runs/currencyagent\_b2\_run\{1,2,3\}.json}
 (3 runs, all identical).
 
 \smallskip\par\noindent
-$^{2}$~B2 values measured from \texttt{b2\_currency\_true\_b2.json} ---
+\textbf{[2]}~B2 values measured from \texttt{b2\_currency\_true\_b2.json} ---
 generated by \texttt{currencyagent/test\_fault\_injection.py} which calls
 \texttt{agent.run()} directly with no LLM and a mocked gRPC client returning
 \texttt{\{"units":9,"nanos":230000000\}}.
@@ -866,15 +872,23 @@ TC-CUR-11 BL-RATE: \texttt{CONVERT\_DONE[units\_out]}$=90$ ($9{\times}10$); log:
 TC-CUR-12 FM-1.2: \texttt{CONVERT\_DONE[currency\_swapped]}$=$\texttt{True}.
 
 \smallskip\par\noindent
-$^{3}$~B3 values from \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json}.
-TC-CUR-03 B3 shows NOT\_MEASURED because \texttt{units\_in} was not included in the
-oracle comparison framework; FM-2.5 firing is confirmed by
+\textbf{[3]}~B3 source: \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json}.
+
+\par\noindent\textbf{TC-CUR-03:} NOT\_MEASURED --- \texttt{units\_in} was not tracked in
+the oracle comparison framework; FM-2.5 firing confirmed by
 \texttt{payment.amount\_tampered=True} in all 3 runs.
-TC-CUR-07 B3: LLM chose \texttt{to\_currency=CAD}; FM-1.2 swapped CAD$\to$JPY;
-CAD deviation reflects LLM input variance; \texttt{currency\_swapped=True}
-confirms the swap fired.
-TC-CUR-09 B3: \texttt{units\_out=None} with severity \texttt{missing} in all 3 runs,
-both temp0 and temp1.0 --- 6 consecutive executions confirm PATH\_INFEASIBLE.
+
+\par\noindent\textbf{TC-CUR-07:} LLM chose \texttt{to\_currency=CAD};
+FM-1.2 swapped CAD$\to$JPY; \texttt{currency\_swapped=True} confirms the swap fired.
+CAD deviation reflects LLM input variance.
+
+\par\noindent\textbf{TC-CUR-09:} \texttt{units\_out=None} (severity: \texttt{missing})
+in all 3 runs at both temp$=0$ and temp$=1.0$ ---
+6 consecutive executions confirm PATH\_INFEASIBLE.
+
+\par\noindent\textbf{TC-CUR-11 (BL-RATE):} Sampled at \texttt{temp=0.7}, not
+\texttt{temp=1.0} --- no \texttt{temp=0} runs exist for this fault; the column
+header does not apply to this row. FAIL verdict confirmed at \texttt{temp=0.7}.
 
 \smallskip\par\noindent
 \textbf{Group~2 finding --- FM-3.1 justification.}
@@ -889,6 +903,252 @@ The checkpoint detects this via
 \texttt{EXPECTED\_STEPS = ["TASK\_START",\allowbreak"CONVERT\_DONE",\allowbreak"FINAL\_ANSWER"]}.
 This is the concrete, multi-run evidence that justifies the checkpoint contribution
 for premature termination faults.
+\end{table*}
+
+% =============================================================================
+\subsection{Stage 1: LKW Def-Use Pair Verification --- PaymentAgent}
+\label{sec:lkw-stage1-pay}
+% -----------------------------------------------------------------------------
+
+Stage~1 LKW verification for \texttt{PaymentAgent} follows the same methodology
+as Section~\ref{sec:lkw-stage1-currency}.
+Table~\ref{tab:lkw-stage1-payment} reports values from real execution artifacts:
+B1 from three no-fault \texttt{b2\_raw\_runs} LKW traces,
+B2 from \texttt{paymentagent\_fault\_results.json} (direct \texttt{agent.run()},
+no LLM), and B3 from three live-LLM runs at \texttt{temp}$=1.0$ per fault.
+Three business-logic faults (\textsc{BL-TX-LOST}, \textsc{BL-DBL-CHARGE},
+\textsc{BL-DECLINED}) are payment-specific and were not included in the B3
+campaign; their B3 column is NOT\_MEASURED.
+
+The test cases expose the same two structural groups as CurrencyAgent:
+
+\textbf{Group~1 --- LKW catches the fault via a wrong value at the use point.}
+Six of eight tested DU pairs fall here (TC-PAY-02, 04, 05, 06, 07, 08).
+The fault mutates the variable at definition~D\@; the def-clear path to use
+point~U executes; the wrong value arrives at~U and the comparison flags failure.
+For example, FM-2.5 sets \texttt{units}$=30$ ($\times3$) at line~98;
+the path L98$\to$L100$\to$L121$\to$L135 executes;
+\texttt{CHARGE\_DONE[units\_charged]}$=30$, not the expected 10 (verdict
+\textsc{Fail}).
+
+\textbf{Group~2 --- LKW cannot catch the fault; the checkpoint is the sole detector.}
+Two faults kill the execution path before the use point is reached.
+FM-3.1 inserts an early return at \texttt{agent.py:91--95}, before
+\texttt{charge\_payment()} at line~121; BL-CARD-DECLINED raises
+\texttt{CreditCardError} at line~119, also before line~121.
+Both leave \texttt{CHARGE\_DONE} (and, for BL-DECLINED, also
+\texttt{CARD\_VALIDATED} and \texttt{SAVE\_DONE}) absent from the trace.
+The LKW verdict is \textsc{Path\_Infeasible}; the checkpoint detects structural
+path death via missing required steps.
+
+Table~\ref{tab:lkw-stage1-payment} is read row-by-row; each row covers one DU pair.
+\textbf{Def\,/\,Use}: source line where the variable is assigned~(D) or
+consumed~(U), with use type \emph{c-use} (computation or call argument) or
+\emph{p-use} (branch condition).
+\textbf{Def-clear path}: execution lines from D to U with no re-assignment in between.
+\textbf{Test input}: agent inputs and active fault mode.
+\textbf{Expected (B1)}: oracle value at~U with no fault active.
+\textbf{B1\,/\,B2\,/\,B3 observed}: value at~U in the no-fault run~[1], the
+deterministic fault run without LLM~[2], and the live-LLM fault runs
+(3 per fault, \texttt{temp}$=1.0$)~[3].
+\textbf{LKW verdict}: PASS (observed $=$ oracle), FAIL (observed $\neq$ oracle),
+or PATH\_INFEASIBLE (U not reached at runtime).
+
+\begin{table*}[t]
+\footnotesize
+\caption{Stage~1 LKW DU-pair verification --- PaymentAgent (Table~B).
+All values are from execution artifacts:
+B1 from \texttt{b2\_raw\_runs/paymentagent\_b2\_run\{1,2,3\}.json} (\texttt{FAULT\_MODE=NONE}, no LLM);
+B2 from \texttt{paymentagent/paymentagent\_fault\_results.json} (direct \texttt{agent.run()}, no LLM);
+B3 from \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json} (live LLM, \texttt{temp}$=1.0$, 3 runs per fault).}
+\label{tab:lkw-stage1-payment}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{1.1cm}p{1.75cm}p{2.05cm}p{2.25cm}p{2.7cm}p{2.05cm}p{1.7cm}p{1.45cm}p{1.85cm}p{2.5cm}p{2.2cm}p{2.85cm}@{}}
+\toprule
+\textbf{TC-ID} &
+\textbf{Variable} &
+\textbf{Def (file:line)} &
+\textbf{Use (file:line, type)} &
+\textbf{Def-clear path} &
+\textbf{Test input} &
+\textbf{Expected (B1)} &
+\textbf{B1 observed} &
+\textbf{B2 observed} &
+\textbf{B3 observed} &
+\textbf{LKW verdict} &
+\textbf{Group} \\
+\midrule
+TC-PAY-01 &
+  \texttt{units} &
+  \texttt{agent.py:28} (param) &
+  \texttt{agent.py:39} \emph{c-use} (TASK\_START) &
+  L28$\to$L36$\to$L39 &
+  units=10, action=charge &
+  10 &
+  \textbf{10}$^{[1]}$ &
+  10 (fault fires after this use) &
+  10 &
+  PASS &
+  info \\[4pt]
+TC-PAY-02 &
+  \texttt{units} &
+  \texttt{agent.py:98} (after tamper $\times3$) &
+  \texttt{agent.py:135} \emph{c-use} (CHARGE\_DONE) &
+  L98$\to$L100$\to$L121$\to$L135 &
+  units=10, card=1111, FM-2.5 &
+  10 &
+  \textbf{10}$^{[1]}$ &
+  \textbf{30}$^{[2]}$ (FAIL) &
+  \textbf{300, PATH\_INFEAS., 114}$^{[3]}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches FM-2.5 \\[4pt]
+TC-PAY-03 &
+  \texttt{transaction\_id} &
+  \texttt{agent.py:121} (charge\_payment return) &
+  \texttt{agent.py:133} \emph{c-use} (CHARGE\_DONE) &
+  L91 early return kills path $\to$ L121 unreachable &
+  units=10, card=1111, FM-3.1 &
+  real UUID &
+  \textbf{real UUID}$^{[1]}$ &
+  \textbf{PATH\_INFEAS.}$^{[2]}$ &
+  \textbf{PATH\_INFEAS.}$^{[3]}$ &
+  PATH\_INFEAS. --- use never reached &
+  \textbf{Group~2} --- checkpoint catches FM-3.1 \\[4pt]
+TC-PAY-04 &
+  \texttt{hallucinated} &
+  \texttt{agent.py:124} (hallucinate\_transaction) &
+  \texttt{agent.py:134} \emph{c-use} (CHARGE\_DONE) &
+  L124$\to$L132$\to$L134 &
+  units=10, card=1111, FM-2.2 &
+  False &
+  \textbf{False}$^{[1]}$ &
+  \textbf{True}$^{[2]}$ (FAIL) &
+  \textbf{True, True, True}$^{[3]}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches FM-2.2 \\[4pt]
+TC-PAY-05 &
+  \texttt{validation\_bypassed} &
+  \texttt{agent.py:113} (bypass\_validation) &
+  \texttt{agent.py:128} \emph{p-use} (CARD\_VALIDATED) &
+  L113$\to$L121$\to$L126$\to$L128 &
+  units=10, card=1111, FM-1.2 &
+  False &
+  \textbf{False}$^{[1]}$ &
+  \textbf{True}$^{[2]}$ (FAIL) &
+  \textbf{True, True, True}$^{[3]}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches FM-1.2 \\[4pt]
+TC-PAY-06 &
+  \texttt{save\_skipped} &
+  \texttt{agent.py:150} (saved=False; skip blocks reassign.) &
+  \texttt{agent.py:158} \emph{c-use} (SAVE\_DONE) &
+  L150$\to$L151$\to$L155$\to$L158 &
+  units=10, card=1111, BL-TX-LOST &
+  False &
+  \textbf{False}$^{[1]}$ &
+  \textbf{True}$^{[2]}$ (FAIL) &
+  NOT\_MEASURED$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches BL-TX-LOST \\[4pt]
+TC-PAY-07 &
+  \texttt{double\_charge} &
+  \texttt{agent.py:148} (inject\_double\_charge) &
+  \texttt{agent.py:159} \emph{c-use} (SAVE\_DONE) &
+  L148$\to$L155$\to$L159 &
+  units=10, card=1111, BL-DBL-CHARGE &
+  False &
+  \textbf{False}$^{[1]}$ &
+  \textbf{True}$^{[2]}$ (FAIL) &
+  NOT\_MEASURED$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches BL-DBL-CHARGE \\[4pt]
+TC-PAY-08 &
+  \texttt{units} &
+  \texttt{agent.py:98} (after tamper $\times3$) &
+  \texttt{agent.py:135} \emph{c-use} (CHARGE\_DONE) &
+  L98$\to$L100$\to$L121$\to$L135 &
+  units=10, card=1111, BL-AMT-TAMP &
+  10 &
+  \textbf{10}$^{[1]}$ &
+  \textbf{30}$^{[2]}$ (FAIL) &
+  \textbf{PATH\_INFEAS., PATH\_INFEAS., 240}$^{[3]}$ (FAIL) &
+  \textbf{FAIL} in B2 and B3 &
+  \textbf{Group~1} --- LKW catches BL-AMT-TAMP \\[4pt]
+TC-PAY-09 &
+  \texttt{(path)} &
+  \texttt{agent.py:118} (force\_decline predicate) &
+  \texttt{agent.py:126} \emph{p-use} (CARD\_VALIDATED) &
+  L118$\to$\emph{exception at L119}$\to$L126 unreachable &
+  units=10, card=1111, BL-DECLINED &
+  CARD\_VALIDATED present &
+  \textbf{reached}$^{[1]}$ &
+  \textbf{PATH\_INFEAS.}$^{[2]}$ &
+  NOT\_MEASURED$^{[3]}$ &
+  PATH\_INFEAS. --- use never reached &
+  \textbf{Group~2} --- checkpoint catches BL-DECLINED \\
+\bottomrule
+\end{tabular}}
+
+\smallskip\par\noindent
+\textbf{[1]}~B1 values measured from \texttt{TASK\_START}, \texttt{CARD\_VALIDATED},
+\texttt{CHARGE\_DONE}, and \texttt{SAVE\_DONE} checkpoints in
+\texttt{b2\_raw\_runs/paymentagent\_b2\_run\{1,2,3\}.json}
+(3 runs, all identical except \texttt{transaction\_id} which is a fresh UUID each run).
+
+\smallskip\par\noindent
+\textbf{[2]}~B2 values measured from
+\texttt{paymentagent/paymentagent\_fault\_results.json} ---
+generated by \texttt{paymentagent/test\_fault\_injection.py} which calls
+\texttt{agent.run()} directly with no LLM.
+
+\par\noindent\textbf{TC-PAY-02 FM-2.5:} \texttt{CHARGE\_DONE[units\_charged]}$=30$
+(tamper log: ``Amount tampered: 10$\to$30'').
+\par\noindent\textbf{TC-PAY-03 FM-3.1:} \texttt{CHARGE\_DONE} absent ---
+steps reached: \texttt{[TASK\_START, FINAL\_ANSWER]} only;
+\texttt{transaction\_id="PREMATURE-0000"}.
+\par\noindent\textbf{TC-PAY-04 FM-2.2:} \texttt{CHARGE\_DONE[hallucinated]}$=$\texttt{True};
+\texttt{transaction\_id="FAKE-TXN-*"}.
+\par\noindent\textbf{TC-PAY-05 FM-1.2:}
+\texttt{CARD\_VALIDATED[validation\_bypassed]}$=$\texttt{True}.
+\par\noindent\textbf{TC-PAY-06 BL-TX-LOST:} \texttt{SAVE\_DONE[save\_skipped]}$=$\texttt{True};
+\texttt{SAVE\_DONE[saved]}$=$\texttt{False}.
+\par\noindent\textbf{TC-PAY-07 BL-DBL-CHARGE:}
+\texttt{SAVE\_DONE[double\_charge]}$=$\texttt{True}.
+\par\noindent\textbf{TC-PAY-08 BL-AMT-TAMP:}
+\texttt{CHARGE\_DONE[units\_charged]}$=30$.
+\par\noindent\textbf{TC-PAY-09 BL-DECLINED:}
+\texttt{CARD\_VALIDATED}, \texttt{CHARGE\_DONE}, \texttt{SAVE\_DONE} all absent;
+\texttt{FINAL\_ANSWER[error]}$=$``Payment declined by issuer''.
+
+\smallskip\par\noindent
+\textbf{[3]}~B3 source: \texttt{b3/raw/b3\_<FAULT>\_3b\_temp1.0\_run\{1,2,3\}.json}.
+Three BL faults (BL-TX-LOST, BL-DBL-CHARGE, BL-DECLINED) are payment-specific
+and were not included in the B3 campaign; their B3 column is NOT\_MEASURED.
+
+\par\noindent\textbf{TC-PAY-02 (FM-2.5):} run1$=$300, run3$=$114 (FAIL); run2
+PATH\_INFEAS.\ (LLM path variance --- LLM chose early-exit path, \texttt{CHARGE\_DONE}
+absent in that run).
+\par\noindent\textbf{TC-PAY-03 (FM-3.1):} all 3 runs PATH\_INFEAS.\ --- confirmed
+across 4 executions (1~B2 + 3~B3); FM-3.1 early return fires deterministically.
+\par\noindent\textbf{TC-PAY-08 (BL-AMT-TAMP):} run3$=$240 (FAIL); runs~1--2
+PATH\_INFEAS.\ (LLM path variance --- \texttt{CHARGE\_DONE} absent; run~2 returned
+empty trace).
+
+\smallskip\par\noindent
+\textbf{Group~2 finding --- FM-3.1 and BL-CARD-DECLINED justification.}
+TC-PAY-03 and TC-PAY-09 are the two Group~2 faults for PaymentAgent.
+FM-3.1 fires an early return at \texttt{agent.py:91--95}, before
+\texttt{charge\_payment()} at line~121; \texttt{CHARGE\_DONE} is absent in all
+4 executions (1~B2 + 3~B3 at \texttt{temp}$=1.0$).
+BL-CARD-DECLINED raises \texttt{CreditCardError} at line~119, also before
+line~121; \texttt{CARD\_VALIDATED}, \texttt{CHARGE\_DONE}, and
+\texttt{SAVE\_DONE} are all absent in B2 (no B3 campaign for this
+payment-specific fault).
+In both cases the checkpoint mechanism detects structural path death via missing
+required steps from
+$\{\texttt{TASK\_START},\allowbreak\texttt{CARD\_VALIDATED},\allowbreak%
+\texttt{CHARGE\_DONE},\allowbreak\texttt{SAVE\_DONE},\allowbreak%
+\texttt{FINAL\_ANSWER}\}$; value-based LKW comparison provides no signal.
 \end{table*}
 
 % =============================================================================

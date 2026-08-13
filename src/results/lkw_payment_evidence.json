@@ -1,0 +1,313 @@
+{
+  "agent": "paymentagent",
+  "evidence": [
+    {
+      "tc_id": "TC-PAY-01",
+      "group": "info",
+      "fault_mode": null,
+      "def_loc": "agent.py:23 (param)",
+      "use_loc": "agent.py:40 c-use (TASK_START)",
+      "def_clear_path": "L23\u2192L38\u2192L40",
+      "checkpoint_field": "TASK_START.units",
+      "b1_oracle": 10,
+      "b1_observed": [
+        10,
+        10,
+        10
+      ],
+      "b2_observed": "N/A",
+      "b2_verdict": "N/A",
+      "b3_observed": null,
+      "b3_verdict": "NOT_MEASURED",
+      "b3_note": null,
+      "lkw_verdict": "PASS",
+      "note": "fault fires after this use; always equals input",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": null
+    },
+    {
+      "tc_id": "TC-PAY-02",
+      "group": 1,
+      "fault_mode": "FM_2_5",
+      "def_loc": "agent.py:98 (after tamper)",
+      "use_loc": "agent.py:132 c-use (CHARGE_DONE)",
+      "def_clear_path": "L98\u2192L100\u2192L121\u2192L132",
+      "checkpoint_field": "CHARGE_DONE.units_charged",
+      "b1_oracle": 10,
+      "b1_observed": [
+        10,
+        10,
+        10
+      ],
+      "b2_observed": 30,
+      "b2_verdict": "FAIL",
+      "b3_observed": [
+        300,
+        null,
+        114
+      ],
+      "b3_verdict": "FAIL",
+      "b3_note": null,
+      "lkw_verdict": "FAIL in B2 and B3",
+      "note": "FM_2_5 tamper: units*3 before charge_payment; units_charged logs tampered value",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": [
+        "b3_FM_2_5_3b_temp1.0_run1.json",
+        "b3_FM_2_5_3b_temp1.0_run2.json",
+        "b3_FM_2_5_3b_temp1.0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-PAY-03",
+      "group": 2,
+      "fault_mode": "FM_3_1",
+      "def_loc": "agent.py:121 (charge_payment return)",
+      "use_loc": "agent.py:132 c-use (CHARGE_DONE)",
+      "def_clear_path": "L121\u2192L124\u2192L132",
+      "checkpoint_field": "CHARGE_DONE.transaction_id",
+      "b1_oracle": {
+        "values": [
+          "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
+          "9896e4a6-fd7e-48ab-a060-946e97caff18",
+          "67b37c69-a63b-4d46-8967-d5732b3edf97"
+        ],
+        "consistent": false
+      },
+      "b1_observed": [
+        "ca4c24d3-f761-439d-bca3-d0efe8fb3e34",
+        "9896e4a6-fd7e-48ab-a060-946e97caff18",
+        "67b37c69-a63b-4d46-8967-d5732b3edf97"
+      ],
+      "b2_observed": null,
+      "b2_verdict": "PATH_INFEASIBLE",
+      "b3_observed": [
+        null,
+        null,
+        null
+      ],
+      "b3_verdict": "PATH_INFEASIBLE",
+      "b3_note": null,
+      "lkw_verdict": "PATH_INFEASIBLE",
+      "note": "FM_3_1 early return at L91-95: charge_payment never called; CHARGE_DONE absent",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": [
+        "b3_FM_3_1_3b_temp1.0_run1.json",
+        "b3_FM_3_1_3b_temp1.0_run2.json",
+        "b3_FM_3_1_3b_temp1.0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-PAY-04",
+      "group": 1,
+      "fault_mode": "FM_2_2",
+      "def_loc": "agent.py:124 (maybe_hallucinate_transaction)",
+      "use_loc": "agent.py:132 c-use (CHARGE_DONE)",
+      "def_clear_path": "L124\u2192L132",
+      "checkpoint_field": "CHARGE_DONE.hallucinated",
+      "b1_oracle": false,
+      "b1_observed": [
+        false,
+        false,
+        false
+      ],
+      "b2_observed": true,
+      "b2_verdict": "FAIL",
+      "b3_observed": [
+        true,
+        true,
+        true
+      ],
+      "b3_verdict": "FAIL",
+      "b3_note": null,
+      "lkw_verdict": "FAIL in B2 and B3",
+      "note": "FM_2_2: transaction_id replaced with FAKE-TXN-XXXX; hallucinated=True at CHARGE_DONE",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": [
+        "b3_FM_2_2_3b_temp1.0_run1.json",
+        "b3_FM_2_2_3b_temp1.0_run2.json",
+        "b3_FM_2_2_3b_temp1.0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-PAY-05",
+      "group": 1,
+      "fault_mode": "FM_1_2",
+      "def_loc": "agent.py:113 (maybe_bypass_validation)",
+      "use_loc": "agent.py:126 p-use (CARD_VALIDATED)",
+      "def_clear_path": "L113\u2192L122\u2192L126",
+      "checkpoint_field": "CARD_VALIDATED.validation_bypassed",
+      "b1_oracle": false,
+      "b1_observed": [
+        false,
+        false,
+        false
+      ],
+      "b2_observed": true,
+      "b2_verdict": "FAIL",
+      "b3_observed": [
+        true,
+        true,
+        true
+      ],
+      "b3_verdict": "FAIL",
+      "b3_note": null,
+      "lkw_verdict": "FAIL in B2 and B3",
+      "note": "FM_1_2: validation skipped entirely; validation_bypassed=True at CARD_VALIDATED",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": [
+        "b3_FM_1_2_3b_temp1.0_run1.json",
+        "b3_FM_1_2_3b_temp1.0_run2.json",
+        "b3_FM_1_2_3b_temp1.0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-PAY-06",
+      "group": 1,
+      "fault_mode": "BL_TRANSACTION_LOST",
+      "def_loc": "agent.py:151 (maybe_skip_save)",
+      "use_loc": "agent.py:155 c-use (SAVE_DONE)",
+      "def_clear_path": "L151\u2192L153\u2192L155",
+      "checkpoint_field": "SAVE_DONE.save_skipped",
+      "b1_oracle": false,
+      "b1_observed": [
+        false,
+        false,
+        false
+      ],
+      "b2_observed": true,
+      "b2_verdict": "FAIL",
+      "b3_observed": null,
+      "b3_verdict": "NOT_MEASURED",
+      "b3_note": "NOT_MEASURED \u2014 no B3 campaign for this payment-specific fault",
+      "lkw_verdict": "FAIL in B2",
+      "note": "BL_TRANSACTION_LOST: MongoDB save silently bypassed; save_skipped=True; no B3 data",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": null
+    },
+    {
+      "tc_id": "TC-PAY-07",
+      "group": 1,
+      "fault_mode": "BL_DOUBLE_CHARGE",
+      "def_loc": "agent.py:148 (maybe_inject_double_charge)",
+      "use_loc": "agent.py:155 c-use (SAVE_DONE)",
+      "def_clear_path": "L148\u2192L155",
+      "checkpoint_field": "SAVE_DONE.double_charge",
+      "b1_oracle": false,
+      "b1_observed": [
+        false,
+        false,
+        false
+      ],
+      "b2_observed": true,
+      "b2_verdict": "FAIL",
+      "b3_observed": null,
+      "b3_verdict": "NOT_MEASURED",
+      "b3_note": "NOT_MEASURED \u2014 no B3 campaign for this payment-specific fault",
+      "lkw_verdict": "FAIL in B2",
+      "note": "BL_DOUBLE_CHARGE: duplicate charge marker injected into save payload; no B3 data",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": null
+    },
+    {
+      "tc_id": "TC-PAY-08",
+      "group": 1,
+      "fault_mode": "BL_AMOUNT_TAMPERING",
+      "def_loc": "agent.py:98 (after tamper)",
+      "use_loc": "agent.py:132 c-use (CHARGE_DONE)",
+      "def_clear_path": "L98\u2192L100\u2192L121\u2192L132",
+      "checkpoint_field": "CHARGE_DONE.units_charged",
+      "b1_oracle": 10,
+      "b1_observed": [
+        10,
+        10,
+        10
+      ],
+      "b2_observed": 30,
+      "b2_verdict": "FAIL",
+      "b3_observed": [
+        null,
+        null,
+        240
+      ],
+      "b3_verdict": "FAIL",
+      "b3_note": null,
+      "lkw_verdict": "FAIL in B2 and B3",
+      "note": "BL_AMOUNT_TAMPERING: same tamper path as FM_2_5 (units*3); confirms BL-level detection",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": [
+        "b3_BL_AMOUNT_TAMPERING_3b_temp1.0_run1.json",
+        "b3_BL_AMOUNT_TAMPERING_3b_temp1.0_run2.json",
+        "b3_BL_AMOUNT_TAMPERING_3b_temp1.0_run3.json"
+      ]
+    },
+    {
+      "tc_id": "TC-PAY-09",
+      "group": 2,
+      "fault_mode": "BL_CARD_DECLINED",
+      "def_loc": "agent.py:118 (maybe_force_decline)",
+      "use_loc": "agent.py:126 p-use (CARD_VALIDATED)",
+      "def_clear_path": "L118\u2192CreditCardError\u2192L126 unreachable",
+      "checkpoint_field": "CARD_VALIDATED.validation_bypassed",
+      "b1_oracle": false,
+      "b1_observed": [
+        false,
+        false,
+        false
+      ],
+      "b2_observed": null,
+      "b2_verdict": "PATH_INFEASIBLE",
+      "b3_observed": null,
+      "b3_verdict": "NOT_MEASURED",
+      "b3_note": "NOT_MEASURED \u2014 no B3 campaign for this payment-specific fault",
+      "lkw_verdict": "PATH_INFEASIBLE",
+      "note": "BL_CARD_DECLINED: exception before charge_payment; CARD_VALIDATED/CHARGE_DONE/SAVE_DONE absent; no B3 data",
+      "source_b1": [
+        "paymentagent_b2_run1.json",
+        "paymentagent_b2_run2.json",
+        "paymentagent_b2_run3.json"
+      ],
+      "source_b2": "paymentagent_fault_results.json",
+      "source_b3": null
+    }
+  ]
+}

@@ -102,6 +102,9 @@ TARGETED_FAULT_MATRIX = [
     ("BL_PRICE_MANIPULATION", "productcatalog", "business"),  # price inflated 10x
     ("BL_RATE_MANIPULATION",  "currency",       "business"),  # exchange rate manipulated
     ("BL_AMOUNT_TAMPERING",   "payment",        "business"),  # charge amount tampered
+    ("BL_TRANSACTION_LOST",   "payment",        "business"),  # MongoDB save silently skipped
+    ("BL_DOUBLE_CHARGE",      "payment",        "business"),  # duplicate charge injected into save
+    ("BL_CARD_DECLINED",      "payment",        "business"),  # force CreditCardError before charge
     ("BL_INVENTORY_MISMATCH", "shipping_quote", "business"),  # item quantities corrupt
     ("BL_SHIPMENT_LOST",      "ship_order",     "business"),  # tracking save skipped
     ("BL_CORRUPTED_BODY",     "email",          "business"),  # email body truncated

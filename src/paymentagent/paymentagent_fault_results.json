@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-24T19:12:35.025233+00:00",
+  "generated_at": "2026-08-13T01:59:34.251512+00:00",
   "results": [
     {
       "fault_mode": "NONE",
-      "elapsed_ms": 0.7,
+      "elapsed_ms": 0.6,
       "steps_reached": [
         "TASK_START",
         "CARD_VALIDATED",
@@ -15,12 +15,12 @@
       "infection_point": null,
       "propagation_depth": 0,
       "success": true,
-      "transaction_id": "c8f6af2b-0d0f-40b7-9258-818d7fd48d78",
+      "transaction_id": "c02a9294-7d99-4e4c-ab47-7348f6173ff3",
       "error": null,
       "lkw": [
         {
           "step": "TASK_START",
-          "timestamp": "2026-07-24T19:12:35.024759+00:00",
+          "timestamp": "2026-08-13T01:59:34.226215+00:00",
           "fault_mode": "NONE",
           "data": {
             "currency_code": "USD",
@@ -32,7 +32,7 @@
         },
         {
           "step": "CARD_VALIDATED",
-          "timestamp": "2026-07-24T19:12:35.024854+00:00",
+          "timestamp": "2026-08-13T01:59:34.226304+00:00",
           "fault_mode": "NONE",
           "data": {
             "card_last4": "1111",
@@ -42,10 +42,10 @@
         },
         {
           "step": "CHARGE_DONE",
-          "timestamp": "2026-07-24T19:12:35.024863+00:00",
+          "timestamp": "2026-08-13T01:59:34.226313+00:00",
           "fault_mode": "NONE",
           "data": {
-            "transaction_id": "c8f6af2b-0d0f-40b7-9258-818d7fd48d78",
+            "transaction_id": "c02a9294-7d99-4e4c-ab47-7348f6173ff3",
             "hallucinated": false,
             "units_charged": 10,
             "nanos_charged": 990000000
@@ -53,22 +53,539 @@
         },
         {
           "step": "SAVE_DONE",
-          "timestamp": "2026-07-24T19:12:35.024906+00:00",
+          "timestamp": "2026-08-13T01:59:34.226353+00:00",
           "fault_mode": "NONE",
           "data": {
             "saved": true,
-            "transaction_id": "c8f6af2b-0d0f-40b7-9258-818d7fd48d78",
+            "transaction_id": "c02a9294-7d99-4e4c-ab47-7348f6173ff3",
             "save_skipped": false,
             "double_charge": false
           }
         },
         {
           "step": "FINAL_ANSWER",
-          "timestamp": "2026-07-24T19:12:35.024914+00:00",
+          "timestamp": "2026-08-13T01:59:34.226358+00:00",
           "fault_mode": "NONE",
           "data": {
             "success": true,
-            "transaction_id": "c8f6af2b-0d0f-40b7-9258-818d7fd48d78"
+            "transaction_id": "c02a9294-7d99-4e4c-ab47-7348f6173ff3"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_3_1",
+      "elapsed_ms": 0.8,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE"
+      ],
+      "infection_point": "FINAL_ANSWER",
+      "propagation_depth": 3,
+      "success": false,
+      "transaction_id": "PREMATURE-0000",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.229795+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "FM_3_1"
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.229968+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "success": false,
+            "transaction_id": "PREMATURE-0000",
+            "premature_termination": true
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_2_2",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CHARGE_DONE",
+      "propagation_depth": 0,
+      "success": true,
+      "transaction_id": "FAKE-TXN-50E84C8E",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.231922+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "FM_2_2"
+          }
+        },
+        {
+          "step": "CARD_VALIDATED",
+          "timestamp": "2026-08-13T01:59:34.232069+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": false
+          }
+        },
+        {
+          "step": "CHARGE_DONE",
+          "timestamp": "2026-08-13T01:59:34.232079+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "transaction_id": "FAKE-TXN-50E84C8E",
+            "hallucinated": true,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-08-13T01:59:34.232121+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "saved": true,
+            "transaction_id": "FAKE-TXN-50E84C8E",
+            "save_skipped": false,
+            "double_charge": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.232130+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "success": true,
+            "transaction_id": "FAKE-TXN-50E84C8E"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_2_5",
+      "elapsed_ms": 0.5,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CARD_VALIDATED",
+      "propagation_depth": 0,
+      "success": true,
+      "transaction_id": "4fd90e28-e96b-4ae2-a399-6fef92cb57f4",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.234773+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "FM_2_5"
+          }
+        },
+        {
+          "step": "CARD_VALIDATED",
+          "timestamp": "2026-08-13T01:59:34.234974+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": true
+          }
+        },
+        {
+          "step": "CHARGE_DONE",
+          "timestamp": "2026-08-13T01:59:34.234987+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "transaction_id": "4fd90e28-e96b-4ae2-a399-6fef92cb57f4",
+            "hallucinated": false,
+            "units_charged": 30,
+            "nanos_charged": 990000000
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-08-13T01:59:34.235034+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "saved": true,
+            "transaction_id": "4fd90e28-e96b-4ae2-a399-6fef92cb57f4",
+            "save_skipped": false,
+            "double_charge": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.235040+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "success": true,
+            "transaction_id": "4fd90e28-e96b-4ae2-a399-6fef92cb57f4"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "FM_1_2",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CARD_VALIDATED",
+      "propagation_depth": 0,
+      "success": true,
+      "transaction_id": "270db7f3-0ba0-4b7d-be4e-55b1345e011f",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.237160+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "FM_1_2"
+          }
+        },
+        {
+          "step": "CARD_VALIDATED",
+          "timestamp": "2026-08-13T01:59:34.237284+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "card_last4": "1111",
+            "validation_bypassed": true,
+            "amount_tampered": false
+          }
+        },
+        {
+          "step": "CHARGE_DONE",
+          "timestamp": "2026-08-13T01:59:34.237293+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "transaction_id": "270db7f3-0ba0-4b7d-be4e-55b1345e011f",
+            "hallucinated": false,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-08-13T01:59:34.237335+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "saved": true,
+            "transaction_id": "270db7f3-0ba0-4b7d-be4e-55b1345e011f",
+            "save_skipped": false,
+            "double_charge": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.237340+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "success": true,
+            "transaction_id": "270db7f3-0ba0-4b7d-be4e-55b1345e011f"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_TRANSACTION_LOST",
+      "elapsed_ms": 0.4,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "SAVE_DONE",
+      "propagation_depth": 0,
+      "success": true,
+      "transaction_id": "3f7566d8-c81e-4c52-957e-4d26ac3ead4a",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.239406+00:00",
+          "fault_mode": "BL_TRANSACTION_LOST",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "BL_TRANSACTION_LOST"
+          }
+        },
+        {
+          "step": "CARD_VALIDATED",
+          "timestamp": "2026-08-13T01:59:34.239453+00:00",
+          "fault_mode": "BL_TRANSACTION_LOST",
+          "data": {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": false
+          }
+        },
+        {
+          "step": "CHARGE_DONE",
+          "timestamp": "2026-08-13T01:59:34.239460+00:00",
+          "fault_mode": "BL_TRANSACTION_LOST",
+          "data": {
+            "transaction_id": "3f7566d8-c81e-4c52-957e-4d26ac3ead4a",
+            "hallucinated": false,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-08-13T01:59:34.239568+00:00",
+          "fault_mode": "BL_TRANSACTION_LOST",
+          "data": {
+            "saved": false,
+            "transaction_id": "3f7566d8-c81e-4c52-957e-4d26ac3ead4a",
+            "save_skipped": true,
+            "double_charge": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.239576+00:00",
+          "fault_mode": "BL_TRANSACTION_LOST",
+          "data": {
+            "success": true,
+            "transaction_id": "3f7566d8-c81e-4c52-957e-4d26ac3ead4a"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_DOUBLE_CHARGE",
+      "elapsed_ms": 0.5,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "SAVE_DONE",
+      "propagation_depth": 0,
+      "success": true,
+      "transaction_id": "5bb057fe-c0b9-4f03-8a98-bba439f4bbb3",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.241806+00:00",
+          "fault_mode": "BL_DOUBLE_CHARGE",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "BL_DOUBLE_CHARGE"
+          }
+        },
+        {
+          "step": "CARD_VALIDATED",
+          "timestamp": "2026-08-13T01:59:34.241864+00:00",
+          "fault_mode": "BL_DOUBLE_CHARGE",
+          "data": {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": false
+          }
+        },
+        {
+          "step": "CHARGE_DONE",
+          "timestamp": "2026-08-13T01:59:34.241872+00:00",
+          "fault_mode": "BL_DOUBLE_CHARGE",
+          "data": {
+            "transaction_id": "5bb057fe-c0b9-4f03-8a98-bba439f4bbb3",
+            "hallucinated": false,
+            "units_charged": 10,
+            "nanos_charged": 990000000
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-08-13T01:59:34.242069+00:00",
+          "fault_mode": "BL_DOUBLE_CHARGE",
+          "data": {
+            "saved": true,
+            "transaction_id": "5bb057fe-c0b9-4f03-8a98-bba439f4bbb3",
+            "save_skipped": false,
+            "double_charge": true
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.242091+00:00",
+          "fault_mode": "BL_DOUBLE_CHARGE",
+          "data": {
+            "success": true,
+            "transaction_id": "5bb057fe-c0b9-4f03-8a98-bba439f4bbb3"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_AMOUNT_TAMPERING",
+      "elapsed_ms": 0.5,
+      "steps_reached": [
+        "TASK_START",
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [],
+      "infection_point": "CARD_VALIDATED",
+      "propagation_depth": 0,
+      "success": true,
+      "transaction_id": "50cd6449-717f-4ae1-a8ca-36f349174daa",
+      "error": null,
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.245180+00:00",
+          "fault_mode": "BL_AMOUNT_TAMPERING",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "BL_AMOUNT_TAMPERING"
+          }
+        },
+        {
+          "step": "CARD_VALIDATED",
+          "timestamp": "2026-08-13T01:59:34.245381+00:00",
+          "fault_mode": "BL_AMOUNT_TAMPERING",
+          "data": {
+            "card_last4": "1111",
+            "validation_bypassed": false,
+            "amount_tampered": true
+          }
+        },
+        {
+          "step": "CHARGE_DONE",
+          "timestamp": "2026-08-13T01:59:34.245396+00:00",
+          "fault_mode": "BL_AMOUNT_TAMPERING",
+          "data": {
+            "transaction_id": "50cd6449-717f-4ae1-a8ca-36f349174daa",
+            "hallucinated": false,
+            "units_charged": 30,
+            "nanos_charged": 990000000
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-08-13T01:59:34.245443+00:00",
+          "fault_mode": "BL_AMOUNT_TAMPERING",
+          "data": {
+            "saved": true,
+            "transaction_id": "50cd6449-717f-4ae1-a8ca-36f349174daa",
+            "save_skipped": false,
+            "double_charge": false
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.245449+00:00",
+          "fault_mode": "BL_AMOUNT_TAMPERING",
+          "data": {
+            "success": true,
+            "transaction_id": "50cd6449-717f-4ae1-a8ca-36f349174daa"
+          }
+        }
+      ]
+    },
+    {
+      "fault_mode": "BL_CARD_DECLINED",
+      "elapsed_ms": 0.5,
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CARD_VALIDATED",
+        "CHARGE_DONE",
+        "SAVE_DONE"
+      ],
+      "infection_point": "FINAL_ANSWER",
+      "propagation_depth": 3,
+      "success": false,
+      "transaction_id": null,
+      "error": "Payment declined by issuer (fault injection)",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-08-13T01:59:34.248465+00:00",
+          "fault_mode": "BL_CARD_DECLINED",
+          "data": {
+            "currency_code": "USD",
+            "units": 10,
+            "nanos": 990000000,
+            "card_last4": "1111",
+            "fault_mode": "BL_CARD_DECLINED"
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-08-13T01:59:34.248707+00:00",
+          "fault_mode": "BL_CARD_DECLINED",
+          "data": {
+            "success": false,
+            "error": "Payment declined by issuer (fault injection)",
+            "forced_decline": true,
+            "transaction_id": null
           }
         }
       ]

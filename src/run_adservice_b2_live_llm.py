@@ -30,6 +30,7 @@ import traceback
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Dict, List, Optional
 
 SRC = Path(__file__).parent
 HELPER = SRC / "co_helper_adservice.py"
@@ -81,7 +82,7 @@ def print_variance_report(variance: dict, agent: str, n_runs: int):
 # ── Runner ────────────────────────────────────────────────────────────────────
 
 def run_once(python: str, ollama_url: str, model: str, temp: float,
-             run_num: int) -> dict | None:
+             run_num: int) -> Optional[Dict]:
     payload = json.dumps({
         "fault_mode": "NONE",
         "model": model,

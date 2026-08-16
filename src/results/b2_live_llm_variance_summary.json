@@ -2698,5 +2698,383 @@
         "note": "zero variance (B2=B1)"
       }
     }
+  },
+  "adserviceagent": {
+    "TASK_START": {
+      "instruction": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads",
+          "show me some clothing ads"
+        ],
+        "consensus": "show me some clothing ads",
+        "note": "zero variance (B2=B1)"
+      },
+      "fault_mode": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE"
+        ],
+        "consensus": "NONE",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "CONTEXT_EXTRACTED": {
+      "context_keys": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ],
+          [
+            "clothing"
+          ]
+        ],
+        "consensus": [
+          "clothing"
+        ],
+        "note": "zero variance (B2=B1)"
+      },
+      "context_tampered": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "category_swapped": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "ADS_FETCHED": {
+      "count": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "consensus": 2,
+        "note": "zero variance (B2=B1)"
+      },
+      "observed_ads": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ],
+          [
+            {
+              "redirect_url": "https://shop.example.com/hats",
+              "text": "Buy stylish hats!"
+            },
+            {
+              "redirect_url": "https://shop.example.com/shoes",
+              "text": "New shoe collection"
+            }
+          ]
+        ],
+        "consensus": [
+          {
+            "redirect_url": "https://shop.example.com/hats",
+            "text": "Buy stylish hats!"
+          },
+          {
+            "redirect_url": "https://shop.example.com/shoes",
+            "text": "New shoe collection"
+          }
+        ],
+        "note": "zero variance (B2=B1)"
+      },
+      "hallucinated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "empty_ads": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "injected": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "wrong_url": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "duplicated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "FINAL_ANSWER": {
+      "ads_count": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "consensus": 2,
+        "note": "zero variance (B2=B1)"
+      }
+    }
   }
 }

@@ -106,6 +106,28 @@ llm_pkg.qwen = llm_mod
 sys.modules.setdefault("app.llm", llm_pkg)
 sys.modules["app.llm.qwen"] = llm_mod
 
+# Mock gRPC dependencies — AdService server is not available on SPEED/local runs.
+# The LLM path (context key extraction) still runs live; only the ad fetch is mocked.
+_MOCK_ADS = [
+    {"redirect_url": "https://shop.example.com/hats", "text": "Buy stylish hats!"},
+    {"redirect_url": "https://shop.example.com/shoes", "text": "New shoe collection"},
+]
+
+_grpc_client_mod = types.ModuleType("app.grpc_client")
+
+
+class _MockAdServiceClient:
+    def get_ads(self, context_keys):
+        return list(_MOCK_ADS)
+
+
+_grpc_client_mod.AdServiceClient = _MockAdServiceClient
+sys.modules["app.grpc_client"] = _grpc_client_mod
+sys.modules.setdefault("grpc", types.ModuleType("grpc"))
+sys.modules.setdefault("app.clients", types.ModuleType("app.clients"))
+sys.modules.setdefault("app.clients.demo_pb2", types.ModuleType("app.clients.demo_pb2"))
+sys.modules.setdefault("app.clients.demo_pb2_grpc", types.ModuleType("app.clients.demo_pb2_grpc"))
+
 import app.graph as graph_mod
 importlib.reload(graph_mod)
 

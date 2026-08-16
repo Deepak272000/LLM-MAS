@@ -3,21 +3,15 @@
   "fault_category": "business",
   "model_label": "14b_temp0",
   "total_runs": 3,
-  "TP": 3,
+  "TP": 0,
   "PARTIAL_TP": 0,
-  "FN": 0,
+  "FN": 3,
   "INCONCLUSIVE": 0,
-  "detection_rate": 1.0,
-  "mutation_score": 1.0,
-  "overall_classification": "TP",
-  "infection_agent": "currency",
-  "max_propagation_depth": 3,
-  "top_deviating_fields": [
-    "to_currency",
-    "units_out",
-    "cost_usd",
-    "carrier",
-    "ignored_downstream_quote"
-  ],
-  "elapsed_ms_avg": 1722.1
+  "detection_rate": 0.0,
+  "mutation_score": 0.0,
+  "overall_classification": "FN",
+  "infection_agent": null,
+  "max_propagation_depth": 0,
+  "top_deviating_fields": [],
+  "elapsed_ms_avg": 6787.8
 }

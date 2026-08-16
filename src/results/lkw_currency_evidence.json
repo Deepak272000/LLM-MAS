@@ -275,8 +275,8 @@
       "b2_true_verdict": "FAIL",
       "b3_temp1.0_observed": [
         20,
-        20,
-        190
+        10,
+        10
       ],
       "b3_temp1.0_verdict": "FAIL",
       "note": "BL_RATE_MANIPULATION: units_out inflated 10x; no temp0 runs available; temp0.7 used",

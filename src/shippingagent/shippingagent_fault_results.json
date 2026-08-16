@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-24T19:12:36.786322+00:00",
+  "generated_at": "2026-07-24T19:36:17.513431+00:00",
   "results": [
     {
       "fault_mode": "NONE",
-      "elapsed_ms": 0.3,
+      "elapsed_ms": 0.6,
       "status": "PASS",
       "steps_reached": [
         "TASK_START",
@@ -23,7 +23,7 @@
       "lkw": [
         {
           "step": "TASK_START",
-          "timestamp": "2026-07-24T19:12:36.786042+00:00",
+          "timestamp": "2026-07-24T19:36:17.465899+00:00",
           "fault_mode": "NONE",
           "data": {
             "address": {
@@ -38,7 +38,7 @@
         },
         {
           "step": "FINAL_ANSWER",
-          "timestamp": "2026-07-24T19:12:36.786224+00:00",
+          "timestamp": "2026-07-24T19:36:17.466278+00:00",
           "fault_mode": "NONE",
           "data": {
             "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
@@ -46,7 +46,7 @@
         },
         {
           "step": "QUOTE_DONE",
-          "timestamp": "2026-07-24T19:12:36.786243+00:00",
+          "timestamp": "2026-07-24T19:36:17.466321+00:00",
           "fault_mode": "NONE",
           "data": {
             "cost_usd": 12.34
@@ -54,7 +54,7 @@
         },
         {
           "step": "BOUNDARY_CHECK",
-          "timestamp": "2026-07-24T19:12:36.786248+00:00",
+          "timestamp": "2026-07-24T19:36:17.466335+00:00",
           "fault_mode": "NONE",
           "data": {
             "boundary": "quote_to_carrier",
@@ -73,7 +73,7 @@
         },
         {
           "step": "CARRIER_DONE",
-          "timestamp": "2026-07-24T19:12:36.786251+00:00",
+          "timestamp": "2026-07-24T19:36:17.466345+00:00",
           "fault_mode": "NONE",
           "data": {
             "carrier": "FedEx",
@@ -82,7 +82,7 @@
         },
         {
           "step": "BOUNDARY_CHECK",
-          "timestamp": "2026-07-24T19:12:36.786254+00:00",
+          "timestamp": "2026-07-24T19:36:17.466354+00:00",
           "fault_mode": "NONE",
           "data": {
             "boundary": "carrier_to_tracking",
@@ -103,7 +103,7 @@
         },
         {
           "step": "TRACKING_DONE",
-          "timestamp": "2026-07-24T19:12:36.786256+00:00",
+          "timestamp": "2026-07-24T19:36:17.466362+00:00",
           "fault_mode": "NONE",
           "data": {
             "tracking_id": "TRACK-001"
@@ -111,7 +111,7 @@
         },
         {
           "step": "ESCALATION_CHECK",
-          "timestamp": "2026-07-24T19:12:36.786258+00:00",
+          "timestamp": "2026-07-24T19:36:17.466375+00:00",
           "fault_mode": "NONE",
           "data": {
             "escalation_required": false
@@ -119,7 +119,7 @@
         },
         {
           "step": "SAVE_DONE",
-          "timestamp": "2026-07-24T19:12:36.786261+00:00",
+          "timestamp": "2026-07-24T19:36:17.466384+00:00",
           "fault_mode": "NONE",
           "data": {
             "saved": false,
@@ -133,6 +133,1223 @@
         "fault_mode": "NONE"
       },
       "classification": "PASS"
+    },
+    {
+      "fault_mode": "FM_3_1",
+      "elapsed_ms": 0.8,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "TRACKING_DONE",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [
+        "CARRIER_DONE"
+      ],
+      "infection_point": "TRACKING_DONE",
+      "propagation_depth": 1,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.472922+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.473457+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "raw": "{\"tracking_id\": \"PREMATURE-0000\", \"carrier\": \"Unknown\", \"service_level\": \"standard\", \"cost_usd\": 0.0}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.473493+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "cost_usd": 0.0
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.473502+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "tracking_id": "PREMATURE-0000"
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.473515+00:00",
+          "fault_mode": "FM_3_1",
+          "data": {
+            "saved": false,
+            "tracking_id": "PREMATURE-0000",
+            "reason": "premature_termination"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "PREMATURE-0000",
+        "fault_mode": "FM_3_1"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "FM_1_2",
+      "elapsed_ms": 0.8,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [
+        "CARRIER_DONE",
+        "TRACKING_DONE"
+      ],
+      "infection_point": "SAVE_DONE",
+      "propagation_depth": 2,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.476291+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.476826+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "raw": "{\"tracking_id\": \"INCOMPLETE-0000\", \"carrier\": \"INCOMPLETE\", \"service_level\": \"ground\", \"cost_usd\": 12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.476859+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.476868+00:00",
+          "fault_mode": "FM_1_2",
+          "data": {
+            "saved": false,
+            "tracking_id": "INCOMPLETE-0000",
+            "reason": "incomplete_plan"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "INCOMPLETE-0000",
+        "fault_mode": "FM_1_2"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "FM_2_2",
+      "elapsed_ms": 0.8,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": "CARRIER_DONE",
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.483092+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.483454+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "raw": "{\"tracking_id\": \"TRACK-001\", \"carrier\": \"SpeedyShip\", \"service_level\": \"ultra-express\", \"cost_usd\": 12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.483691+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.483708+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.483719+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "carrier": "SpeedyShip",
+            "service_level": "ultra-express"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.483729+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "SpeedyShip",
+              "service_level": "ultra-express"
+            },
+            "observed": {
+              "carrier": "SpeedyShip",
+              "service_level": "ultra-express"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.483737+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.483745+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.483752+00:00",
+          "fault_mode": "FM_2_2",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "FM_2_2"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "FM_2_5",
+      "elapsed_ms": 0.9,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": "CARRIER_DONE",
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.486479+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.486911+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "raw": "{\"tracking_id\": \"TRACK-001\", \"carrier\": \"FedEx\", \"service_level\": \"ground\", \"cost_usd\": 4.99, \"ignored_downstream_quote\": true, \"quoted_cost_usd\": 12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.487157+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "cost_usd": 4.99
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.487174+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 4.99
+            },
+            "observed": {
+              "cost_usd": 4.99
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.487186+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground",
+            "ignored_downstream_quote": true,
+            "quoted_cost_usd": 4.99,
+            "used_cost_usd": 4.99,
+            "silent_absorption": true
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.487196+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": true,
+            "status": "signal_escape",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground",
+              "ignored_downstream_quote": true,
+              "quoted_cost_usd": 4.99,
+              "used_cost_usd": 4.99,
+              "silent_absorption": true
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.487203+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.487211+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.487218+00:00",
+          "fault_mode": "FM_2_5",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "FM_2_5"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "BL_SHIPMENT_LOST",
+      "elapsed_ms": 0.6,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK"
+      ],
+      "steps_lost": [
+        "SAVE_DONE"
+      ],
+      "infection_point": null,
+      "propagation_depth": 1,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.492563+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.492656+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.492689+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.492702+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.492712+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.492722+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.492729+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.492737+00:00",
+          "fault_mode": "BL_SHIPMENT_LOST",
+          "data": {
+            "escalation_required": false
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "BL_SHIPMENT_LOST"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "BL_INVENTORY_MISMATCH",
+      "elapsed_ms": 0.7,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": "QUOTE_DONE",
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.495941+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 4
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.496034+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.496183+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "cost_usd": 12.34,
+            "item_count_inflated": true
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.496200+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": true,
+            "status": "signal_escape",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34,
+              "item_count_inflated": true
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.496211+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.496222+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.496229+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.496242+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.496251+00:00",
+          "fault_mode": "BL_INVENTORY_MISMATCH",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "BL_INVENTORY_MISMATCH"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "BL_VENDOR_NEGOTIATION",
+      "elapsed_ms": 0.9,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": "CARRIER_DONE",
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.498861+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.499193+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "raw": "{\"tracking_id\": \"TRACK-001\", \"carrier\": \"PremiumExpress\", \"service_level\": \"overnight\", \"cost_usd\": 12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.499435+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.499452+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.499567+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "carrier": "PremiumExpress",
+            "service_level": "overnight",
+            "forced_vendor": true,
+            "forced_carrier": "PremiumExpress",
+            "injected_carrier": "PremiumExpress",
+            "injected_service": "overnight",
+            "silent_absorption": false
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.499583+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": true,
+            "status": "signal_escape",
+            "expected": {
+              "carrier": "PremiumExpress",
+              "service_level": "overnight"
+            },
+            "observed": {
+              "carrier": "PremiumExpress",
+              "service_level": "overnight",
+              "forced_vendor": true,
+              "forced_carrier": "PremiumExpress",
+              "injected_carrier": "PremiumExpress",
+              "injected_service": "overnight",
+              "silent_absorption": false
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.499590+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.499598+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.499605+00:00",
+          "fault_mode": "BL_VENDOR_NEGOTIATION",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "BL_VENDOR_NEGOTIATION"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "BL_CUSTOMER_ESCALATION",
+      "elapsed_ms": 0.6,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": "ESCALATION_CHECK",
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.502452+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.502545+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.502577+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.502590+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.502600+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.502610+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.502617+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.502863+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "escalation_required": true
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.502877+00:00",
+          "fault_mode": "BL_CUSTOMER_ESCALATION",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "BL_CUSTOMER_ESCALATION"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "BL_REFUND_REASONING",
+      "elapsed_ms": 0.6,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": "QUOTE_DONE",
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.508097+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1"
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.508191+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.508461+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "cost_usd": -12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.508480+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": -12.34
+            },
+            "observed": {
+              "cost_usd": -12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.508490+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.508501+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.508509+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.508517+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.508524+00:00",
+          "fault_mode": "BL_REFUND_REASONING",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "BL_REFUND_REASONING"
+      },
+      "classification": "TP"
+    },
+    {
+      "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+      "elapsed_ms": 0.6,
+      "status": "FAULT",
+      "steps_reached": [
+        "TASK_START",
+        "FINAL_ANSWER",
+        "QUOTE_DONE",
+        "BOUNDARY_CHECK",
+        "CARRIER_DONE",
+        "BOUNDARY_CHECK",
+        "TRACKING_DONE",
+        "ESCALATION_CHECK",
+        "SAVE_DONE"
+      ],
+      "steps_lost": [],
+      "infection_point": null,
+      "propagation_depth": 0,
+      "failure_class": "ok",
+      "lkw": [
+        {
+          "step": "TASK_START",
+          "timestamp": "2026-07-24T19:36:17.513072+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "address": {
+              "street_address": "123 Main St",
+              "city": "Montreal",
+              "state": "QC",
+              "country": "Canada",
+              "zip_code": "H3A 0A1",
+              "compliance_jurisdiction": "UNKNOWN",
+              "export_restricted": true
+            },
+            "item_count": 2
+          }
+        },
+        {
+          "step": "FINAL_ANSWER",
+          "timestamp": "2026-07-24T19:36:17.513168+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "raw": "{\"tracking_id\":\"TRACK-001\",\"carrier\":\"FedEx\",\"service_level\":\"ground\",\"cost_usd\":12.34}"
+          }
+        },
+        {
+          "step": "QUOTE_DONE",
+          "timestamp": "2026-07-24T19:36:17.513200+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "cost_usd": 12.34
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.513220+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "boundary": "quote_to_carrier",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "cost_usd": 12.34
+            },
+            "observed": {
+              "cost_usd": 12.34
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "CARRIER_DONE",
+          "timestamp": "2026-07-24T19:36:17.513231+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        },
+        {
+          "step": "BOUNDARY_CHECK",
+          "timestamp": "2026-07-24T19:36:17.513242+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "boundary": "carrier_to_tracking",
+            "alert": false,
+            "status": "clean",
+            "expected": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "observed": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            },
+            "difference": null,
+            "detail": null,
+            "violations": []
+          }
+        },
+        {
+          "step": "TRACKING_DONE",
+          "timestamp": "2026-07-24T19:36:17.513249+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "tracking_id": "TRACK-001"
+          }
+        },
+        {
+          "step": "ESCALATION_CHECK",
+          "timestamp": "2026-07-24T19:36:17.513257+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "escalation_required": false
+          }
+        },
+        {
+          "step": "SAVE_DONE",
+          "timestamp": "2026-07-24T19:36:17.513264+00:00",
+          "fault_mode": "BL_COMPLIANCE_AMBIGUITY",
+          "data": {
+            "saved": false,
+            "tracking_id": "TRACK-001",
+            "reason": "benchmark_mode"
+          }
+        }
+      ],
+      "data": {
+        "tracking_id": "TRACK-001",
+        "fault_mode": "BL_COMPLIANCE_AMBIGUITY"
+      },
+      "classification": "FN"
     }
   ]
 }

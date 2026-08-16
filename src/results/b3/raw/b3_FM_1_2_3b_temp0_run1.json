@@ -7,30 +7,44 @@
   "model": "qwen2.5:3b",
   "temperature": 0.0,
   "status": "TP",
-  "elapsed_ms": 1805.6,
+  "elapsed_ms": 17784.9,
   "mutation": {
     "terminated_mutant": true,
     "live_mutant": false,
     "infection_agent": "productcatalog",
-    "infection_checkpoint": "CATALOG_DONE",
-    "infection_field": "product_ids",
+    "infection_checkpoint": "TASK_START",
+    "infection_field": "action",
     "propagation_path": [
       "currency",
-      "shipping_quote",
       "payment",
-      "ship_order",
-      "email"
+      "ship_order"
     ],
-    "propagation_depth": 5,
-    "total_deviating_agents": 6,
+    "propagation_depth": 3,
+    "total_deviating_agents": 4,
     "per_agent": {
+      "checkout_orchestrator": {
+        "any_deviation": false,
+        "deviating_fields": [],
+        "deviating_detail": []
+      },
       "productcatalog": {
         "any_deviation": true,
         "deviating_fields": [
+          "action",
           "product_ids",
           "count"
         ],
         "deviating_detail": [
+          {
+            "field": "action",
+            "b1_value": "list_products",
+            "observed": "get_product",
+            "severity": "data",
+            "reason": "expected='list_products' got='get_product'",
+            "detects": [
+              "FM_1_2"
+            ]
+          },
           {
             "field": "product_ids",
             "b1_value": [
@@ -64,17 +78,28 @@
       "currency": {
         "any_deviation": true,
         "deviating_fields": [
+          "units",
           "to_currency",
           "units_out",
           "currency_swapped"
         ],
         "deviating_detail": [
           {
+            "field": "units",
+            "b1_value": 10,
+            "observed": 2,
+            "severity": "data",
+            "reason": "expected=10 got=2",
+            "detects": [
+              "FM_2_5"
+            ]
+          },
+          {
             "field": "to_currency",
             "b1_value": "EUR",
-            "observed": "USD",
+            "observed": "CAD",
             "severity": "data",
-            "reason": "expected='EUR' got='USD'",
+            "reason": "expected='EUR' got='CAD'",
             "detects": [
               "FM_1_2"
             ]
@@ -86,9 +111,9 @@
               "max": 9.0,
               "mean": 9.0
             },
-            "observed": 19,
+            "observed": 2,
             "severity": "data",
-            "reason": "expected=9 got=19 dev=111.11% tol=1.0%",
+            "reason": "expected=9.0 got=2 dev=77.78% tol=1.0%",
             "detects": [
               "FM_2_2",
               "FM_2_5",
@@ -110,31 +135,29 @@
         ]
       },
       "shipping_quote": {
-        "any_deviation": true,
-        "deviating_fields": [
-          "cost_usd"
-        ],
-        "deviating_detail": [
-          {
-            "field": "cost_usd",
-            "b1_value": {
-              "min": 15.88,
-              "max": 15.88,
-              "mean": 15.88
-            },
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          }
-        ]
+        "any_deviation": false,
+        "deviating_fields": [],
+        "deviating_detail": []
       },
       "payment": {
         "any_deviation": true,
         "deviating_fields": [
-          "validation_bypassed"
+          "units",
+          "validation_bypassed",
+          "units_charged"
         ],
         "deviating_detail": [
+          {
+            "field": "units",
+            "b1_value": 10,
+            "observed": 800000000,
+            "severity": "data",
+            "reason": "expected=10 got=800000000",
+            "detects": [
+              "FM_2_5",
+              "BL_AMOUNT_TAMPERING"
+            ]
+          },
           {
             "field": "validation_bypassed",
             "b1_value": false,
@@ -143,6 +166,17 @@
             "reason": "expected=False got=True",
             "detects": [
               "FM_1_2"
+            ]
+          },
+          {
+            "field": "units_charged",
+            "b1_value": 10,
+            "observed": 800000000,
+            "severity": "data",
+            "reason": "expected=10 got=800000000",
+            "detects": [
+              "FM_2_5",
+              "BL_AMOUNT_TAMPERING"
             ]
           }
         ]
@@ -159,7 +193,7 @@
         "deviating_detail": [
           {
             "field": "carrier",
-            "b1_value": "DHL",
+            "b1_value": null,
             "observed": null,
             "severity": "missing",
             "reason": "observed value is None (checkpoint possibly absent)",
@@ -175,7 +209,7 @@
           },
           {
             "field": "tracking_id",
-            "b1_value": "8434097984",
+            "b1_value": null,
             "observed": null,
             "severity": "missing",
             "reason": "observed value is None (checkpoint possibly absent)",
@@ -183,7 +217,7 @@
           },
           {
             "field": "escalation_required",
-            "b1_value": false,
+            "b1_value": null,
             "observed": null,
             "severity": "missing",
             "reason": "observed value is None (checkpoint possibly absent)",
@@ -191,7 +225,7 @@
           },
           {
             "field": "saved",
-            "b1_value": false,
+            "b1_value": null,
             "observed": false,
             "severity": "data",
             "reason": "expected=True got=False",
@@ -202,73 +236,33 @@
         ]
       },
       "email": {
-        "any_deviation": true,
-        "deviating_fields": [
-          "email",
-          "email_type",
-          "body_len",
-          "hallucinated",
-          "status",
-          "send_skipped"
-        ],
-        "deviating_detail": [
-          {
-            "field": "email",
-            "b1_value": "customer@example.com",
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          },
-          {
-            "field": "email_type",
-            "b1_value": "order_confirmation",
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          },
-          {
-            "field": "body_len",
-            "b1_value": {
-              "min": 68.0,
-              "max": 68.0,
-              "mean": 68.0
-            },
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          },
-          {
-            "field": "hallucinated",
-            "b1_value": false,
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          },
-          {
-            "field": "status",
-            "b1_value": "sent",
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          },
-          {
-            "field": "send_skipped",
-            "b1_value": false,
-            "observed": null,
-            "severity": "missing",
-            "reason": "observed value is None (checkpoint possibly absent)",
-            "detects": []
-          }
-        ]
+        "any_deviation": false,
+        "deviating_fields": [],
+        "deviating_detail": [],
+        "not_reached": true
       }
     }
   },
   "rip": {
+    "checkout_orchestrator": {
+      "R": true,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [
+        "TASK_START",
+        "PRODUCT_FETCHED",
+        "CURRENCY_CONVERTED",
+        "SHIPPING_QUOTED",
+        "PAYMENT_CHARGED",
+        "ORDER_SHIPPED",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": [
+        "CONFIRMATION_SENT"
+      ]
+    },
     "productcatalog": {
       "R": true,
       "I": true,
@@ -303,7 +297,9 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
-        "FINAL_ANSWER"
+        "QUOTE_DONE",
+        "FINAL_ANSWER",
+        "SAVE_DONE"
       ],
       "steps_lost": []
     },
@@ -331,28 +327,37 @@
       "steps_reached": [
         "TASK_START",
         "FINAL_ANSWER",
+        "QUOTE_DONE",
         "SAVE_DONE"
       ],
       "steps_lost": []
     },
     "email": {
-      "R": true,
+      "R": false,
       "I": false,
       "P": false,
       "infection_point": null,
       "propagated_to": null,
-      "steps_reached": [
-        "TASK_START",
-        "FINAL_ANSWER"
-      ],
+      "steps_reached": [],
       "steps_lost": [
+        "TASK_START",
         "EMAIL_GENERATED",
-        "EMAIL_SENT"
+        "EMAIL_SENT",
+        "FINAL_ANSWER"
       ]
     }
   },
   "checkout_errors": {},
   "steps_per_agent": {
+    "checkout_orchestrator": [
+      "TASK_START",
+      "PRODUCT_FETCHED",
+      "CURRENCY_CONVERTED",
+      "SHIPPING_QUOTED",
+      "PAYMENT_CHARGED",
+      "ORDER_SHIPPED",
+      "FINAL_ANSWER"
+    ],
     "productcatalog": [
       "TASK_START",
       "CATALOG_DONE",
@@ -365,7 +370,9 @@
     ],
     "shipping_quote": [
       "TASK_START",
-      "FINAL_ANSWER"
+      "QUOTE_DONE",
+      "FINAL_ANSWER",
+      "SAVE_DONE"
     ],
     "payment": [
       "TASK_START",
@@ -377,11 +384,8 @@
     "ship_order": [
       "TASK_START",
       "FINAL_ANSWER",
+      "QUOTE_DONE",
       "SAVE_DONE"
-    ],
-    "email": [
-      "TASK_START",
-      "FINAL_ANSWER"
     ]
   }
 }

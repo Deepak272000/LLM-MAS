@@ -13,11 +13,11 @@
   "infection_agent": "productcatalog",
   "max_propagation_depth": 3,
   "top_deviating_fields": [
-    "count",
     "units",
-    "amount_tampered",
-    "units_charged",
-    "ignored_downstream_quote"
+    "action",
+    "product_ids",
+    "count",
+    "to_currency"
   ],
-  "elapsed_ms_avg": 3563.9
+  "elapsed_ms_avg": 9291.8
 }

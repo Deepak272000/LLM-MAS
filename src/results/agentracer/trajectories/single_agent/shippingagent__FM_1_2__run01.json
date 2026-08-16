@@ -2,7 +2,7 @@
   "trajectory_id": "shippingagent__FM_1_2__run01",
   "agent_under_test": "shippingagent",
   "fault_mode": "FM_1_2",
-  "outcome": "INCONCLUSIVE",
+  "outcome": "FAILED",
   "trajectory": [
     {
       "step_id": 0,
@@ -29,15 +29,21 @@
       }
     }
   ],
-  "missing_steps": [],
+  "missing_steps": [
+    "CARRIER_DONE",
+    "TRACKING_DONE"
+  ],
   "ground_truth": {
     "error_agent": "shippingagent",
-    "error_step": null,
+    "error_step": "SAVE_DONE",
     "tier": 0,
     "tier_label": "BASELINE",
-    "infection_point": null,
+    "infection_point": "SAVE_DONE",
     "flags_found": [],
-    "steps_lost": [],
+    "steps_lost": [
+      "CARRIER_DONE",
+      "TRACKING_DONE"
+    ],
     "cross_agent": false,
     "overcharge_pct": null
   }

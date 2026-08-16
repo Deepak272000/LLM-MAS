@@ -1,23 +1,23 @@
 {
-  "run_id": "9aa6dc78",
+  "run_id": "bdffdea4",
   "run_idx": 7,
   "fault_mode": "NONE",
   "model": "qwen2.5:3b",
   "temperature": 1.0,
   "model_label": "3b_temp1.0",
-  "elapsed_ms": 11758.6,
+  "elapsed_ms": 7019.3,
   "success": true,
   "errors": {},
   "checkout_lkw": [
     {
       "step": "TASK_START",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504414+00:00",
+      "timestamp": "2026-07-24T19:44:35.719996+00:00",
       "data": {
         "fault_mode": "NONE",
         "model": "qwen2.5:3b",
         "temperature": 1.0,
-        "order_id": "CO-9AA6DC",
+        "order_id": "CO-BDFFDE",
         "items": [
           {
             "product_id": "PROD-001",
@@ -37,7 +37,7 @@
     {
       "step": "PRODUCT_FETCHED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504436+00:00",
+      "timestamp": "2026-07-24T19:44:35.720054+00:00",
       "data": {
         "tool": "get_product",
         "args": {
@@ -57,21 +57,25 @@
     {
       "step": "CURRENCY_CONVERTED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504439+00:00",
+      "timestamp": "2026-07-24T19:44:35.720064+00:00",
       "data": {
         "tool": "convert_currency",
         "args": {
-          "amount_nanos": 8753629400,
+          "amount_nanos": 2500000000,
           "from_currency": "USD",
           "to_currency": "CAD"
         },
-        "result": {}
+        "result": {
+          "currency_code": "CAD",
+          "units": 19,
+          "nanos": 2500000000
+        }
       }
     },
     {
       "step": "SHIPPING_QUOTED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504441+00:00",
+      "timestamp": "2026-07-24T19:44:35.720079+00:00",
       "data": {
         "tool": "quote_shipping",
         "args": {
@@ -98,117 +102,117 @@
     {
       "step": "PAYMENT_CHARGED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504442+00:00",
+      "timestamp": "2026-07-24T19:44:35.720086+00:00",
       "data": {
         "tool": "charge_card",
         "args": {
-          "units": 8990000,
-          "credit_card_cvv": 123,
+          "units": 75000000,
           "credit_card_expiration_month": 12,
           "credit_card_expiration_year": 2030,
+          "credit_card_cvv": 123,
           "credit_card_number": "4111111111111111",
-          "currency_code": "USD"
+          "currency_code": "CAD"
         },
         "result": {
-          "transaction_id": null
-        }
-      }
-    },
-    {
-      "step": "ORDER_SHIPPED",
-      "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504444+00:00",
-      "data": {
-        "tool": "ship_order",
-        "args": {
-          "address": {
-            "city": "Montreal",
-            "country": "Canada",
-            "state": "QC",
-            "street_address": "123 Main St",
-            "zip_code": "H3A 0A1"
-          },
-          "items": [
-            {
-              "product_id": "PROD-001",
-              "quantity": 2,
-              "weight_kg": 1.5
-            }
-          ]
-        },
-        "result": {
-          "tracking_id": "{\"cost_usd\":<cost>}"
-        }
-      }
-    },
-    {
-      "step": "CONFIRMATION_SENT",
-      "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504446+00:00",
-      "data": {
-        "tool": "send_order_confirmation",
-        "args": {
-          "email": "customer@example.com",
-          "order_id": "CO-9AA6DC"
-        },
-        "result": {
-          "status": "sent"
+          "transaction_id": "57253802-023f-4900-a818-72dc7744aedb"
         }
       }
     },
     {
       "step": "FINAL_ANSWER",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:38:47.504448+00:00",
+      "timestamp": "2026-07-24T19:44:35.720093+00:00",
       "data": {
-        "content": "{\"order_id\": \"CO-9AA6DC\", \"shipping_tracking_id\": \"{}\", \"total_charged\": 5.0}",
+        "content": "{\"order_id\": \"CO-BDFFDE\", \"total_charged\": 5.0, \"tracking_id\": \"\"}",
         "iterations": 2
       }
     },
     {
       "step": "PRODUCTCATALOG_TASK_START",
       "agent": "productcatalog",
-      "timestamp": "2026-07-21T04:38:47.504452+00:00",
+      "timestamp": "2026-07-24T19:44:35.720104+00:00",
       "data": {
         "query": "get product PROD-001",
-        "product_ids": null,
-        "action": "search_products",
+        "product_ids": [
+          "PROD-001"
+        ],
+        "action": "get_product",
         "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "PRODUCTCATALOG_CATALOG_DONE",
+      "agent": "productcatalog",
+      "timestamp": "2026-07-24T19:44:35.720122+00:00",
+      "data": {
+        "action": "get_product",
+        "count": 1,
+        "product_ids": [
+          "PROD-001"
+        ],
+        "hallucinated": false,
+        "query_tampered": false,
+        "action_swapped": false,
+        "products_missing": false,
+        "price_manipulated": false,
+        "duplicated": false,
+        "category_wrong": false
       }
     },
     {
       "step": "PRODUCTCATALOG_FINAL_ANSWER",
       "agent": "productcatalog",
-      "timestamp": "2026-07-21T04:38:47.504455+00:00",
+      "timestamp": "2026-07-24T19:44:35.720124+00:00",
       "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_tamper_query_str'"
+        "count": 1
       }
     },
     {
       "step": "CURRENCY_TASK_START",
       "agent": "currency",
-      "timestamp": "2026-07-21T04:38:47.504457+00:00",
+      "timestamp": "2026-07-24T19:44:35.720126+00:00",
       "data": {
         "action": "convert",
         "from_currency": "USD",
         "to_currency": "CAD",
         "units": 19,
-        "nanos": 8753629400,
+        "nanos": 2500000000,
         "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CURRENCY_CONVERT_DONE",
+      "agent": "currency",
+      "timestamp": "2026-07-24T19:44:35.720128+00:00",
+      "data": {
+        "from_currency": "USD",
+        "to_currency": "CAD",
+        "units_in": 19,
+        "units_out": 19,
+        "hallucinated": false,
+        "rate_manipulated": false,
+        "stale_rate": false,
+        "overflow": false,
+        "amount_tampered": false,
+        "currency_swapped": false
       }
     },
     {
       "step": "CURRENCY_FINAL_ANSWER",
       "agent": "currency",
-      "timestamp": "2026-07-21T04:38:47.504459+00:00",
+      "timestamp": "2026-07-24T19:44:35.720130+00:00",
       "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_inflate_rate'"
+        "result": {
+          "currency_code": "CAD",
+          "units": 19,
+          "nanos": 2500000000
+        }
       }
     },
     {
       "step": "SHIPPING_QUOTE_TASK_START",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:38:47.504461+00:00",
+      "timestamp": "2026-07-24T19:44:35.720132+00:00",
       "data": {
         "address": {
           "city": "Montreal",
@@ -223,7 +227,7 @@
     {
       "step": "SHIPPING_QUOTE_QUOTE_DONE",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:38:47.504463+00:00",
+      "timestamp": "2026-07-24T19:44:35.720134+00:00",
       "data": {
         "cost_usd": 5.0,
         "item_count_inflated": false
@@ -232,7 +236,7 @@
     {
       "step": "SHIPPING_QUOTE_FINAL_ANSWER",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:38:47.504467+00:00",
+      "timestamp": "2026-07-24T19:44:35.720135+00:00",
       "data": {
         "raw": "{\"cost_usd\": <number>}"
       }
@@ -240,7 +244,7 @@
     {
       "step": "SHIPPING_QUOTE_SAVE_DONE",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:38:47.504469+00:00",
+      "timestamp": "2026-07-24T19:44:35.720137+00:00",
       "data": {
         "saved": false,
         "reason": "benchmark_mode"
@@ -249,198 +253,54 @@
     {
       "step": "PAYMENT_TASK_START",
       "agent": "payment",
-      "timestamp": "2026-07-21T04:38:47.504471+00:00",
+      "timestamp": "2026-07-24T19:44:35.720139+00:00",
       "data": {
-        "currency_code": "USD",
-        "units": 8990000,
+        "currency_code": "CAD",
+        "units": 75000000,
         "nanos": 990000000,
         "card_last4": "1111",
         "fault_mode": "NONE"
       }
     },
     {
+      "step": "PAYMENT_CARD_VALIDATED",
+      "agent": "payment",
+      "timestamp": "2026-07-24T19:44:35.720141+00:00",
+      "data": {
+        "card_last4": "1111",
+        "validation_bypassed": false,
+        "amount_tampered": false
+      }
+    },
+    {
+      "step": "PAYMENT_CHARGE_DONE",
+      "agent": "payment",
+      "timestamp": "2026-07-24T19:44:35.720143+00:00",
+      "data": {
+        "transaction_id": "57253802-023f-4900-a818-72dc7744aedb",
+        "hallucinated": false,
+        "units_charged": 75000000,
+        "nanos_charged": 990000000
+      }
+    },
+    {
+      "step": "PAYMENT_SAVE_DONE",
+      "agent": "payment",
+      "timestamp": "2026-07-24T19:44:35.720145+00:00",
+      "data": {
+        "saved": true,
+        "transaction_id": "57253802-023f-4900-a818-72dc7744aedb",
+        "save_skipped": false,
+        "double_charge": false
+      }
+    },
+    {
       "step": "PAYMENT_FINAL_ANSWER",
       "agent": "payment",
-      "timestamp": "2026-07-21T04:38:47.504473+00:00",
+      "timestamp": "2026-07-24T19:44:35.720147+00:00",
       "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_force_card_decline'"
-      }
-    },
-    {
-      "step": "SHIP_ORDER_TASK_START",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504475+00:00",
-      "data": {
-        "address": {
-          "city": "Montreal",
-          "country": "Canada",
-          "state": "QC",
-          "street_address": "123 Main St",
-          "zip_code": "H3A 0A1"
-        },
-        "item_count": 2
-      }
-    },
-    {
-      "step": "SHIP_ORDER_FINAL_ANSWER",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504478+00:00",
-      "data": {
-        "raw": "{\"cost_usd\":<cost>}"
-      }
-    },
-    {
-      "step": "SHIP_ORDER_QUOTE_DONE",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504611+00:00",
-      "data": {
-        "cost_usd": 0.0
-      }
-    },
-    {
-      "step": "SHIP_ORDER_BOUNDARY_CHECK",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504613+00:00",
-      "data": {
-        "boundary": "quote_to_carrier",
-        "alert": false,
-        "status": "clean",
-        "expected": {
-          "cost_usd": 0.0
-        },
-        "observed": {
-          "cost_usd": 0.0
-        },
-        "difference": {
-          "missing": [],
-          "extra": [],
-          "field_mismatches": []
-        },
-        "detail": "strict validation passed",
-        "violations": [],
-        "recovery": {
-          "action": "continue",
-          "should_continue": true,
-          "requires_hitl": false,
-          "reason": "boundary check is clean"
-        }
-      }
-    },
-    {
-      "step": "SHIP_ORDER_CARRIER_DONE",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504615+00:00",
-      "data": {
-        "carrier": "FedEx",
-        "service_level": "ground",
-        "recovered_from": {
-          "carrier": "Unknown",
-          "service_level": "standard"
-        }
-      }
-    },
-    {
-      "step": "SHIP_ORDER_BOUNDARY_CHECK",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504617+00:00",
-      "data": {
-        "boundary": "carrier_to_tracking",
-        "alert": true,
-        "status": "signal_escape",
-        "expected": {
-          "carrier": "Unknown",
-          "service_level": "standard"
-        },
-        "observed": {
-          "carrier": "Unknown",
-          "service_level": "standard"
-        },
-        "difference": {
-          "missing": [],
-          "extra": [],
-          "field_mismatches": []
-        },
-        "detail": "missing=[], extra=[], field_mismatches=[]",
-        "violations": [
-          {
-            "type": "predicate_failed",
-            "fields": [
-              {
-                "field": "carrier",
-                "reason": "predicate returned false"
-              }
-            ]
-          }
-        ],
-        "recovery": {
-          "action": "fallback_to_last_known_good",
-          "should_continue": true,
-          "requires_hitl": false,
-          "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
-          "corrected_payload": {
-            "carrier": "FedEx",
-            "service_level": "ground"
-          }
-        }
-      }
-    },
-    {
-      "step": "SHIP_ORDER_RECOVERY_ACTION",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504619+00:00",
-      "data": {
-        "action": "fallback_to_last_known_good",
-        "should_continue": true,
-        "requires_hitl": false,
-        "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
-        "corrected_payload": {
-          "carrier": "FedEx",
-          "service_level": "ground"
-        }
-      }
-    },
-    {
-      "step": "SHIP_ORDER_TRACKING_DONE",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504623+00:00",
-      "data": {
-        "tracking_id": "{\"cost_usd\":<cost>}"
-      }
-    },
-    {
-      "step": "SHIP_ORDER_ESCALATION_CHECK",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504625+00:00",
-      "data": {
-        "escalation_required": false
-      }
-    },
-    {
-      "step": "SHIP_ORDER_SAVE_DONE",
-      "agent": "ship_order",
-      "timestamp": "2026-07-21T04:38:47.504627+00:00",
-      "data": {
-        "saved": false,
-        "tracking_id": "{\"cost_usd\":<cost>}",
-        "reason": "benchmark_mode"
-      }
-    },
-    {
-      "step": "EMAIL_TASK_START",
-      "agent": "email",
-      "timestamp": "2026-07-21T04:38:47.504629+00:00",
-      "data": {
-        "order_id": "CO-9AA6DC",
-        "customer_email": "customer@example.com",
-        "fault_mode": "NONE"
-      }
-    },
-    {
-      "step": "EMAIL_FINAL_ANSWER",
-      "agent": "email",
-      "timestamp": "2026-07-21T04:38:47.504631+00:00",
-      "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_inject_early_termination'"
+        "success": true,
+        "transaction_id": "57253802-023f-4900-a818-72dc7744aedb"
       }
     }
   ],
@@ -448,12 +308,12 @@
     "checkout_orchestrator": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:35.886559+00:00",
+        "timestamp": "2026-07-24T19:44:28.844127+00:00",
         "data": {
           "fault_mode": "NONE",
           "model": "qwen2.5:3b",
           "temperature": 1.0,
-          "order_id": "CO-9AA6DC",
+          "order_id": "CO-BDFFDE",
           "items": [
             {
               "product_id": "PROD-001",
@@ -472,7 +332,7 @@
       },
       {
         "step": "PRODUCT_FETCHED",
-        "timestamp": "2026-07-21T04:38:40.021675+00:00",
+        "timestamp": "2026-07-24T19:44:32.618632+00:00",
         "data": {
           "tool": "get_product",
           "args": {
@@ -491,20 +351,24 @@
       },
       {
         "step": "CURRENCY_CONVERTED",
-        "timestamp": "2026-07-21T04:38:41.208195+00:00",
+        "timestamp": "2026-07-24T19:44:33.200558+00:00",
         "data": {
           "tool": "convert_currency",
           "args": {
-            "amount_nanos": 8753629400,
+            "amount_nanos": 2500000000,
             "from_currency": "USD",
             "to_currency": "CAD"
           },
-          "result": {}
+          "result": {
+            "currency_code": "CAD",
+            "units": 19,
+            "nanos": 2500000000
+          }
         }
       },
       {
         "step": "SHIPPING_QUOTED",
-        "timestamp": "2026-07-21T04:38:42.462994+00:00",
+        "timestamp": "2026-07-24T19:44:34.465218+00:00",
         "data": {
           "tool": "quote_shipping",
           "args": {
@@ -530,67 +394,27 @@
       },
       {
         "step": "PAYMENT_CHARGED",
-        "timestamp": "2026-07-21T04:38:44.024106+00:00",
+        "timestamp": "2026-07-24T19:44:35.123746+00:00",
         "data": {
           "tool": "charge_card",
           "args": {
-            "units": 8990000,
-            "credit_card_cvv": 123,
+            "units": 75000000,
             "credit_card_expiration_month": 12,
             "credit_card_expiration_year": 2030,
+            "credit_card_cvv": 123,
             "credit_card_number": "4111111111111111",
-            "currency_code": "USD"
+            "currency_code": "CAD"
           },
           "result": {
-            "transaction_id": null
-          }
-        }
-      },
-      {
-        "step": "ORDER_SHIPPED",
-        "timestamp": "2026-07-21T04:38:45.244289+00:00",
-        "data": {
-          "tool": "ship_order",
-          "args": {
-            "address": {
-              "city": "Montreal",
-              "country": "Canada",
-              "state": "QC",
-              "street_address": "123 Main St",
-              "zip_code": "H3A 0A1"
-            },
-            "items": [
-              {
-                "product_id": "PROD-001",
-                "quantity": 2,
-                "weight_kg": 1.5
-              }
-            ]
-          },
-          "result": {
-            "tracking_id": "{\"cost_usd\":<cost>}"
-          }
-        }
-      },
-      {
-        "step": "CONFIRMATION_SENT",
-        "timestamp": "2026-07-21T04:38:46.868720+00:00",
-        "data": {
-          "tool": "send_order_confirmation",
-          "args": {
-            "email": "customer@example.com",
-            "order_id": "CO-9AA6DC"
-          },
-          "result": {
-            "status": "sent"
+            "transaction_id": "57253802-023f-4900-a818-72dc7744aedb"
           }
         }
       },
       {
         "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:47.482608+00:00",
+        "timestamp": "2026-07-24T19:44:35.698320+00:00",
         "data": {
-          "content": "{\"order_id\": \"CO-9AA6DC\", \"shipping_tracking_id\": \"{}\", \"total_charged\": 5.0}",
+          "content": "{\"order_id\": \"CO-BDFFDE\", \"total_charged\": 5.0, \"tracking_id\": \"\"}",
           "iterations": 2
         }
       }
@@ -598,51 +422,93 @@
     "productcatalog": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:39.397073+00:00",
+        "timestamp": "2026-07-24T19:44:32.597263+00:00",
         "fault_mode": "NONE",
         "data": {
           "query": "get product PROD-001",
-          "product_ids": null,
-          "action": "search_products",
+          "product_ids": [
+            "PROD-001"
+          ],
+          "action": "get_product",
           "fault_mode": "NONE"
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:40.003832+00:00",
+        "step": "CATALOG_DONE",
+        "timestamp": "2026-07-24T19:44:32.597363+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_tamper_query_str'"
+          "action": "get_product",
+          "count": 1,
+          "product_ids": [
+            "PROD-001"
+          ],
+          "hallucinated": false,
+          "query_tampered": false,
+          "action_swapped": false,
+          "products_missing": false,
+          "price_manipulated": false,
+          "duplicated": false,
+          "category_wrong": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-24T19:44:32.597380+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "count": 1
         }
       }
     ],
     "currency": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:40.170616+00:00",
+        "timestamp": "2026-07-24T19:44:33.171446+00:00",
         "fault_mode": "NONE",
         "data": {
           "action": "convert",
           "from_currency": "USD",
           "to_currency": "CAD",
           "units": 19,
-          "nanos": 8753629400,
+          "nanos": 2500000000,
           "fault_mode": "NONE"
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:41.190061+00:00",
+        "step": "CONVERT_DONE",
+        "timestamp": "2026-07-24T19:44:33.171548+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_inflate_rate'"
+          "from_currency": "USD",
+          "to_currency": "CAD",
+          "units_in": 19,
+          "units_out": 19,
+          "hallucinated": false,
+          "rate_manipulated": false,
+          "stale_rate": false,
+          "overflow": false,
+          "amount_tampered": false,
+          "currency_swapped": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-24T19:44:33.171561+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "result": {
+            "currency_code": "CAD",
+            "units": 19,
+            "nanos": 2500000000
+          }
         }
       }
     ],
     "shipping_quote": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:41.381680+00:00",
+        "timestamp": "2026-07-24T19:44:33.384539+00:00",
         "fault_mode": "NONE",
         "data": {
           "address": {
@@ -657,7 +523,7 @@
       },
       {
         "step": "QUOTE_DONE",
-        "timestamp": "2026-07-21T04:38:42.439732+00:00",
+        "timestamp": "2026-07-24T19:44:34.442121+00:00",
         "fault_mode": "NONE",
         "data": {
           "cost_usd": 5.0,
@@ -666,7 +532,7 @@
       },
       {
         "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:42.439746+00:00",
+        "timestamp": "2026-07-24T19:44:34.442137+00:00",
         "fault_mode": "NONE",
         "data": {
           "raw": "{\"cost_usd\": <number>}"
@@ -674,7 +540,7 @@
       },
       {
         "step": "SAVE_DONE",
-        "timestamp": "2026-07-21T04:38:42.439782+00:00",
+        "timestamp": "2026-07-24T19:44:34.442174+00:00",
         "fault_mode": "NONE",
         "data": {
           "saved": false,
@@ -685,203 +551,55 @@
     "payment": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:42.621966+00:00",
+        "timestamp": "2026-07-24T19:44:35.093548+00:00",
         "fault_mode": "NONE",
         "data": {
-          "currency_code": "USD",
-          "units": 8990000,
+          "currency_code": "CAD",
+          "units": 75000000,
           "nanos": 990000000,
           "card_last4": "1111",
           "fault_mode": "NONE"
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:44.003283+00:00",
+        "step": "CARD_VALIDATED",
+        "timestamp": "2026-07-24T19:44:35.093668+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_force_card_decline'"
-        }
-      }
-    ],
-    "ship_order": [
-      {
-        "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:44.198460+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "address": {
-            "city": "Montreal",
-            "country": "Canada",
-            "state": "QC",
-            "street_address": "123 Main St",
-            "zip_code": "H3A 0A1"
-          },
-          "item_count": 2
+          "card_last4": "1111",
+          "validation_bypassed": false,
+          "amount_tampered": false
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:45.221061+00:00",
+        "step": "CHARGE_DONE",
+        "timestamp": "2026-07-24T19:44:35.093680+00:00",
         "fault_mode": "NONE",
         "data": {
-          "raw": "{\"cost_usd\":<cost>}"
-        }
-      },
-      {
-        "step": "QUOTE_DONE",
-        "timestamp": "2026-07-21T04:38:45.221109+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "cost_usd": 0.0
-        }
-      },
-      {
-        "step": "BOUNDARY_CHECK",
-        "timestamp": "2026-07-21T04:38:45.221201+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "boundary": "quote_to_carrier",
-          "alert": false,
-          "status": "clean",
-          "expected": {
-            "cost_usd": 0.0
-          },
-          "observed": {
-            "cost_usd": 0.0
-          },
-          "difference": {
-            "missing": [],
-            "extra": [],
-            "field_mismatches": []
-          },
-          "detail": "strict validation passed",
-          "violations": [],
-          "recovery": {
-            "action": "continue",
-            "should_continue": true,
-            "requires_hitl": false,
-            "reason": "boundary check is clean"
-          }
-        }
-      },
-      {
-        "step": "CARRIER_DONE",
-        "timestamp": "2026-07-21T04:38:45.221209+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "carrier": "FedEx",
-          "service_level": "ground",
-          "recovered_from": {
-            "carrier": "Unknown",
-            "service_level": "standard"
-          }
-        }
-      },
-      {
-        "step": "BOUNDARY_CHECK",
-        "timestamp": "2026-07-21T04:38:45.221285+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "boundary": "carrier_to_tracking",
-          "alert": true,
-          "status": "signal_escape",
-          "expected": {
-            "carrier": "Unknown",
-            "service_level": "standard"
-          },
-          "observed": {
-            "carrier": "Unknown",
-            "service_level": "standard"
-          },
-          "difference": {
-            "missing": [],
-            "extra": [],
-            "field_mismatches": []
-          },
-          "detail": "missing=[], extra=[], field_mismatches=[]",
-          "violations": [
-            {
-              "type": "predicate_failed",
-              "fields": [
-                {
-                  "field": "carrier",
-                  "reason": "predicate returned false"
-                }
-              ]
-            }
-          ],
-          "recovery": {
-            "action": "fallback_to_last_known_good",
-            "should_continue": true,
-            "requires_hitl": false,
-            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
-            "corrected_payload": {
-              "carrier": "FedEx",
-              "service_level": "ground"
-            }
-          }
-        }
-      },
-      {
-        "step": "RECOVERY_ACTION",
-        "timestamp": "2026-07-21T04:38:45.221290+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "action": "fallback_to_last_known_good",
-          "should_continue": true,
-          "requires_hitl": false,
-          "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
-          "corrected_payload": {
-            "carrier": "FedEx",
-            "service_level": "ground"
-          }
-        }
-      },
-      {
-        "step": "TRACKING_DONE",
-        "timestamp": "2026-07-21T04:38:45.221293+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "tracking_id": "{\"cost_usd\":<cost>}"
-        }
-      },
-      {
-        "step": "ESCALATION_CHECK",
-        "timestamp": "2026-07-21T04:38:45.221298+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "escalation_required": false
+          "transaction_id": "57253802-023f-4900-a818-72dc7744aedb",
+          "hallucinated": false,
+          "units_charged": 75000000,
+          "nanos_charged": 990000000
         }
       },
       {
         "step": "SAVE_DONE",
-        "timestamp": "2026-07-21T04:38:45.221302+00:00",
+        "timestamp": "2026-07-24T19:44:35.093728+00:00",
         "fault_mode": "NONE",
         "data": {
-          "saved": false,
-          "tracking_id": "{\"cost_usd\":<cost>}",
-          "reason": "benchmark_mode"
-        }
-      }
-    ],
-    "email": [
-      {
-        "step": "TASK_START",
-        "timestamp": "2026-07-21T04:38:45.404461+00:00",
-        "fault_mode": "NONE",
-        "data": {
-          "order_id": "CO-9AA6DC",
-          "customer_email": "customer@example.com",
-          "fault_mode": "NONE"
+          "saved": true,
+          "transaction_id": "57253802-023f-4900-a818-72dc7744aedb",
+          "save_skipped": false,
+          "double_charge": false
         }
       },
       {
         "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:38:46.847502+00:00",
+        "timestamp": "2026-07-24T19:44:35.093737+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_inject_early_termination'"
+          "success": true,
+          "transaction_id": "57253802-023f-4900-a818-72dc7744aedb"
         }
       }
     ]
@@ -899,11 +617,12 @@
         "CURRENCY_CONVERTED",
         "SHIPPING_QUOTED",
         "PAYMENT_CHARGED",
-        "ORDER_SHIPPED",
-        "CONFIRMATION_SENT",
         "FINAL_ANSWER"
       ],
-      "steps_lost": []
+      "steps_lost": [
+        "ORDER_SHIPPED",
+        "CONFIRMATION_SENT"
+      ]
     },
     "productcatalog": {
       "R": true,
@@ -913,11 +632,10 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
+        "CATALOG_DONE",
         "FINAL_ANSWER"
       ],
-      "steps_lost": [
-        "CATALOG_DONE"
-      ]
+      "steps_lost": []
     },
     "currency": {
       "R": true,
@@ -927,11 +645,10 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
+        "CONVERT_DONE",
         "FINAL_ANSWER"
       ],
-      "steps_lost": [
-        "CONVERT_DONE"
-      ]
+      "steps_lost": []
     },
     "shipping_quote": {
       "R": true,
@@ -955,53 +672,43 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
-        "FINAL_ANSWER"
-      ],
-      "steps_lost": [
         "CARD_VALIDATED",
         "CHARGE_DONE",
-        "SAVE_DONE"
-      ]
-    },
-    "ship_order": {
-      "R": true,
-      "I": false,
-      "P": false,
-      "infection_point": null,
-      "propagated_to": null,
-      "steps_reached": [
-        "TASK_START",
-        "FINAL_ANSWER",
-        "QUOTE_DONE",
-        "BOUNDARY_CHECK",
-        "CARRIER_DONE",
-        "BOUNDARY_CHECK",
-        "RECOVERY_ACTION",
-        "TRACKING_DONE",
-        "ESCALATION_CHECK",
-        "SAVE_DONE"
+        "SAVE_DONE",
+        "FINAL_ANSWER"
       ],
       "steps_lost": []
     },
-    "email": {
-      "R": true,
+    "ship_order": {
+      "R": false,
       "I": false,
       "P": false,
       "infection_point": null,
       "propagated_to": null,
-      "steps_reached": [
+      "steps_reached": [],
+      "steps_lost": [
         "TASK_START",
         "FINAL_ANSWER"
-      ],
+      ]
+    },
+    "email": {
+      "R": false,
+      "I": false,
+      "P": false,
+      "infection_point": null,
+      "propagated_to": null,
+      "steps_reached": [],
       "steps_lost": [
+        "TASK_START",
         "EMAIL_GENERATED",
-        "EMAIL_SENT"
+        "EMAIL_SENT",
+        "FINAL_ANSWER"
       ]
     }
   },
-  "order_id": "CO-9AA6DC",
-  "transaction_id": "orch-tx-unknown",
-  "tracking_id": "{\"cost_usd\":<cost>}",
+  "order_id": "CO-BDFFDE",
+  "transaction_id": "57253802-023f-4900-a818-72dc7744aedb",
+  "tracking_id": null,
   "orchestrator_iterations": 2,
   "orchestrator_status": "ok"
 }

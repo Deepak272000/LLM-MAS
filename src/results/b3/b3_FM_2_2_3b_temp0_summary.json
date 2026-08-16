@@ -11,13 +11,13 @@
   "mutation_score": 1.0,
   "overall_classification": "TP",
   "infection_agent": "productcatalog",
-  "max_propagation_depth": 5,
+  "max_propagation_depth": 3,
   "top_deviating_fields": [
-    "hallucinated",
+    "units",
+    "action",
     "product_ids",
     "count",
-    "to_currency",
-    "units_out"
+    "to_currency"
   ],
-  "elapsed_ms_avg": 1736.3
+  "elapsed_ms_avg": 7404.7
 }

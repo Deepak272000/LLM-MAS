@@ -1,23 +1,23 @@
 {
-  "run_id": "c794cc2b",
+  "run_id": "c74049d7",
   "run_idx": 3,
   "fault_mode": "NONE",
   "model": "qwen2.5:3b",
   "temperature": 0.0,
   "model_label": "3b_temp0",
-  "elapsed_ms": 10976.6,
-  "success": true,
+  "elapsed_ms": 126683.7,
+  "success": false,
   "errors": {},
   "checkout_lkw": [
     {
       "step": "TASK_START",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763840+00:00",
+      "timestamp": "2026-07-24T19:38:48.446507+00:00",
       "data": {
         "fault_mode": "NONE",
         "model": "qwen2.5:3b",
         "temperature": 0.0,
-        "order_id": "CO-C794CC",
+        "order_id": "CO-C74049",
         "items": [
           {
             "product_id": "PROD-001",
@@ -37,7 +37,7 @@
     {
       "step": "PRODUCT_FETCHED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763860+00:00",
+      "timestamp": "2026-07-24T19:38:48.446536+00:00",
       "data": {
         "tool": "get_product",
         "args": {
@@ -57,38 +57,43 @@
     {
       "step": "CURRENCY_CONVERTED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763863+00:00",
+      "timestamp": "2026-07-24T19:38:48.446539+00:00",
       "data": {
         "tool": "convert_currency",
         "args": {
-          "amount_nanos": 7940000000,
+          "amount_nanos": 987654321,
+          "amount_units": 1,
           "from_currency": "USD",
           "to_currency": "CAD"
         },
-        "result": {}
+        "result": {
+          "currency_code": "CAD",
+          "units": 1,
+          "nanos": 987654321
+        }
       }
     },
     {
       "step": "SHIPPING_QUOTED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763865+00:00",
+      "timestamp": "2026-07-24T19:38:48.446541+00:00",
       "data": {
         "tool": "quote_shipping",
         "args": {
-          "items": [
-            {
-              "product_id": "PROD-001",
-              "quantity": 2,
-              "weight_kg": 1.5
-            }
-          ],
           "address": {
             "city": "Montreal",
             "country": "Canada",
             "state": "QC",
             "street_address": "123 Main St",
             "zip_code": "H3A 0A1"
-          }
+          },
+          "items": [
+            {
+              "product_id": "PROD-001",
+              "quantity": 2,
+              "weight_kg": 1.5
+            }
+          ]
         },
         "result": {
           "cost_usd": 5.0
@@ -98,91 +103,117 @@
     {
       "step": "PAYMENT_CHARGED",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763867+00:00",
+      "timestamp": "2026-07-24T19:38:48.446542+00:00",
       "data": {
         "tool": "charge_card",
         "args": {
-          "credit_card_cvv": 123,
           "credit_card_expiration_month": 12,
           "credit_card_expiration_year": 2030,
           "credit_card_number": "4111111111111111",
-          "currency_code": "CAD",
-          "units": 300000000
+          "currency_code": "USD",
+          "units": 39.87,
+          "credit_card_cvv": 123
         },
         "result": {
-          "transaction_id": null
-        }
-      }
-    },
-    {
-      "step": "CONFIRMATION_SENT",
-      "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763869+00:00",
-      "data": {
-        "tool": "send_order_confirmation",
-        "args": {
-          "email": "customer@example.com",
-          "order_id": "CO-C794CC",
-          "total_amount": 5
-        },
-        "result": {
-          "status": "sent"
+          "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868"
         }
       }
     },
     {
       "step": "FINAL_ANSWER",
       "agent": "checkout_orchestrator",
-      "timestamp": "2026-07-21T04:34:41.763871+00:00",
+      "timestamp": "2026-07-24T19:38:48.446544+00:00",
       "data": {
-        "content": "{\"order_id\": \"CO-C794CC\", \"shipping_tracking_id\": \"\", \"total_charged\": 0.0}",
-        "iterations": 3
+        "content": null,
+        "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)"
       }
     },
     {
       "step": "PRODUCTCATALOG_TASK_START",
       "agent": "productcatalog",
-      "timestamp": "2026-07-21T04:34:41.763875+00:00",
+      "timestamp": "2026-07-24T19:38:48.446560+00:00",
       "data": {
         "query": "get product PROD-001",
-        "product_ids": null,
-        "action": "search_products",
+        "product_ids": [
+          "PROD-001"
+        ],
+        "action": "get_product",
         "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "PRODUCTCATALOG_CATALOG_DONE",
+      "agent": "productcatalog",
+      "timestamp": "2026-07-24T19:38:48.446562+00:00",
+      "data": {
+        "action": "get_product",
+        "count": 1,
+        "product_ids": [
+          "PROD-001"
+        ],
+        "hallucinated": false,
+        "query_tampered": false,
+        "action_swapped": false,
+        "products_missing": false,
+        "price_manipulated": false,
+        "duplicated": false,
+        "category_wrong": false
       }
     },
     {
       "step": "PRODUCTCATALOG_FINAL_ANSWER",
       "agent": "productcatalog",
-      "timestamp": "2026-07-21T04:34:41.763877+00:00",
+      "timestamp": "2026-07-24T19:38:48.446564+00:00",
       "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_tamper_query_str'"
+        "count": 1
       }
     },
     {
       "step": "CURRENCY_TASK_START",
       "agent": "currency",
-      "timestamp": "2026-07-21T04:34:41.763880+00:00",
+      "timestamp": "2026-07-24T19:38:48.446567+00:00",
       "data": {
         "action": "convert",
         "from_currency": "USD",
         "to_currency": "CAD",
-        "units": 19,
-        "nanos": 7940000000,
+        "units": 1,
+        "nanos": 987654321,
         "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CURRENCY_CONVERT_DONE",
+      "agent": "currency",
+      "timestamp": "2026-07-24T19:38:48.446569+00:00",
+      "data": {
+        "from_currency": "USD",
+        "to_currency": "CAD",
+        "units_in": 1,
+        "units_out": 1,
+        "hallucinated": false,
+        "rate_manipulated": false,
+        "stale_rate": false,
+        "overflow": false,
+        "amount_tampered": false,
+        "currency_swapped": false
       }
     },
     {
       "step": "CURRENCY_FINAL_ANSWER",
       "agent": "currency",
-      "timestamp": "2026-07-21T04:34:41.763882+00:00",
+      "timestamp": "2026-07-24T19:38:48.446571+00:00",
       "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_inflate_rate'"
+        "result": {
+          "currency_code": "CAD",
+          "units": 1,
+          "nanos": 987654321
+        }
       }
     },
     {
       "step": "SHIPPING_QUOTE_TASK_START",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:34:41.763884+00:00",
+      "timestamp": "2026-07-24T19:38:48.446573+00:00",
       "data": {
         "address": {
           "city": "Montreal",
@@ -197,7 +228,7 @@
     {
       "step": "SHIPPING_QUOTE_QUOTE_DONE",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:34:41.763886+00:00",
+      "timestamp": "2026-07-24T19:38:48.446575+00:00",
       "data": {
         "cost_usd": 5.0,
         "item_count_inflated": false
@@ -206,7 +237,7 @@
     {
       "step": "SHIPPING_QUOTE_FINAL_ANSWER",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:34:41.763890+00:00",
+      "timestamp": "2026-07-24T19:38:48.446577+00:00",
       "data": {
         "raw": "{\"cost_usd\": <number>}"
       }
@@ -214,7 +245,7 @@
     {
       "step": "SHIPPING_QUOTE_SAVE_DONE",
       "agent": "shipping_quote",
-      "timestamp": "2026-07-21T04:34:41.763892+00:00",
+      "timestamp": "2026-07-24T19:38:48.446579+00:00",
       "data": {
         "saved": false,
         "reason": "benchmark_mode"
@@ -223,39 +254,54 @@
     {
       "step": "PAYMENT_TASK_START",
       "agent": "payment",
-      "timestamp": "2026-07-21T04:34:41.763894+00:00",
+      "timestamp": "2026-07-24T19:38:48.446581+00:00",
       "data": {
-        "currency_code": "CAD",
-        "units": 300000000,
+        "currency_code": "USD",
+        "units": 39.87,
         "nanos": 990000000,
         "card_last4": "1111",
         "fault_mode": "NONE"
       }
     },
     {
+      "step": "PAYMENT_CARD_VALIDATED",
+      "agent": "payment",
+      "timestamp": "2026-07-24T19:38:48.446583+00:00",
+      "data": {
+        "card_last4": "1111",
+        "validation_bypassed": false,
+        "amount_tampered": false
+      }
+    },
+    {
+      "step": "PAYMENT_CHARGE_DONE",
+      "agent": "payment",
+      "timestamp": "2026-07-24T19:38:48.446586+00:00",
+      "data": {
+        "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868",
+        "hallucinated": false,
+        "units_charged": 39.87,
+        "nanos_charged": 990000000
+      }
+    },
+    {
+      "step": "PAYMENT_SAVE_DONE",
+      "agent": "payment",
+      "timestamp": "2026-07-24T19:38:48.446588+00:00",
+      "data": {
+        "saved": true,
+        "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868",
+        "save_skipped": false,
+        "double_charge": false
+      }
+    },
+    {
       "step": "PAYMENT_FINAL_ANSWER",
       "agent": "payment",
-      "timestamp": "2026-07-21T04:34:41.763896+00:00",
+      "timestamp": "2026-07-24T19:38:48.446589+00:00",
       "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_force_card_decline'"
-      }
-    },
-    {
-      "step": "EMAIL_TASK_START",
-      "agent": "email",
-      "timestamp": "2026-07-21T04:34:41.763898+00:00",
-      "data": {
-        "order_id": "CO-C794CC",
-        "customer_email": "customer@example.com",
-        "fault_mode": "NONE"
-      }
-    },
-    {
-      "step": "EMAIL_FINAL_ANSWER",
-      "agent": "email",
-      "timestamp": "2026-07-21T04:34:41.763900+00:00",
-      "data": {
-        "error": "module 'app.fault_injection' has no attribute 'maybe_inject_wrong_customer'"
+        "success": true,
+        "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868"
       }
     }
   ],
@@ -263,12 +309,12 @@
     "checkout_orchestrator": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:34:30.926409+00:00",
+        "timestamp": "2026-07-24T19:36:41.902274+00:00",
         "data": {
           "fault_mode": "NONE",
           "model": "qwen2.5:3b",
           "temperature": 0.0,
-          "order_id": "CO-C794CC",
+          "order_id": "CO-C74049",
           "items": [
             {
               "product_id": "PROD-001",
@@ -287,7 +333,7 @@
       },
       {
         "step": "PRODUCT_FETCHED",
-        "timestamp": "2026-07-21T04:34:35.002003+00:00",
+        "timestamp": "2026-07-24T19:36:45.788265+00:00",
         "data": {
           "tool": "get_product",
           "args": {
@@ -306,37 +352,42 @@
       },
       {
         "step": "CURRENCY_CONVERTED",
-        "timestamp": "2026-07-21T04:34:36.084574+00:00",
+        "timestamp": "2026-07-24T19:36:46.356270+00:00",
         "data": {
           "tool": "convert_currency",
           "args": {
-            "amount_nanos": 7940000000,
+            "amount_nanos": 987654321,
+            "amount_units": 1,
             "from_currency": "USD",
             "to_currency": "CAD"
           },
-          "result": {}
+          "result": {
+            "currency_code": "CAD",
+            "units": 1,
+            "nanos": 987654321
+          }
         }
       },
       {
         "step": "SHIPPING_QUOTED",
-        "timestamp": "2026-07-21T04:34:37.353031+00:00",
+        "timestamp": "2026-07-24T19:36:47.660621+00:00",
         "data": {
           "tool": "quote_shipping",
           "args": {
-            "items": [
-              {
-                "product_id": "PROD-001",
-                "quantity": 2,
-                "weight_kg": 1.5
-              }
-            ],
             "address": {
               "city": "Montreal",
               "country": "Canada",
               "state": "QC",
               "street_address": "123 Main St",
               "zip_code": "H3A 0A1"
-            }
+            },
+            "items": [
+              {
+                "product_id": "PROD-001",
+                "quantity": 2,
+                "weight_kg": 1.5
+              }
+            ]
           },
           "result": {
             "cost_usd": 5.0
@@ -345,94 +396,121 @@
       },
       {
         "step": "PAYMENT_CHARGED",
-        "timestamp": "2026-07-21T04:34:38.985456+00:00",
+        "timestamp": "2026-07-24T19:36:48.314080+00:00",
         "data": {
           "tool": "charge_card",
           "args": {
-            "credit_card_cvv": 123,
             "credit_card_expiration_month": 12,
             "credit_card_expiration_year": 2030,
             "credit_card_number": "4111111111111111",
-            "currency_code": "CAD",
-            "units": 300000000
+            "currency_code": "USD",
+            "units": 39.87,
+            "credit_card_cvv": 123
           },
           "result": {
-            "transaction_id": null
-          }
-        }
-      },
-      {
-        "step": "CONFIRMATION_SENT",
-        "timestamp": "2026-07-21T04:34:41.197231+00:00",
-        "data": {
-          "tool": "send_order_confirmation",
-          "args": {
-            "email": "customer@example.com",
-            "order_id": "CO-C794CC",
-            "total_amount": 5
-          },
-          "result": {
-            "status": "sent"
+            "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868"
           }
         }
       },
       {
         "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:34:41.741980+00:00",
+        "timestamp": "2026-07-24T19:38:48.423904+00:00",
         "data": {
-          "content": "{\"order_id\": \"CO-C794CC\", \"shipping_tracking_id\": \"\", \"total_charged\": 0.0}",
-          "iterations": 3
+          "content": null,
+          "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)"
         }
       }
     ],
     "productcatalog": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:34:34.391584+00:00",
+        "timestamp": "2026-07-24T19:36:45.766104+00:00",
         "fault_mode": "NONE",
         "data": {
           "query": "get product PROD-001",
-          "product_ids": null,
-          "action": "search_products",
+          "product_ids": [
+            "PROD-001"
+          ],
+          "action": "get_product",
           "fault_mode": "NONE"
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:34:34.984604+00:00",
+        "step": "CATALOG_DONE",
+        "timestamp": "2026-07-24T19:36:45.766204+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_tamper_query_str'"
+          "action": "get_product",
+          "count": 1,
+          "product_ids": [
+            "PROD-001"
+          ],
+          "hallucinated": false,
+          "query_tampered": false,
+          "action_swapped": false,
+          "products_missing": false,
+          "price_manipulated": false,
+          "duplicated": false,
+          "category_wrong": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-24T19:36:45.766221+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "count": 1
         }
       }
     ],
     "currency": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:34:35.176775+00:00",
+        "timestamp": "2026-07-24T19:36:46.327215+00:00",
         "fault_mode": "NONE",
         "data": {
           "action": "convert",
           "from_currency": "USD",
           "to_currency": "CAD",
-          "units": 19,
-          "nanos": 7940000000,
+          "units": 1,
+          "nanos": 987654321,
           "fault_mode": "NONE"
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:34:36.063673+00:00",
+        "step": "CONVERT_DONE",
+        "timestamp": "2026-07-24T19:36:46.327324+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_inflate_rate'"
+          "from_currency": "USD",
+          "to_currency": "CAD",
+          "units_in": 1,
+          "units_out": 1,
+          "hallucinated": false,
+          "rate_manipulated": false,
+          "stale_rate": false,
+          "overflow": false,
+          "amount_tampered": false,
+          "currency_swapped": false
+        }
+      },
+      {
+        "step": "FINAL_ANSWER",
+        "timestamp": "2026-07-24T19:36:46.327337+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "result": {
+            "currency_code": "CAD",
+            "units": 1,
+            "nanos": 987654321
+          }
         }
       }
     ],
     "shipping_quote": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:34:36.260323+00:00",
+        "timestamp": "2026-07-24T19:36:46.538897+00:00",
         "fault_mode": "NONE",
         "data": {
           "address": {
@@ -447,7 +525,7 @@
       },
       {
         "step": "QUOTE_DONE",
-        "timestamp": "2026-07-21T04:34:37.325958+00:00",
+        "timestamp": "2026-07-24T19:36:47.637949+00:00",
         "fault_mode": "NONE",
         "data": {
           "cost_usd": 5.0,
@@ -456,7 +534,7 @@
       },
       {
         "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:34:37.325975+00:00",
+        "timestamp": "2026-07-24T19:36:47.637964+00:00",
         "fault_mode": "NONE",
         "data": {
           "raw": "{\"cost_usd\": <number>}"
@@ -464,7 +542,7 @@
       },
       {
         "step": "SAVE_DONE",
-        "timestamp": "2026-07-21T04:34:37.326021+00:00",
+        "timestamp": "2026-07-24T19:36:47.638001+00:00",
         "fault_mode": "NONE",
         "data": {
           "saved": false,
@@ -475,42 +553,55 @@
     "payment": [
       {
         "step": "TASK_START",
-        "timestamp": "2026-07-21T04:34:37.522524+00:00",
+        "timestamp": "2026-07-24T19:36:48.283587+00:00",
         "fault_mode": "NONE",
         "data": {
-          "currency_code": "CAD",
-          "units": 300000000,
+          "currency_code": "USD",
+          "units": 39.87,
           "nanos": 990000000,
           "card_last4": "1111",
           "fault_mode": "NONE"
         }
       },
       {
-        "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:34:38.961435+00:00",
+        "step": "CARD_VALIDATED",
+        "timestamp": "2026-07-24T19:36:48.283716+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_force_card_decline'"
+          "card_last4": "1111",
+          "validation_bypassed": false,
+          "amount_tampered": false
         }
-      }
-    ],
-    "email": [
+      },
       {
-        "step": "TASK_START",
-        "timestamp": "2026-07-21T04:34:39.859982+00:00",
+        "step": "CHARGE_DONE",
+        "timestamp": "2026-07-24T19:36:48.283729+00:00",
         "fault_mode": "NONE",
         "data": {
-          "order_id": "CO-C794CC",
-          "customer_email": "customer@example.com",
-          "fault_mode": "NONE"
+          "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868",
+          "hallucinated": false,
+          "units_charged": 39.87,
+          "nanos_charged": 990000000
+        }
+      },
+      {
+        "step": "SAVE_DONE",
+        "timestamp": "2026-07-24T19:36:48.283776+00:00",
+        "fault_mode": "NONE",
+        "data": {
+          "saved": true,
+          "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868",
+          "save_skipped": false,
+          "double_charge": false
         }
       },
       {
         "step": "FINAL_ANSWER",
-        "timestamp": "2026-07-21T04:34:41.176626+00:00",
+        "timestamp": "2026-07-24T19:36:48.283785+00:00",
         "fault_mode": "NONE",
         "data": {
-          "error": "module 'app.fault_injection' has no attribute 'maybe_inject_wrong_customer'"
+          "success": true,
+          "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868"
         }
       }
     ]
@@ -528,11 +619,11 @@
         "CURRENCY_CONVERTED",
         "SHIPPING_QUOTED",
         "PAYMENT_CHARGED",
-        "CONFIRMATION_SENT",
         "FINAL_ANSWER"
       ],
       "steps_lost": [
-        "ORDER_SHIPPED"
+        "ORDER_SHIPPED",
+        "CONFIRMATION_SENT"
       ]
     },
     "productcatalog": {
@@ -543,11 +634,10 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
+        "CATALOG_DONE",
         "FINAL_ANSWER"
       ],
-      "steps_lost": [
-        "CATALOG_DONE"
-      ]
+      "steps_lost": []
     },
     "currency": {
       "R": true,
@@ -557,11 +647,10 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
+        "CONVERT_DONE",
         "FINAL_ANSWER"
       ],
-      "steps_lost": [
-        "CONVERT_DONE"
-      ]
+      "steps_lost": []
     },
     "shipping_quote": {
       "R": true,
@@ -585,13 +674,12 @@
       "propagated_to": null,
       "steps_reached": [
         "TASK_START",
-        "FINAL_ANSWER"
-      ],
-      "steps_lost": [
         "CARD_VALIDATED",
         "CHARGE_DONE",
-        "SAVE_DONE"
-      ]
+        "SAVE_DONE",
+        "FINAL_ANSWER"
+      ],
+      "steps_lost": []
     },
     "ship_order": {
       "R": false,
@@ -606,24 +694,23 @@
       ]
     },
     "email": {
-      "R": true,
+      "R": false,
       "I": false,
       "P": false,
       "infection_point": null,
       "propagated_to": null,
-      "steps_reached": [
-        "TASK_START",
-        "FINAL_ANSWER"
-      ],
+      "steps_reached": [],
       "steps_lost": [
+        "TASK_START",
         "EMAIL_GENERATED",
-        "EMAIL_SENT"
+        "EMAIL_SENT",
+        "FINAL_ANSWER"
       ]
     }
   },
-  "order_id": "CO-C794CC",
-  "transaction_id": "orch-tx-unknown",
+  "order_id": "CO-C74049",
+  "transaction_id": "92aefbdf-29cc-43ba-bef3-bb674d556868",
   "tracking_id": null,
-  "orchestrator_iterations": 3,
-  "orchestrator_status": "ok"
+  "orchestrator_iterations": 2,
+  "orchestrator_status": "error"
 }

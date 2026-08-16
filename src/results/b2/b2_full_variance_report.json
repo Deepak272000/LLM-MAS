@@ -1,82 +1,282 @@
 {
-  "generated_at": "2026-07-20T01:59:31.872699+00:00",
+  "generated_at": "2026-07-24T19:46:45.741611+00:00",
   "all_summaries": [
     {
       "model_label": "14b_temp0",
-      "total_runs": 9,
-      "ok_runs": 9,
+      "total_runs": 10,
+      "ok_runs": 10,
       "natural_variance_rate": 1.0,
-      "runs_with_deviation": 9,
+      "runs_with_deviation": 10,
       "per_agent_stats": {
-        "productcatalog": {
-          "mean_deviation_rate": 0.25,
-          "runs_with_any_deviation": 9,
+        "checkout_orchestrator": {
+          "mean_deviation_rate": 0.0,
+          "runs_with_any_deviation": 0,
           "step_coverage": {
             "TASK_START": 1.0,
-            "CATALOG_DONE": 1.0,
             "FINAL_ANSWER": 1.0
           },
+          "frequently_deviating_fields": {}
+        },
+        "productcatalog": {
+          "mean_deviation_rate": 1.0,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {},
           "frequently_deviating_fields": {
-            "productcatalogagent.CATALOG_DONE.count": {
-              "count": 9,
+            "productcatalogagent.TASK_START.action": {
+              "count": 10,
               "deviation_rate": 1.0,
               "sample_values": [
-                2,
-                2,
-                2
+                null,
+                null,
+                null
+              ]
+            },
+            "productcatalogagent.CATALOG_DONE.product_ids": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "productcatalogagent.CATALOG_DONE.count": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "productcatalogagent.CATALOG_DONE.price_manipulated": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
               ]
             }
           }
         },
         "currency": {
-          "mean_deviation_rate": 0.0,
-          "runs_with_any_deviation": 0,
-          "step_coverage": {
-            "TASK_START": 1.0,
-            "CONVERT_DONE": 1.0,
-            "FINAL_ANSWER": 1.0
-          },
-          "frequently_deviating_fields": {}
+          "mean_deviation_rate": 1.0,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {},
+          "frequently_deviating_fields": {
+            "currencyagent.TASK_START.units": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "currencyagent.TASK_START.to_currency": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "currencyagent.CONVERT_DONE.units_out": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "currencyagent.CONVERT_DONE.currency_swapped": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            }
+          }
         },
         "shipping_quote": {
-          "mean_deviation_rate": 0.0,
-          "runs_with_any_deviation": 0,
-          "step_coverage": {
-            "TASK_START": 1.0,
-            "QUOTE_DONE": 1.0,
-            "FINAL_ANSWER": 1.0,
-            "SAVE_DONE": 1.0
-          },
-          "frequently_deviating_fields": {}
+          "mean_deviation_rate": 1.0,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {},
+          "frequently_deviating_fields": {
+            "shippingagent_get_quote.TASK_START.item_count": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_get_quote.QUOTE_DONE.cost_usd": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_get_quote.QUOTE_DONE.item_count_inflated": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            }
+          }
         },
         "payment": {
-          "mean_deviation_rate": 0.0,
-          "runs_with_any_deviation": 0,
-          "step_coverage": {
-            "TASK_START": 1.0,
-            "CARD_VALIDATED": 1.0,
-            "CHARGE_DONE": 1.0,
-            "SAVE_DONE": 1.0,
-            "FINAL_ANSWER": 1.0
-          },
-          "frequently_deviating_fields": {}
+          "mean_deviation_rate": 1.0,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {},
+          "frequently_deviating_fields": {
+            "paymentagent.TASK_START.currency_code": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.TASK_START.units": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.TASK_START.nanos": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CARD_VALIDATED.validation_bypassed": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CARD_VALIDATED.amount_tampered": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.transaction_id": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.units_charged": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.hallucinated": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.SAVE_DONE.saved": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.SAVE_DONE.double_charge": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            }
+          }
         },
         "ship_order": {
-          "mean_deviation_rate": 0.2,
-          "runs_with_any_deviation": 9,
-          "step_coverage": {
-            "TASK_START": 1.0,
-            "FINAL_ANSWER": 1.0,
-            "QUOTE_DONE": 1.0,
-            "BOUNDARY_CHECK": 2.0,
-            "CARRIER_DONE": 1.0,
-            "TRACKING_DONE": 1.0,
-            "ESCALATION_CHECK": 1.0,
-            "SAVE_DONE": 1.0
-          },
+          "mean_deviation_rate": 1.0,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {},
           "frequently_deviating_fields": {
+            "shippingagent_ship_order.CARRIER_DONE.carrier": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
             "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote": {
-              "count": 9,
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.TRACKING_DONE.tracking_id": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.SAVE_DONE.saved": {
+              "count": 10,
               "deviation_rate": 1.0,
               "sample_values": [
                 null,
@@ -87,79 +287,512 @@
           }
         },
         "email": {
-          "mean_deviation_rate": 0.0,
-          "runs_with_any_deviation": 0,
-          "step_coverage": {
-            "TASK_START": 1.0,
-            "EMAIL_GENERATED": 1.0,
-            "EMAIL_SENT": 1.0,
-            "FINAL_ANSWER": 1.0
-          },
-          "frequently_deviating_fields": {}
+          "mean_deviation_rate": 1.0,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {},
+          "frequently_deviating_fields": {
+            "emailserviceagent.TASK_START.email": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.email_type": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.body_len": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.corrupted": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.hallucinated": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.status": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.send_skipped": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            }
+          }
         }
       },
       "step_coverage": {
-        "productcatalog": {
+        "checkout_orchestrator": {
           "TASK_START": 1.0,
-          "CATALOG_DONE": 1.0,
           "FINAL_ANSWER": 1.0
         },
-        "currency": {
-          "TASK_START": 1.0,
-          "CONVERT_DONE": 1.0,
-          "FINAL_ANSWER": 1.0
-        },
-        "shipping_quote": {
-          "TASK_START": 1.0,
-          "QUOTE_DONE": 1.0,
-          "FINAL_ANSWER": 1.0,
-          "SAVE_DONE": 1.0
-        },
-        "payment": {
-          "TASK_START": 1.0,
-          "CARD_VALIDATED": 1.0,
-          "CHARGE_DONE": 1.0,
-          "SAVE_DONE": 1.0,
-          "FINAL_ANSWER": 1.0
-        },
-        "ship_order": {
-          "TASK_START": 1.0,
-          "FINAL_ANSWER": 1.0,
-          "QUOTE_DONE": 1.0,
-          "BOUNDARY_CHECK": 2.0,
-          "CARRIER_DONE": 1.0,
-          "TRACKING_DONE": 1.0,
-          "ESCALATION_CHECK": 1.0,
-          "SAVE_DONE": 1.0
-        },
-        "email": {
-          "TASK_START": 1.0,
-          "EMAIL_GENERATED": 1.0,
-          "EMAIL_SENT": 1.0,
-          "FINAL_ANSWER": 1.0
-        }
+        "productcatalog": {},
+        "currency": {},
+        "shipping_quote": {},
+        "payment": {},
+        "ship_order": {},
+        "email": {}
       },
       "field_variance_table": [
         {
           "agent": "productcatalog",
+          "checkpoint": "TASK_START",
+          "field": "action",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "productcatalog",
+          "checkpoint": "CATALOG_DONE",
+          "field": "product_ids",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "productcatalog",
           "checkpoint": "CATALOG_DONE",
           "field": "count",
-          "deviation_count": 9,
+          "deviation_count": 10,
           "deviation_rate": 1.0,
-          "total_runs": 9,
+          "total_runs": 10,
           "sample_values": [
-            2,
-            2,
-            2
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "productcatalog",
+          "checkpoint": "CATALOG_DONE",
+          "field": "price_manipulated",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "units",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "to_currency",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "CONVERT_DONE",
+          "field": "units_out",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "CONVERT_DONE",
+          "field": "currency_swapped",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "shipping_quote",
+          "checkpoint": "TASK_START",
+          "field": "item_count",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "shipping_quote",
+          "checkpoint": "QUOTE_DONE",
+          "field": "cost_usd",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "shipping_quote",
+          "checkpoint": "QUOTE_DONE",
+          "field": "item_count_inflated",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "currency_code",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "units",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "nanos",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CARD_VALIDATED",
+          "field": "validation_bypassed",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CARD_VALIDATED",
+          "field": "amount_tampered",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "transaction_id",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "units_charged",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "hallucinated",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "SAVE_DONE",
+          "field": "double_charge",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "CARRIER_DONE",
+          "field": "carrier",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
           ]
         },
         {
           "agent": "ship_order",
           "checkpoint": "CARRIER_DONE",
           "field": "ignored_downstream_quote",
-          "deviation_count": 9,
+          "deviation_count": 10,
           "deviation_rate": 1.0,
-          "total_runs": 9,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "TRACKING_DONE",
+          "field": "tracking_id",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "ESCALATION_CHECK",
+          "field": "escalation_required",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "TASK_START",
+          "field": "email",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "email_type",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "body_len",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "corrupted",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "hallucinated",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "status",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "send_skipped",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
           "sample_values": [
             null,
             null,
@@ -167,8 +800,8 @@
           ]
         }
       ],
-      "avg_elapsed_ms": 25919.6,
-      "generated_at": "2026-07-20T01:59:31.836650+00:00"
+      "avg_elapsed_ms": 4924.3,
+      "generated_at": "2026-07-24T19:37:11.937909+00:00"
     },
     {
       "model_label": "3b_temp0",
@@ -177,8 +810,23 @@
       "natural_variance_rate": 1.0,
       "runs_with_deviation": 10,
       "per_agent_stats": {
+        "checkout_orchestrator": {
+          "mean_deviation_rate": 0.0,
+          "runs_with_any_deviation": 0,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "PRODUCT_FETCHED": 1.0,
+            "CURRENCY_CONVERTED": 1.0,
+            "SHIPPING_QUOTED": 1.0,
+            "PAYMENT_CHARGED": 1.0,
+            "ORDER_SHIPPED": 0.9,
+            "CONFIRMATION_SENT": 0.3,
+            "FINAL_ANSWER": 1.0
+          },
+          "frequently_deviating_fields": {}
+        },
         "productcatalog": {
-          "mean_deviation_rate": 0.25,
+          "mean_deviation_rate": 0.5,
           "runs_with_any_deviation": 10,
           "step_coverage": {
             "TASK_START": 1.0,
@@ -186,26 +834,69 @@
             "FINAL_ANSWER": 1.0
           },
           "frequently_deviating_fields": {
-            "productcatalogagent.CATALOG_DONE.count": {
+            "productcatalogagent.TASK_START.action": {
               "count": 10,
               "deviation_rate": 1.0,
               "sample_values": [
-                2,
-                2,
-                2
+                "get_product",
+                "get_product",
+                "get_product"
+              ]
+            },
+            "productcatalogagent.CATALOG_DONE.product_ids": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                [
+                  "PROD-001"
+                ],
+                [
+                  "PROD-001"
+                ],
+                [
+                  "PROD-001"
+                ]
               ]
             }
           }
         },
         "currency": {
-          "mean_deviation_rate": 0.0,
-          "runs_with_any_deviation": 0,
+          "mean_deviation_rate": 0.5,
+          "runs_with_any_deviation": 10,
           "step_coverage": {
             "TASK_START": 1.0,
             "CONVERT_DONE": 1.0,
             "FINAL_ANSWER": 1.0
           },
-          "frequently_deviating_fields": {}
+          "frequently_deviating_fields": {
+            "currencyagent.TASK_START.to_currency": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                "CAD",
+                "CAD",
+                "CAD"
+              ]
+            },
+            "currencyagent.TASK_START.units": {
+              "count": 5,
+              "deviation_rate": 0.5,
+              "sample_values": [
+                1,
+                2,
+                2
+              ]
+            },
+            "currencyagent.CONVERT_DONE.units_out": {
+              "count": 5,
+              "deviation_rate": 0.5,
+              "sample_values": [
+                1,
+                2,
+                2
+              ]
+            }
+          }
         },
         "shipping_quote": {
           "mean_deviation_rate": 0.0,
@@ -219,8 +910,8 @@
           "frequently_deviating_fields": {}
         },
         "payment": {
-          "mean_deviation_rate": 0.16,
-          "runs_with_any_deviation": 8,
+          "mean_deviation_rate": 0.25,
+          "runs_with_any_deviation": 10,
           "step_coverage": {
             "TASK_START": 1.0,
             "CARD_VALIDATED": 1.0,
@@ -230,38 +921,47 @@
           },
           "frequently_deviating_fields": {
             "paymentagent.TASK_START.units": {
-              "count": 8,
-              "deviation_rate": 0.8,
+              "count": 10,
+              "deviation_rate": 1.0,
               "sample_values": [
-                24,
-                24,
-                24
+                987654321,
+                800000000,
+                800000000
               ]
             },
             "paymentagent.CHARGE_DONE.units_charged": {
-              "count": 8,
-              "deviation_rate": 0.8,
+              "count": 10,
+              "deviation_rate": 1.0,
               "sample_values": [
-                24,
-                24,
-                24
+                987654321,
+                800000000,
+                800000000
+              ]
+            },
+            "paymentagent.TASK_START.currency_code": {
+              "count": 5,
+              "deviation_rate": 0.5,
+              "sample_values": [
+                "CAD",
+                "CAD",
+                "CAD"
               ]
             }
           }
         },
         "ship_order": {
-          "mean_deviation_rate": 0.4,
+          "mean_deviation_rate": 0.46,
           "runs_with_any_deviation": 10,
           "step_coverage": {
-            "TASK_START": 1.0,
-            "FINAL_ANSWER": 1.0,
-            "QUOTE_DONE": 1.0,
-            "BOUNDARY_CHECK": 2.0,
-            "CARRIER_DONE": 1.0,
-            "RECOVERY_ACTION": 1.0,
-            "TRACKING_DONE": 1.0,
-            "ESCALATION_CHECK": 1.0,
-            "SAVE_DONE": 1.0
+            "TASK_START": 0.9,
+            "FINAL_ANSWER": 0.9,
+            "QUOTE_DONE": 0.9,
+            "BOUNDARY_CHECK": 1.8,
+            "CARRIER_DONE": 0.9,
+            "RECOVERY_ACTION": 0.9,
+            "TRACKING_DONE": 0.9,
+            "ESCALATION_CHECK": 0.9,
+            "SAVE_DONE": 0.9
           },
           "frequently_deviating_fields": {
             "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote": {
@@ -281,32 +981,117 @@
                 "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
                 "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level"
               ]
+            },
+            "shippingagent_ship_order.CARRIER_DONE.carrier": {
+              "count": 1,
+              "deviation_rate": 0.1,
+              "sample_values": [
+                null
+              ]
+            },
+            "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {
+              "count": 1,
+              "deviation_rate": 0.1,
+              "sample_values": [
+                null
+              ]
+            },
+            "shippingagent_ship_order.SAVE_DONE.saved": {
+              "count": 1,
+              "deviation_rate": 0.1,
+              "sample_values": [
+                null
+              ]
             }
           }
         },
         "email": {
-          "mean_deviation_rate": 0.0833,
-          "runs_with_any_deviation": 5,
+          "mean_deviation_rate": 0.7,
+          "runs_with_any_deviation": 7,
           "step_coverage": {
-            "TASK_START": 1.0,
-            "EMAIL_GENERATED": 1.0,
-            "EMAIL_SENT": 1.0,
-            "FINAL_ANSWER": 1.0
+            "TASK_START": 0.3,
+            "EMAIL_GENERATED": 0.3,
+            "EMAIL_SENT": 0.3,
+            "FINAL_ANSWER": 0.3
           },
           "frequently_deviating_fields": {
-            "emailserviceagent.EMAIL_GENERATED.body_len": {
-              "count": 5,
-              "deviation_rate": 0.5,
+            "emailserviceagent.TASK_START.email": {
+              "count": 7,
+              "deviation_rate": 0.7,
               "sample_values": [
-                549,
-                570,
-                562
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.email_type": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.body_len": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.corrupted": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.hallucinated": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.status": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.send_skipped": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
               ]
             }
           }
         }
       },
       "step_coverage": {
+        "checkout_orchestrator": {
+          "TASK_START": 1.0,
+          "PRODUCT_FETCHED": 1.0,
+          "CURRENCY_CONVERTED": 1.0,
+          "SHIPPING_QUOTED": 1.0,
+          "PAYMENT_CHARGED": 1.0,
+          "ORDER_SHIPPED": 0.9,
+          "CONFIRMATION_SENT": 0.3,
+          "FINAL_ANSWER": 1.0
+        },
         "productcatalog": {
           "TASK_START": 1.0,
           "CATALOG_DONE": 1.0,
@@ -331,35 +1116,93 @@
           "FINAL_ANSWER": 1.0
         },
         "ship_order": {
-          "TASK_START": 1.0,
-          "FINAL_ANSWER": 1.0,
-          "QUOTE_DONE": 1.0,
-          "BOUNDARY_CHECK": 2.0,
-          "CARRIER_DONE": 1.0,
-          "RECOVERY_ACTION": 1.0,
-          "TRACKING_DONE": 1.0,
-          "ESCALATION_CHECK": 1.0,
-          "SAVE_DONE": 1.0
+          "TASK_START": 0.9,
+          "FINAL_ANSWER": 0.9,
+          "QUOTE_DONE": 0.9,
+          "BOUNDARY_CHECK": 1.8,
+          "CARRIER_DONE": 0.9,
+          "RECOVERY_ACTION": 0.9,
+          "TRACKING_DONE": 0.9,
+          "ESCALATION_CHECK": 0.9,
+          "SAVE_DONE": 0.9
         },
         "email": {
-          "TASK_START": 1.0,
-          "EMAIL_GENERATED": 1.0,
-          "EMAIL_SENT": 1.0,
-          "FINAL_ANSWER": 1.0
+          "TASK_START": 0.3,
+          "EMAIL_GENERATED": 0.3,
+          "EMAIL_SENT": 0.3,
+          "FINAL_ANSWER": 0.3
         }
       },
       "field_variance_table": [
         {
           "agent": "productcatalog",
-          "checkpoint": "CATALOG_DONE",
-          "field": "count",
+          "checkpoint": "TASK_START",
+          "field": "action",
           "deviation_count": 10,
           "deviation_rate": 1.0,
           "total_runs": 10,
           "sample_values": [
-            2,
-            2,
-            2
+            "get_product",
+            "get_product",
+            "get_product"
+          ]
+        },
+        {
+          "agent": "productcatalog",
+          "checkpoint": "CATALOG_DONE",
+          "field": "product_ids",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            [
+              "PROD-001"
+            ],
+            [
+              "PROD-001"
+            ],
+            [
+              "PROD-001"
+            ]
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "to_currency",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            "CAD",
+            "CAD",
+            "CAD"
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "units",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            987654321,
+            800000000,
+            800000000
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "units_charged",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            987654321,
+            800000000,
+            800000000
           ]
         },
         {
@@ -389,57 +1232,196 @@
           ]
         },
         {
-          "agent": "payment",
+          "agent": "email",
           "checkpoint": "TASK_START",
-          "field": "units",
-          "deviation_count": 8,
-          "deviation_rate": 0.8,
+          "field": "email",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
           "total_runs": 10,
           "sample_values": [
-            24,
-            24,
-            24
+            null,
+            null,
+            null
           ]
         },
         {
-          "agent": "payment",
-          "checkpoint": "CHARGE_DONE",
-          "field": "units_charged",
-          "deviation_count": 8,
-          "deviation_rate": 0.8,
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "email_type",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
           "total_runs": 10,
           "sample_values": [
-            24,
-            24,
-            24
+            null,
+            null,
+            null
           ]
         },
         {
           "agent": "email",
           "checkpoint": "EMAIL_GENERATED",
           "field": "body_len",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "corrupted",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "hallucinated",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "status",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "send_skipped",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "units",
           "deviation_count": 5,
           "deviation_rate": 0.5,
           "total_runs": 10,
           "sample_values": [
-            549,
-            570,
-            562
+            1,
+            2,
+            2
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "CONVERT_DONE",
+          "field": "units_out",
+          "deviation_count": 5,
+          "deviation_rate": 0.5,
+          "total_runs": 10,
+          "sample_values": [
+            1,
+            2,
+            2
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "currency_code",
+          "deviation_count": 5,
+          "deviation_rate": 0.5,
+          "total_runs": 10,
+          "sample_values": [
+            "CAD",
+            "CAD",
+            "CAD"
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "CARRIER_DONE",
+          "field": "carrier",
+          "deviation_count": 1,
+          "deviation_rate": 0.1,
+          "total_runs": 10,
+          "sample_values": [
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "ESCALATION_CHECK",
+          "field": "escalation_required",
+          "deviation_count": 1,
+          "deviation_rate": 0.1,
+          "total_runs": 10,
+          "sample_values": [
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 1,
+          "deviation_rate": 0.1,
+          "total_runs": 10,
+          "sample_values": [
+            null
           ]
         }
       ],
-      "avg_elapsed_ms": 16300.9,
-      "generated_at": "2026-07-20T01:59:31.850402+00:00"
+      "avg_elapsed_ms": 21772.4,
+      "generated_at": "2026-07-24T19:40:49.719602+00:00"
     },
     {
-      "model_label": "3b_temp0.8",
+      "model_label": "3b_temp0.7",
       "total_runs": 10,
       "ok_runs": 10,
       "natural_variance_rate": 1.0,
       "runs_with_deviation": 10,
       "per_agent_stats": {
+        "checkout_orchestrator": {
+          "mean_deviation_rate": 0.0,
+          "runs_with_any_deviation": 0,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "PRODUCT_FETCHED": 1.0,
+            "CURRENCY_CONVERTED": 1.0,
+            "SHIPPING_QUOTED": 1.0,
+            "PAYMENT_CHARGED": 1.0,
+            "CONFIRMATION_SENT": 0.3,
+            "FINAL_ANSWER": 1.0,
+            "ORDER_SHIPPED": 0.4
+          },
+          "frequently_deviating_fields": {}
+        },
         "productcatalog": {
-          "mean_deviation_rate": 0.25,
+          "mean_deviation_rate": 0.5,
           "runs_with_any_deviation": 10,
           "step_coverage": {
             "TASK_START": 1.0,
@@ -447,26 +1429,69 @@
             "FINAL_ANSWER": 1.0
           },
           "frequently_deviating_fields": {
-            "productcatalogagent.CATALOG_DONE.count": {
+            "productcatalogagent.TASK_START.action": {
               "count": 10,
               "deviation_rate": 1.0,
               "sample_values": [
-                2,
-                2,
-                2
+                "get_product",
+                "get_product",
+                "get_product"
+              ]
+            },
+            "productcatalogagent.CATALOG_DONE.product_ids": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                [
+                  "PROD-001"
+                ],
+                [
+                  "PROD-001"
+                ],
+                [
+                  "PROD-001"
+                ]
               ]
             }
           }
         },
         "currency": {
-          "mean_deviation_rate": 0.0,
-          "runs_with_any_deviation": 0,
+          "mean_deviation_rate": 0.475,
+          "runs_with_any_deviation": 9,
           "step_coverage": {
             "TASK_START": 1.0,
             "CONVERT_DONE": 1.0,
             "FINAL_ANSWER": 1.0
           },
-          "frequently_deviating_fields": {}
+          "frequently_deviating_fields": {
+            "currencyagent.TASK_START.to_currency": {
+              "count": 9,
+              "deviation_rate": 0.9,
+              "sample_values": [
+                "CAD",
+                "CAD",
+                "CAD"
+              ]
+            },
+            "currencyagent.TASK_START.units": {
+              "count": 5,
+              "deviation_rate": 0.5,
+              "sample_values": [
+                1,
+                1,
+                2
+              ]
+            },
+            "currencyagent.CONVERT_DONE.units_out": {
+              "count": 5,
+              "deviation_rate": 0.5,
+              "sample_values": [
+                1,
+                1,
+                2
+              ]
+            }
+          }
         },
         "shipping_quote": {
           "mean_deviation_rate": 0.0,
@@ -480,49 +1505,119 @@
           "frequently_deviating_fields": {}
         },
         "payment": {
-          "mean_deviation_rate": 0.2,
+          "mean_deviation_rate": 0.49,
           "runs_with_any_deviation": 10,
           "step_coverage": {
             "TASK_START": 1.0,
-            "CARD_VALIDATED": 1.0,
-            "CHARGE_DONE": 1.0,
-            "SAVE_DONE": 1.0,
-            "FINAL_ANSWER": 1.0
+            "FINAL_ANSWER": 1.0,
+            "CARD_VALIDATED": 0.6,
+            "CHARGE_DONE": 0.6,
+            "SAVE_DONE": 0.6
           },
           "frequently_deviating_fields": {
             "paymentagent.TASK_START.units": {
               "count": 10,
               "deviation_rate": 1.0,
               "sample_values": [
-                24,
-                24,
-                24
+                47000000000,
+                800000000,
+                9876543210
               ]
             },
             "paymentagent.CHARGE_DONE.units_charged": {
               "count": 10,
               "deviation_rate": 1.0,
               "sample_values": [
-                24,
-                24,
-                24
+                null,
+                null,
+                9876543210
+              ]
+            },
+            "paymentagent.TASK_START.currency_code": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                "CAD",
+                "CAD",
+                "CAD"
+              ]
+            },
+            "paymentagent.CARD_VALIDATED.validation_bypassed": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CARD_VALIDATED.amount_tampered": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.transaction_id": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.hallucinated": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.SAVE_DONE.saved": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.SAVE_DONE.double_charge": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "paymentagent.TASK_START.nanos": {
+              "count": 1,
+              "deviation_rate": 0.1,
+              "sample_values": [
+                0
               ]
             }
           }
         },
         "ship_order": {
-          "mean_deviation_rate": 0.4,
+          "mean_deviation_rate": 0.74,
           "runs_with_any_deviation": 10,
           "step_coverage": {
-            "TASK_START": 1.0,
-            "FINAL_ANSWER": 1.0,
-            "QUOTE_DONE": 1.0,
-            "BOUNDARY_CHECK": 2.0,
-            "CARRIER_DONE": 1.0,
-            "RECOVERY_ACTION": 1.0,
-            "TRACKING_DONE": 1.0,
-            "ESCALATION_CHECK": 1.0,
-            "SAVE_DONE": 1.0
+            "TASK_START": 0.4,
+            "FINAL_ANSWER": 0.4,
+            "QUOTE_DONE": 0.4,
+            "BOUNDARY_CHECK": 0.8,
+            "CARRIER_DONE": 0.4,
+            "RECOVERY_ACTION": 0.3,
+            "TRACKING_DONE": 0.4,
+            "ESCALATION_CHECK": 0.4,
+            "SAVE_DONE": 0.4
           },
           "frequently_deviating_fields": {
             "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote": {
@@ -535,39 +1630,130 @@
               ]
             },
             "shippingagent_ship_order.TRACKING_DONE.tracking_id": {
-              "count": 10,
-              "deviation_rate": 1.0,
+              "count": 9,
+              "deviation_rate": 0.9,
               "sample_values": [
-                "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
-                "<id>",
-                "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level"
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.CARRIER_DONE.carrier": {
+              "count": 6,
+              "deviation_rate": 0.6,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {
+              "count": 6,
+              "deviation_rate": 0.6,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.SAVE_DONE.saved": {
+              "count": 6,
+              "deviation_rate": 0.6,
+              "sample_values": [
+                null,
+                null,
+                null
               ]
             }
           }
         },
         "email": {
-          "mean_deviation_rate": 0.05,
-          "runs_with_any_deviation": 3,
+          "mean_deviation_rate": 0.7,
+          "runs_with_any_deviation": 7,
           "step_coverage": {
-            "TASK_START": 1.0,
-            "EMAIL_GENERATED": 1.0,
-            "EMAIL_SENT": 1.0,
-            "FINAL_ANSWER": 1.0
+            "TASK_START": 0.3,
+            "EMAIL_GENERATED": 0.3,
+            "EMAIL_SENT": 0.3,
+            "FINAL_ANSWER": 0.3
           },
           "frequently_deviating_fields": {
-            "emailserviceagent.EMAIL_GENERATED.body_len": {
-              "count": 3,
-              "deviation_rate": 0.3,
+            "emailserviceagent.TASK_START.email": {
+              "count": 7,
+              "deviation_rate": 0.7,
               "sample_values": [
-                525,
-                594,
-                509
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.email_type": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.body_len": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.corrupted": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.hallucinated": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.status": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.send_skipped": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
               ]
             }
           }
         }
       },
       "step_coverage": {
+        "checkout_orchestrator": {
+          "TASK_START": 1.0,
+          "PRODUCT_FETCHED": 1.0,
+          "CURRENCY_CONVERTED": 1.0,
+          "SHIPPING_QUOTED": 1.0,
+          "PAYMENT_CHARGED": 1.0,
+          "CONFIRMATION_SENT": 0.3,
+          "FINAL_ANSWER": 1.0,
+          "ORDER_SHIPPED": 0.4
+        },
         "productcatalog": {
           "TASK_START": 1.0,
           "CATALOG_DONE": 1.0,
@@ -586,41 +1772,60 @@
         },
         "payment": {
           "TASK_START": 1.0,
-          "CARD_VALIDATED": 1.0,
-          "CHARGE_DONE": 1.0,
-          "SAVE_DONE": 1.0,
-          "FINAL_ANSWER": 1.0
+          "FINAL_ANSWER": 1.0,
+          "CARD_VALIDATED": 0.6,
+          "CHARGE_DONE": 0.6,
+          "SAVE_DONE": 0.6
         },
         "ship_order": {
-          "TASK_START": 1.0,
-          "FINAL_ANSWER": 1.0,
-          "QUOTE_DONE": 1.0,
-          "BOUNDARY_CHECK": 2.0,
-          "CARRIER_DONE": 1.0,
-          "RECOVERY_ACTION": 1.0,
-          "TRACKING_DONE": 1.0,
-          "ESCALATION_CHECK": 1.0,
-          "SAVE_DONE": 1.0
+          "TASK_START": 0.4,
+          "FINAL_ANSWER": 0.4,
+          "QUOTE_DONE": 0.4,
+          "BOUNDARY_CHECK": 0.8,
+          "CARRIER_DONE": 0.4,
+          "RECOVERY_ACTION": 0.3,
+          "TRACKING_DONE": 0.4,
+          "ESCALATION_CHECK": 0.4,
+          "SAVE_DONE": 0.4
         },
         "email": {
-          "TASK_START": 1.0,
-          "EMAIL_GENERATED": 1.0,
-          "EMAIL_SENT": 1.0,
-          "FINAL_ANSWER": 1.0
+          "TASK_START": 0.3,
+          "EMAIL_GENERATED": 0.3,
+          "EMAIL_SENT": 0.3,
+          "FINAL_ANSWER": 0.3
         }
       },
       "field_variance_table": [
         {
           "agent": "productcatalog",
-          "checkpoint": "CATALOG_DONE",
-          "field": "count",
+          "checkpoint": "TASK_START",
+          "field": "action",
           "deviation_count": 10,
           "deviation_rate": 1.0,
           "total_runs": 10,
           "sample_values": [
-            2,
-            2,
-            2
+            "get_product",
+            "get_product",
+            "get_product"
+          ]
+        },
+        {
+          "agent": "productcatalog",
+          "checkpoint": "CATALOG_DONE",
+          "field": "product_ids",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            [
+              "PROD-001"
+            ],
+            [
+              "PROD-001"
+            ],
+            [
+              "PROD-001"
+            ]
           ]
         },
         {
@@ -631,9 +1836,9 @@
           "deviation_rate": 1.0,
           "total_runs": 10,
           "sample_values": [
-            24,
-            24,
-            24
+            47000000000,
+            800000000,
+            9876543210
           ]
         },
         {
@@ -644,9 +1849,790 @@
           "deviation_rate": 1.0,
           "total_runs": 10,
           "sample_values": [
-            24,
-            24,
-            24
+            null,
+            null,
+            9876543210
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "CARRIER_DONE",
+          "field": "ignored_downstream_quote",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "to_currency",
+          "deviation_count": 9,
+          "deviation_rate": 0.9,
+          "total_runs": 10,
+          "sample_values": [
+            "CAD",
+            "CAD",
+            "CAD"
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "TRACKING_DONE",
+          "field": "tracking_id",
+          "deviation_count": 9,
+          "deviation_rate": 0.9,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "TASK_START",
+          "field": "email",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "email_type",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "body_len",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "corrupted",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "hallucinated",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "status",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "send_skipped",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "CARRIER_DONE",
+          "field": "carrier",
+          "deviation_count": 6,
+          "deviation_rate": 0.6,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "ESCALATION_CHECK",
+          "field": "escalation_required",
+          "deviation_count": 6,
+          "deviation_rate": 0.6,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 6,
+          "deviation_rate": 0.6,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "units",
+          "deviation_count": 5,
+          "deviation_rate": 0.5,
+          "total_runs": 10,
+          "sample_values": [
+            1,
+            1,
+            2
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "CONVERT_DONE",
+          "field": "units_out",
+          "deviation_count": 5,
+          "deviation_rate": 0.5,
+          "total_runs": 10,
+          "sample_values": [
+            1,
+            1,
+            2
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "currency_code",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            "CAD",
+            "CAD",
+            "CAD"
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CARD_VALIDATED",
+          "field": "validation_bypassed",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CARD_VALIDATED",
+          "field": "amount_tampered",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "transaction_id",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "hallucinated",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "SAVE_DONE",
+          "field": "double_charge",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "nanos",
+          "deviation_count": 1,
+          "deviation_rate": 0.1,
+          "total_runs": 10,
+          "sample_values": [
+            0
+          ]
+        }
+      ],
+      "avg_elapsed_ms": 10540.6,
+      "generated_at": "2026-07-24T19:42:38.639150+00:00"
+    },
+    {
+      "model_label": "3b_temp1.0",
+      "total_runs": 10,
+      "ok_runs": 10,
+      "natural_variance_rate": 1.0,
+      "runs_with_deviation": 10,
+      "per_agent_stats": {
+        "checkout_orchestrator": {
+          "mean_deviation_rate": 0.0,
+          "runs_with_any_deviation": 0,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "PRODUCT_FETCHED": 1.0,
+            "CURRENCY_CONVERTED": 1.0,
+            "SHIPPING_QUOTED": 1.0,
+            "PAYMENT_CHARGED": 1.3,
+            "FINAL_ANSWER": 1.0,
+            "ORDER_SHIPPED": 0.6,
+            "CONFIRMATION_SENT": 0.3
+          },
+          "frequently_deviating_fields": {}
+        },
+        "productcatalog": {
+          "mean_deviation_rate": 0.5,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "CATALOG_DONE": 1.0,
+            "FINAL_ANSWER": 1.0
+          },
+          "frequently_deviating_fields": {
+            "productcatalogagent.TASK_START.action": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                "get_product",
+                "get_product",
+                "get_product"
+              ]
+            },
+            "productcatalogagent.CATALOG_DONE.product_ids": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                [
+                  "PROD-001"
+                ],
+                [
+                  "PROD-001"
+                ],
+                [
+                  "PROD-001"
+                ]
+              ]
+            }
+          }
+        },
+        "currency": {
+          "mean_deviation_rate": 0.55,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "CONVERT_DONE": 1.0,
+            "FINAL_ANSWER": 1.0
+          },
+          "frequently_deviating_fields": {
+            "currencyagent.TASK_START.to_currency": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                "CAD",
+                "CAD",
+                "CAD"
+              ]
+            },
+            "currencyagent.TASK_START.units": {
+              "count": 6,
+              "deviation_rate": 0.6,
+              "sample_values": [
+                2,
+                1,
+                2
+              ]
+            },
+            "currencyagent.CONVERT_DONE.units_out": {
+              "count": 6,
+              "deviation_rate": 0.6,
+              "sample_values": [
+                2,
+                1,
+                2
+              ]
+            }
+          }
+        },
+        "shipping_quote": {
+          "mean_deviation_rate": 0.0667,
+          "runs_with_any_deviation": 1,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "QUOTE_DONE": 0.9,
+            "FINAL_ANSWER": 1.0,
+            "SAVE_DONE": 0.9
+          },
+          "frequently_deviating_fields": {
+            "shippingagent_get_quote.QUOTE_DONE.cost_usd": {
+              "count": 1,
+              "deviation_rate": 0.1,
+              "sample_values": [
+                null
+              ]
+            },
+            "shippingagent_get_quote.QUOTE_DONE.item_count_inflated": {
+              "count": 1,
+              "deviation_rate": 0.1,
+              "sample_values": [
+                null
+              ]
+            }
+          }
+        },
+        "payment": {
+          "mean_deviation_rate": 0.41,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {
+            "TASK_START": 1.0,
+            "CARD_VALIDATED": 0.8,
+            "CHARGE_DONE": 0.8,
+            "SAVE_DONE": 0.8,
+            "FINAL_ANSWER": 1.0
+          },
+          "frequently_deviating_fields": {
+            "paymentagent.TASK_START.units": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                800000000,
+                30,
+                20
+              ]
+            },
+            "paymentagent.CHARGE_DONE.units_charged": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                800000000,
+                30,
+                20
+              ]
+            },
+            "paymentagent.TASK_START.currency_code": {
+              "count": 6,
+              "deviation_rate": 0.6,
+              "sample_values": [
+                "CAD",
+                "CAD",
+                "CAD"
+              ]
+            },
+            "paymentagent.TASK_START.nanos": {
+              "count": 3,
+              "deviation_rate": 0.3,
+              "sample_values": [
+                0,
+                9900000000,
+                789654321
+              ]
+            },
+            "paymentagent.CARD_VALIDATED.validation_bypassed": {
+              "count": 2,
+              "deviation_rate": 0.2,
+              "sample_values": [
+                null,
+                null
+              ]
+            },
+            "paymentagent.CARD_VALIDATED.amount_tampered": {
+              "count": 2,
+              "deviation_rate": 0.2,
+              "sample_values": [
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.transaction_id": {
+              "count": 2,
+              "deviation_rate": 0.2,
+              "sample_values": [
+                null,
+                null
+              ]
+            },
+            "paymentagent.CHARGE_DONE.hallucinated": {
+              "count": 2,
+              "deviation_rate": 0.2,
+              "sample_values": [
+                null,
+                null
+              ]
+            },
+            "paymentagent.SAVE_DONE.saved": {
+              "count": 2,
+              "deviation_rate": 0.2,
+              "sample_values": [
+                null,
+                null
+              ]
+            },
+            "paymentagent.SAVE_DONE.double_charge": {
+              "count": 2,
+              "deviation_rate": 0.2,
+              "sample_values": [
+                null,
+                null
+              ]
+            }
+          }
+        },
+        "ship_order": {
+          "mean_deviation_rate": 0.62,
+          "runs_with_any_deviation": 10,
+          "step_coverage": {
+            "TASK_START": 0.6,
+            "FINAL_ANSWER": 0.6,
+            "QUOTE_DONE": 0.6,
+            "BOUNDARY_CHECK": 1.2,
+            "CARRIER_DONE": 0.6,
+            "RECOVERY_ACTION": 0.5,
+            "TRACKING_DONE": 0.6,
+            "ESCALATION_CHECK": 0.6,
+            "SAVE_DONE": 0.6
+          },
+          "frequently_deviating_fields": {
+            "shippingagent_ship_order.CARRIER_DONE.ignored_downstream_quote": {
+              "count": 10,
+              "deviation_rate": 1.0,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.TRACKING_DONE.tracking_id": {
+              "count": 9,
+              "deviation_rate": 0.9,
+              "sample_values": [
+                null,
+                "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+                "{\"tracking_id\":\"\",\"carrier\":\"\",\"service_level\":\"\", \"cost_usd\":<n"
+              ]
+            },
+            "shippingagent_ship_order.CARRIER_DONE.carrier": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "shippingagent_ship_order.SAVE_DONE.saved": {
+              "count": 4,
+              "deviation_rate": 0.4,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            }
+          }
+        },
+        "email": {
+          "mean_deviation_rate": 0.7143,
+          "runs_with_any_deviation": 8,
+          "step_coverage": {
+            "TASK_START": 0.3,
+            "EMAIL_GENERATED": 0.3,
+            "EMAIL_SENT": 0.3,
+            "FINAL_ANSWER": 0.3
+          },
+          "frequently_deviating_fields": {
+            "emailserviceagent.EMAIL_GENERATED.body_len": {
+              "count": 8,
+              "deviation_rate": 0.8,
+              "sample_values": [
+                null,
+                635,
+                null
+              ]
+            },
+            "emailserviceagent.TASK_START.email": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.email_type": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.corrupted": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_GENERATED.hallucinated": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.status": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            },
+            "emailserviceagent.EMAIL_SENT.send_skipped": {
+              "count": 7,
+              "deviation_rate": 0.7,
+              "sample_values": [
+                null,
+                null,
+                null
+              ]
+            }
+          }
+        }
+      },
+      "step_coverage": {
+        "checkout_orchestrator": {
+          "TASK_START": 1.0,
+          "PRODUCT_FETCHED": 1.0,
+          "CURRENCY_CONVERTED": 1.0,
+          "SHIPPING_QUOTED": 1.0,
+          "PAYMENT_CHARGED": 1.3,
+          "FINAL_ANSWER": 1.0,
+          "ORDER_SHIPPED": 0.6,
+          "CONFIRMATION_SENT": 0.3
+        },
+        "productcatalog": {
+          "TASK_START": 1.0,
+          "CATALOG_DONE": 1.0,
+          "FINAL_ANSWER": 1.0
+        },
+        "currency": {
+          "TASK_START": 1.0,
+          "CONVERT_DONE": 1.0,
+          "FINAL_ANSWER": 1.0
+        },
+        "shipping_quote": {
+          "TASK_START": 1.0,
+          "QUOTE_DONE": 0.9,
+          "FINAL_ANSWER": 1.0,
+          "SAVE_DONE": 0.9
+        },
+        "payment": {
+          "TASK_START": 1.0,
+          "CARD_VALIDATED": 0.8,
+          "CHARGE_DONE": 0.8,
+          "SAVE_DONE": 0.8,
+          "FINAL_ANSWER": 1.0
+        },
+        "ship_order": {
+          "TASK_START": 0.6,
+          "FINAL_ANSWER": 0.6,
+          "QUOTE_DONE": 0.6,
+          "BOUNDARY_CHECK": 1.2,
+          "CARRIER_DONE": 0.6,
+          "RECOVERY_ACTION": 0.5,
+          "TRACKING_DONE": 0.6,
+          "ESCALATION_CHECK": 0.6,
+          "SAVE_DONE": 0.6
+        },
+        "email": {
+          "TASK_START": 0.3,
+          "EMAIL_GENERATED": 0.3,
+          "EMAIL_SENT": 0.3,
+          "FINAL_ANSWER": 0.3
+        }
+      },
+      "field_variance_table": [
+        {
+          "agent": "productcatalog",
+          "checkpoint": "TASK_START",
+          "field": "action",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            "get_product",
+            "get_product",
+            "get_product"
+          ]
+        },
+        {
+          "agent": "productcatalog",
+          "checkpoint": "CATALOG_DONE",
+          "field": "product_ids",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            [
+              "PROD-001"
+            ],
+            [
+              "PROD-001"
+            ],
+            [
+              "PROD-001"
+            ]
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "to_currency",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            "CAD",
+            "CAD",
+            "CAD"
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "units",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            800000000,
+            30,
+            20
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "units_charged",
+          "deviation_count": 10,
+          "deviation_rate": 1.0,
+          "total_runs": 10,
+          "sample_values": [
+            800000000,
+            30,
+            20
           ]
         },
         {
@@ -666,31 +2652,294 @@
           "agent": "ship_order",
           "checkpoint": "TRACKING_DONE",
           "field": "tracking_id",
-          "deviation_count": 10,
-          "deviation_rate": 1.0,
+          "deviation_count": 9,
+          "deviation_rate": 0.9,
           "total_runs": 10,
           "sample_values": [
+            null,
             "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
-            "<id>",
-            "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level"
+            "{\"tracking_id\":\"\",\"carrier\":\"\",\"service_level\":\"\", \"cost_usd\":<n"
           ]
         },
         {
           "agent": "email",
           "checkpoint": "EMAIL_GENERATED",
           "field": "body_len",
+          "deviation_count": 8,
+          "deviation_rate": 0.8,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            635,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "TASK_START",
+          "field": "email",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "email_type",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "corrupted",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_GENERATED",
+          "field": "hallucinated",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "status",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "email",
+          "checkpoint": "EMAIL_SENT",
+          "field": "send_skipped",
+          "deviation_count": 7,
+          "deviation_rate": 0.7,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "TASK_START",
+          "field": "units",
+          "deviation_count": 6,
+          "deviation_rate": 0.6,
+          "total_runs": 10,
+          "sample_values": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "agent": "currency",
+          "checkpoint": "CONVERT_DONE",
+          "field": "units_out",
+          "deviation_count": 6,
+          "deviation_rate": 0.6,
+          "total_runs": 10,
+          "sample_values": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "currency_code",
+          "deviation_count": 6,
+          "deviation_rate": 0.6,
+          "total_runs": 10,
+          "sample_values": [
+            "CAD",
+            "CAD",
+            "CAD"
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "CARRIER_DONE",
+          "field": "carrier",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "ESCALATION_CHECK",
+          "field": "escalation_required",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "ship_order",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 4,
+          "deviation_rate": 0.4,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "TASK_START",
+          "field": "nanos",
           "deviation_count": 3,
           "deviation_rate": 0.3,
           "total_runs": 10,
           "sample_values": [
-            525,
-            594,
-            509
+            0,
+            9900000000,
+            789654321
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CARD_VALIDATED",
+          "field": "validation_bypassed",
+          "deviation_count": 2,
+          "deviation_rate": 0.2,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CARD_VALIDATED",
+          "field": "amount_tampered",
+          "deviation_count": 2,
+          "deviation_rate": 0.2,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "transaction_id",
+          "deviation_count": 2,
+          "deviation_rate": 0.2,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "CHARGE_DONE",
+          "field": "hallucinated",
+          "deviation_count": 2,
+          "deviation_rate": 0.2,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "SAVE_DONE",
+          "field": "saved",
+          "deviation_count": 2,
+          "deviation_rate": 0.2,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "payment",
+          "checkpoint": "SAVE_DONE",
+          "field": "double_charge",
+          "deviation_count": 2,
+          "deviation_rate": 0.2,
+          "total_runs": 10,
+          "sample_values": [
+            null,
+            null
+          ]
+        },
+        {
+          "agent": "shipping_quote",
+          "checkpoint": "QUOTE_DONE",
+          "field": "cost_usd",
+          "deviation_count": 1,
+          "deviation_rate": 0.1,
+          "total_runs": 10,
+          "sample_values": [
+            null
+          ]
+        },
+        {
+          "agent": "shipping_quote",
+          "checkpoint": "QUOTE_DONE",
+          "field": "item_count_inflated",
+          "deviation_count": 1,
+          "deviation_rate": 0.1,
+          "total_runs": 10,
+          "sample_values": [
+            null
           ]
         }
       ],
-      "avg_elapsed_ms": 15357.9,
-      "generated_at": "2026-07-20T01:59:31.865458+00:00"
+      "avg_elapsed_ms": 24647.3,
+      "generated_at": "2026-07-24T19:46:45.738613+00:00"
     }
   ]
 }

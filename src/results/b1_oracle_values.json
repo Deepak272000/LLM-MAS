@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T01:57:12.750922+00:00",
+  "generated_at": "2026-08-03T22:04:03.382792+00:00",
   "total_entries": 38,
   "all_valid": true,
   "b1_source": "b2_raw_runs (deterministic NONE) + b2_systematic 14b_temp0 (shipping)",
@@ -233,25 +233,25 @@
       "def_site": "charge_payment() return value, post fi.maybe_hallucinate_transaction()",
       "use_site": "save_transaction() \u2192 transaction_id (C-use); SAVE_DONE.transaction_id (C-use)",
       "b1_oracle_source": "PaymentService.Charge() gRPC response \u2192 transaction_id (UUID-v4)",
-      "oracle_value": "fc3ab88b-4c3c-406d-8674-6fd3f5e96314",
+      "oracle_value": "128d7085-7668-46c5-9e4c-a58fa15414b6",
       "oracle_type": "example_valid_value",
       "observed_values": [
-        "fc3ab88b-4c3c-406d-8674-6fd3f5e96314",
-        "60b72150-d3ed-4501-829c-d7ee0a4f54ef",
-        "cacbb9a5-4436-4153-b0c8-4b4a1da0c269"
+        "128d7085-7668-46c5-9e4c-a58fa15414b6",
+        "d49a7406-37d9-46c8-9f4e-c5956fb132fc",
+        "9d56fdc4-cbf9-4cb6-aa0e-01e73c112283"
       ],
       "validation_results": [
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='fc3ab88b-4c3c-406d-8674-6fd3f5e96314'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='128d7085-7668-46c5-9e4c-a58fa15414b6'"
         },
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='60b72150-d3ed-4501-829c-d7ee0a4f54ef'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='d49a7406-37d9-46c8-9f4e-c5956fb132fc'"
         },
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='cacbb9a5-4436-4153-b0c8-4b4a1da0c269'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='9d56fdc4-cbf9-4cb6-aa0e-01e73c112283'"
         }
       ],
       "all_runs_valid": true,
@@ -960,15 +960,15 @@
       "validation_results": [
         {
           "valid": true,
-          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001', 'PROD-002'}"
+          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
         },
         {
           "valid": true,
-          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001', 'PROD-002'}"
+          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
         },
         {
           "valid": true,
-          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001', 'PROD-002'}"
+          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
         }
       ],
       "all_runs_valid": true,

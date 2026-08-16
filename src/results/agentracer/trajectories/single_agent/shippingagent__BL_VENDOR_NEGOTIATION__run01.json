@@ -2,7 +2,7 @@
   "trajectory_id": "shippingagent__BL_VENDOR_NEGOTIATION__run01",
   "agent_under_test": "shippingagent",
   "fault_mode": "BL_VENDOR_NEGOTIATION",
-  "outcome": "INCONCLUSIVE",
+  "outcome": "FAILED",
   "trajectory": [
     {
       "step_id": 0,
@@ -32,10 +32,10 @@
   "missing_steps": [],
   "ground_truth": {
     "error_agent": "shippingagent",
-    "error_step": null,
+    "error_step": "CARRIER_DONE",
     "tier": 0,
     "tier_label": "BASELINE",
-    "infection_point": null,
+    "infection_point": "CARRIER_DONE",
     "flags_found": [],
     "steps_lost": [],
     "cross_agent": false,

@@ -2,7 +2,7 @@
   "trajectory_id": "shippingagent__BL_SHIPMENT_LOST__run01",
   "agent_under_test": "shippingagent",
   "fault_mode": "BL_SHIPMENT_LOST",
-  "outcome": "INCONCLUSIVE",
+  "outcome": "FAILED",
   "trajectory": [
     {
       "step_id": 0,
@@ -29,7 +29,9 @@
       }
     }
   ],
-  "missing_steps": [],
+  "missing_steps": [
+    "SAVE_DONE"
+  ],
   "ground_truth": {
     "error_agent": "shippingagent",
     "error_step": null,
@@ -37,7 +39,9 @@
     "tier_label": "BASELINE",
     "infection_point": null,
     "flags_found": [],
-    "steps_lost": [],
+    "steps_lost": [
+      "SAVE_DONE"
+    ],
     "cross_agent": false,
     "overcharge_pct": null
   }

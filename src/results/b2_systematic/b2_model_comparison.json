@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-21T04:39:14.583816+00:00",
+  "generated_at": "2026-07-24T19:44:57.667651+00:00",
   "fault_mode": "NONE",
   "model_comparison": {
     "3b_temp1.0": {
       "total": 10,
       "success": 10,
-      "elapsed_ms_sum": 103404.5,
+      "elapsed_ms_sum": 79069.6,
       "agent_reach": {
         "checkout_orchestrator": {
           "reached": 10,
@@ -33,18 +33,18 @@
           "reach_rate": 0.9
         },
         "ship_order": {
-          "reached": 5,
-          "total": 10,
-          "reach_rate": 0.5
-        },
-        "email": {
           "reached": 3,
           "total": 10,
           "reach_rate": 0.3
+        },
+        "email": {
+          "reached": 1,
+          "total": 10,
+          "reach_rate": 0.1
         }
       },
       "success_rate": 1.0,
-      "avg_elapsed_ms": 10340.5
+      "avg_elapsed_ms": 7907.0
     }
   }
 }

@@ -1,0 +1,2702 @@
+{
+  "productcatalogagent": {
+    "TASK_START": {
+      "query": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products",
+          "list all products"
+        ],
+        "consensus": "list all products",
+        "note": "zero variance (B2=B1)"
+      },
+      "product_ids": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "consensus": null,
+        "note": "zero variance (B2=B1)"
+      },
+      "action": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products"
+        ],
+        "consensus": "list_products",
+        "note": "zero variance (B2=B1)"
+      },
+      "fault_mode": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE"
+        ],
+        "consensus": "NONE",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "CATALOG_DONE": {
+      "action": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products",
+          "list_products"
+        ],
+        "consensus": "list_products",
+        "note": "zero variance (B2=B1)"
+      },
+      "count": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "consensus": 2,
+        "note": "zero variance (B2=B1)"
+      },
+      "product_ids": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ],
+          [
+            "PROD-001",
+            "PROD-002"
+          ]
+        ],
+        "consensus": [
+          "PROD-001",
+          "PROD-002"
+        ],
+        "note": "zero variance (B2=B1)"
+      },
+      "hallucinated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "query_tampered": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "action_swapped": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "products_missing": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "price_manipulated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "duplicated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "category_wrong": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "FINAL_ANSWER": {
+      "count": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "consensus": 2,
+        "note": "zero variance (B2=B1)"
+      }
+    }
+  },
+  "currencyagent": {
+    "TASK_START": {
+      "action": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "convert",
+          "convert",
+          "convert",
+          "convert",
+          "convert",
+          "convert",
+          "convert",
+          "convert",
+          "convert",
+          "convert"
+        ],
+        "consensus": "convert",
+        "note": "zero variance (B2=B1)"
+      },
+      "from_currency": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD"
+        ],
+        "consensus": "USD",
+        "note": "zero variance (B2=B1)"
+      },
+      "to_currency": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD"
+        ],
+        "consensus": "USD",
+        "note": "zero variance (B2=B1)"
+      },
+      "units": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19
+        ],
+        "consensus": 19,
+        "note": "zero variance (B2=B1)"
+      },
+      "nanos": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000
+        ],
+        "consensus": 990000000,
+        "note": "zero variance (B2=B1)"
+      },
+      "fault_mode": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE"
+        ],
+        "consensus": "NONE",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "CONVERT_DONE": {
+      "from_currency": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD"
+        ],
+        "consensus": "USD",
+        "note": "zero variance (B2=B1)"
+      },
+      "to_currency": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD"
+        ],
+        "consensus": "USD",
+        "note": "zero variance (B2=B1)"
+      },
+      "units_in": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19
+        ],
+        "consensus": 19,
+        "note": "zero variance (B2=B1)"
+      },
+      "units_out": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19,
+          19
+        ],
+        "consensus": 19,
+        "note": "zero variance (B2=B1)"
+      },
+      "hallucinated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "rate_manipulated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "stale_rate": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "overflow": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "amount_tampered": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "currency_swapped": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "FINAL_ANSWER": {
+      "result": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          },
+          {
+            "currency_code": "USD",
+            "units": 19,
+            "nanos": 990000000
+          }
+        ],
+        "consensus": {
+          "currency_code": "USD",
+          "units": 19,
+          "nanos": 990000000
+        },
+        "note": "zero variance (B2=B1)"
+      }
+    }
+  },
+  "paymentagent": {
+    "TASK_START": {
+      "currency_code": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD",
+          "USD"
+        ],
+        "consensus": "USD",
+        "note": "zero variance (B2=B1)"
+      },
+      "units": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          34,
+          34,
+          24
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "nanos": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000
+        ],
+        "consensus": 990000000,
+        "note": "zero variance (B2=B1)"
+      },
+      "card_last4": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111"
+        ],
+        "consensus": "1111",
+        "note": "zero variance (B2=B1)"
+      },
+      "fault_mode": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE"
+        ],
+        "consensus": "NONE",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "CARD_VALIDATED": {
+      "card_last4": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111",
+          "1111"
+        ],
+        "consensus": "1111",
+        "note": "zero variance (B2=B1)"
+      },
+      "validation_bypassed": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "amount_tampered": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "CHARGE_DONE": {
+      "transaction_id": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 10,
+        "values": [
+          "ada7fdec-8f08-42be-b53c-9f2b3b986743",
+          "9ed13b35-6f3c-4fcd-9048-1114d7cf1ec8",
+          "3f5666a7-1d30-4dde-8f77-fd712be23ffe",
+          "3e8b50e5-4a86-4dbd-a03d-66dc71eb1dd8",
+          "73b238ef-7d67-4523-bc1a-84697688468d",
+          "695a9454-d489-4a8a-9868-9923c3595b18",
+          "d14bdb29-0331-4226-a464-0b4f53c19266",
+          "3d536e00-05c6-4503-b2a6-d5c71c8aa97d",
+          "affff443-816a-4302-bd2b-63225d93148f",
+          "d60c1ab6-1914-4663-b368-6dda243de0e4"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "hallucinated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "units_charged": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          24,
+          34,
+          34,
+          24
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "nanos_charged": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000,
+          990000000
+        ],
+        "consensus": 990000000,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "SAVE_DONE": {
+      "saved": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "consensus": true,
+        "note": "zero variance (B2=B1)"
+      },
+      "transaction_id": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 10,
+        "values": [
+          "ada7fdec-8f08-42be-b53c-9f2b3b986743",
+          "9ed13b35-6f3c-4fcd-9048-1114d7cf1ec8",
+          "3f5666a7-1d30-4dde-8f77-fd712be23ffe",
+          "3e8b50e5-4a86-4dbd-a03d-66dc71eb1dd8",
+          "73b238ef-7d67-4523-bc1a-84697688468d",
+          "695a9454-d489-4a8a-9868-9923c3595b18",
+          "d14bdb29-0331-4226-a464-0b4f53c19266",
+          "3d536e00-05c6-4503-b2a6-d5c71c8aa97d",
+          "affff443-816a-4302-bd2b-63225d93148f",
+          "d60c1ab6-1914-4663-b368-6dda243de0e4"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "save_skipped": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "double_charge": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "FINAL_ANSWER": {
+      "success": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "consensus": true,
+        "note": "zero variance (B2=B1)"
+      },
+      "transaction_id": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 10,
+        "values": [
+          "ada7fdec-8f08-42be-b53c-9f2b3b986743",
+          "9ed13b35-6f3c-4fcd-9048-1114d7cf1ec8",
+          "3f5666a7-1d30-4dde-8f77-fd712be23ffe",
+          "3e8b50e5-4a86-4dbd-a03d-66dc71eb1dd8",
+          "73b238ef-7d67-4523-bc1a-84697688468d",
+          "695a9454-d489-4a8a-9868-9923c3595b18",
+          "d14bdb29-0331-4226-a464-0b4f53c19266",
+          "3d536e00-05c6-4503-b2a6-d5c71c8aa97d",
+          "affff443-816a-4302-bd2b-63225d93148f",
+          "d60c1ab6-1914-4663-b368-6dda243de0e4"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      }
+    }
+  },
+  "emailserviceagent": {
+    "TASK_START": {
+      "email": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com",
+          "customer@example.com"
+        ],
+        "consensus": "customer@example.com",
+        "note": "zero variance (B2=B1)"
+      },
+      "order_id": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 10,
+        "values": [
+          "CO-0AF655",
+          "CO-F3A4C9",
+          "CO-C54F6D",
+          "CO-94B9D8",
+          "CO-6FA4F7",
+          "CO-D4627A",
+          "CO-7A38B8",
+          "CO-7B9385",
+          "CO-8545CF",
+          "CO-13DFE9"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "fault_mode": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE",
+          "NONE"
+        ],
+        "consensus": "NONE",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "EMAIL_GENERATED": {
+      "email_type": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation",
+          "order_confirmation"
+        ],
+        "consensus": "order_confirmation",
+        "note": "zero variance (B2=B1)"
+      },
+      "subject": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 10,
+        "values": [
+          "Order Confirmation CO-0AF655",
+          "Order Confirmation CO-F3A4C9",
+          "Order Confirmation CO-C54F6D",
+          "Order Confirmation CO-94B9D8",
+          "Order Confirmation CO-6FA4F7",
+          "Order Confirmation CO-D4627A",
+          "Order Confirmation CO-7A38B8",
+          "Order Confirmation CO-7B9385",
+          "Order Confirmation CO-8545CF",
+          "Order Confirmation CO-13DFE9"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "body_len": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 8,
+        "values": [
+          549,
+          429,
+          410,
+          570,
+          562,
+          370,
+          410,
+          584,
+          399,
+          549
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "hallucinated": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "type_wrong": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "recipient_swapped": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "corrupted": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "wrong_customer": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "EMAIL_SENT": {
+      "status": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent"
+        ],
+        "consensus": "sent",
+        "note": "zero variance (B2=B1)"
+      },
+      "send_skipped": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "double_send": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "FINAL_ANSWER": {
+      "status": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent",
+          "sent"
+        ],
+        "consensus": "sent",
+        "note": "zero variance (B2=B1)"
+      }
+    }
+  },
+  "shippingagent_quote": {
+    "TASK_START": {
+      "address": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          }
+        ],
+        "consensus": {
+          "street_address": "123 Main St",
+          "city": "Montreal",
+          "state": "QC",
+          "country": "Canada",
+          "zip_code": "H3A 0A1"
+        },
+        "note": "zero variance (B2=B1)"
+      },
+      "item_count": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "consensus": 1,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "QUOTE_DONE": {
+      "cost_usd": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          15.88,
+          15.88,
+          5.0
+        ],
+        "consensus": null,
+        "note": "variance present"
+      }
+    },
+    "FINAL_ANSWER": {
+      "raw": {
+        "n_runs": 10,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": <number>}",
+          "{\"cost_usd\": 15.88}",
+          "{\"cost_usd\": 15.88}",
+          "{\"cost_usd\": <number>}"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      }
+    },
+    "SAVE_DONE": {
+      "saved": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "reason": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode"
+        ],
+        "consensus": "benchmark_mode",
+        "note": "zero variance (B2=B1)"
+      }
+    }
+  },
+  "shippingagent_ship": {
+    "TASK_START": {
+      "address": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          },
+          {
+            "street_address": "123 Main St",
+            "city": "Montreal",
+            "state": "QC",
+            "country": "Canada",
+            "zip_code": "H3A 0A1"
+          }
+        ],
+        "consensus": {
+          "street_address": "123 Main St",
+          "city": "Montreal",
+          "state": "QC",
+          "country": "Canada",
+          "zip_code": "H3A 0A1"
+        },
+        "note": "zero variance (B2=B1)"
+      },
+      "item_count": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "consensus": 2,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "FINAL_ANSWER": {
+      "raw": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}"
+        ],
+        "consensus": "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "QUOTE_DONE": {
+      "cost_usd": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "consensus": 0.0,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "BOUNDARY_CHECK": {
+      "boundary": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking",
+          "quote_to_carrier",
+          "carrier_to_tracking"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "alert": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true,
+          false,
+          true
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "status": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape",
+          "clean",
+          "signal_escape"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "expected": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          }
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "observed": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "cost_usd": 0.0
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          }
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "difference": {
+        "n_runs": 20,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          },
+          {
+            "missing": [],
+            "extra": [],
+            "field_mismatches": []
+          }
+        ],
+        "consensus": {
+          "missing": [],
+          "extra": [],
+          "field_mismatches": []
+        },
+        "note": "zero variance (B2=B1)"
+      },
+      "detail": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]",
+          "strict validation passed",
+          "missing=[], extra=[], field_mismatches=[]"
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "violations": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ],
+          [],
+          [
+            {
+              "type": "predicate_failed",
+              "fields": [
+                {
+                  "field": "carrier",
+                  "reason": "predicate returned false"
+                }
+              ]
+            }
+          ]
+        ],
+        "consensus": null,
+        "note": "variance present"
+      },
+      "recovery": {
+        "n_runs": 20,
+        "all_same": false,
+        "unique_count": 2,
+        "values": [
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          },
+          {
+            "action": "continue",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "boundary check is clean"
+          },
+          {
+            "action": "fallback_to_last_known_good",
+            "should_continue": true,
+            "requires_hitl": false,
+            "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+            "corrected_payload": {
+              "carrier": "FedEx",
+              "service_level": "ground"
+            }
+          }
+        ],
+        "consensus": null,
+        "note": "variance present"
+      }
+    },
+    "CARRIER_DONE": {
+      "carrier": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx",
+          "FedEx"
+        ],
+        "consensus": "FedEx",
+        "note": "zero variance (B2=B1)"
+      },
+      "service_level": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground"
+        ],
+        "consensus": "ground",
+        "note": "zero variance (B2=B1)"
+      },
+      "recovered_from": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          },
+          {
+            "carrier": "Unknown",
+            "service_level": "standard"
+          }
+        ],
+        "consensus": {
+          "carrier": "Unknown",
+          "service_level": "standard"
+        },
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "RECOVERY_ACTION": {
+      "action": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good",
+          "fallback_to_last_known_good"
+        ],
+        "consensus": "fallback_to_last_known_good",
+        "note": "zero variance (B2=B1)"
+      },
+      "should_continue": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "consensus": true,
+        "note": "zero variance (B2=B1)"
+      },
+      "requires_hitl": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "reason": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection",
+          "invalid carrier/service level can fall back to the last valid shipping selection"
+        ],
+        "consensus": "invalid carrier/service level can fall back to the last valid shipping selection",
+        "note": "zero variance (B2=B1)"
+      },
+      "corrected_payload": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          },
+          {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        ],
+        "consensus": {
+          "carrier": "FedEx",
+          "service_level": "ground"
+        },
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "TRACKING_DONE": {
+      "tracking_id": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level"
+        ],
+        "consensus": "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "ESCALATION_CHECK": {
+      "escalation_required": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      }
+    },
+    "SAVE_DONE": {
+      "saved": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "consensus": false,
+        "note": "zero variance (B2=B1)"
+      },
+      "tracking_id": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+          "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level"
+        ],
+        "consensus": "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+        "note": "zero variance (B2=B1)"
+      },
+      "reason": {
+        "n_runs": 10,
+        "all_same": true,
+        "unique_count": 1,
+        "values": [
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode",
+          "benchmark_mode"
+        ],
+        "consensus": "benchmark_mode",
+        "note": "zero variance (B2=B1)"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "agent": "shippingagent_quote",
+  "b2_source": "live_llm_pipeline",
+  "source_config": "3b_temp0",
+  "extraction_note": "Extracted from b2/raw/ pipeline run (b2_systematic_runner.py). This is a live qwen2.5:3b call with FAULT_MODE=NONE \u2014 NOT a deterministic agent.run() call. Replaces the old b2_raw_runs/ files which used no LLM.",
+  "run_idx": 6,
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
+  "temperature": 0.0,
+  "source_file": "b2_3b_temp0_run6.json",
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-20T01:18:03.693936+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "address": {
+          "street_address": "123 Main St",
+          "city": "Montreal",
+          "state": "QC",
+          "country": "Canada",
+          "zip_code": "H3A 0A1"
+        },
+        "item_count": 1
+      }
+    },
+    {
+      "step": "QUOTE_DONE",
+      "timestamp": "2026-07-20T01:18:05.377894+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "cost_usd": 5.0
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-20T01:18:05.377923+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "raw": "{\"cost_usd\": <number>}"
+      }
+    },
+    {
+      "step": "SAVE_DONE",
+      "timestamp": "2026-07-20T01:18:05.377985+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "saved": false,
+        "reason": "benchmark_mode"
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "QUOTE_DONE",
+    "FINAL_ANSWER",
+    "SAVE_DONE"
+  ],
+  "generated_at": "2026-08-16T13:12:00.225446+00:00"
+}

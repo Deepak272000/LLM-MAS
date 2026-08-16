@@ -1,0 +1,58 @@
+{
+  "agent": "productcatalogagent",
+  "b2_source": "live_llm_pipeline",
+  "source_config": "3b_temp0",
+  "extraction_note": "Extracted from b2/raw/ pipeline run (b2_systematic_runner.py). This is a live qwen2.5:3b call with FAULT_MODE=NONE \u2014 NOT a deterministic agent.run() call. Replaces the old b2_raw_runs/ files which used no LLM.",
+  "run_idx": 9,
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
+  "temperature": 0.0,
+  "source_file": "b2_3b_temp0_run9.json",
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-20T01:18:56.150651+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "query": "list all products",
+        "product_ids": null,
+        "action": "list_products",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CATALOG_DONE",
+      "timestamp": "2026-07-20T01:18:56.150817+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "action": "list_products",
+        "count": 2,
+        "product_ids": [
+          "PROD-001",
+          "PROD-002"
+        ],
+        "hallucinated": false,
+        "query_tampered": false,
+        "action_swapped": false,
+        "products_missing": false,
+        "price_manipulated": false,
+        "duplicated": false,
+        "category_wrong": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-20T01:18:56.150847+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "count": 2
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CATALOG_DONE",
+    "FINAL_ANSWER"
+  ],
+  "generated_at": "2026-08-16T13:12:00.199633+00:00"
+}

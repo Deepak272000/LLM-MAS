@@ -1,0 +1,185 @@
+{
+  "agent": "shippingagent_ship",
+  "b2_source": "live_llm_pipeline",
+  "source_config": "3b_temp0",
+  "extraction_note": "Extracted from b2/raw/ pipeline run (b2_systematic_runner.py). This is a live qwen2.5:3b call with FAULT_MODE=NONE \u2014 NOT a deterministic agent.run() call. Replaces the old b2_raw_runs/ files which used no LLM.",
+  "run_idx": 1,
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
+  "temperature": 0.0,
+  "source_file": "b2_3b_temp0_run1.json",
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-20T01:16:59.939548+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "address": {
+          "street_address": "123 Main St",
+          "city": "Montreal",
+          "state": "QC",
+          "country": "Canada",
+          "zip_code": "H3A 0A1"
+        },
+        "item_count": 2
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-20T01:17:02.209105+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "raw": "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level>\",\"cost_usd\":<number>}"
+      }
+    },
+    {
+      "step": "QUOTE_DONE",
+      "timestamp": "2026-07-20T01:17:02.209184+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "cost_usd": 0.0
+      }
+    },
+    {
+      "step": "BOUNDARY_CHECK",
+      "timestamp": "2026-07-20T01:17:02.209306+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "boundary": "quote_to_carrier",
+        "alert": false,
+        "status": "clean",
+        "expected": {
+          "cost_usd": 0.0
+        },
+        "observed": {
+          "cost_usd": 0.0
+        },
+        "difference": {
+          "missing": [],
+          "extra": [],
+          "field_mismatches": []
+        },
+        "detail": "strict validation passed",
+        "violations": [],
+        "recovery": {
+          "action": "continue",
+          "should_continue": true,
+          "requires_hitl": false,
+          "reason": "boundary check is clean"
+        }
+      }
+    },
+    {
+      "step": "CARRIER_DONE",
+      "timestamp": "2026-07-20T01:17:02.209319+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "carrier": "FedEx",
+        "service_level": "ground",
+        "recovered_from": {
+          "carrier": "Unknown",
+          "service_level": "standard"
+        }
+      }
+    },
+    {
+      "step": "BOUNDARY_CHECK",
+      "timestamp": "2026-07-20T01:17:02.209427+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "boundary": "carrier_to_tracking",
+        "alert": true,
+        "status": "signal_escape",
+        "expected": {
+          "carrier": "Unknown",
+          "service_level": "standard"
+        },
+        "observed": {
+          "carrier": "Unknown",
+          "service_level": "standard"
+        },
+        "difference": {
+          "missing": [],
+          "extra": [],
+          "field_mismatches": []
+        },
+        "detail": "missing=[], extra=[], field_mismatches=[]",
+        "violations": [
+          {
+            "type": "predicate_failed",
+            "fields": [
+              {
+                "field": "carrier",
+                "reason": "predicate returned false"
+              }
+            ]
+          }
+        ],
+        "recovery": {
+          "action": "fallback_to_last_known_good",
+          "should_continue": true,
+          "requires_hitl": false,
+          "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+          "corrected_payload": {
+            "carrier": "FedEx",
+            "service_level": "ground"
+          }
+        }
+      }
+    },
+    {
+      "step": "RECOVERY_ACTION",
+      "timestamp": "2026-07-20T01:17:02.209436+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "action": "fallback_to_last_known_good",
+        "should_continue": true,
+        "requires_hitl": false,
+        "reason": "invalid carrier/service level can fall back to the last valid shipping selection",
+        "corrected_payload": {
+          "carrier": "FedEx",
+          "service_level": "ground"
+        }
+      }
+    },
+    {
+      "step": "TRACKING_DONE",
+      "timestamp": "2026-07-20T01:17:02.209443+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "tracking_id": "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level"
+      }
+    },
+    {
+      "step": "ESCALATION_CHECK",
+      "timestamp": "2026-07-20T01:17:02.209452+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "escalation_required": false
+      }
+    },
+    {
+      "step": "SAVE_DONE",
+      "timestamp": "2026-07-20T01:17:02.209460+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "saved": false,
+        "tracking_id": "{\"tracking_id\":\"<id>\",\"carrier\":\"<name>\",\"service_level\":\"<level",
+        "reason": "benchmark_mode"
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "FINAL_ANSWER",
+    "QUOTE_DONE",
+    "BOUNDARY_CHECK",
+    "CARRIER_DONE",
+    "BOUNDARY_CHECK",
+    "RECOVERY_ACTION",
+    "TRACKING_DONE",
+    "ESCALATION_CHECK",
+    "SAVE_DONE"
+  ],
+  "generated_at": "2026-08-16T13:12:00.227400+00:00"
+}

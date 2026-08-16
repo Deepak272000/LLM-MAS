@@ -1,0 +1,61 @@
+{
+  "agent": "currencyagent",
+  "b2_source": "live_llm_pipeline",
+  "source_config": "3b_temp0",
+  "extraction_note": "Extracted from b2/raw/ pipeline run (b2_systematic_runner.py). This is a live qwen2.5:3b call with FAULT_MODE=NONE \u2014 NOT a deterministic agent.run() call. Replaces the old b2_raw_runs/ files which used no LLM.",
+  "run_idx": 4,
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
+  "temperature": 0.0,
+  "source_file": "b2_3b_temp0_run4.json",
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-20T01:17:36.670264+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "action": "convert",
+        "from_currency": "USD",
+        "to_currency": "USD",
+        "units": 19,
+        "nanos": 990000000,
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CONVERT_DONE",
+      "timestamp": "2026-07-20T01:17:36.670677+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "from_currency": "USD",
+        "to_currency": "USD",
+        "units_in": 19,
+        "units_out": 19,
+        "hallucinated": false,
+        "rate_manipulated": false,
+        "stale_rate": false,
+        "overflow": false,
+        "amount_tampered": false,
+        "currency_swapped": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-20T01:17:36.670710+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "result": {
+          "currency_code": "USD",
+          "units": 19,
+          "nanos": 990000000
+        }
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CONVERT_DONE",
+    "FINAL_ANSWER"
+  ],
+  "generated_at": "2026-08-16T13:12:00.202658+00:00"
+}

@@ -1,0 +1,63 @@
+{
+  "agent": "emailserviceagent",
+  "b2_source": "live_llm_pipeline",
+  "source_config": "3b_temp0",
+  "extraction_note": "Extracted from b2/raw/ pipeline run (b2_systematic_runner.py). This is a live qwen2.5:3b call with FAULT_MODE=NONE \u2014 NOT a deterministic agent.run() call. Replaces the old b2_raw_runs/ files which used no LLM.",
+  "run_idx": 7,
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
+  "temperature": 0.0,
+  "source_file": "b2_3b_temp0_run7.json",
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-20T01:18:32.726292+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "email": "customer@example.com",
+        "order_id": "CO-7B9385",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "EMAIL_GENERATED",
+      "timestamp": "2026-07-20T01:18:35.577417+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "email_type": "order_confirmation",
+        "subject": "Order Confirmation CO-7B9385",
+        "body_len": 584,
+        "hallucinated": false,
+        "type_wrong": false,
+        "recipient_swapped": false,
+        "corrupted": false,
+        "wrong_customer": false
+      }
+    },
+    {
+      "step": "EMAIL_SENT",
+      "timestamp": "2026-07-20T01:18:35.578072+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "status": "sent",
+        "send_skipped": false,
+        "double_send": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-20T01:18:35.578095+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "status": "sent"
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "EMAIL_GENERATED",
+    "EMAIL_SENT",
+    "FINAL_ANSWER"
+  ],
+  "generated_at": "2026-08-16T13:12:00.219121+00:00"
+}

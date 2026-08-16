@@ -1,0 +1,74 @@
+{
+  "agent": "paymentagent",
+  "b2_source": "live_llm_pipeline",
+  "source_config": "3b_temp0",
+  "extraction_note": "Extracted from b2/raw/ pipeline run (b2_systematic_runner.py). This is a live qwen2.5:3b call with FAULT_MODE=NONE \u2014 NOT a deterministic agent.run() call. Replaces the old b2_raw_runs/ files which used no LLM.",
+  "run_idx": 10,
+  "model_label": "3b_temp0",
+  "model": "qwen2.5:3b",
+  "temperature": 0.0,
+  "source_file": "b2_3b_temp0_run10.json",
+  "lkw": [
+    {
+      "step": "TASK_START",
+      "timestamp": "2026-07-20T01:19:20.343415+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "currency_code": "USD",
+        "units": 24,
+        "nanos": 990000000,
+        "card_last4": "1111",
+        "fault_mode": "NONE"
+      }
+    },
+    {
+      "step": "CARD_VALIDATED",
+      "timestamp": "2026-07-20T01:19:20.343612+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "card_last4": "1111",
+        "validation_bypassed": false,
+        "amount_tampered": false
+      }
+    },
+    {
+      "step": "CHARGE_DONE",
+      "timestamp": "2026-07-20T01:19:20.343635+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "transaction_id": "9ed13b35-6f3c-4fcd-9048-1114d7cf1ec8",
+        "hallucinated": false,
+        "units_charged": 24,
+        "nanos_charged": 990000000
+      }
+    },
+    {
+      "step": "SAVE_DONE",
+      "timestamp": "2026-07-20T01:19:20.343738+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "saved": true,
+        "transaction_id": "9ed13b35-6f3c-4fcd-9048-1114d7cf1ec8",
+        "save_skipped": false,
+        "double_charge": false
+      }
+    },
+    {
+      "step": "FINAL_ANSWER",
+      "timestamp": "2026-07-20T01:19:20.343759+00:00",
+      "fault_mode": "NONE",
+      "data": {
+        "success": true,
+        "transaction_id": "9ed13b35-6f3c-4fcd-9048-1114d7cf1ec8"
+      }
+    }
+  ],
+  "steps": [
+    "TASK_START",
+    "CARD_VALIDATED",
+    "CHARGE_DONE",
+    "SAVE_DONE",
+    "FINAL_ANSWER"
+  ],
+  "generated_at": "2026-08-16T13:12:00.207476+00:00"
+}

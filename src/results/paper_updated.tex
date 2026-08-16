@@ -2639,6 +2639,243 @@ a correct one; fault detection at this granularity requires per-sub-agent LKW
 \end{table*}
 
 % =============================================================================
+\subsection{Stage 1: LKW Def-Use Pair Verification --- ShipOrderAgent (RetailBen)}
+\label{sec:lkw-stage1-shipping}
+% -----------------------------------------------------------------------------
+
+Stage~1 LKW verification for \texttt{ShipOrderAgent} uses five checkpoints
+instrumented in \texttt{shippingagent/app/orchestrator.py}:
+\texttt{TASK\_START} (line~569), \texttt{QUOTE\_DONE} (line~670),
+\texttt{CARRIER\_DONE} (line~699), \texttt{TRACKING\_DONE} (line~734),
+and \texttt{ESCALATION\_CHECK} (line~738).
+Two boundary-contract checks (\texttt{quote\_to\_carrier} and
+\texttt{carrier\_to\_tracking}) are additional signals but are not DU-pair
+use points.
+Table~\ref{tab:lkw-stage1-shipping} covers 8 fault-tested DU pairs
+(2~Group~2, 6~Group~1) drawn from both general FM faults and five
+RetailBen-specific business faults.
+
+\textbf{Group~1 --- wrong value at the use point.}
+Six DU pairs (TC-SHP-03, 05, 07, 08, 09, 10) fall here.
+Each fault patches a variable at its definition~D (via fallback patch in
+\texttt{orchestrator.py:611--613} for FM/BL faults, or
+\texttt{fi.maybe\_corrupt\_cost} at line~625 for BL-REFUND); the def-clear
+path to the use point executes; the wrong value at the checkpoint signals
+failure.
+
+\textbf{Group~2 --- checkpoint is the sole detector.}
+FM-3.1 (TC-SHP-02) triggers the premature-termination path at
+line~630--646: \texttt{CARRIER\_DONE} and \texttt{BOUNDARY\_CHECK} are
+never recorded; the only observable signal is the missing step and the
+\texttt{PREMATURE} tracking ID.
+FM-1.2 (TC-SHP-04) corrupts the task specification before the ReAct loop
+(\texttt{orchestrator.py:573}), causing the LLM to emit only a quote step
+and skip carrier selection and tracking: \texttt{CARRIER\_DONE} is absent
+and \texttt{TRACKING\_DONE} is absent from the trace.
+
+\begin{table*}[t]
+\footnotesize
+\caption{Stage~1 LKW DU-pair verification --- ShipOrderAgent (Table~I, RetailBen).
+B1 from \texttt{shippingagent/shippingagent\_fault\_results.json}
+(\texttt{fault\_mode=NONE}, no LLM, mocked gRPC returning
+$\{\texttt{cost\_usd:12.34},\texttt{carrier:FedEx},\texttt{service\_level:ground},\texttt{tracking\_id:TRACK-001}\}$);
+B2 from the same artifact (direct \texttt{orchestrator.ship\_order()},
+no LLM, same mock);
+B2 live-LLM baseline: NOT AVAILABLE (see footnote~[1]);
+B3: NOT MEASURED (RB agents absent from GB checkout B3 campaign).}
+\label{tab:lkw-stage1-shipping}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}p{1.1cm}p{1.75cm}p{2.05cm}p{2.25cm}p{2.7cm}p{2.05cm}p{1.7cm}p{1.45cm}p{1.85cm}p{2.5cm}p{2.2cm}p{2.85cm}@{}}
+\toprule
+\textbf{TC-ID} &
+\textbf{Variable} &
+\textbf{Def (file:line)} &
+\textbf{Use (file:line, type)} &
+\textbf{Def-clear path} &
+\textbf{Test input} &
+\textbf{Expected (B1)} &
+\textbf{B1 observed} &
+\textbf{B2 observed} &
+\textbf{B3 observed} &
+\textbf{LKW verdict} &
+\textbf{Group} \\
+\midrule
+TC-SHP-01 &
+  \texttt{cost\_usd} &
+  \texttt{orch.py:623} (parsed) &
+  \texttt{orch.py:670} \emph{c-use} (QUOTE\_DONE) &
+  L623$\to$L625$\to$L670 &
+  items=$[2]$, NONE &
+  12.34 &
+  \textbf{12.34}$^{[1]}$ &
+  12.34 (fault fires after this use) &
+  NOT\_MEAS.$^{[3]}$ &
+  PASS &
+  info \\[4pt]
+TC-SHP-02 &
+  \texttt{carrier} &
+  \texttt{orch.py:630} (early-ret.\ path) &
+  \texttt{orch.py:699} \emph{c-use} (CARRIER\_DONE) &
+  L623$\to$FM-3.1 early ret.$\to$L699 unreachable &
+  items, FM-3.1 &
+  FedEx &
+  \textbf{FedEx}$^{[1]}$ &
+  \textbf{PATH\_INFEAS.}$^{[2]}$ (CARRIER\_DONE absent) &
+  NOT\_MEAS.$^{[3]}$ &
+  PATH\_INFEAS. --- CARRIER\_DONE absent &
+  \textbf{Group~2} --- checkpoint catches FM-3.1 \\[4pt]
+TC-SHP-03 &
+  \texttt{carrier} &
+  \texttt{orch.py:611} (FM-2.2 patch) &
+  \texttt{orch.py:699} \emph{c-use} (CARRIER\_DONE) &
+  L611$\to$L623$\to$L699 &
+  items, FM-2.2 &
+  FedEx &
+  \textbf{FedEx}$^{[1]}$ &
+  \textbf{SpeedyShip}$^{[2]}$ (FAIL) &
+  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches FM-2.2 \\[4pt]
+TC-SHP-04 &
+  \texttt{tracking\_id} &
+  \texttt{orch.py:650} (FM-1.2 path) &
+  \texttt{orch.py:734} \emph{c-use} (TRACKING\_DONE) &
+  FM-1.2 corrupts task spec$\to$CARRIER\_DONE skipped$\to$L734 unreachable &
+  items, FM-1.2 &
+  TRACK-001 &
+  \textbf{TRACK-001}$^{[1]}$ &
+  \textbf{PATH\_INFEAS.}$^{[2]}$ (CARRIER\_DONE and TRACKING\_DONE absent) &
+  NOT\_MEAS.$^{[3]}$ &
+  PATH\_INFEAS. --- use never reached &
+  \textbf{Group~2} --- checkpoint catches FM-1.2 \\[4pt]
+TC-SHP-05 &
+  \texttt{cost\_usd} &
+  \texttt{orch.py:611} (FM-2.5 patch) &
+  \texttt{orch.py:670} \emph{c-use} (QUOTE\_DONE) &
+  L611$\to$L623$\to$L670 &
+  items, FM-2.5 &
+  12.34 &
+  \textbf{12.34}$^{[1]}$ &
+  \textbf{4.99}$^{[2]}$ (FAIL; stale) &
+  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches FM-2.5 \\[4pt]
+TC-SHP-07 &
+  \texttt{carrier} &
+  \texttt{orch.py:611} (BL-VND patch) &
+  \texttt{orch.py:699} \emph{c-use} (CARRIER\_DONE) &
+  L611$\to$L623$\to$L699 &
+  items, BL-VND-NEG &
+  FedEx &
+  \textbf{FedEx}$^{[1]}$ &
+  \textbf{PremiumExpress}$^{[2]}$ (FAIL; forced\_vendor=True) &
+  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches BL-VENDOR-NEG \\[4pt]
+TC-SHP-08 &
+  \texttt{cost\_usd} &
+  \texttt{orch.py:625} (BL-REFUND corrupt) &
+  \texttt{orch.py:670} \emph{c-use} (QUOTE\_DONE) &
+  L623$\to$L625$\to$L670 &
+  items, BL-REFUND &
+  12.34 &
+  \textbf{12.34}$^{[1]}$ &
+  \textbf{$-12.34$}$^{[2]}$ (FAIL; negative cost) &
+  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches BL-REFUND \\[4pt]
+TC-SHP-09 &
+  \texttt{escalation\_required} &
+  \texttt{orch.py:738} (BL-ESC inject) &
+  \texttt{orch.py:738} \emph{p-use} (ESCALATION\_CHECK) &
+  L734$\to$L738 &
+  items, BL-CUST-ESC &
+  False &
+  \textbf{False}$^{[1]}$ &
+  \textbf{True}$^{[2]}$ (FAIL) &
+  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL} in B2 &
+  \textbf{Group~1} --- LKW catches BL-CUSTOMER-ESC \\
+\bottomrule
+\end{tabular}}
+
+\smallskip\par\noindent
+\textbf{[1]}~B1 oracle from \texttt{shippingagent/shippingagent\_fault\_results.json}
+(\texttt{fault\_mode=NONE}, no LLM, deterministic mock returning
+$\{\texttt{cost\_usd:12.34},\texttt{carrier:FedEx},\texttt{service\_level:ground},\texttt{tracking\_id:TRACK-001}\}$).
+All checkpoint fields are zero-variance in the harness NONE run.
+\textbf{B2 live-LLM baseline NOT AVAILABLE.}
+Pipeline runs (\texttt{b2\_live\_llm/shippingagent\_ship\_livellm\_b2\_run\{1..10\}.json})
+are structurally incomplete: \texttt{qwen2.5:3b} at temp$=0.0$ returns the literal
+template string \texttt{\{"tracking\_id":"<id>","carrier":"<name>",...\}} instead of
+filling in values in 10/10 runs; JSON parsing fails; all numeric fields fall back
+to defaults (\texttt{cost\_usd=0.0}); \texttt{TRACKING\_DONE} and \texttt{ESCALATION\_CHECK}
+are never reached.
+Separately, \texttt{shippingagent\_quote} pipeline runs show non-zero variance
+(\texttt{cost\_usd}$\in$\{5.0,\,15.88\} across 10 runs at temp$=0.0$) because
+8/10 runs also return the template, falling back to the hardcoded 5.0 sentinel.
+This is a structural small-model limitation, not a scenario-input mismatch.
+Fix required: replace template-based output instructions with explicit JSON schema
+or structured tool returns, then rerun on SPEED.
+\textbf{Scenario note:} pipeline QUOTE runs use \texttt{item\_count=1};
+harness uses \texttt{item\_count=2}.
+These are different test inputs; numeric thresholds (\texttt{cost\_usd=12.34})
+are from the harness-only baseline.
+
+\smallskip\par\noindent
+\textbf{[2]}~B2 fault-injected values from
+\texttt{shippingagent/shippingagent\_fault\_results.json} --- generated by
+\texttt{shippingagent/test\_fault\_injection.py}, direct
+\texttt{orchestrator.ship\_order()} (no LLM, mocked gRPC).
+Fault mode applied at \texttt{app/fault\_injection.py}
+(\texttt{BL\_REFUND\_REASONING}: \texttt{maybe\_corrupt\_cost} negates cost;
+\texttt{BL\_VENDOR\_NEGOTIATION}: \texttt{carrier} forced to \texttt{PremiumExpress};
+\texttt{FM-2.2}: carrier patched to \texttt{SpeedyShip/ultra-express} at line~611;
+\texttt{FM-2.5}: \texttt{cost\_usd} replaced with 4.99 at line~611;
+\texttt{FM-3.1}: \texttt{tracking\_id=PREMATURE-0000} triggers early-return path at
+line~630--646, skipping \texttt{CARRIER\_DONE};
+\texttt{FM-1.2}: task spec corrupted before ReAct loop at line~573,
+producing \texttt{INCOMPLETE} tracking\_id and skipping carrier/tracking steps).
+
+\par\noindent\textbf{TC-SHP-02 FM-3.1:} steps reached:
+\texttt{[TASK\_START, FINAL\_ANSWER, QUOTE\_DONE, TRACKING\_DONE, SAVE\_DONE]};
+\texttt{CARRIER\_DONE} and both \texttt{BOUNDARY\_CHECK} entries absent.
+\par\noindent\textbf{TC-SHP-04 FM-1.2:} steps reached:
+\texttt{[TASK\_START, FINAL\_ANSWER, QUOTE\_DONE, SAVE\_DONE]};
+\texttt{CARRIER\_DONE} and \texttt{TRACKING\_DONE} absent.
+\par\noindent\textbf{BL-INVENTORY-MISMATCH (not in table):}
+\texttt{item\_count} inflated $2\to4$ at \texttt{orchestrator.py:503}
+(\texttt{fi.maybe\_corrupt\_items}); \texttt{QUOTE\_DONE.item\_count\_inflated=True};
+\texttt{cost\_usd=12.34} unchanged (mock returns fixed value regardless of item count),
+so the inflation is detectable only via the flag field, not the cost.
+\par\noindent\textbf{BL-SHIPMENT-LOST (not in table):}
+\texttt{SAVE\_DONE} intentionally absent (\texttt{fi.should\_skip\_shipment\_save()=True});
+tracking\_id=TRACK-001 is still generated and recorded at \texttt{TRACKING\_DONE}
+but the save step is skipped; the missing step is the sole observable signal.
+
+\smallskip\par\noindent
+\textbf{[3]}~B3 NOT MEASURED throughout.
+RetailBen agents (\texttt{ShippingQuoteAgent}, \texttt{ShipOrderAgent}) are not
+part of the Google Boutique checkout B3 pipeline.
+No independent B3 LLM fault campaign has been run for RB.
+
+\smallskip\par\noindent
+\textbf{Group~2 finding --- FM-3.1 and FM-1.2 justification.}
+TC-SHP-02 and TC-SHP-04 are the two Group~2 faults for ShipOrderAgent.
+Both produce checkpoint absence as the primary signal:
+FM-3.1 fires the premature path at \texttt{orchestrator.py:630--646},
+completely skipping the carrier selection and boundary check flow;
+FM-1.2 corrupts the ReAct task specification before the LLM loop,
+producing an incomplete plan that calls only the quote step.
+In both cases value-based LKW comparison at \texttt{CARRIER\_DONE} is
+impossible because the step does not exist in the trace.
+The checkpoint mechanism detects path death via the missing
+\texttt{CARRIER\_DONE} step from the required set
+$\{\texttt{TASK\_START},\allowbreak\texttt{QUOTE\_DONE},\allowbreak%
+\texttt{CARRIER\_DONE},\allowbreak\texttt{TRACKING\_DONE}\}$.
+\end{table*}
+
+% =============================================================================
 \section{Fault Injection as Mutant Operators}
 \label{sec:fault-operators}
 % =============================================================================

@@ -150,8 +150,9 @@ interpreting the difference through RIP.
 
 We study three workflow surfaces across two domains: Google Online Boutique
 (GB) checkout, RetailBen (RB) shipping quote, and RB ship order. GB is based on
-an external cloud-native microservice benchmark, whereas RB is a two-agent
-LangGraph shipping workflow constructed for this study. Each surface has an
+an external cloud-native microservice benchmark, whereas RB is a
+single-orchestrator shipping workflow constructed for this study that exposes
+quote and order phases as two entry points. Each surface has an
 LLM-facing agent, an experiment helper or service adapter, and a microservice
 interface. In the systematic experiments, the helpers invoke Ollama for agent
 decisions and use controlled mock clients for service responses. They are
@@ -252,20 +253,44 @@ payment-amount tampering, corrupted email content, and invalid advertising or
 recommendation output. These failures may preserve the expected sequence of
 steps while corrupting values used by downstream services.
 
-\subsection{RetailBen Shipping Quote (RB)}
+\subsection{RetailBen Shipping Orchestrator (RB)}
 
-RetailBen (RB) is a two-agent LangGraph shipping workflow constructed for this
-study. ShippingQuoteAgent receives package, destination, and inventory context
-and returns a carrier, price quote, and delivery window. Its checkpoints expose
-whether inventory, carrier, quote, or delivery information changes before the
-result is passed downstream.
+\begin{sloppypar}
+RetailBen (RB) is a shipping workflow constructed for this study. It is
+implemented as a \emph{single} orchestrator module: the
+\texttt{Shipping\-Orchestrator} class, defined in
+\texttt{orchestrator.py} under \texttt{shippingagent/app/}.
+This module drives a hand-written
+ReAct loop (Reason--Act--Observe) against a self-hosted Llama-family
+OpenAI-compatible endpoint and dispatches tool calls to three internal helpers
+(\texttt{QuoteAgent}, \texttt{CarrierSelectionAgent}, \texttt{TrackingAgent}).
+The orchestrator exposes two asynchronous entry points, which we treat as two
+logical phases of one workflow rather than as two separate agents:
+\end{sloppypar}
 
-\subsection{RetailBen Ship Order (RB)}
+\begin{description}
+  \item[Quote phase (\texttt{get\_quote}).] Receives package, destination, and
+        inventory context and returns a price quote. Its checkpoints expose
+        whether inventory or quote information changes before the result is
+        passed downstream.
+  \item[Order phase (\texttt{ship\_order}).] Re-derives the quote, then selects
+        a carrier, creates a tracking record, saves the order, and evaluates
+        escalation conditions. Because it consumes the upstream quote, this
+        phase reveals whether an error is blocked, corrected, or propagated
+        into order state.
+\end{description}
 
-ShipOrderAgent receives the approved quote and order details, selects a carrier,
-creates a tracking record, saves the order, and evaluates escalation conditions.
-Because it consumes the upstream quote, the workflow reveals whether an error
-is blocked, corrected, or propagated into order state.
+Both entry points instantiate the same \texttt{LKWCheckpoint} class, whose
+single \texttt{EXPECTED\_STEPS} sequence (\texttt{TASK\_START},
+\texttt{QUOTE\_DONE}, \texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE},
+\texttt{SAVE\_DONE}, \texttt{FINAL\_ANSWER}) spans the whole workflow. RB
+therefore has one Stage~1 verification table
+(Table~\ref{tab:lkw-stage1-shipping}) covering both phases, rather than one per
+phase. Where the two phases must be distinguished --- as separate
+\texttt{infection\_agent} values in the B3 traces, and in the coverage and
+fault-map tables --- we retain the labels \textbf{ShippingQuoteAgent} and
+\textbf{ShipOrderAgent} for the quote and order phases respectively. These are
+phase labels for one module, not names of separate modules.
 
 \begin{table}[t]
 \centering
@@ -441,130 +466,115 @@ Diagnostic metadata & Optional experiment fields such as configured mode or harn
 
 \begin{table*}[t]
 \centering
-\caption{Explicit alignment between agent-side LKW checkpoints and
-service-interface observation points. B1 supplies expected values and B2
-characterizes acceptable no-fault variation for these comparisons.}
-\label{tab:checkpoint-alignment}
+\caption{Fault-to-checkpoint instrumentation map with service-interface
+alignment. One row per (agent, fault mode) pair. Agents marked \textbf{(RB)}
+are from RetailBen; all other agents are from Google Boutique.
+\textbf{Agent checkpoint} is the first LKW point where the injected fault is
+expected to become observable. \textbf{Microservice observation point} is the
+service-interface surface against which that checkpoint is compared.
+\textbf{AU} = All-Uses; \textbf{ADP} = All-DU-Paths. \textbf{C-use} means
+computational use and \textbf{P-use} means predicate/decision use.
+Comparison-relation classes are stated per checkpoint in the paragraph below
+rather than repeated per row. This is a design table, not a results table.}
+\label{tab:checkpoint-fault-merged}
 \footnotesize
-\begin{tabularx}{\textwidth}{l l Y Y}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{2.45cm}p{2.55cm}p{4.35cm}p{2.75cm}ll@{}}
 \toprule
-\textbf{Domain} & \textbf{Agent checkpoint} & \textbf{Microservice observation point} & \textbf{Comparison relation} \\
+\textbf{Agent} & \textbf{Agent checkpoint} & \textbf{Microservice observation point} & \textbf{Fault mode} & \textbf{Criterion} & \textbf{Use} \\
 \midrule
-GB & \texttt{PaymentAgent: CHARGE\_DONE}
-      & PaymentService request/response values (charged amount, transaction outcome)
-      & Numeric tolerance ($\delta_{\epsilon}$) on amount + flag conformance ($\Sigma$) \\
-GB & \texttt{CurrencyAgent: CONVERT\_DONE}
-      & CurrencyService request/response values (source, target, converted amount)
-      & Numeric tolerance ($\delta_{\epsilon}$) \\
-GB & \texttt{ProductCatalogAgent: CATALOG\_DONE}
-      & ProductCatalogService response values (product IDs, prices, list contents)
-      & Set/schema equality ($\mathcal{S}$) + numeric tolerance ($\delta_{\epsilon}$) \\
-GB & \texttt{EmailServiceAgent: EMAIL\_GENERATED/EMAIL\_SENT}
-      & EmailService request/response values (recipient, content fields, send status)
-      & Schema equality ($\mathcal{S}$) + flag conformance ($\Sigma$) \\
-GB & \texttt{RecommendationAgent: RECOMMEND\_DONE}
-      & RecommendationService request/response values (context IDs, recommendation IDs)
-      & Set/schema equality ($\mathcal{S}$) \\
-GB & \texttt{AdServiceAgent: ADS\_FETCHED}
-      & AdService request/response values (context fields, ad IDs/URLs)
-      & Set/schema equality ($\mathcal{S}$) \\
-GB & \texttt{CartAgent: CART\_DONE}
-      & CartService response values (item IDs, quantities, presence)
-      & Set/schema equality ($\mathcal{S}$) + numeric tolerance ($\delta_{\epsilon}$) \\
-RB & \texttt{ShippingQuoteAgent: QUOTE\_DONE}
-      & Shipping quote service request/response values (inventory status, carrier, quote, ETA)
-      & Numeric tolerance ($\delta_{\epsilon}$) + schema equality ($\mathcal{S}$) \\
-RB & \texttt{ShipOrderAgent: CARRIER\_DONE/TRACKING\_DONE/SAVE\_DONE}
-      & Ship-order service request/response values (carrier, tracking ID, save status, escalation)
-      & Schema equality ($\mathcal{S}$) + flag conformance ($\Sigma$) \\
+ShippingQuoteAgent \textbf{(RB)} & \texttt{TASK\_START} & Shipping quote service request/response values (inventory status, carrier, quote, ETA) & \texttt{BL-INV-MISMATCH} & \textbf{AU/ADP} & C-use/P-use \\
+ & \texttt{QUOTE\_DONE} & & \texttt{BL-REFUND} & \textbf{ADP} & C-use/P-use \\
+ & \texttt{QUOTE\_DONE} & & \texttt{FM-2.5} & \textbf{ADP} & C-use/P-use \\
+\midrule
+ShipOrderAgent \textbf{(RB)} & \texttt{ESCALATION\_CHECK} & Ship-order service request/response values (carrier, tracking ID, save status, escalation) & \texttt{BL-ESCALATION} & \textbf{AU} & P-use \\
+ & \texttt{SAVE\_DONE} & & \texttt{BL-SHIP-LOST} & \textbf{ADP} & C-use/P-use \\
+ & \texttt{CARRIER\_DONE} & & \texttt{BL-VENDOR} & \textbf{AU} & C-use \\
+ & \texttt{TRACKING\_DONE} & & \texttt{FM-1.2} & \textbf{AU} & C-use \\
+ & \texttt{CARRIER\_DONE} & & \texttt{FM-2.2} & \textbf{AU} & C-use \\
+ & \texttt{CARRIER\_DONE} & & \texttt{FM-2.5} & \textbf{AU} & P-use \\
+ & \texttt{TRACKING\_DONE} & & \texttt{FM-3.1} & \textbf{AU} & C-use \\
+\midrule
+PaymentAgent & \texttt{CARD\_VALIDATED} & PaymentService request/response values (charged amount, transaction outcome) & \texttt{BL-AMOUNT-TAMPER} & \textbf{AU/ADP} & C-use/P-use \\
+ & \texttt{SAVE\_DONE} & & \texttt{BL-DOUBLE-CHARGE} & \textbf{AU} & P-use \\
+ & \texttt{SAVE\_DONE} & & \texttt{BL-TXN-LOST} & \textbf{AU} & P-use \\
+ & \texttt{CARD\_VALIDATED} & & \texttt{FM-1.2} & \textbf{AU} & P-use \\
+ & \texttt{CHARGE\_DONE} & & \texttt{FM-2.2} & \textbf{AU} & C-use/P-use \\
+ & \texttt{CARD\_VALIDATED} & & \texttt{FM-2.5} & \textbf{AU/ADP} & C-use/P-use \\
+\midrule
+CurrencyAgent & \texttt{CONVERT\_DONE} & CurrencyService request/response values (source, target, converted amount) & \texttt{BL-CONV-OVERFLOW} & \textbf{AU} & C-use \\
+ & \texttt{CONVERT\_DONE} & & \texttt{BL-RATE-MANIP} & \textbf{AU} & C-use \\
+ & \texttt{CONVERT\_DONE} & & \texttt{BL-STALE-RATE} & \textbf{AU} & C-use \\
+ & \texttt{CONVERT\_DONE} & & \texttt{FM-1.2} & \textbf{AU} & C-use/P-use \\
+ & \texttt{CONVERT\_DONE} & & \texttt{FM-2.2} & \textbf{AU} & C-use \\
+ & \texttt{CONVERT\_DONE} & & \texttt{FM-2.5} & \textbf{AU} & C-use \\
+\midrule
+EmailServiceAgent & \texttt{EMAIL\_GENERATED} & EmailService request/response values (recipient, content fields, send status) & \texttt{BL-CORRUPT-BODY} & \textbf{AU} & C-use \\
+ & \texttt{EMAIL\_SENT} & & \texttt{BL-SEND-SKIP} & \textbf{AU} & C-use/P-use \\
+ & \texttt{EMAIL\_GENERATED} & & \texttt{FM-1.2} & \textbf{AU} & C-use/P-use \\
+ & \texttt{EMAIL\_GENERATED} & & \texttt{FM-2.2} & \textbf{AU} & P-use \\
+ & \texttt{EMAIL\_GENERATED} & & \texttt{FM-2.5} & \textbf{AU} & C-use \\
+\midrule
+ProductCatalogAgent & \texttt{CATALOG\_DONE} & ProductCatalogService response values (product IDs, prices, list contents) & \texttt{BL-DUP-PRODUCT} & \textbf{AU} & C-use/P-use \\
+ & \texttt{CATALOG\_DONE} & & \texttt{BL-PRICE-MANIP} & \textbf{ADP} & C-use \\
+ & \texttt{CATALOG\_DONE} & & \texttt{BL-PROD-MISSING} & \textbf{AU} & C-use/P-use \\
+ & \texttt{CATALOG\_DONE} & & \texttt{FM-1.2} & \textbf{AU} & P-use \\
+ & \texttt{CATALOG\_DONE} & & \texttt{FM-2.2} & \textbf{AU} & C-use/P-use \\
+\midrule
+RecommendationAgent & \texttt{RECOMMEND\_DONE} & RecommendationService request/response values (context IDs, recommendation IDs) & \texttt{BL-EMPTY-RECS} & \textbf{AU} & C-use/P-use \\
+ & \texttt{RECOMMEND\_DONE} & & \texttt{BL-INJECT-RECS} & \textbf{AU} & P-use \\
+ & \texttt{RECOMMEND\_DONE} & & \texttt{FM-2.2} & \textbf{AU} & C-use \\
+ & \texttt{RECOMMEND\_DONE} & & \texttt{FM-2.5} & \textbf{AU} & C-use \\
+ & \texttt{RECOMMEND\_DONE} & & \texttt{FM-3.1} & \textbf{AU} & C-use/P-use \\
+\midrule
+AdServiceAgent & \texttt{ADS\_FETCHED} & AdService request/response values (context fields, ad IDs/URLs) & \texttt{BL-AD-INJECTION} & \textbf{AU} & C-use/P-use \\
+ & \texttt{ADS\_FETCHED} & & \texttt{BL-DUP-ADS} & \textbf{AU} & C-use/P-use \\
+ & \texttt{ADS\_FETCHED} & & \texttt{BL-EMPTY-ADS} & \textbf{AU} & C-use/P-use \\
+ & \texttt{CONTEXT\_EXTRACTED} & & \texttt{FM-1.2} & \textbf{AU} & C-use \\
+ & \texttt{ADS\_FETCHED} & & \texttt{FM-2.2} & \textbf{AU} & C-use \\
+ & \texttt{CONTEXT\_EXTRACTED} & & \texttt{FM-2.5} & \textbf{AU} & C-use \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table*}
 
-The checkpoint-equivalence relations in Tables~\ref{tab:checkpoint-alignment}
-and~\ref{tab:fault-lkw-ckpt} are declared before the B3 campaign using B1
-semantics and B2 no-fault observations. B3 is then evaluated under these fixed
-relations so calibration and evaluation remain separated.
+\smallskip\par\noindent
+\textbf{Comparison-relation classes, by checkpoint.}
+Each checkpoint is compared to its service-interface observation point under a
+fixed relation class, declared once here rather than repeated per row.
+$\delta_{\epsilon}$ denotes a numeric exact, tolerance, or range check;
+$\mathcal{S}$ denotes string, set, schema, or required-step conformance; and
+$\Sigma$ denotes boolean or diagnostic-flag conformance.
+\texttt{CONVERT\_DONE} (CurrencyAgent) uses $\delta_{\epsilon}$.
+\texttt{CHARGE\_DONE} (PaymentAgent) uses $\delta_{\epsilon}$ on the charged
+amount plus $\Sigma$.
+\texttt{CATALOG\_DONE} (ProductCatalogAgent) uses $\mathcal{S}$ plus
+$\delta_{\epsilon}$.
+\texttt{EMAIL\_GENERATED}/\texttt{EMAIL\_SENT} (EmailServiceAgent) use
+$\mathcal{S}$ plus $\Sigma$.
+\texttt{RECOMMEND\_DONE} (RecommendationAgent) and \texttt{ADS\_FETCHED}
+(AdServiceAgent) use $\mathcal{S}$.
+\texttt{CART\_DONE} (CartAgent) uses $\mathcal{S}$ plus $\delta_{\epsilon}$;
+CartAgent has isolated harness evidence and is therefore aligned to its service
+interface but carries no rows in the fault map above.
+\texttt{QUOTE\_DONE} (ShippingQuoteAgent, RB) uses $\delta_{\epsilon}$ plus
+$\mathcal{S}$.
+\texttt{CARRIER\_DONE}/\texttt{TRACKING\_DONE}/\texttt{SAVE\_DONE}
+(ShipOrderAgent, RB) use $\mathcal{S}$ plus $\Sigma$.
+B1 supplies expected values and B2 characterizes acceptable no-fault variation
+for all of these comparisons.
 
-Table~\ref{tab:fault-lkw-ckpt} summarizes the field-level instrumentation map
-for the Python service-facing agents. It is a design table, not a results table.
-The checkout orchestrator is evaluated structurally through expected-step
-checks, and CartAgent has isolated harness evidence but is not part of this
-field-level map. The table shows where each listed fault should become visible,
-the LKW criterion and use type, and the comparison class applied to B3.
+The checkpoint-equivalence relations in
+Table~\ref{tab:checkpoint-fault-merged} are declared before the B3 campaign
+using B1 semantics and B2 no-fault observations. B3 is then evaluated under
+these fixed relations so calibration and evaluation remain separated.
 
-\begin{table*}[t]
-\centering
-\caption{Mapping faults to LKW criteria and checkpoints. Agents marked
-\textbf{(RB)} are from RetailBen; all other agents are from Google Boutique.
-\textbf{Infect. checkpoint} is the first LKW point where the injected fault is
-expected to become observable. \textbf{AU} = All-Uses; \textbf{ADP} =
-All-DU-Paths. \textbf{C-use} means computational use and \textbf{P-use} means
-predicate/decision use. \textbf{Cmp.} groups the concrete B1/B3 checks:
-$\delta_{\epsilon}$ = numeric exact, tolerance, or range check;
-$\mathcal{S}$ = string, set, schema, or required-step conformance; and
-$\Sigma$ = boolean or diagnostic-flag conformance.}
-\label{tab:fault-lkw-ckpt}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{2.8cm}p{3.0cm}p{2.9cm}lll}
-\toprule
-\textbf{Agent} & \textbf{Fault mode} & \textbf{Infect. checkpoint} & \textbf{Criterion} & \textbf{Use} & \textbf{Cmp.} \\
-\midrule
-ShippingQuoteAgent \textbf{(RB)} & \texttt{BL-INV-MISMATCH} & \texttt{TASK\_START} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-REFUND} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-2.5} & \texttt{QUOTE\_DONE} & \textbf{ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
-\midrule
-ShipOrderAgent \textbf{(RB)} & \texttt{BL-ESCALATION} & \texttt{ESCALATION\_CHECK} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{BL-SHIP-LOST} & \texttt{SAVE\_DONE} & \textbf{ADP} & C-use/P-use & $\mathcal{S}$ \\
- & \texttt{BL-VENDOR} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
- & \texttt{FM-1.2} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
- & \texttt{FM-2.2} & \texttt{CARRIER\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
- & \texttt{FM-2.5} & \texttt{CARRIER\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-3.1} & \texttt{TRACKING\_DONE} & \textbf{AU} & C-use & $\mathcal{S}$ \\
-\midrule
-PaymentAgent & \texttt{BL-AMOUNT-TAMPER} & \texttt{CARD\_VALIDATED} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-DOUBLE-CHARGE} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{BL-TXN-LOST} & \texttt{SAVE\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-1.2} & \texttt{CARD\_VALIDATED} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-2.2} & \texttt{CHARGE\_DONE} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{CARD\_VALIDATED} & \textbf{AU/ADP} & C-use/P-use & $\delta_{\epsilon}$ \\
-\midrule
-CurrencyAgent & \texttt{BL-CONV-OVERFLOW} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-RATE-MANIP} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-STALE-RATE} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-1.2} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
- & \texttt{FM-2.2} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-2.5} & \texttt{CONVERT\_DONE} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
-\midrule
-EmailServiceAgent & \texttt{BL-CORRUPT-BODY} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-SEND-SKIP} & \texttt{EMAIL\_SENT} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
- & \texttt{FM-1.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use/P-use & $\Sigma$ \\
- & \texttt{FM-2.2} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{EMAIL\_GENERATED} & \textbf{AU} & C-use & $\Sigma$ \\
-\midrule
-ProductCatalogAgent & \texttt{BL-DUP-PRODUCT} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-PRICE-MANIP} & \texttt{CATALOG\_DONE} & \textbf{ADP} & C-use & $\Sigma$ \\
- & \texttt{BL-PROD-MISSING} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-1.2} & \texttt{CATALOG\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-2.2} & \texttt{CATALOG\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
-\midrule
-RecommendationAgent & \texttt{BL-EMPTY-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-INJECT-RECS} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & P-use & $\Sigma$ \\
- & \texttt{FM-2.2} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use & $\Sigma$ \\
- & \texttt{FM-3.1} & \texttt{RECOMMEND\_DONE} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
-\midrule
-AdServiceAgent & \texttt{BL-AD-INJECTION} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-DUP-ADS} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{BL-EMPTY-ADS} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use/P-use & $\delta_{\epsilon}$ \\
- & \texttt{FM-1.2} & \texttt{CONTEXT\_EXTRACTED} & \textbf{AU} & C-use & $\mathcal{S}$ \\
- & \texttt{FM-2.2} & \texttt{ADS\_FETCHED} & \textbf{AU} & C-use & $\Sigma$ \\
- & \texttt{FM-2.5} & \texttt{CONTEXT\_EXTRACTED} & \textbf{AU} & C-use & $\mathcal{S}$ \\
-\bottomrule
-\end{tabular}}
-\end{table*}
+Table~\ref{tab:checkpoint-fault-merged} also serves as the field-level
+instrumentation map for the Python service-facing agents. It is a design table,
+not a results table. The checkout orchestrator is evaluated structurally
+through expected-step checks, and CartAgent has isolated harness evidence but
+carries no rows in the field-level map. The table shows where each listed fault
+should become visible, the service-interface surface it is compared against,
+and the LKW criterion and use type.
 
 \subsection{B1, B2, and B3 Roles}
 
@@ -2247,7 +2257,7 @@ Stage~1 LKW verification for \texttt{CartAgent} differs from the preceding
 Python agents in two structural ways.
 First, the service is implemented in C\# (\texttt{cart-agent/src/ollamacartagent.cs})
 and uses Ollama (\texttt{llama3.2:1b}) for quantity-merging decisions; there
-is no Python LangGraph runtime.
+is no Python ReAct orchestrator runtime.
 Second, fault evidence is produced by a purpose-built Python simulation
 harness (\texttt{cart-agent/test\_fault\_injection.py}) that models the four-step
 LKW execution: \texttt{TASK\_START} (harness line~24), \texttt{ITEM\_ADDED}
@@ -2682,7 +2692,9 @@ $\{\texttt{cost\_usd:12.34},\texttt{carrier:FedEx},\texttt{service\_level:ground
 B2 from the same artifact (direct \texttt{orchestrator.ship\_order()},
 no LLM, same mock);
 B2 live-LLM baseline: NOT AVAILABLE (see footnote~[1]);
-B3: NOT MEASURED (RB agents absent from GB checkout B3 campaign).}
+B3 measured as co-resident agents in the GB checkout campaign, pooled over
+\texttt{3b\_temp0.7} and \texttt{3b\_temp1.0} (six runs per fault; see
+footnote~[3]).}
 \label{tab:lkw-stage1-shipping}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}p{1.1cm}p{1.75cm}p{2.05cm}p{2.25cm}p{2.7cm}p{2.05cm}p{1.7cm}p{1.45cm}p{1.85cm}p{2.5cm}p{2.2cm}p{2.85cm}@{}}
@@ -2709,7 +2721,7 @@ TC-SHP-01 &
   12.34 &
   \textbf{12.34}$^{[1]}$ &
   12.34 (fault fires after this use) &
-  NOT\_MEAS.$^{[3]}$ &
+  n/a$^{[3]}$ (B3 is fault-active) &
   PASS &
   info \\[4pt]
 TC-SHP-02 &
@@ -2721,7 +2733,7 @@ TC-SHP-02 &
   FedEx &
   \textbf{FedEx}$^{[1]}$ &
   \textbf{PATH\_INFEAS.}$^{[2]}$ (CARRIER\_DONE absent) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{PATH\_INFEAS.}$^{[3]}$ 3/6 \emph{absent} (B1=DHL); 3/6 not reached &
   PATH\_INFEAS. --- CARRIER\_DONE absent &
   \textbf{Group~2} --- checkpoint catches FM-3.1 \\[4pt]
 TC-SHP-03 &
@@ -2733,7 +2745,7 @@ TC-SHP-03 &
   FedEx &
   \textbf{FedEx}$^{[1]}$ &
   \textbf{SpeedyShip}$^{[2]}$ (FAIL) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{NOT DET.}$^{[3]}$ 0/6 deviate &
   \textbf{FAIL} in B2 &
   \textbf{Group~1} --- LKW catches FM-2.2 \\[4pt]
 TC-SHP-04 &
@@ -2745,7 +2757,7 @@ TC-SHP-04 &
   TRACK-001 &
   \textbf{TRACK-001}$^{[1]}$ &
   \textbf{PATH\_INFEAS.}$^{[2]}$ (CARRIER\_DONE and TRACKING\_DONE absent) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{PATH\_INFEAS.}$^{[3]}$ 2/6 \emph{absent} (B1=8434097984); 4/6 not reached &
   PATH\_INFEAS. --- use never reached &
   \textbf{Group~2} --- checkpoint catches FM-1.2 \\[4pt]
 TC-SHP-05 &
@@ -2757,7 +2769,7 @@ TC-SHP-05 &
   12.34 &
   \textbf{12.34}$^{[1]}$ &
   \textbf{4.99}$^{[2]}$ (FAIL; stale) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL}$^{[3]}$ 4/6 \emph{ign.\ dstream quote}=True (detects FM-2.5) &
   \textbf{FAIL} in B2 &
   \textbf{Group~1} --- LKW catches FM-2.5 \\[4pt]
 TC-SHP-07 &
@@ -2769,7 +2781,7 @@ TC-SHP-07 &
   FedEx &
   \textbf{FedEx}$^{[1]}$ &
   \textbf{PremiumExpress}$^{[2]}$ (FAIL; forced\_vendor=True) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL}$^{[3]}$ 3/6 \emph{absent} (B1=DHL; all $t{=}1.0$) &
   \textbf{FAIL} in B2 &
   \textbf{Group~1} --- LKW catches BL-VENDOR-NEG \\[4pt]
 TC-SHP-08 &
@@ -2781,7 +2793,7 @@ TC-SHP-08 &
   12.34 &
   \textbf{12.34}$^{[1]}$ &
   \textbf{$-12.34$}$^{[2]}$ (FAIL; negative cost) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL}$^{[3]}$ 3/6 \emph{absent} (B1=15.88; all $t{=}1.0$) &
   \textbf{FAIL} in B2 &
   \textbf{Group~1} --- LKW catches BL-REFUND \\[4pt]
 TC-SHP-09 &
@@ -2793,7 +2805,7 @@ TC-SHP-09 &
   False &
   \textbf{False}$^{[1]}$ &
   \textbf{True}$^{[2]}$ (FAIL) &
-  NOT\_MEAS.$^{[3]}$ &
+  \textbf{FAIL}$^{[3]}$ 3/6 =True (detects BL-CUST-ESC); 3/6 \emph{absent} &
   \textbf{FAIL} in B2 &
   \textbf{Group~1} --- LKW catches BL-CUSTOMER-ESC \\
 \bottomrule
@@ -2854,10 +2866,47 @@ tracking\_id=TRACK-001 is still generated and recorded at \texttt{TRACKING\_DONE
 but the save step is skipped; the missing step is the sole observable signal.
 
 \smallskip\par\noindent
-\textbf{[3]}~B3 NOT MEASURED throughout.
-RetailBen agents (\texttt{ShippingQuoteAgent}, \texttt{ShipOrderAgent}) are not
-part of the Google Boutique checkout B3 pipeline.
-No independent B3 LLM fault campaign has been run for RB.
+\textbf{[3]}~B3 \emph{was} measured for RetailBen, but as \emph{co-resident} agents
+inside the Google Boutique checkout campaign rather than as a standalone RB run.
+Both RB agents are instrumented and observable in that pipeline: the fault matrix
+records \texttt{infection\_agent} values \texttt{shipping\_quote} and
+\texttt{ship\_order}, and the two RB business faults carried in the pooled
+ten-fault matrix detect at
+$5/6 = 83.3\%$ each (BL-INVENTORY\_MISM.\ via \texttt{shipping\_quote};
+BL-SHIPMENT\_LOST via \texttt{ship\_order}; see
+Table~\ref{tab:b3-fault-summary-simple}).
+The per-row B3 cells above are pooled over the six runs
+$\{$\texttt{3b\_temp0.7}, \texttt{3b\_temp1.0}$\}\times\{$run1--3$\}$, read from
+\texttt{b3/raw/b3\_<FAULT>\_<CONFIG>\_run<N>.json} and aggregated in
+\texttt{b3/b3\_<FAULT>\_<CONFIG>\_summary.json}.
+
+\smallskip\par\noindent
+\emph{Two caveats we state explicitly rather than smooth over.}
+(i)~Most RB B3 deviations are recorded at \texttt{severity="missing"} ---
+the checkpoint is \emph{absent} rather than carrying a wrong value --- because
+the RB agents sit late in the checkout order and are frequently not reached
+under an active fault. Absence is a genuine LKW signal (it is exactly what
+Group~2 is defined to catch), but it is weaker evidence than a value mismatch,
+and only TC-SHP-05 and TC-SHP-09 produce a populated \texttt{detects} field.
+(ii)~TC-SHP-03 (FM-2.2) shows \textbf{no} \texttt{carrier} deviation in any of
+the six B3 runs, so its B2 FAIL result does \emph{not} reproduce under the live
+LLM; we report it as NOT DETECTED rather than counting it as a B3 success.
+This does \emph{not} contradict the $6/6 = 100\%$ pooled rate reported for FM-2.2
+in Table~\ref{tab:b3-fault-summary-simple}: that rate is workflow-level and is
+driven entirely by upstream deviation at \texttt{productcatalog}, which is the
+recorded \texttt{infection\_agent} for every FM-2.2 run.
+ShipOrderAgent-specific detection for FM-2.2 is $0/6$.
+The two figures measure different scopes --- whether \emph{any} agent deviated
+versus whether \emph{this} agent deviated --- and both are reported as measured.
+
+\smallskip\par\noindent
+\textbf{[4]}~A separate standalone RB campaign was run at
+\texttt{qwen2.5-coder:14b}, $t{=}0$ (the \texttt{retail\_bench} block of
+\texttt{b3/b3\_full\_report.json}; ten fault modes $\times$ three runs).
+It returned \texttt{detection\_rate}~$=0.0$ for every fault mode.
+That campaign is \emph{excluded} from every pooled figure in this paper --- all
+headline B3 numbers use \texttt{qwen2.5:3b} --- and we report it here only so the
+null result is on the record.
 
 \smallskip\par\noindent
 \textbf{Group~2 finding --- FM-3.1 and FM-1.2 justification.}
@@ -3057,7 +3106,7 @@ RQ1 Injection/reproducibility
       & Repeated campaign execution and run-level detection
       & Counts and Wilson 95\% CI; signature stability is evaluated only in RQ5 \\
 RQ2 First infection location
-      & Tables~\ref{tab:fault-lkw-ckpt}, \ref{tab:b3-fault-summary-simple}
+      & Tables~\ref{tab:checkpoint-fault-merged}, \ref{tab:b3-fault-summary-simple}
       & Earliest deviating agent and expected checkpoint map
       & Descriptive consensus location; no localization-accuracy estimate \\
 RQ3 Propagation depth
@@ -3171,7 +3220,7 @@ by the predeclared expected checkpoint map.
 
 \textbf{Answer.} Structural evidence appears as a missing required checkpoint;
 semantic evidence appears as a guarded-value deviation at a completed
-checkpoint or handoff. Table~\ref{tab:fault-lkw-ckpt} gives the expected
+checkpoint or handoff. Table~\ref{tab:checkpoint-fault-merged} gives the expected
 field-level observation point, while Table~\ref{tab:b3-fault-summary-simple}
 reports the earliest deviating agent summarized from B3. For the four global
 FM modes, ProductCatalogAgent appears first because it is the first
@@ -3179,7 +3228,7 @@ service-facing agent in the fixed workflow and all agents receive the mode;
 this is an observation location, not attribution to a unique fault origin.
 The saved aggregate does not evaluate checkpoint-localization accuracy, and a
 checkpoint can remain unlocalized when it is missing, as in Chain A.
-Primary evidence comes from Tables~\ref{tab:fault-lkw-ckpt} and
+Primary evidence comes from Tables~\ref{tab:checkpoint-fault-merged} and
 \ref{tab:b3-fault-summary-simple}; per-fault CIs describe detection, not the
 accuracy of the reported location.
 

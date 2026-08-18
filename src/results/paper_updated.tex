@@ -44,9 +44,9 @@ amount, product, recipient, or shipping decision to the next agent. This paper
 uses LKW-style data-flow checkpoints and RIP analysis to expose these failures.
 B1 records oracle checkpoint values, B2 characterizes no-fault variation, and
 B3 activates one configured fault mode per run. We evaluate the method on agent
-workflows from Google Online Boutique (GB) and RetailBen (RB). Across the two
-complete ten-fault B3 configurations, the checkpoints exposed 51 of 58
-conclusive faulty runs (87.9\%, Wilson 95\% CI [77.1, 94.0]\%); two runs were
+workflows from Google Online Boutique (GB). Across the two
+complete eight-fault B3 configurations, the checkpoints exposed 41 of 46
+conclusive faulty runs (89.1\%, Wilson 95\% CI [77.0, 95.3]\%); two runs were
 inconclusive. The traces also identify the first infected agent, downstream
 deviations, and whether a case is structurally detectable or requires semantic
 inspection; two targeted chains separately test boundary containment. These
@@ -95,7 +95,7 @@ infect program state, and did that infection propagate to an observable output?
 Together, they let us explain not only whether a fault was detected, but where
 it first appeared and how far it travelled.
 
-We evaluate the approach on GB e-commerce workflows and RB shipping workflows.
+We evaluate the approach on GB e-commerce checkout workflows.
 The experiment separates three roles: B1 supplies controlled oracle values, B2
 measures normal variation, and B3 tests observability under one injected fault
 per run. This separation prevents normal LLM variation from being mistaken for
@@ -107,11 +107,11 @@ a fault and supports RIP analysis of the resulting traces.
         variables and aligns agent checkpoints with service observation points.
   \item We provide a controlled B1/B2/B3 protocol that separates oracle values,
         normal variation, and single-fault traces.
-  \item We evaluate ten fault types across GB and RB workflows and report
+  \item We evaluate eight fault types across GB workflows and report
         run-level detection results with explicit denominators and confidence
         intervals.
   \item We use the traces to analyze first infection, propagation, HITL needs,
-        boundary recovery, stability, and the current limits of attribution.
+        boundary recovery, and the current limits of attribution.
 \end{itemize}
 
 % =============================================================================
@@ -148,11 +148,8 @@ interpreting the difference through RIP.
 \label{sec:benchmarks}
 % =============================================================================
 
-We study three workflow surfaces across two domains: Google Online Boutique
-(GB) checkout, RetailBen (RB) shipping quote, and RB ship order. GB is based on
-an external cloud-native microservice benchmark, whereas RB is a
-single-orchestrator shipping workflow constructed for this study that exposes
-quote and order phases as two entry points. Each surface has an
+We study the Google Online Boutique (GB) checkout workflow, an external
+cloud-native microservice benchmark. Each agentified service surface has an
 LLM-facing agent, an experiment helper or service adapter, and a microservice
 interface. In the systematic experiments, the helpers invoke Ollama for agent
 decisions and use controlled mock clients for service responses. They are
@@ -161,7 +158,7 @@ deployed service. LKW checkpoints record values at the agent--helper and
 helper--service-interface boundaries.
 
 Figure~\ref{fig:architecture-simple} abstracts the common experimental pattern;
-it is not a claim that GB and RB share one deployed call graph. The agent boxes
+it is not a claim that all agent surfaces share one deployed call graph. The agent boxes
 represent LLM-facing agents whose decisions can vary across runs. B1 is
 deterministic only in the narrower sense that it uses controlled helpers and
 fixed service responses; this does not make the LLM agent or a deployed service
@@ -228,13 +225,13 @@ localization and observation of silent data-flow errors.
 \node[align=center,font=\small] at (-6.9,-0.6) {helpers/tools\\controlled};
 \node[align=center,font=\small] at (-6.9,-1.8) {service interfaces};
 \end{tikzpicture}}
-\caption{Common experimental architecture for the GB and RB workflows. Agent
+\caption{Common experimental architecture for the GB workflows. Agent
 groups use a shared Ollama backend, while controlled helpers and mock clients
 represent service interaction in the systematic runs. LKW checkpoints record
 business values at agent--helper and helper--service-interface boundaries. The
-figure abstracts the two benchmarks rather than depicting one deployed call
+figure abstracts the benchmark rather than depicting one deployed call
 graph.}
-\Description{Conceptual architecture connecting task input to grouped GB and RB agents, controlled service adapters, service interfaces, and a shared Ollama backend. LKW checkpoints observe each agent-to-adapter boundary.}
+\Description{Conceptual architecture connecting task input to grouped GB agents, controlled service adapters, service interfaces, and a shared Ollama backend. LKW checkpoints observe each agent-to-adapter boundary.}
 \label{fig:architecture-simple}
 \end{figure*}
 
@@ -253,50 +250,11 @@ payment-amount tampering, corrupted email content, and invalid advertising or
 recommendation output. These failures may preserve the expected sequence of
 steps while corrupting values used by downstream services.
 
-\subsection{RetailBen Shipping Orchestrator (RB)}
-
-\begin{sloppypar}
-RetailBen (RB) is a shipping workflow constructed for this study. It is
-implemented as a \emph{single} orchestrator module: the
-\texttt{Shipping\-Orchestrator} class, defined in
-\texttt{orchestrator.py} under \texttt{shippingagent/app/}.
-This module drives a hand-written
-ReAct loop (Reason--Act--Observe) against a self-hosted Llama-family
-OpenAI-compatible endpoint and dispatches tool calls to three internal helpers
-(\texttt{QuoteAgent}, \texttt{CarrierSelectionAgent}, \texttt{TrackingAgent}).
-The orchestrator exposes two asynchronous entry points, which we treat as two
-logical phases of one workflow rather than as two separate agents:
-\end{sloppypar}
-
-\begin{description}
-  \item[Quote phase (\texttt{get\_quote}).] Receives package, destination, and
-        inventory context and returns a price quote. Its checkpoints expose
-        whether inventory or quote information changes before the result is
-        passed downstream.
-  \item[Order phase (\texttt{ship\_order}).] Re-derives the quote, then selects
-        a carrier, creates a tracking record, saves the order, and evaluates
-        escalation conditions. Because it consumes the upstream quote, this
-        phase reveals whether an error is blocked, corrected, or propagated
-        into order state.
-\end{description}
-
-Both entry points instantiate the same \texttt{LKWCheckpoint} class, whose
-single \texttt{EXPECTED\_STEPS} sequence (\texttt{TASK\_START},
-\texttt{QUOTE\_DONE}, \texttt{CARRIER\_DONE}, \texttt{TRACKING\_DONE},
-\texttt{SAVE\_DONE}, \texttt{FINAL\_ANSWER}) spans the whole workflow. RB
-therefore has one Stage~1 verification table
-(Table~\ref{tab:lkw-stage1-shipping}) covering both phases, rather than one per
-phase. Where the two phases must be distinguished --- as separate
-\texttt{infection\_agent} values in the B3 traces, and in the coverage and
-fault-map tables --- we retain the labels \textbf{ShippingQuoteAgent} and
-\textbf{ShipOrderAgent} for the quote and order phases respectively. These are
-phase labels for one module, not names of separate modules.
-
 \begin{table*}[t]
 \centering
 \caption{Evidence coverage by agent role. ``Isolated'' denotes a local fault
 harness or result artifact; ``Systematic'' denotes participation in the
-workflow runner; ``B3-10'' denotes participation in the complete ten-fault
+workflow runner; ``B3-8'' denotes participation in the complete eight-fault
 matrix reported in Table~\ref{tab:b3-headline-simple}. The checkout
 orchestrator has structural RIP checks but no field-level B1 oracle. ``HITL''
 means the role appears in the saved per-fault HITL classification artifact; it
@@ -305,7 +263,7 @@ does not mean that every fault requires human intervention.}
 \footnotesize
 \begin{tabularx}{\textwidth}{lcccccY}
 \toprule
-\textbf{Service/agent} & \textbf{Domain} & \textbf{Isolated} & \textbf{Systematic} & \textbf{B3-10} & \textbf{HITL} & \textbf{Measured role} \\
+\textbf{Service/agent} & \textbf{Domain} & \textbf{Isolated} & \textbf{Systematic} & \textbf{B3-8} & \textbf{HITL} & \textbf{Measured role} \\
 \midrule
 PaymentAgent          & GB & yes & yes & yes & yes & Amount tampering; Chain A sink \\
 CurrencyAgent         & GB & yes & yes & yes & yes & Rate manipulation; Chain A source \\
@@ -315,8 +273,6 @@ CheckoutOrchestrator  & GB & yes & yes & yes & no  & Workflow coordination; stru
 RecommendationAgent  & GB & yes & no  & no  & yes & Isolated faults; Chain B sink \\
 AdServiceAgent        & GB & yes & no  & no  & yes & Isolated ad faults \\
 CartAgent             & GB & yes & no  & no  & no  & Isolated C\# harness/artifacts \\
-ShipOrderAgent        & RB & yes & yes & yes & no  & Shipment loss in systematic B3 \\
-ShippingQuoteAgent    & RB & yes & yes & yes & no  & Inventory mismatch in systematic B3 \\
 \bottomrule
 \end{tabularx}
 \end{table*}
@@ -363,7 +319,7 @@ reached, infected checkpoint state, and propagated to a downstream agent or
 business output.
 
 We use the following vocabulary throughout the paper. A \emph{benchmark task}
-is one GB or RB workflow instance. An \emph{agentified service} is a service
+is one GB workflow instance. An \emph{agentified service} is a service
 accessed through an LLM-facing agent and a controlled helper/tool. A
 \emph{guarded variable} is a business value selected for LKW observation. An
 \emph{LKW checkpoint} is a named definition or use point where that variable is
@@ -422,8 +378,6 @@ GB & EmailServiceAgent & recipient, email type, body length, send status & These
 GB & RecommendationAgent & user context, recommendation count, hallucination/injection flags & These fields expose empty, fabricated, or injected recommendation output. \\
 GB & AdServiceAgent & context-key set, ad count, hallucination flag & These fields expose wrong context, empty or duplicated output, and fabricated ads. \\
 GB & CartAgent & user/product ID, quantity, item count, success state & These isolated-harness fields show whether the expected basket item is added and returned. \\
-RB & ShippingQuoteAgent & item count, quoted cost & These fields expose inventory inflation and quote corruption before order creation. \\
-RB & ShipOrderAgent & carrier, stale-quote flag, tracking ID, escalation and save state & These fields show whether the quote becomes a valid, persisted order or requires intervention. \\
 \bottomrule
 \end{tabularx}
 \end{table*}
@@ -438,7 +392,7 @@ metadata are stored in the checkpoint data object.}
 \toprule
 \textbf{Field} & \textbf{Meaning} \\
 \midrule
-Agent & GB or RB role that owns the enclosing trace \\
+Agent & GB role that owns the enclosing trace \\
 Step & Named point such as \texttt{TASK\_START} or \texttt{CHARGE\_DONE} \\
 Timestamp & Time recorded by the raw LKW producer \\
 Data & Guarded runtime fields such as amount, product IDs, carrier, or body length \\
@@ -450,8 +404,8 @@ Diagnostic metadata & Optional experiment fields such as configured mode or harn
 \begin{table*}[t]
 \centering
 \caption{Fault-to-checkpoint instrumentation map with service-interface
-alignment. One row per (agent, fault mode) pair. Agents marked \textbf{(RB)}
-are from RetailBen; all other agents are from Google Boutique.
+alignment. One row per (agent, fault mode) pair. All agents are from Google
+Boutique.
 \textbf{Agent checkpoint} is the first LKW point where the injected fault is
 expected to become observable. \textbf{Microservice observation point} is the
 service-interface surface against which that checkpoint is compared.
@@ -465,18 +419,6 @@ rather than repeated per row. This is a design table, not a results table.}
 \begin{tabular}{@{}p{2.45cm}p{2.55cm}p{4.35cm}p{2.75cm}ll@{}}
 \toprule
 \textbf{Agent} & \textbf{Agent checkpoint} & \textbf{Microservice observation point} & \textbf{Fault mode} & \textbf{Criterion} & \textbf{Use} \\
-\midrule
-ShippingQuoteAgent \textbf{(RB)} & \texttt{TASK\_START} & Shipping quote service request/response values (inventory status, carrier, quote, ETA) & \texttt{BL-INV-MISMATCH} & \textbf{AU/ADP} & C-use/P-use \\
- & \texttt{QUOTE\_DONE} & & \texttt{BL-REFUND} & \textbf{ADP} & C-use/P-use \\
- & \texttt{QUOTE\_DONE} & & \texttt{FM-2.5} & \textbf{ADP} & C-use/P-use \\
-\midrule
-ShipOrderAgent \textbf{(RB)} & \texttt{ESCALATION\_CHECK} & Ship-order service request/response values (carrier, tracking ID, save status, escalation) & \texttt{BL-ESCALATION} & \textbf{AU} & P-use \\
- & \texttt{SAVE\_DONE} & & \texttt{BL-SHIP-LOST} & \textbf{ADP} & C-use/P-use \\
- & \texttt{CARRIER\_DONE} & & \texttt{BL-VENDOR} & \textbf{AU} & C-use \\
- & \texttt{TRACKING\_DONE} & & \texttt{FM-1.2} & \textbf{AU} & C-use \\
- & \texttt{CARRIER\_DONE} & & \texttt{FM-2.2} & \textbf{AU} & C-use \\
- & \texttt{CARRIER\_DONE} & & \texttt{FM-2.5} & \textbf{AU} & P-use \\
- & \texttt{TRACKING\_DONE} & & \texttt{FM-3.1} & \textbf{AU} & C-use \\
 \midrule
 PaymentAgent & \texttt{CARD\_VALIDATED} & PaymentService request/response values (charged amount, transaction outcome) & \texttt{BL-AMOUNT-TAMPER} & \textbf{AU/ADP} & C-use/P-use \\
  & \texttt{SAVE\_DONE} & & \texttt{BL-DOUBLE-CHARGE} & \textbf{AU} & P-use \\
@@ -539,10 +481,6 @@ $\mathcal{S}$ plus $\Sigma$.
 \texttt{CART\_DONE} (CartAgent) uses $\mathcal{S}$ plus $\delta_{\epsilon}$;
 CartAgent has isolated harness evidence and is therefore aligned to its service
 interface but carries no rows in the fault map above.
-\texttt{QUOTE\_DONE} (ShippingQuoteAgent, RB) uses $\delta_{\epsilon}$ plus
-$\mathcal{S}$.
-\texttt{CARRIER\_DONE}/\texttt{TRACKING\_DONE}/\texttt{SAVE\_DONE}
-(ShipOrderAgent, RB) use $\mathcal{S}$ plus $\Sigma$.
 B1 supplies expected values and B2 characterizes acceptable no-fault variation
 for all of these comparisons.
 
@@ -640,18 +578,6 @@ Compared with the expected sequence, \texttt{CARD\_VALIDATED},
 depth of three missing steps. The fault is therefore detectable from trace
 structure without interpreting payment values. The HITL artifact classifies
 this signature as Tier~1 structural evidence.
-
-\subsection{Detailed Example 3: RetailBen Business Faults}
-
-The RB matrix contains two domain-specific faults. Inventory mismatch first
-appears in ShippingQuoteAgent through fields such as inflated item count and
-quote cost. Shipment loss first appears in ShipOrderAgent through tracking and
-save-state differences. Each fault was exposed in five of six pooled runs
-(83.3\%, Wilson 95\% CI [43.6, 97.0]\%). Both have maximum recorded propagation
-depth zero: the deviation was visible at the owning agent, but the campaign did
-not demonstrate a later infected agent. This contrasts with the cross-agent
-currency example and prevents a local detection from being overstated as
-downstream propagation.
 
 % -----------------------------------------------------------------------------
 \subsection{Stage 1: LKW Def-Use Pair Verification --- CurrencyAgent}
@@ -2611,282 +2537,6 @@ a correct one; fault detection at this granularity requires per-sub-agent LKW
 \end{table*}
 
 % =============================================================================
-\subsection{Stage 1: LKW Def-Use Pair Verification --- ShipOrderAgent (RetailBen)}
-\label{sec:lkw-stage1-shipping}
-% -----------------------------------------------------------------------------
-
-Stage~1 LKW verification for \texttt{ShipOrderAgent} uses five checkpoints
-instrumented in \texttt{shippingagent/app/orchestrator.py}:
-\texttt{TASK\_START} (line~569), \texttt{QUOTE\_DONE} (line~670),
-\texttt{CARRIER\_DONE} (line~699), \texttt{TRACKING\_DONE} (line~734),
-and \texttt{ESCALATION\_CHECK} (line~738).
-Two boundary-contract checks (\texttt{quote\_to\_carrier} and
-\texttt{carrier\_to\_tracking}) are additional signals but are not DU-pair
-use points.
-Table~\ref{tab:lkw-stage1-shipping} covers 7 fault-tested DU pairs
-(2~Group~2, 5~Group~1) drawn from both general FM faults and five
-RetailBen-specific business faults.
-
-\textbf{Group~1 --- wrong value at the use point.}
-Five DU pairs (TC-SHP-03, 05, 07, 08, 09) fall here.
-Each fault patches a variable at its definition~D (via fallback patch in
-\texttt{orchestrator.py:611--613} for FM/BL faults, or
-\texttt{fi.maybe\_corrupt\_cost} at line~625 for BL-REFUND); the def-clear
-path to the use point executes; the wrong value at the checkpoint signals
-failure.
-
-\textbf{Group~2 --- checkpoint is the sole detector.}
-FM-3.1 (TC-SHP-02) triggers the premature-termination path at
-line~630--646: \texttt{CARRIER\_DONE} and \texttt{BOUNDARY\_CHECK} are
-never recorded; the only observable signal is the missing step and the
-\texttt{PREMATURE} tracking ID.
-FM-1.2 (TC-SHP-04) corrupts the task specification before the ReAct loop
-(\texttt{orchestrator.py:573}), causing the LLM to emit only a quote step
-and skip carrier selection and tracking: \texttt{CARRIER\_DONE} is absent
-and \texttt{TRACKING\_DONE} is absent from the trace.
-
-\begin{table*}[t]
-\footnotesize
-\caption{Stage~1 LKW DU-pair verification --- ShipOrderAgent (Table~I, RetailBen).
-B1 from \texttt{shippingagent/shippingagent\_fault\_results.json}
-(\texttt{fault\_mode=NONE}, no LLM, mocked gRPC returning
-$\{\texttt{cost\_usd:12.34},\texttt{carrier:FedEx},\texttt{service\_level:ground},\texttt{tracking\_id:TRACK-001}\}$);
-B2 from the same artifact (direct \texttt{orchestrator.ship\_order()},
-no LLM, same mock);
-B2 live-LLM baseline: NOT AVAILABLE (see footnote~[1]);
-B3 measured as co-resident agents in the GB checkout campaign, pooled over
-\texttt{3b\_temp0.7} and \texttt{3b\_temp1.0} (six runs per fault; see
-footnote~[3]).}
-\label{tab:lkw-stage1-shipping}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}p{1.1cm}p{1.75cm}p{2.05cm}p{2.25cm}p{2.7cm}p{2.05cm}p{1.7cm}p{1.45cm}p{1.85cm}p{2.5cm}p{2.2cm}p{2.85cm}@{}}
-\toprule
-\textbf{TC-ID} &
-\textbf{Variable} &
-\textbf{Def (file:line)} &
-\textbf{Use (file:line, type)} &
-\textbf{Def-clear path} &
-\textbf{Test input} &
-\textbf{Expected (B1)} &
-\textbf{B1 observed} &
-\textbf{B2 observed} &
-\textbf{B3 observed} &
-\textbf{LKW verdict} &
-\textbf{Group} \\
-\midrule
-TC-SHP-01 &
-  \texttt{cost\_usd} &
-  \texttt{orch.py:623} (parsed) &
-  \texttt{orch.py:670} \emph{c-use} (QUOTE\_DONE) &
-  L623$\to$L625$\to$L670 &
-  items=$[2]$, NONE &
-  12.34 &
-  \textbf{12.34}$^{[1]}$ &
-  12.34 (fault fires after this use) &
-  n/a$^{[3]}$ (B3 is fault-active) &
-  PASS &
-  info \\[4pt]
-TC-SHP-02 &
-  \texttt{carrier} &
-  \texttt{orch.py:630} (early-ret.\ path) &
-  \texttt{orch.py:699} \emph{c-use} (CARRIER\_DONE) &
-  L623$\to$FM-3.1 early ret.$\to$L699 unreachable &
-  items, FM-3.1 &
-  FedEx &
-  \textbf{FedEx}$^{[1]}$ &
-  \textbf{PATH\_INFEAS.}$^{[2]}$ (CARRIER\_DONE absent) &
-  \textbf{PATH\_INFEAS.}$^{[3]}$ 3/6 \emph{absent} (B1=DHL); 3/6 not reached &
-  PATH\_INFEAS. --- CARRIER\_DONE absent &
-  \textbf{Group~2} --- checkpoint catches FM-3.1 \\[4pt]
-TC-SHP-03 &
-  \texttt{carrier} &
-  \texttt{orch.py:611} (FM-2.2 patch) &
-  \texttt{orch.py:699} \emph{c-use} (CARRIER\_DONE) &
-  L611$\to$L623$\to$L699 &
-  items, FM-2.2 &
-  FedEx &
-  \textbf{FedEx}$^{[1]}$ &
-  \textbf{SpeedyShip}$^{[2]}$ (FAIL) &
-  \textbf{NOT DET.}$^{[3]}$ 0/6 deviate &
-  \textbf{FAIL} in B2 &
-  \textbf{Group~1} --- LKW catches FM-2.2 \\[4pt]
-TC-SHP-04 &
-  \texttt{tracking\_id} &
-  \texttt{orch.py:650} (FM-1.2 path) &
-  \texttt{orch.py:734} \emph{c-use} (TRACKING\_DONE) &
-  FM-1.2 corrupts task spec$\to$CARRIER\_DONE skipped$\to$L734 unreachable &
-  items, FM-1.2 &
-  TRACK-001 &
-  \textbf{TRACK-001}$^{[1]}$ &
-  \textbf{PATH\_INFEAS.}$^{[2]}$ (CARRIER\_DONE and TRACKING\_DONE absent) &
-  \textbf{PATH\_INFEAS.}$^{[3]}$ 2/6 \emph{absent} (B1=8434097984); 4/6 not reached &
-  PATH\_INFEAS. --- use never reached &
-  \textbf{Group~2} --- checkpoint catches FM-1.2 \\[4pt]
-TC-SHP-05 &
-  \texttt{cost\_usd} &
-  \texttt{orch.py:611} (FM-2.5 patch) &
-  \texttt{orch.py:670} \emph{c-use} (QUOTE\_DONE) &
-  L611$\to$L623$\to$L670 &
-  items, FM-2.5 &
-  12.34 &
-  \textbf{12.34}$^{[1]}$ &
-  \textbf{4.99}$^{[2]}$ (FAIL; stale) &
-  \textbf{FAIL}$^{[3]}$ 4/6 \emph{ign.\ dstream quote}=True (detects FM-2.5) &
-  \textbf{FAIL} in B2 &
-  \textbf{Group~1} --- LKW catches FM-2.5 \\[4pt]
-TC-SHP-07 &
-  \texttt{carrier} &
-  \texttt{orch.py:611} (BL-VND patch) &
-  \texttt{orch.py:699} \emph{c-use} (CARRIER\_DONE) &
-  L611$\to$L623$\to$L699 &
-  items, BL-VND-NEG &
-  FedEx &
-  \textbf{FedEx}$^{[1]}$ &
-  \textbf{PremiumExpress}$^{[2]}$ (FAIL; forced\_vendor=True) &
-  \textbf{FAIL}$^{[3]}$ 3/6 \emph{absent} (B1=DHL; all $t{=}1.0$) &
-  \textbf{FAIL} in B2 &
-  \textbf{Group~1} --- LKW catches BL-VENDOR-NEG \\[4pt]
-TC-SHP-08 &
-  \texttt{cost\_usd} &
-  \texttt{orch.py:625} (BL-REFUND corrupt) &
-  \texttt{orch.py:670} \emph{c-use} (QUOTE\_DONE) &
-  L623$\to$L625$\to$L670 &
-  items, BL-REFUND &
-  12.34 &
-  \textbf{12.34}$^{[1]}$ &
-  \textbf{$-12.34$}$^{[2]}$ (FAIL; negative cost) &
-  \textbf{FAIL}$^{[3]}$ 3/6 \emph{absent} (B1=15.88; all $t{=}1.0$) &
-  \textbf{FAIL} in B2 &
-  \textbf{Group~1} --- LKW catches BL-REFUND \\[4pt]
-TC-SHP-09 &
-  \texttt{escalation\_required} &
-  \texttt{orch.py:738} (BL-ESC inject) &
-  \texttt{orch.py:738} \emph{p-use} (ESCALATION\_CHECK) &
-  L734$\to$L738 &
-  items, BL-CUST-ESC &
-  False &
-  \textbf{False}$^{[1]}$ &
-  \textbf{True}$^{[2]}$ (FAIL) &
-  \textbf{FAIL}$^{[3]}$ 3/6 =True (detects BL-CUST-ESC); 3/6 \emph{absent} &
-  \textbf{FAIL} in B2 &
-  \textbf{Group~1} --- LKW catches BL-CUSTOMER-ESC \\
-\bottomrule
-\end{tabular}}
-
-\smallskip\par\noindent
-\textbf{[1]}~B1 oracle from \texttt{shippingagent/shippingagent\_fault\_results.json}
-(\texttt{fault\_mode=NONE}, no LLM, deterministic mock returning
-$\{\texttt{cost\_usd:12.34},\texttt{carrier:FedEx},\texttt{service\_level:ground},\texttt{tracking\_id:TRACK-001}\}$).
-All checkpoint fields are zero-variance in the harness NONE run.
-\textbf{B2 live-LLM baseline NOT AVAILABLE.}
-Pipeline runs (\texttt{b2\_live\_llm/shippingagent\_ship\_livellm\_b2\_run\{1..10\}.json})
-are structurally incomplete: \texttt{qwen2.5:3b} at temp$=0.0$ returns the literal
-template string \texttt{\{"tracking\_id":"<id>","carrier":"<name>",...\}} instead of
-filling in values in 10/10 runs; JSON parsing fails; all numeric fields fall back
-to defaults (\texttt{cost\_usd=0.0}); \texttt{TRACKING\_DONE} and \texttt{ESCALATION\_CHECK}
-are never reached.
-Separately, \texttt{shippingagent\_quote} pipeline runs show non-zero variance
-(\texttt{cost\_usd}$\in$\{5.0,\,15.88\} across 10 runs at temp$=0.0$) because
-8/10 runs also return the template, falling back to the hardcoded 5.0 sentinel.
-This is a structural small-model limitation, not a scenario-input mismatch.
-Fix required: replace template-based output instructions with explicit JSON schema
-or structured tool returns, then rerun on SPEED.
-\textbf{Scenario note:} pipeline QUOTE runs use \texttt{item\_count=1};
-harness uses \texttt{item\_count=2}.
-These are different test inputs; numeric thresholds (\texttt{cost\_usd=12.34})
-are from the harness-only baseline.
-
-\smallskip\par\noindent
-\textbf{[2]}~B2 fault-injected values from
-\texttt{shippingagent/shippingagent\_fault\_results.json} --- generated by
-\texttt{shippingagent/test\_fault\_injection.py}, direct
-\texttt{orchestrator.ship\_order()} (no LLM, mocked gRPC).
-Fault mode applied at \texttt{app/fault\_injection.py}
-(\texttt{BL\_REFUND\_REASONING}: \texttt{maybe\_corrupt\_cost} negates cost;
-\texttt{BL\_VENDOR\_NEGOTIATION}: \texttt{carrier} forced to \texttt{PremiumExpress};
-\texttt{FM-2.2}: carrier patched to \texttt{SpeedyShip/ultra-express} at line~611;
-\texttt{FM-2.5}: \texttt{cost\_usd} replaced with 4.99 at line~611;
-\texttt{FM-3.1}: \texttt{tracking\_id=PREMATURE-0000} triggers early-return path at
-line~630--646, skipping \texttt{CARRIER\_DONE};
-\texttt{FM-1.2}: task spec corrupted before ReAct loop at line~573,
-producing \texttt{INCOMPLETE} tracking\_id and skipping carrier/tracking steps).
-
-\par\noindent\textbf{TC-SHP-02 FM-3.1:} steps reached:
-\texttt{[TASK\_START, FINAL\_ANSWER, QUOTE\_DONE, TRACKING\_DONE, SAVE\_DONE]};
-\texttt{CARRIER\_DONE} and both \texttt{BOUNDARY\_CHECK} entries absent.
-\par\noindent\textbf{TC-SHP-04 FM-1.2:} steps reached:
-\texttt{[TASK\_START, FINAL\_ANSWER, QUOTE\_DONE, SAVE\_DONE]};
-\texttt{CARRIER\_DONE} and \texttt{TRACKING\_DONE} absent.
-\par\noindent\textbf{BL-INVENTORY-MISMATCH (not in table):}
-\texttt{item\_count} inflated $2\to4$ at \texttt{orchestrator.py:503}
-(\texttt{fi.maybe\_corrupt\_items}); \texttt{QUOTE\_DONE.item\_count\_inflated=True};
-\texttt{cost\_usd=12.34} unchanged (mock returns fixed value regardless of item count),
-so the inflation is detectable only via the flag field, not the cost.
-\par\noindent\textbf{BL-SHIPMENT-LOST (not in table):}
-\texttt{SAVE\_DONE} intentionally absent (\texttt{fi.should\_skip\_shipment\_save()=True});
-tracking\_id=TRACK-001 is still generated and recorded at \texttt{TRACKING\_DONE}
-but the save step is skipped; the missing step is the sole observable signal.
-
-\smallskip\par\noindent
-\textbf{[3]}~B3 \emph{was} measured for RetailBen, but as \emph{co-resident} agents
-inside the Google Boutique checkout campaign rather than as a standalone RB run.
-Both RB agents are instrumented and observable in that pipeline: the fault matrix
-records \texttt{infection\_agent} values \texttt{shipping\_quote} and
-\texttt{ship\_order}, and the two RB business faults carried in the pooled
-ten-fault matrix detect at
-$5/6 = 83.3\%$ each (BL-INVENTORY\_MISM.\ via \texttt{shipping\_quote};
-BL-SHIPMENT\_LOST via \texttt{ship\_order}; see
-Table~\ref{tab:b3-fault-summary-simple}).
-The per-row B3 cells above are pooled over the six runs
-$\{$\texttt{3b\_temp0.7}, \texttt{3b\_temp1.0}$\}\times\{$run1--3$\}$, read from
-\texttt{b3/raw/b3\_<FAULT>\_<CONFIG>\_run<N>.json} and aggregated in
-\texttt{b3/b3\_<FAULT>\_<CONFIG>\_summary.json}.
-
-\smallskip\par\noindent
-\emph{Two caveats we state explicitly rather than smooth over.}
-(i)~Most RB B3 deviations are recorded at \texttt{severity="missing"} ---
-the checkpoint is \emph{absent} rather than carrying a wrong value --- because
-the RB agents sit late in the checkout order and are frequently not reached
-under an active fault. Absence is a genuine LKW signal (it is exactly what
-Group~2 is defined to catch), but it is weaker evidence than a value mismatch,
-and only TC-SHP-05 and TC-SHP-09 produce a populated \texttt{detects} field.
-(ii)~TC-SHP-03 (FM-2.2) shows \textbf{no} \texttt{carrier} deviation in any of
-the six B3 runs, so its B2 FAIL result does \emph{not} reproduce under the live
-LLM; we report it as NOT DETECTED rather than counting it as a B3 success.
-This does \emph{not} contradict the $6/6 = 100\%$ pooled rate reported for FM-2.2
-in Table~\ref{tab:b3-fault-summary-simple}: that rate is workflow-level and is
-driven entirely by upstream deviation at \texttt{productcatalog}, which is the
-recorded \texttt{infection\_agent} for every FM-2.2 run.
-ShipOrderAgent-specific detection for FM-2.2 is $0/6$.
-The two figures measure different scopes --- whether \emph{any} agent deviated
-versus whether \emph{this} agent deviated --- and both are reported as measured.
-
-\smallskip\par\noindent
-\textbf{[4]}~A separate standalone RB campaign was run at
-\texttt{qwen2.5-coder:14b}, $t{=}0$ (the \texttt{retail\_bench} block of
-\texttt{b3/b3\_full\_report.json}; ten fault modes $\times$ three runs).
-It returned \texttt{detection\_rate}~$=0.0$ for every fault mode.
-That campaign is \emph{excluded} from every pooled figure in this paper --- all
-headline B3 numbers use \texttt{qwen2.5:3b} --- and we report it here only so the
-null result is on the record.
-
-\smallskip\par\noindent
-\textbf{Group~2 finding --- FM-3.1 and FM-1.2 justification.}
-TC-SHP-02 and TC-SHP-04 are the two Group~2 faults for ShipOrderAgent.
-Both produce checkpoint absence as the primary signal:
-FM-3.1 fires the premature path at \texttt{orchestrator.py:630--646},
-completely skipping the carrier selection and boundary check flow;
-FM-1.2 corrupts the ReAct task specification before the LLM loop,
-producing an incomplete plan that calls only the quote step.
-In both cases value-based LKW comparison at \texttt{CARRIER\_DONE} is
-impossible because the step does not exist in the trace.
-The checkpoint mechanism detects path death via the missing
-\texttt{CARRIER\_DONE} step from the required set
-$\{\texttt{TASK\_START},\allowbreak\texttt{QUOTE\_DONE},\allowbreak%
-\texttt{CARRIER\_DONE},\allowbreak\texttt{TRACKING\_DONE}\}$.
-\end{table*}
-
-% =============================================================================
 \section{Fault Injection as Mutant Operators}
 \label{sec:fault-operators}
 % =============================================================================
@@ -2939,8 +2589,8 @@ FM-2.5 Input ignored or replaced
       & LKW localizes the first recorded effect of input corruption \\
 BL-* Business fault
       & Target the owning agent with domain-specific corruption such as overcharge, stale rate, wrong email, or wrong quote
-      & GB and RB checkpoints expose different guarded variables
-      & Domain labels matter because business harm differs across e-commerce and shipping \\
+      & GB checkpoints expose different guarded variables per agent
+      & Domain labels matter because business harm differs across service roles \\
 \bottomrule
 \end{tabularx}
 \end{table*}
@@ -3018,7 +2668,7 @@ This table makes explicit how each evaluation result answers a specific RQ.}
 RQ1 Injection/reproducibility
       & Tables~\ref{tab:service-coverage-simple}, \ref{tab:b3-headline-simple}, \ref{tab:b3-fault-summary-simple}
       & Repeated campaign execution and run-level detection
-      & Counts and Wilson 95\% CI; signature stability is evaluated only in RQ5 \\
+      & Counts and Wilson 95\% CI \\
 RQ2 First infection location
       & Tables~\ref{tab:checkpoint-fault-merged}, \ref{tab:b3-fault-summary-simple}
       & Earliest deviating agent and expected checkpoint map
@@ -3031,15 +2681,11 @@ RQ4 HITL classification
       & Table~\ref{tab:hitl-summary-simple}
       & Automatic detectability and HITL requirement across 48 injected cases
       & Counts and Wilson 95\% CI for campaign composition, not classifier accuracy \\
-RQ5 Stability across runs
-      & ShippingAgent stability artifact
-      & Structural-fingerprint repeatability for 11 modes, three runs each
-      & 11/11 with Wilson 95\% CI; ShippingAgent only \\
-RQ6 Boundary recovery potential
+RQ5 Boundary recovery potential
       & Two measured cross-agent chains
       & Policy execution and HITL avoidance
       & 2/2 policies executed; 1/2 avoided HITL; feasibility evidence only \\
-RQ7 Failure attribution
+RQ6 Failure attribution
       & AgentTracer trajectory index
       & Conversion count and availability of ground-truth fields
       & Artifact count only; no attribution predictions were evaluated \\
@@ -3049,7 +2695,7 @@ RQ7 Failure attribution
 
 \begin{table}[t]
 \centering
-\caption{Complete targeted ten-fault B3 matrix by model configuration. Each
+\caption{Complete targeted eight-fault B3 matrix by model configuration. Each
 fault--configuration cell has three repetitions. TP means at least two compared
 agents deviated; PTP means exactly one compared agent deviated. Both count as
 detected; the rate excludes inconclusive runs. Wilson 95\% CIs use run-level
@@ -3060,16 +2706,16 @@ counts.}
 \toprule
 \textbf{Config} & \textbf{TP} & \textbf{PTP} & \textbf{FN} & \textbf{INC} & \textbf{Detection (95\% CI)} \\
 \midrule
-3b, $t{=}0.7$ & 12 & 16 & 2 & 0 & 28/30 = 93.3\% [78.7, 98.2]\% \\
-3b, $t{=}1.0$ & 11 & 12 & 5 & 2 & 23/28 = 82.1\% [64.4, 92.1]\% \\
+3b, $t{=}0.7$ & 12 & 10 & 2 & 0 & 22/24 = 91.7\% [74.2, 97.7]\% \\
+3b, $t{=}1.0$ & 11 & 8 & 3 & 2 & 19/22 = 86.4\% [66.7, 95.3]\% \\
 \midrule
-\textbf{Total} & \textbf{23} & \textbf{28} & \textbf{7} & \textbf{2} & \textbf{51/58 = 87.9\% [77.1, 94.0]\%} \\
+\textbf{Total} & \textbf{23} & \textbf{18} & \textbf{5} & \textbf{2} & \textbf{41/46 = 89.1\% [77.0, 95.3]\%} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 The repository also contains lower-temperature summaries, but those campaigns
-do not contain all ten current targeted faults and include earlier global
+do not contain all eight current targeted faults and include earlier global
 business-fault injections. They are excluded from the pooled estimate rather
 than treated as missing or live mutants.
 
@@ -3094,8 +2740,6 @@ FM-2.5 Value tampering       & 6 & 0 & 0 & 0 & ProductCatalogAgent (GB) & 3 & 6/
 BL-PRICE\_MANIP.             & 0 & 6 & 0 & 0 & ProductCatalogAgent (GB) & 0 & 6/6 = 100\% [61.0, 100]\% \\
 BL-RATE\_MANIP.              & 0 & 6 & 0 & 0 & CurrencyAgent (GB)       & 0 & 6/6 = 100\% [61.0, 100]\% \\
 BL-AMOUNT\_TAMP.             & 0 & 5 & 1 & 0 & PaymentAgent (GB)        & 0 & 5/6 = 83.3\% [43.6, 97.0]\% \\
-BL-INVENTORY\_MISM.          & 0 & 5 & 1 & 0 & ShippingQuoteAgent (RB)  & 0 & 5/6 = 83.3\% [43.6, 97.0]\% \\
-BL-SHIPMENT\_LOST            & 0 & 5 & 1 & 0 & ShipOrderAgent (RB)      & 0 & 5/6 = 83.3\% [43.6, 97.0]\% \\
 BL-CORRUPTED\_BODY           & 0 & 1 & 4 & 1 & EmailServiceAgent (GB)   & 0 & 1/5 = 20.0\% [3.6, 62.4]\% \\
 \bottomrule
 \end{tabularx}
@@ -3113,13 +2757,12 @@ conclusive B3 runs with at least one compared-agent deviation.
 \textbf{Answer.} The configured modes were executed repeatedly, but
 observability was not uniform. Table~\ref{tab:service-coverage-simple}
 separates isolated harness coverage from systematic B3 participation. The
-complete matrix covers product, currency, payment, email, shipping quote, and
-ship order; recommendation, ad, and cart are not pooled into its estimate.
-Among 58 conclusive runs, 51 exposed at least one deviation (87.9\%, Wilson
-95\% CI [77.1, 94.0]\%); two additional runs were inconclusive. The observed
-rate was 93.3\% at temperature 0.7 and 82.1\% at temperature 1.0. These counts
-show repeatable campaign execution and measured detection, while uniform
-signature reproducibility is assessed only for ShippingAgent in RQ5.
+complete matrix covers product, currency, payment, and email;
+recommendation, ad, and cart are not pooled into its estimate.
+Among 46 conclusive runs, 41 exposed at least one deviation (89.1\%, Wilson
+95\% CI [77.0, 95.3]\%); two additional runs were inconclusive. The observed
+rate was 91.7\% at temperature 0.7 and 86.4\% at temperature 1.0. These counts
+show repeatable campaign execution and measured detection.
 Primary evidence comes from Tables~\ref{tab:service-coverage-simple},
 \ref{tab:b3-headline-simple}, and \ref{tab:b3-fault-summary-simple}; confidence
 for the main detection proportion is reported as Wilson 95\% CI.
@@ -3206,20 +2849,7 @@ Primary evidence comes from Table~\ref{tab:hitl-summary-simple}. The Wilson
 intervals describe the tier shares in this finite campaign; they do not measure
 classification accuracy.
 
-\subsection{RQ5: Are observations stable across repeated runs?}
-
-\textbf{Experiment design.} Repeat fault runs under controlled compute settings.
-
-\textbf{Measurement.} Equality of infection point, reached-step sequence, and
-propagation-depth field across three repetitions of each mode.
-
-\textbf{Answer.} The stability artifact contains three repetitions for each of
-11 ShippingAgent modes. All 11 structural fingerprints are identical across
-their repetitions (100\%, Wilson 95\% CI [74.1, 100.0]\%). The fingerprint does
-not compare all guarded payload values, and this result does not establish
-system-wide or semantic-value stability.
-
-\subsection{RQ6: Can boundary recovery reduce HITL burden?}
+\subsection{RQ5: Can boundary recovery reduce HITL burden?}
 
 \textbf{Experiment design.} Apply simple boundary policies such as schema,
 range, and consistency checks at agent-to-agent handoff points.
@@ -3236,7 +2866,7 @@ Wilson 95\% CI [34.2, 100.0]\%). Only one chain avoided HITL (1/2, 50.0\%,
 Wilson 95\% CI [9.5, 90.5]\%). These are feasibility results for two predefined
 policies, not a general reduction rate.
 
-\subsection{RQ7: Can failure attribution identify the responsible agent?}
+\subsection{RQ6: Can failure attribution identify the responsible agent?}
 
 \textbf{Experiment design.} Convert existing HITL, stability, oracle, and
 cross-agent artifacts into AgentTracer-compatible trajectory files with known
@@ -3251,7 +2881,7 @@ step fields are present in the schema, but values can be null for baselines or
 unlocalized cases such as Chain A. The single-agent files use B1 values and
 synthetic deviation markers derived from HITL classifications; they are not
 independent fault executions. No saved attribution-evaluation report contains
-predictions to compare with this ground truth, so RQ7 remains unanswered as an
+predictions to compare with this ground truth, so RQ6 remains unanswered as an
 accuracy question. The current result establishes only conversion readiness.
 
 \clearpage
@@ -3272,11 +2902,11 @@ B1, there is no definition of correctness at the checkpoint. Without B2, normal
 LLM variance may be mistaken for a fault. Without B3, the checkpoint design is
 not stress-tested against controlled failures.
 
-The third lesson is that GB and RB should not be merged casually. GB faults
-mostly concern e-commerce data such as prices, products, payments, and emails.
-RB faults concern shipping decisions such as carrier, quote, delivery window,
-tracking, and escalation. Keeping these domains separate lets us observe domain
-drift instead of hiding it.
+The third lesson is that business faults should not be merged casually across
+service roles. GB faults concern e-commerce data such as prices, products,
+payments, and emails, and each owning agent exposes a different guarded
+variable. Keeping these roles separate lets us observe where detection
+degrades instead of hiding it.
 
 % =============================================================================
 \section{Threats to Validity}
@@ -3286,11 +2916,11 @@ drift instead of hiding it.
 settings, so B2 is required before judging B3.
 
 \textbf{Benchmark scope.} The current evidence is strongest for the checkout
-and shipping workflows studied here. Other domains may require different LKW
+workflow studied here. Other domains may require different LKW
 checkpoint variables.
 
 \textbf{Unequal campaign coverage.} Only the temperature-0.7 and
-temperature-1.0 configurations contain the complete ten-fault targeted matrix.
+temperature-1.0 configurations contain the complete eight-fault targeted matrix.
 Lower-temperature summaries are retained as artifacts but excluded from the
 pooled B3 estimate. Each complete cell has only three repetitions, producing
 wide per-fault confidence intervals.
@@ -3300,9 +2930,9 @@ decisions and mock clients for service responses. The results establish fault
 observability under controlled interfaces, not resilience of a fully deployed
 gRPC system.
 
-\textbf{Attribution and stability scope.} AgentTracer conversion is complete
+\textbf{Attribution scope.} AgentTracer conversion is complete
 for 67 trajectories, but attribution accuracy has not been evaluated in a
-saved report. The repeated-run stability result covers ShippingAgent only.
+saved report.
 
 \textbf{HITL automation.} HITL tiers are identifiable from traces, but the
 current workflow still depends on manual trace inspection for final judgments.

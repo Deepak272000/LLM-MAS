@@ -292,23 +292,6 @@ fault-map tables --- we retain the labels \textbf{ShippingQuoteAgent} and
 \textbf{ShipOrderAgent} for the quote and order phases respectively. These are
 phase labels for one module, not names of separate modules.
 
-\begin{table}[t]
-\centering
-\caption{Benchmarked agent domains. GB and RB are kept separate throughout the
-paper to avoid mixing domain-specific failure behavior.}
-\label{tab:domains}
-\begin{tabularx}{\columnwidth}{lYY}
-\toprule
-\textbf{Domain} & \textbf{Agents} & \textbf{Typical failures} \\
-\midrule
-GB & Product, currency, payment, email, cart, recommendation, ad
-   & Price, amount, ID, recipient, routing, and content corruption \\
-RB & Shipping quote, ship order
-   & Carrier, quote, tracking, escalation, and delivery-policy errors \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 \begin{table*}[t]
 \centering
 \caption{Evidence coverage by agent role. ``Isolated'' denotes a local fault
@@ -605,28 +588,6 @@ The experimental design uses three roles:
 Together, B1 supplies expected state, B2 prevents normal variation from being
 treated as a fault, and B3 tests whether the checkpoints expose the injection.
 
-\begin{table}[t]
-\centering
-\caption{B1/B2/B3 protocol and artifacts used in this study.}
-\label{tab:b123-result-summary}
-\footnotesize
-\begin{tabularx}{\columnwidth}{lYY}
-\toprule
-\textbf{Stage} & \textbf{What was run} & \textbf{Evidence produced} \\
-\midrule
-B1 oracle
-      & Six deterministic service-agent baselines plus a selected no-fault shipping baseline
-      & Expected field values and relations for guarded checkpoints \\
-B2 no-fault variance
-      & Three no-fault runs for seven surfaces plus a separate live-LLM systematic runner
-      & Stable fields and comparison relations; volatile IDs use schema rather than exact-value checks \\
-B3 fault campaign
-      & Complete ten-fault targeted matrix at \texttt{3b\_temp0.7} and \texttt{3b\_temp1.0}, three repetitions per cell
-      & 51 detections among 58 conclusive runs, with 2 additional inconclusive runs \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 \subsection{RIP: Reachability, Infection, Propagation}
 
 RIP turns a detected trace difference into a causal description.
@@ -642,9 +603,10 @@ RIP turns a detected trace difference into a causal description.
 
 \subsection{Detailed Example 1: Currency-to-Payment Mismatch}
 
-In measured cross-agent Chain A, the expected amount at the
-currency-to-payment boundary was 9 units. FM-2.2 changed the observed boundary
-amount to 1337 units, a difference of 1328 units (14,755.6\%). The trace also
+In measured cross-agent Chain A (Table~\ref{tab:payment-example}), the expected
+amount at the currency-to-payment boundary was 9 units. FM-2.2 changed the
+observed boundary amount to 1337 units, a difference of 1328 units
+(14,755.6\%). The trace also
 lacked the normal \texttt{CONVERT\_DONE} checkpoint. The boundary contract
 raised an alert, blocked the charge, and requested HITL. The 1328-unit
 difference is therefore prevented, not realized, loss.
@@ -2661,12 +2623,12 @@ and \texttt{ESCALATION\_CHECK} (line~738).
 Two boundary-contract checks (\texttt{quote\_to\_carrier} and
 \texttt{carrier\_to\_tracking}) are additional signals but are not DU-pair
 use points.
-Table~\ref{tab:lkw-stage1-shipping} covers 8 fault-tested DU pairs
-(2~Group~2, 6~Group~1) drawn from both general FM faults and five
+Table~\ref{tab:lkw-stage1-shipping} covers 7 fault-tested DU pairs
+(2~Group~2, 5~Group~1) drawn from both general FM faults and five
 RetailBen-specific business faults.
 
 \textbf{Group~1 --- wrong value at the use point.}
-Six DU pairs (TC-SHP-03, 05, 07, 08, 09, 10) fall here.
+Five DU pairs (TC-SHP-03, 05, 07, 08, 09) fall here.
 Each fault patches a variable at its definition~D (via fallback patch in
 \texttt{orchestrator.py:611--613} for FM/BL faults, or
 \texttt{fi.maybe\_corrupt\_cost} at line~625 for BL-REFUND); the def-clear
@@ -2936,23 +2898,6 @@ LKW/RIP observation design exposes each configured agentic fault. We therefore
 report run-level detection counts and rates, with mutation terminology retained
 only to describe detected (killed) and undetected (live) fault executions.
 
-\begin{table}[t]
-\centering
-\caption{Fault operators and the LKW evidence they are expected to produce.}
-\label{tab:fault-operators}
-\begin{tabularx}{\columnwidth}{lYY}
-\toprule
-\textbf{Fault} & \textbf{Meaning} & \textbf{Expected LKW evidence} \\
-\midrule
-FM-3.1 & Premature termination & Missing downstream checkpoints \\
-FM-1.2 & Wrong action or route & Wrong branch, tool, carrier, currency, or recipient \\
-FM-2.2 & Hallucinated output & Fabricated value at a checkpoint or handoff; an expected internal checkpoint can also be absent \\
-FM-2.5 & Input ignored or replaced & Guarded input differs when consumed or returned, often with the normal step sequence \\
-BL-* & Business-specific rule violation & Domain-specific wrong amount, quote, product, email, or tracking value \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 FM-3.1 is a workflow-completion fault whose primary signature is missing
 checkpoints. FM-2.2 and FM-2.5 may preserve the step sequence and therefore
 require value comparison, although a particular execution can also lose an
@@ -2962,33 +2907,10 @@ Figure~\ref{fig:fault-injection-simple} shows the fault-injection design used
 in the experiments. Each B3 run selects one fault mode. General modes are
 configured globally and may affect multiple agents; business modes target one
 owning agent. The resulting LKW trace is compared with the fixed B1/B2
-relations.
+relations. Table~\ref{tab:injection-design} states, for each evaluated fault
+class, how it was injected, how the LKW checkpoints observe it, and how the
+resulting evidence should be interpreted.
 
-\begin{figure}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[
-      box/.style={draw,align=center,minimum width=2.6cm,minimum height=0.8cm,font=\small},
-      note/.style={align=center,font=\scriptsize},
-      >=Latex
-]
-\node[box,fill=white] (catalog) at (0,0) {Fault catalog\\FM-* and BL-*};
-\node[box,fill=gray!10] (select) at (3.2,0) {Select one\\fault mode};
-\node[box,fill=white] (inject) at (6.4,0) {Apply at global\\or target scope};
-\node[box,fill=gray!10] (trace) at (9.6,0) {Record LKW\\checkpoints};
-\node[box,fill=white] (compare) at (12.8,0) {Compare with\\B1/B2};
-\draw[->] (catalog) -- (select);
-\draw[->] (select) -- (inject);
-\draw[->] (inject) -- (trace);
-\draw[->] (trace) -- (compare);
-\node[note] at (6.4,-1.0) {Examples: wrong amount, stale rate, fabricated output,\\wrong carrier, skipped step, corrupted email body};
-\end{tikzpicture}}
-\caption{Fault-injection workflow. Each B3 run activates one controlled fault
-mode at its configured global or targeted scope, records the resulting LKW
-trace, and evaluates the trace using fixed B1/B2 comparison relations.}
-\Description{A five-step flow from the fault catalog through selecting one mode, applying its configured scope, recording LKW checkpoints, and comparing the trace with B1 and B2.}
-\label{fig:fault-injection-simple}
-\end{figure}
 
 \begin{table*}[t]
 \centering
@@ -3053,16 +2975,6 @@ Figure~\ref{fig:fault-injection-simple}, and the testing protocol in
 Figure~\ref{fig:testing-protocol-simple}. Detailed numeric evidence is reported
 in the result tables.
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.9\textwidth]{fig_b123_protocol.pdf}
-\caption{B1/B2/B3 testing workflow. B1 assembles expected checkpoint state,
-B2 characterizes no-fault behavior on deterministic and live-LLM surfaces, and
-B3 executes one configured fault mode. Fixed structural and field-level
-relations produce the detection verdict and RIP explanation.}
-\Description{The B1, B2, and B3 protocol: assemble expected checkpoint state, characterize no-fault behavior, execute one configured fault mode, compare traces, and produce a detection and RIP verdict.}
-\label{fig:testing-protocol-simple}
-\end{figure*}
 
 The execution protocol has six steps:
 
@@ -3090,7 +3002,9 @@ Each RQ is reported through its experiment design, measurement, and answer.
 For run-level and mode-level proportions, we give numerator/denominator counts
 and Wilson 95\% confidence intervals (CI). Location and depth fields are
 descriptive outputs of the trace analysis, not estimates of localization or
-attribution accuracy. The evidence scope is stated separately for each RQ.
+attribution accuracy. The evidence scope is stated separately for each RQ, and
+Table~\ref{tab:rq-evidence-map} maps each research question to its primary
+evidence, measurement, and confidence reporting.
 
 \begin{table*}[t]
 \centering

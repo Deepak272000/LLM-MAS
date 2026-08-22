@@ -134,21 +134,23 @@ def advertised_context(base_url, model):
     return None
 
 
-def run_model(base_url, model, max_turns, num_ctx):
+def run_model(base_url, model, max_turns, num_ctx, temperature=0.7):
     out = {
         "model": model, "tool_calling": False, "turns": 0,
         "tools_called": [], "prompt_evals": [], "final_answer": False,
         "max_ctx": advertised_context(base_url, model),
-        "truncation": False, "errors": [],
+        "truncation": False, "cache_reuse": False, "errors": [],
     }
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": USER_MSG},
     ]
-    options = {"temperature": 0.7}
+    options = {"temperature": temperature}
     if num_ctx:
         options["num_ctx"] = num_ctx
+    effective = num_ctx or 4096
+    out["effective_ctx"] = effective
 
     for turn in range(1, max_turns + 1):
         out["turns"] = turn
@@ -166,9 +168,16 @@ def run_model(base_url, model, max_turns, num_ctx):
 
         pe = data.get("prompt_eval_count")
         if isinstance(pe, int):
-            # A drop means Ollama evicted earlier messages: the window overflowed.
+            # A drop in prompt_eval_count is NOT evidence of eviction by itself:
+            # Ollama counts only newly-evaluated tokens when a prompt prefix is
+            # served from its KV cache, which makes later turns look smaller.
+            # Treat a drop as eviction only when we were already near the window,
+            # since you cannot evict from a window that is mostly empty.
             if out["prompt_evals"] and pe < max(out["prompt_evals"]):
-                out["truncation"] = True
+                if max(out["prompt_evals"]) >= 0.80 * effective:
+                    out["truncation"] = True
+                else:
+                    out["cache_reuse"] = True
             out["prompt_evals"].append(pe)
 
         reply = data.get("message", {}) or {}
@@ -187,25 +196,37 @@ def run_model(base_url, model, max_turns, num_ctx):
             messages.append({"role": "tool", "content": json.dumps(result)})
 
     # Plateau against the effective window is the other overflow signature.
-    effective = num_ctx or 4096
     if out["prompt_evals"] and max(out["prompt_evals"]) >= 0.95 * effective:
         out["truncation"] = True
-    out["effective_ctx"] = effective
     return out
 
 
-def verdict(r):
-    if not r["tool_calling"]:
-        return "FAIL", "never emitted tool_calls - would yield 100% INCONCLUSIVE"
-    distinct = [t for t in EXPECTED_TOOLS if t in r["tools_called"]]
-    if r["truncation"]:
-        return "WARN", (f"context overflow: prompt_eval peaked at "
-                        f"{max(r['prompt_evals'])} vs effective window "
-                        f"{r['effective_ctx']}")
-    if len(distinct) < len(EXPECTED_TOOLS):
-        missing = [t for t in EXPECTED_TOOLS if t not in r["tools_called"]]
-        return "WARN", f"only {len(distinct)}/6 tools called; missing {missing}"
-    return "PASS", f"all 6 tools called in {r['turns']} turns"
+def distinct_tools(r):
+    return {t for t in r["tools_called"] if t in EXPECTED_TOOLS}
+
+
+def aggregate_verdict(reps):
+    """Verdict over n samples. Temperature 0.7 is stochastic, so a single draw
+    cannot separate a model that *cannot* do something from one that merely
+    did not on that draw."""
+    n = len(reps)
+    tc = sum(1 for r in reps if r["tool_calling"])
+    complete = sum(1 for r in reps if len(distinct_tools(r)) == len(EXPECTED_TOOLS))
+    trunc = sum(1 for r in reps if r["truncation"])
+
+    if tc == 0:
+        return "FAIL", (f"never emitted tool_calls in {n}/{n} reps - "
+                        f"would yield 100% INCONCLUSIVE")
+    if tc < n:
+        return "WARN", f"tool calling flaky: only {tc}/{n} reps emitted tool_calls"
+    if trunc:
+        return "WARN", f"genuine context overflow in {trunc}/{n} reps"
+    if complete == 0:
+        missing = sorted(set(EXPECTED_TOOLS) - set().union(*(distinct_tools(r) for r in reps)))
+        return "WARN", f"never completed 6/6 in {n} reps; never called {missing}"
+    if complete < n:
+        return "WARN", f"completed 6/6 in only {complete}/{n} reps (unstable)"
+    return "PASS", f"all 6 tools in {n}/{n} reps"
 
 
 def main():
@@ -216,6 +237,10 @@ def main():
                     help="Match the orchestrator's max_iters (default: 15)")
     ap.add_argument("--num-ctx", type=int, default=None,
                     help="Override context window; omit for production parity")
+    ap.add_argument("--reps", type=int, default=3,
+                    help="Samples per model; temp 0.7 is stochastic (default: 3)")
+    ap.add_argument("--temperature", type=float, default=0.7,
+                    help="Sampling temperature (default: 0.7, matches B3)")
     args = ap.parse_args()
 
     base = args.ollama_url.rstrip("/")
@@ -224,33 +249,51 @@ def main():
     print(f"  ollama    : {base}")
     print(f"  max turns : {args.max_turns}")
     print(f"  num_ctx   : {args.num_ctx or 'unset (production parity)'}")
+    print(f"  reps      : {args.reps} per model @ temperature {args.temperature}")
     print(f"  tools     : {len(TOOL_DEFS)} imported from the live orchestrator")
     print("=" * 78)
 
     results = []
     for model in args.models:
         print(f"\n--- {model} ---", flush=True)
-        r = run_model(base, model, args.max_turns, args.num_ctx)
-        v, why = verdict(r)
-        r["verdict"], r["why"] = v, why
-        results.append(r)
+        reps = []
+        for i in range(1, args.reps + 1):
+            r = run_model(base, model, args.max_turns, args.num_ctx,
+                          args.temperature)
+            reps.append(r)
+            peak = max(r["prompt_evals"]) if r["prompt_evals"] else 0
+            flags = []
+            if r["truncation"]:
+                flags.append("TRUNCATED")
+            if r["cache_reuse"]:
+                flags.append("cache-reuse")
+            flags += [f"ERR {e[:60]}" for e in r["errors"]]
+            suffix = f"  [{', '.join(flags)}]" if flags else ""
+            print(f"  rep {i}: {len(distinct_tools(r))}/6 tools, "
+                  f"{r['turns']} turns, peak {peak}{suffix}", flush=True)
+            print(f"         order: {r['tools_called'] or 'NONE'}", flush=True)
 
-        print(f"  advertised ctx : {r['max_ctx']}")
-        print(f"  turns          : {r['turns']}")
-        print(f"  tools called   : {r['tools_called'] or 'NONE'}")
-        print(f"  prompt_eval    : {r['prompt_evals']}")
-        for e in r["errors"]:
-            print(f"  ERROR          : {e}")
+        v, why = aggregate_verdict(reps)
+        agg = {
+            "model": model,
+            "advertised_ctx": reps[0]["max_ctx"],
+            "effective_ctx": reps[0]["effective_ctx"],
+            "best_tools": max(len(distinct_tools(r)) for r in reps),
+            "peak_ctx": max((max(r["prompt_evals"]) if r["prompt_evals"] else 0)
+                            for r in reps),
+            "verdict": v, "why": why, "reps": reps,
+        }
+        results.append(agg)
+        print(f"  advertised ctx : {agg['advertised_ctx']} "
+              f"(effective {agg['effective_ctx']})")
         print(f"  => {v}: {why}")
 
     print("\n" + "=" * 78)
-    print(f"{'MODEL':<24}{'VERDICT':<9}{'TURNS':<7}{'TOOLS':<7}{'PEAK CTX':<10}NOTE")
+    print(f"{'MODEL':<24}{'VERDICT':<9}{'BEST':<8}{'PEAK CTX':<10}NOTE")
     print("-" * 78)
     for r in results:
-        peak = max(r["prompt_evals"]) if r["prompt_evals"] else 0
-        distinct = len({t for t in r["tools_called"] if t in EXPECTED_TOOLS})
-        print(f"{r['model']:<24}{r['verdict']:<9}{r['turns']:<7}"
-              f"{distinct}/6    {peak:<10}{r['why'][:28]}")
+        print(f"{r['model']:<24}{r['verdict']:<9}{r['best_tools']}/6     "
+              f"{r['peak_ctx']:<10}{r['why'][:30]}")
     print("=" * 78)
 
     out_path = SRC / "results" / "model_smoke_test.json"

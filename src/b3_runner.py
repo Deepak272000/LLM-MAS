@@ -115,6 +115,17 @@ ALL_FAULT_MODES = [e[0] for e in TARGETED_FAULT_MATRIX]
 
 FAULT_CATEGORIES = {e[0]: e[2] for e in TARGETED_FAULT_MATRIX}
 
+# Subset actually reported in the GB-only paper matrix (8 of the 13 modes
+# above). The five excluded modes -- BL_TRANSACTION_LOST, BL_DOUBLE_CHARGE,
+# BL_CARD_DECLINED, BL_INVENTORY_MISMATCH, BL_SHIPMENT_LOST -- stay in
+# TARGETED_FAULT_MATRIX so existing scripts keep working; --fault-scope paper8
+# selects only the modes the paper reports.
+PAPER8_FAULT_MODES = [
+    "FM_3_1", "FM_1_2", "FM_2_2", "FM_2_5",
+    "BL_PRICE_MANIPULATION", "BL_RATE_MANIPULATION",
+    "BL_AMOUNT_TAMPERING", "BL_CORRUPTED_BODY",
+]
+
 # Agent name mapping: systematic runner short names → oracle full names
 SYS_TO_ORACLE = {
     "checkout_orchestrator": "checkout_orchestrator",  # structural RIP only; no B1 oracle
@@ -407,6 +418,10 @@ def main():
                         help="Single fault mode, e.g. FM_3_1")
     parser.add_argument("--all",         action="store_true",
                         help="Run ALL fault modes")
+    parser.add_argument("--fault-scope", choices=("all", "paper8"), default="all",
+                        help="With --all: 'paper8' restricts the campaign to the "
+                             "eight fault modes reported in the paper; 'all' runs "
+                             "the full 13-mode matrix (default)")
     parser.add_argument("--cfg",         default=None,
                         help="Model config label, e.g. 14b_temp0 (Retail-bench) or 3b_temp0 (Google-bench)")
     parser.add_argument("--runs",        type=int,   default=3,
@@ -424,6 +439,14 @@ def main():
     # When --fault-mode X [--fault-agent Y]: single-entry campaign from CLI args.
     if args.all:
         fault_campaign = [(fm, fa) for fm, fa, _ in TARGETED_FAULT_MATRIX]
+        if args.fault_scope == "paper8":
+            fault_campaign = [(fm, fa) for fm, fa in fault_campaign
+                              if fm in PAPER8_FAULT_MODES]
+            missing = set(PAPER8_FAULT_MODES) - {fm for fm, _ in fault_campaign}
+            if missing:
+                print(f"ERROR: --fault-scope paper8 requested but these modes are "
+                      f"absent from TARGETED_FAULT_MATRIX: {sorted(missing)}")
+                sys.exit(1)
     else:
         fault_campaign = [(args.fault_mode, args.fault_agent)]
 

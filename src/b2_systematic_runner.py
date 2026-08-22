@@ -97,15 +97,36 @@ MOCK_PRODUCT = {
 MOCK_CONVERT = {"currency_code": "USD", "units": 19, "nanos": 990000000}
 
 # ── Model configs ─────────────────────────────────────────────────────────────
+DEFAULT_SMALL_MODEL = "qwen2.5:3b"
+
+
 def build_model_configs():
     ollama_url = os.environ.get("OLLAMA_URL",  "http://localhost:11434")
     model_14b  = os.environ.get("LLAMA_MODEL", "qwen2.5-coder:14b")
-    model_3b   = os.environ.get("MODEL_3B",    "qwen2.5:3b")
+    model_3b   = os.environ.get("MODEL_3B",    DEFAULT_SMALL_MODEL)
+
+    # MODEL_TAG namespaces the compact-model labels so a campaign run with a
+    # different MODEL_3B writes its own result filenames instead of clobbering
+    # an earlier campaign's artifacts. Leaving MODEL_TAG empty reproduces the
+    # original label scheme exactly, so existing results and every script that
+    # reads them keep working unchanged.
+    tag = os.environ.get("MODEL_TAG", "").strip()
+    if not tag and model_3b != DEFAULT_SMALL_MODEL:
+        raise SystemExit(
+            "REFUSING TO RUN: MODEL_3B is set to a non-default model "
+            f"({model_3b!r}) while MODEL_TAG is empty.\n"
+            "  Results are written as b3_{fault_mode}_{label}_run{n}.json. The "
+            "label would remain '3b_*', silently overwriting the existing "
+            f"{DEFAULT_SMALL_MODEL} artifacts.\n"
+            "  Re-run with a namespace, e.g. MODEL_TAG=llama32-3b"
+        )
+    small = tag or "3b"
+
     return [
-        {"label": "14b_temp0",  "model": model_14b, "temperature": 0.0, "ollama_url": ollama_url},
-        {"label": "3b_temp0",   "model": model_3b,  "temperature": 0.0, "ollama_url": ollama_url},
-        {"label": "3b_temp0.7", "model": model_3b,  "temperature": 0.7, "ollama_url": ollama_url},
-        {"label": "3b_temp1.0", "model": model_3b,  "temperature": 1.0, "ollama_url": ollama_url},
+        {"label": "14b_temp0",        "model": model_14b, "temperature": 0.0, "ollama_url": ollama_url},
+        {"label": f"{small}_temp0",   "model": model_3b,  "temperature": 0.0, "ollama_url": ollama_url},
+        {"label": f"{small}_temp0.7", "model": model_3b,  "temperature": 0.7, "ollama_url": ollama_url},
+        {"label": f"{small}_temp1.0", "model": model_3b,  "temperature": 1.0, "ollama_url": ollama_url},
     ]
 
 # ── B1 per-agent expected checkpoint sequences ────────────────────────────────

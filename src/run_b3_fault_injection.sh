@@ -69,18 +69,39 @@ export OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434}"
 export LLAMA_MODEL="${LLAMA_MODEL:-qwen2.5-coder:14b}"
 export MODEL_3B="${MODEL_3B:-qwen2.5:3b}"
 
+# MODEL_TAG namespaces result filenames for multi-model campaigns. Without it,
+# swapping MODEL_3B keeps the '3b_*' labels and silently overwrites the
+# existing qwen2.5:3b artifacts. Fail before any GPU work is done.
+export MODEL_TAG="${MODEL_TAG:-}"
+if [[ -z "${MODEL_TAG}" && "${MODEL_3B}" != "qwen2.5:3b" ]]; then
+    echo "ERROR: MODEL_3B='${MODEL_3B}' is not the default, but MODEL_TAG is empty."
+    echo "       Results would overwrite the existing qwen2.5:3b artifacts."
+    echo "       Re-submit with a namespace, e.g.:"
+    echo "         sbatch --export=ALL,MODEL_3B=${MODEL_3B},MODEL_TAG=llama32-3b ..."
+    exit 1
+fi
+
 # ── Run parameters ────────────────────────────────────────────────────────────
 B3_RUNS="${B3_RUNS:-3}"
-FAULT_MODE_ARG="${FAULT_MODE:-}"   # empty = all 10 fault modes
+FAULT_MODE_ARG="${FAULT_MODE:-}"   # empty = every mode in the selected scope
+FAULT_SCOPE="${FAULT_SCOPE:-paper8}"  # paper8 = the 8 modes the paper reports; all = 13
 CFG="${CFG:-}"                     # empty = all 4 configs
+
+# Accept the documented CFG spelling (3b_temp0.7) even when the labels are
+# namespaced by MODEL_TAG, so the usage examples above stay valid.
+if [[ -n "${MODEL_TAG}" && "${CFG}" == 3b_* ]]; then
+    CFG="${MODEL_TAG}_${CFG#3b_}"
+fi
 
 # ── Banner ────────────────────────────────────────────────────────────────────
 echo "========================================================================"
 echo "  LLM-MAS — B3 FAULT INJECTION CAMPAIGN"
 echo "  Model 14b  : ${LLAMA_MODEL} @ ${OLLAMA_URL}"
 echo "  Model 3b   : ${MODEL_3B}   @ ${OLLAMA_URL}"
+echo "  Model tag  : ${MODEL_TAG:-<none> (labels stay 3b_*)}"
 echo "  Runs/combo : ${B3_RUNS}"
-echo "  Fault mode : ${FAULT_MODE_ARG:-ALL (10 modes)}"
+echo "  Fault mode : ${FAULT_MODE_ARG:-ALL in scope}"
+echo "  Scope      : ${FAULT_SCOPE}"
 echo "  Config     : ${CFG:-ALL (4 configs)}"
 echo "  Job        : ${SLURM_JOB_ID:-local}   Node: ${SLURMD_NODENAME:-local}"
 echo "  Started    : $(date)"
@@ -141,7 +162,7 @@ B3_ARGS="--runs ${B3_RUNS}"
 if [[ -n "${FAULT_MODE_ARG}" ]]; then
     B3_ARGS="${B3_ARGS} --fault-mode ${FAULT_MODE_ARG}"
 else
-    B3_ARGS="${B3_ARGS} --all"
+    B3_ARGS="${B3_ARGS} --all --fault-scope ${FAULT_SCOPE}"
 fi
 
 if [[ -n "${CFG}" ]]; then

@@ -734,6 +734,10 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
           f"status={orch_status} "
           f"iterations={orch_result.get('iterations', 0)} "
           f"steps={[c['step'] for c in orch_lkw]}")
+    # Hoisted out of the `if` so it can be returned: this text was previously
+    # printed (truncated) and then discarded, which left the raw run files with
+    # no record of why a run failed.
+    error_detail = None
     if orch_status == "error":
         error_detail = next(
             (cp.get("data", {}).get("error", "no detail")
@@ -741,7 +745,14 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
              if cp.get("step") == "FINAL_ANSWER" and cp.get("data", {}).get("error")),
             "no error detail in FINAL_ANSWER checkpoint",
         )
-        print(f"    [checkout_orchestrator] INFRA ERROR: {str(error_detail)[:300]}")
+        # Print both ends. The head names the failing helper; the tail carries the
+        # exception that actually raised. A plain [:300] kept only the head, so the
+        # console showed a traceback descending into asyncio and then cut off
+        # before the error line -- the one piece of information needed to fix it.
+        detail = str(error_detail)
+        if len(detail) > 900:
+            detail = f"{detail[:200]} […{len(detail) - 900} chars elided…] {detail[-700:]}"
+        print(f"    [checkout_orchestrator] INFRA ERROR: {detail}")
 
     return {
         "run_id":                  run_id,
@@ -761,6 +772,7 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
         "tracking_id":             tracking_id,
         "orchestrator_iterations": orch_result.get("iterations", 0),
         "orchestrator_status":     orch_status,
+        "orchestrator_error":      error_detail,
     }
 
 

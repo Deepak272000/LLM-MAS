@@ -204,6 +204,26 @@ _TOOL_TO_STEP = {
 
 # ── Sub-agent subprocess runner ───────────────────────────────────────────────
 
+# Helper arguments originate in LLM-generated tool calls, so a malformed value is
+# a live hypothesis for the crashes these errors report. Each value is echoed
+# with its Python type, because a type mismatch is invisible when only the value
+# is shown. Card fields are masked -- they are synthetic test values, but payment
+# data has no business being written to a log.
+_REDACTED_KEYS = {"credit_card_number", "credit_card_cvv"}
+
+
+def _describe_payload(payload: dict, limit: int = 400) -> str:
+    try:
+        shown = {
+            k: f"<redacted {type(v).__name__}>" if k in _REDACTED_KEYS
+            else [type(v).__name__, v]
+            for k, v in payload.items()
+        }
+        return json.dumps(shown, default=str)[:limit]
+    except Exception as exc:      # diagnostics must never mask the real failure
+        return f"(undescribable: {type(exc).__name__}: {exc})"
+
+
 def _run_sub_helper(helper_name: str, payload: dict, timeout: int = 300) -> dict:
     """Run a co_helper subprocess and return its parsed JSON output."""
     helper_path = SRC / helper_name
@@ -222,7 +242,10 @@ def _run_sub_helper(helper_name: str, payload: dict, timeout: int = 300) -> dict
     stdout = proc.stdout.strip()
     if not stdout:
         stderr = proc.stderr[-800:] if proc.stderr else "(no stderr)"
-        raise RuntimeError(f"{helper_name} produced no output. stderr={stderr}")
+        raise RuntimeError(
+            f"{helper_name} produced no output. exit={proc.returncode} "
+            f"args={_describe_payload(payload)} stderr={stderr}"
+        )
 
     for line in reversed(stdout.splitlines()):
         line = line.strip()
@@ -236,7 +259,8 @@ def _run_sub_helper(helper_name: str, payload: dict, timeout: int = 300) -> dict
     stderr = proc.stderr[-800:] if proc.stderr else "(no stderr)"
     raise ValueError(
         f"{helper_name} output not parseable (no JSON line). "
-        f"exit={proc.returncode} stdout_tail={stdout[-200:]!r} stderr={stderr}"
+        f"exit={proc.returncode} args={_describe_payload(payload)} "
+        f"stdout_tail={stdout[-200:]!r} stderr={stderr}"
     )
 
 

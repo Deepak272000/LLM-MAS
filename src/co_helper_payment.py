@@ -42,6 +42,15 @@ _classify_payment(query, model, ollama_url)
 
 async def main():
     agent = agent_mod.PaymentAgent()
+    # The orchestrator LLM intermittently emits credit_card_number as a JSON
+    # number instead of a string, which crashes PaymentAgent.run on
+    # credit_card_number[-4:] (TypeError: 'int' object is not subscriptable) and
+    # kills the whole run as an INFRA_ERROR. Normalise at the harness boundary:
+    # PaymentAgent.run already declares this parameter as str, and the only thing
+    # derived from it is card_last4, which no oracle entry compares -- so this
+    # cannot change a detection outcome, only stop a crash.
+    ccn = payload.get("credit_card_number", "4111111111111111")
+    ccn = "" if ccn is None else str(ccn)
     with patch("app.agent.save_transaction", new_callable=AsyncMock) as ms:
         ms.return_value = "co-tx-mock-id"
         result = await agent.run(
@@ -49,7 +58,7 @@ async def main():
             currency_code=payload.get("currency_code", "USD"),
             units=payload.get("units", 27),
             nanos=payload.get("nanos", 490000000),
-            credit_card_number=payload.get("credit_card_number", "4111111111111111"),
+            credit_card_number=ccn,
             credit_card_cvv=payload.get("credit_card_cvv", 123),
             credit_card_expiration_year=payload.get("credit_card_expiration_year", 2030),
             credit_card_expiration_month=payload.get("credit_card_expiration_month", 12),

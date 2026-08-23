@@ -352,6 +352,9 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
         "mutation":        mutation,
         "rip":             checkout_result.get("rip"),
         "checkout_errors": checkout_result.get("errors", {}),
+        # Full, untruncated orchestrator failure text. The console print is
+        # abbreviated for readability, so this is the only durable copy.
+        "orchestrator_error": checkout_result.get("orchestrator_error"),
         "steps_per_agent": {
             agent: [cp["step"] for cp in lkw]
             for agent, lkw in checkout_result.get("per_agent_lkw", {}).items()

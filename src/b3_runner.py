@@ -383,8 +383,12 @@ def aggregate_b3_runs(fault_mode: str, model_label: str, runs: list) -> dict:
     detected = tp_count + ptp_count
     detection_rate = round(detected / scored_total, 4) if scored_total > 0 else 0.0
 
-    # Mutation score = (terminated mutants) / scored runs
-    terminated = sum(1 for r in runs if r.get("mutation", {}) and
+    # Mutation score = (terminated mutants) / scored runs. The numerator must be
+    # restricted to scored runs as well: `mutation` is computed before a run is
+    # classified, so an INFRA_ERROR run can still carry terminated_mutant=True.
+    # Counting it against a denominator that excludes it yields a score > 1.0.
+    terminated = sum(1 for r in runs if r.get("status") != "INFRA_ERROR" and
+                     r.get("mutation", {}) and
                      r["mutation"].get("terminated_mutant", False))
     mutation_score = round(terminated / scored_total, 4) if scored_total > 0 else 0.0
 

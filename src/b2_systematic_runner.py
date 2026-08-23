@@ -72,6 +72,12 @@ RAW_DIR = RESULTS / "raw"
 RESULTS.mkdir(parents=True, exist_ok=True)
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
+# MODEL_TAG namespaces the four aggregate reports written by this module.
+# Unset -> unchanged filenames, so the published qwen2.5:3b artifacts are
+# reproduced byte-identically and can never be clobbered by a tagged campaign.
+_MODEL_TAG = os.environ.get("MODEL_TAG", "").strip()
+TAG_SUFFIX = f"_{_MODEL_TAG}" if _MODEL_TAG else ""
+
 # ── Checkout scenario constants ───────────────────────────────────────────────
 CHECKOUT_ADDRESS = {
     "street_address": "123 Main St",
@@ -1303,15 +1309,15 @@ def aggregate_from_raw(fault_mode="NONE"):
             for r in all_runs
         ],
     }
-    with open(RESULTS / "b2_checkout_lkw_summary.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_checkout_lkw_summary{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump(lkw_summary, f, indent=2, default=str)
-    with open(RESULTS / "b2_rip_analysis.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_rip_analysis{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump({"generated_at": timestamp, "fault_mode": fault_mode,
                    "by_model_config": rip_agg}, f, indent=2, default=str)
-    with open(RESULTS / "b2_deviation_from_b1.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_deviation_from_b1{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump({"generated_at": timestamp, "fault_mode": fault_mode,
                    "by_model_config": deviation}, f, indent=2, default=str)
-    with open(RESULTS / "b2_model_comparison.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_model_comparison{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump({"generated_at": timestamp, "fault_mode": fault_mode,
                    "model_comparison": comp_report}, f, indent=2, default=str)
 
@@ -1425,9 +1431,9 @@ def main():
             for r in all_runs
         ],
     }
-    with open(RESULTS / "b2_checkout_lkw_summary.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_checkout_lkw_summary{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump(lkw_summary, f, indent=2, default=str)
-    print("  Written: results/b2_systematic/b2_checkout_lkw_summary.json")
+    print(f"  Written: results/b2_systematic/b2_checkout_lkw_summary{TAG_SUFFIX}.json")
 
     # 2. RIP analysis
     rip_agg = aggregate_rip(all_runs)
@@ -1441,9 +1447,9 @@ def main():
         ),
         "by_model_config": rip_agg,
     }
-    with open(RESULTS / "b2_rip_analysis.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_rip_analysis{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump(rip_report, f, indent=2, default=str)
-    print("  Written: results/b2_systematic/b2_rip_analysis.json")
+    print(f"  Written: results/b2_systematic/b2_rip_analysis{TAG_SUFFIX}.json")
 
     # 3. Deviation from B1
     deviation = compute_deviation_from_b1(all_runs)
@@ -1453,9 +1459,9 @@ def main():
         "b1_source":        "results/b2_equivalence_thresholds.json",
         "by_model_config":  deviation,
     }
-    with open(RESULTS / "b2_deviation_from_b1.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_deviation_from_b1{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump(deviation_report, f, indent=2, default=str)
-    print("  Written: results/b2_systematic/b2_deviation_from_b1.json")
+    print(f"  Written: results/b2_systematic/b2_deviation_from_b1{TAG_SUFFIX}.json")
 
     # 4. Model comparison
     comp_report = {
@@ -1463,9 +1469,9 @@ def main():
         "fault_mode":      fault_mode,
         "model_comparison": build_model_comparison(all_runs),
     }
-    with open(RESULTS / "b2_model_comparison.json", "w", encoding="utf-8") as f:
+    with open(RESULTS / f"b2_model_comparison{TAG_SUFFIX}.json", "w", encoding="utf-8") as f:
         json.dump(comp_report, f, indent=2, default=str)
-    print("  Written: results/b2_systematic/b2_model_comparison.json")
+    print(f"  Written: results/b2_systematic/b2_model_comparison{TAG_SUFFIX}.json")
 
     # ── Print summary ──────────────────────────────────────────────────────
     print()

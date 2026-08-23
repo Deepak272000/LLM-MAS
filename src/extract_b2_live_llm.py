@@ -12,6 +12,7 @@ NOT covered here: recommendationagent, adserviceagent (not in checkout pipeline)
 """
 
 import json
+import os
 from collections import defaultdict
 from pathlib import Path
 from datetime import datetime, timezone
@@ -20,6 +21,12 @@ SRC = Path(__file__).parent
 B2_RAW = SRC / "results" / "b2" / "raw"
 OUT_DIR = SRC / "results" / "b2_live_llm"
 OUT_DIR.mkdir(exist_ok=True)
+
+# MODEL_TAG namespaces every output of this script for multi-model campaigns.
+# Unset -> identical source config and filenames to the original run, so the
+# published qwen2.5:3b artifacts are reproduced exactly and never clobbered.
+MODEL_TAG = os.environ.get("MODEL_TAG", "").strip()
+TAG_SUFFIX = f"_{MODEL_TAG}" if MODEL_TAG else ""
 
 AGENT_MAP = {
     "productcatalog": "productcatalogagent",
@@ -30,7 +37,11 @@ AGENT_MAP = {
     "ship_order": "shippingagent_ship",
 }
 
-CONFIG = "3b_temp0"   # primary extraction config — deterministic LLM, no fault
+# Primary extraction config -- deterministic LLM, no fault. Tagged campaigns
+# write b2/raw/b2_{tag}_temp0_run*.json, so follow the tag when one is set.
+# If those raw runs do not exist yet, extract_config() finds nothing and main()
+# exits before writing, so a mistagged invocation cannot corrupt anything.
+CONFIG = f"{MODEL_TAG}_temp0" if MODEL_TAG else "3b_temp0"
 
 
 def extract_config(config_label: str):
@@ -125,7 +136,7 @@ def write_per_agent_files(per_agent_runs: dict, config_label: str):
                 "steps": run["steps"],
                 "generated_at": datetime.now(timezone.utc).isoformat(),
             }
-            fname = OUT_DIR / f"{agent_key}_livellm_b2_run{i}.json"
+            fname = OUT_DIR / f"{agent_key}_livellm_b2{TAG_SUFFIX}_run{i}.json"
             fname.write_text(json.dumps(out, indent=2))
             written.append(str(fname.name))
     return written
@@ -166,7 +177,7 @@ def main():
             for field, vals in fields.items():
                 summary_data[agent][step][field] = summarize_field(vals)
 
-    summary_file = SRC / "results" / "b2_live_llm_variance_summary.json"
+    summary_file = SRC / "results" / f"b2_live_llm_variance_summary{TAG_SUFFIX}.json"
     summary_file.write_text(json.dumps(summary_data, indent=2))
     print(f"\nVariance summary: {summary_file.name}")
 

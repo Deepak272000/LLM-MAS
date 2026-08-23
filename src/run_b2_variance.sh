@@ -58,15 +58,46 @@ export LLAMA_MODEL="${LLAMA_MODEL:-qwen2.5-coder:14b}"
 export MODEL_3B="${MODEL_3B:-qwen2.5:3b}"
 export FAULT_MODE=NONE
 
+# MODEL_TAG namespaces result filenames for multi-model campaigns. Without it,
+# swapping MODEL_3B keeps the '3b_*' labels and silently overwrites the
+# existing qwen2.5:3b artifacts. Fail before any GPU work is done.
+export MODEL_TAG="${MODEL_TAG:-}"
+if [[ -z "${MODEL_TAG}" && "${MODEL_3B}" != "qwen2.5:3b" ]]; then
+    echo "ERROR: MODEL_3B='${MODEL_3B}' is not the default, but MODEL_TAG is empty."
+    echo "       Results would overwrite the existing qwen2.5:3b artifacts."
+    echo "       Re-submit with a namespace, e.g.:"
+    echo "         sbatch --export=ALL,MODEL_3B=${MODEL_3B},MODEL_TAG=llama32-3b ..."
+    exit 1
+fi
+
 # ── Run parameters ────────────────────────────────────────────────────────────
 B2_RUNS="${B2_RUNS:-10}"
 CFG="${CFG:-}"       # empty = all configs; set to e.g. "3b_temp0.7" for one only
+
+# Accept the documented CFG spelling (3b_temp0.7) even when the labels are
+# namespaced by MODEL_TAG, so the usage examples above stay valid.
+if [[ -n "${MODEL_TAG}" && "${CFG}" == 3b_* ]]; then
+    CFG="${MODEL_TAG}_${CFG#3b_}"
+fi
+
+# A tagged run with no CFG still expands to all four configs -- including the
+# untagged 14b_temp0 -- and would overwrite the published retail-bench
+# artifacts. Tagged campaigns must pin exactly one config.
+if [[ -n "${MODEL_TAG}" && -z "${CFG}" ]]; then
+    echo "ERROR: MODEL_TAG='${MODEL_TAG}' is set but CFG is empty."
+    echo "       An untargeted tagged run also executes the untagged 14b_temp0"
+    echo "       config and would overwrite the published retail-bench artifacts."
+    echo "       Pin a single config, e.g.:"
+    echo "         sbatch --export=ALL,MODEL_3B=${MODEL_3B},MODEL_TAG=${MODEL_TAG},CFG=3b_temp0.7 ..."
+    exit 1
+fi
 
 # ── Banner ────────────────────────────────────────────────────────────────────
 echo "========================================================================"
 echo "  LLM-MAS — B2 NATURAL VARIANCE RUNNER"
 echo "  Model 14b : ${LLAMA_MODEL} @ ${OLLAMA_URL}"
 echo "  Model 3b  : ${MODEL_3B}   @ ${OLLAMA_URL}"
+echo "  Model tag : ${MODEL_TAG:-<none> (labels stay 3b_*)}"
 echo "  Runs      : ${B2_RUNS} per config"
 echo "  Config    : ${CFG:-all}"
 echo "  Job       : ${SLURM_JOB_ID:-local}   Node: ${SLURMD_NODENAME:-local}"

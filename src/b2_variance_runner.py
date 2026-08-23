@@ -41,6 +41,7 @@ Output:
 
 import argparse
 import json
+import os
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -365,11 +366,14 @@ def main():
             except FileNotFoundError as e:
                 print(f"  SKIP {label}: {e}")
         if all_summaries:
+            tag = os.environ.get("MODEL_TAG", "").strip()
             full_report = {
                 "generated_at":  datetime.now(timezone.utc).isoformat(),
+                "model_tag":     tag or None,
                 "all_summaries": all_summaries,
             }
-            with open(RESULTS / "b2_full_variance_report.json", "w", encoding="utf-8") as f:
+            suffix = f"_{tag}" if tag else ""
+            with open(RESULTS / f"b2_full_variance_report{suffix}.json", "w", encoding="utf-8") as f:
                 json.dump(full_report, f, indent=2, default=str)
             print(f"\nResults saved to: {RESULTS}")
         return
@@ -424,12 +428,16 @@ def main():
 
         print_variance_report(summary)
 
-    # Full variance report
+    # Full variance report — namespaced by MODEL_TAG so concurrent multi-model
+    # jobs cannot overwrite each other or the untagged baseline report.
+    tag = os.environ.get("MODEL_TAG", "").strip()
     full_report = {
         "generated_at":  datetime.now(timezone.utc).isoformat(),
+        "model_tag":     tag or None,
         "all_summaries": all_summaries,
     }
-    report_path = RESULTS / "b2_full_variance_report.json"
+    suffix = f"_{tag}" if tag else ""
+    report_path = RESULTS / f"b2_full_variance_report{suffix}.json"
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(full_report, f, indent=2, default=str)
 

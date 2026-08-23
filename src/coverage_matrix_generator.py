@@ -11,6 +11,7 @@ Goal:
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,7 +20,28 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent
 RESULTS = ROOT / "results"
 K8S_MANIFESTS = REPO / "kubernetes-manifests"
-OUT = RESULTS / "coverage_matrix.json"
+
+# Coverage is PER-MODEL, never pooled: blending models would erase the very
+# differences this experiment exists to measure. MODEL_TAG scopes both the
+# inputs read and the matrix written.
+_MODEL_TAG = os.environ.get("MODEL_TAG", "").strip()
+TAG_SUFFIX = f"_{_MODEL_TAG}" if _MODEL_TAG else ""
+
+OUT = RESULTS / f"coverage_matrix{TAG_SUFFIX}.json"
+
+
+def _b3_config_labels() -> list[str]:
+    """Exact B3 config labels this matrix is scoped to.
+
+    With MODEL_TAG set we match that model's labels and nothing else. Matching
+    is by exact suffix, not substring, so one model's summaries can never be
+    counted toward another's coverage.
+    """
+    if _MODEL_TAG:
+        return [f"{_MODEL_TAG}_temp0",
+                f"{_MODEL_TAG}_temp0.7",
+                f"{_MODEL_TAG}_temp1.0"]
+    return ["14b_temp0", "3b_temp0", "3b_temp0.7", "3b_temp1.0"]
 
 
 def _load_json(path: Path):
@@ -56,7 +78,7 @@ def _detect_systematic_agents() -> list[str]:
 
 
 def _detect_b3_fault_modes() -> list[str]:
-    doc = _load_json(RESULTS / "b3" / "b3_full_report.json")
+    doc = _load_json(RESULTS / "b3" / f"b3_full_report{TAG_SUFFIX}.json")
     if not isinstance(doc, dict):
         return []
 
@@ -69,13 +91,20 @@ def _detect_b3_fault_modes() -> list[str]:
                 modes.add(row["fault_mode"])
 
     if not modes:
-        # Fallback: infer from summary filenames, stripping model config suffix.
-        # Example: b3_FM_2_2_14b_temp0_summary.json -> FM_2_2
-        #          b3_BL_SHIPMENT_LOST_3b_temp0.7_summary.json -> BL_SHIPMENT_LOST
+        # Fallback: infer from summary filenames by stripping an EXACT config
+        # suffix. A previous regex used a non-greedy group and would match
+        # b3_BL_SHIPMENT_LOST_llama32-3b_temp0.7_summary against "3b_temp0.7",
+        # yielding the corrupted mode "BL_SHIPMENT_LOST_llama32". Exact
+        # prefix/suffix matching cannot do that.
         for p in (RESULTS / "b3").glob("b3_*_summary.json"):
-            m = re.match(r"^b3_(.+?)_(14b_temp0|3b_temp0|3b_temp0\.7|3b_temp1\.0)_summary$", p.stem)
-            if m:
-                modes.add(m.group(1))
+            stem = p.stem
+            for cfg in _b3_config_labels():
+                suffix = f"_{cfg}_summary"
+                if stem.startswith("b3_") and stem.endswith(suffix):
+                    mode = stem[len("b3_"):-len(suffix)]
+                    if mode:
+                        modes.add(mode)
+                    break
 
     return sorted(modes)
 

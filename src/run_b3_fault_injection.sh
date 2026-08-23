@@ -93,6 +93,18 @@ if [[ -n "${MODEL_TAG}" && "${CFG}" == 3b_* ]]; then
     CFG="${MODEL_TAG}_${CFG#3b_}"
 fi
 
+# A tagged run with no CFG still expands to all four configs -- including the
+# untagged 14b_temp0 -- and would overwrite the published retail-bench
+# artifacts. Tagged campaigns must pin exactly one config.
+if [[ -n "${MODEL_TAG}" && -z "${CFG}" ]]; then
+    echo "ERROR: MODEL_TAG='${MODEL_TAG}' is set but CFG is empty."
+    echo "       An untargeted tagged run also executes the untagged 14b_temp0"
+    echo "       config and would overwrite the published retail-bench artifacts."
+    echo "       Pin a single config, e.g.:"
+    echo "         sbatch --export=ALL,MODEL_3B=${MODEL_3B},MODEL_TAG=${MODEL_TAG},CFG=3b_temp0.7 ..."
+    exit 1
+fi
+
 # ── Banner ────────────────────────────────────────────────────────────────────
 echo "========================================================================"
 echo "  LLM-MAS — B3 FAULT INJECTION CAMPAIGN"

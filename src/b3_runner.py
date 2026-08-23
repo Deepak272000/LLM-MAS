@@ -532,13 +532,27 @@ def main():
     # ── Full report ────────────────────────────────────────────────────────────
     timestamp = datetime.now(timezone.utc).isoformat()
 
-    # Separation by benchmark
-    retail_summaries = [s for s in all_summaries if "14b" in s["model_label"]]
-    google_summaries = [s for s in all_summaries if "3b"  in s["model_label"]]
+    # MODEL_TAG namespaces the aggregate report. Without this, concurrent
+    # multi-model jobs all write b3_full_report.json and the last writer wins,
+    # destroying both the other models' reports and the untagged baseline.
+    tag = os.environ.get("MODEL_TAG", "").strip()
+
+    # Separation by benchmark. Substring matching only works for the original
+    # 14b / 3b labels; tagged labels such as "qwen25-1.5b_temp0.7" contain
+    # neither token and would silently fall out of both buckets.
+    if tag:
+        retail_summaries = []
+        google_summaries = list(all_summaries)
+    else:
+        retail_summaries = [s for s in all_summaries if "14b" in s["model_label"]]
+        google_summaries = [s for s in all_summaries if "3b"  in s["model_label"]]
 
     full_report = {
         "generated_at":   timestamp,
+        "model_tag":      tag or None,
         "description":    (
+            f"B3 mutation detection results for compact model '{tag}'."
+            if tag else
             "B3 mutation detection results. "
             "Retail-bench = qwen2.5-coder:14b. "
             "Google-bench = qwen2.5:3b."
@@ -555,7 +569,8 @@ def main():
         full_report["killed_mutants"] / max(full_report["total_combos"], 1), 4
     )
 
-    with open(RESULTS / "b3_full_report.json", "w", encoding="utf-8") as f:
+    suffix = f"_{tag}" if tag else ""
+    with open(RESULTS / f"b3_full_report{suffix}.json", "w", encoding="utf-8") as f:
         json.dump(full_report, f, indent=2, default=str)
 
     # ── Print final summary table ──────────────────────────────────────────────

@@ -35,8 +35,15 @@ from typing import Dict, List, Optional
 SRC = Path(__file__).parent
 HELPER = SRC / "co_helper_adservice.py"
 OUT_DIR = SRC / "results" / "b2_live_llm"
-SUMMARY_FILE = SRC / "results" / "b2_live_llm_variance_summary.json"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# The model this agent's published baseline was generated with. Running any
+# other model without a namespace tag would overwrite that baseline.
+DEFAULT_MODEL = "qwen2.5:3b"
+
+
+def summary_path(tag_suffix: str = "") -> Path:
+    return SRC / "results" / f"b2_live_llm_variance_summary{tag_suffix}.json"
 
 
 # ── Variance helpers (same logic as extract_b2_live_llm.py) ──────────────────
@@ -119,7 +126,8 @@ def run_once(python: str, ollama_url: str, model: str, temp: float,
         return None
 
 
-def save_run(run_num: int, raw: dict, model: str, temp: float) -> Path:
+def save_run(run_num: int, raw: dict, model: str, temp: float,
+             tag_suffix: str = "") -> Path:
     out = {
         "agent": "adserviceagent",
         "b2_source": "live_llm_direct",
@@ -138,23 +146,24 @@ def save_run(run_num: int, raw: dict, model: str, temp: float) -> Path:
         "steps": [cp["step"] for cp in raw.get("lkw", [])],
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
-    fpath = OUT_DIR / f"adserviceagent_livellm_b2_run{run_num}.json"
+    fpath = OUT_DIR / f"adserviceagent_livellm_b2{tag_suffix}_run{run_num}.json"
     fpath.write_text(json.dumps(out, indent=2))
     return fpath
 
 
-def update_summary(variance: dict):
+def update_summary(variance: dict, tag_suffix: str = ""):
     """Add/replace adserviceagent section in the shared variance summary."""
-    if SUMMARY_FILE.exists():
+    summary_file = summary_path(tag_suffix)
+    if summary_file.exists():
         try:
-            existing = json.loads(SUMMARY_FILE.read_text())
+            existing = json.loads(summary_file.read_text())
         except Exception:
             existing = {}
     else:
         existing = {}
     existing["adserviceagent"] = variance
-    SUMMARY_FILE.write_text(json.dumps(existing, indent=2))
-    print(f"\nUpdated variance summary: {SUMMARY_FILE.name}")
+    summary_file.write_text(json.dumps(existing, indent=2))
+    print(f"\nUpdated variance summary: {summary_file.name}")
     print(f"  (adserviceagent section added; other {len(existing)-1} agent(s) preserved)")
 
 
@@ -163,23 +172,44 @@ def update_summary(variance: dict):
 def main():
     parser = argparse.ArgumentParser(description="AdService B2 live-LLM runner")
     parser.add_argument("--runs", type=int, default=10, help="Number of runs")
-    parser.add_argument("--model", default="qwen2.5:3b", help="Ollama model tag")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help="Ollama model tag")
     parser.add_argument("--temp", type=float, default=0.0, help="Temperature")
     parser.add_argument(
         "--ollama-url",
         default=os.getenv("OLLAMA_URL", "http://localhost:11434"),
         help="Ollama base URL",
     )
+    parser.add_argument(
+        "--model-tag",
+        default=os.getenv("MODEL_TAG", "").strip(),
+        help="Namespace for output files; required when --model is not the default",
+    )
     args = parser.parse_args()
+
+    # Without a tag, a non-default model overwrites the published adserviceagent
+    # baseline files and replaces its section of the shared variance summary.
+    # Refuse before any Ollama work is done.
+    tag = (args.model_tag or "").strip()
+    if args.model != DEFAULT_MODEL and not tag:
+        print(f"ERROR: --model '{args.model}' is not the default ({DEFAULT_MODEL}), "
+              f"but no --model-tag was given.")
+        print("       Results would overwrite the published adserviceagent baseline.")
+        print("       Re-run with a namespace, e.g.:")
+        print(f"         python run_adservice_b2_live_llm.py "
+              f"--model {args.model} --model-tag llama32-3b")
+        sys.exit(1)
+    tag_suffix = f"_{tag}" if tag else ""
 
     python = sys.executable
     print(f"Python:     {python}")
     print(f"Helper:     {HELPER}")
     print(f"Ollama URL: {args.ollama_url}")
     print(f"Model:      {args.model}")
+    print(f"Model tag:  {tag or '<none> (filenames stay unsuffixed)'}")
     print(f"Temp:       {args.temp}")
     print(f"Runs:       {args.runs}")
     print(f"Output dir: {OUT_DIR}")
+    print(f"Summary:    {summary_path(tag_suffix).name}")
     print()
 
     if not HELPER.exists():
@@ -209,7 +239,7 @@ def main():
         n_ads = len(raw.get("ads", []))
         print(f"OK  steps={steps}  ads={n_ads}")
         lkw_runs.append(raw.get("lkw", []))
-        fpath = save_run(i, raw, args.model, args.temp)
+        fpath = save_run(i, raw, args.model, args.temp, tag_suffix)
         saved_files.append(fpath.name)
 
     if not lkw_runs:
@@ -227,7 +257,7 @@ def main():
     for f in saved_files:
         print(f"  {f}")
 
-    update_summary(variance)
+    update_summary(variance, tag_suffix)
 
     # Quick verdict for paper
     print(f"\n{'='*70}")

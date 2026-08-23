@@ -203,6 +203,7 @@ def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str,
         comparisons  = compare_lkw_trace_to_oracle(oracle_agent, lkw, oracle)
 
         deviating = [r for r in comparisons if r["deviation"]]
+        uncomputable = [r for r in comparisons if r.get("uncomputable")]
         per_agent_results[agent] = {
             "any_deviation":    len(deviating) > 0,
             "deviating_fields": [r["key"].split(".", 2)[-1] for r in deviating],
@@ -215,6 +216,7 @@ def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str,
                  "detects":    r.get("faults_this_detects", [])}
                 for r in deviating
             ],
+            "uncomputable_fields": [r["key"].split(".", 2)[-1] for r in uncomputable],
         }
 
         if deviating and first_infection is None:
@@ -233,6 +235,9 @@ def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str,
     total_deviating = sum(
         1 for a in per_agent_results.values() if a["any_deviation"]
     )
+    total_uncomputable = sum(
+        len(a.get("uncomputable_fields", [])) for a in per_agent_results.values()
+    )
     terminated = total_deviating > 0
 
     return {
@@ -244,6 +249,7 @@ def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str,
         "propagation_path":    propagation_path,
         "propagation_depth":   len(propagation_path),
         "total_deviating_agents": total_deviating,
+        "total_uncomputable_fields": total_uncomputable,
         "per_agent":           per_agent_results,
     }
 
@@ -283,13 +289,32 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
             "rip":         None,
         }
 
-    # Apply oracle mutation detection
-    mutation = detect_mutation(
-        per_agent_lkw = checkout_result.get("per_agent_lkw", {}),
-        oracle        = oracle,
-        fault_mode    = fault_mode,
-        fault_agent   = fault_agent,
-    )
+    # Apply oracle mutation detection. This previously ran unguarded: a crashed
+    # helper could leave a field the comparator cannot evaluate, and the raised
+    # exception aborted the whole campaign mid-fault-mode.
+    try:
+        mutation = detect_mutation(
+            per_agent_lkw = checkout_result.get("per_agent_lkw", {}),
+            oracle        = oracle,
+            fault_mode    = fault_mode,
+            fault_agent   = fault_agent,
+        )
+    except Exception as exc:
+        return {
+            "run_idx":         run_idx,
+            "fault_mode":      fault_mode,
+            "fault_category":  FAULT_CATEGORIES.get(fault_mode, "unknown"),
+            "fault_agent":     fault_agent,
+            "model_label":     model_cfg["label"],
+            "model":           model_cfg["model"],
+            "temperature":     model_cfg["temperature"],
+            "status":          "INFRA_ERROR",
+            "error":           f"{type(exc).__name__}: {exc}",
+            "elapsed_ms":      checkout_result.get("elapsed_ms"),
+            "mutation":        None,
+            "rip":             checkout_result.get("rip"),
+            "checkout_errors": checkout_result.get("errors", {}),
+        }
 
     # Classification
     orch_status = checkout_result.get("orchestrator_status", "ok")
@@ -300,6 +325,11 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
         status = "INCONCLUSIVE"
     elif not checkout_result.get("success") and checkout_result.get("errors"):
         status = "INCONCLUSIVE"
+    elif mutation.get("total_uncomputable_fields", 0) > 0:
+        # The comparator could not evaluate one or more fields, so detection was
+        # never actually tested here. This is a harness capability failure, not a
+        # detection outcome, and is excluded from the mutation-score denominator.
+        status = "INFRA_ERROR"
     elif mutation["terminated_mutant"]:
         # Partial TP if only some agents show deviation, full TP if all expected do
         deviating = mutation["total_deviating_agents"]
@@ -340,22 +370,32 @@ def aggregate_b3_runs(fault_mode: str, model_label: str, runs: list) -> dict:
     ptp_count= statuses.count("PARTIAL_TP")
     fn_count = statuses.count("FN")
     inc_count= statuses.count("INCONCLUSIVE")
+    infra_count = statuses.count("INFRA_ERROR")
 
-    # Detection rate = (TP + PARTIAL_TP) / total
+    # INFRA_ERROR runs are excluded from the denominator entirely. The harness
+    # never evaluated detection on them, so counting them as either killed or
+    # survived would misattribute a tool-calling failure to the checkpoint
+    # mechanism. With no INFRA_ERROR runs this equals `total`, so previously
+    # published figures are unchanged.
+    scored_total = total - infra_count
+
+    # Detection rate = (TP + PARTIAL_TP) / scored runs
     detected = tp_count + ptp_count
-    detection_rate = round(detected / total, 4) if total > 0 else 0.0
+    detection_rate = round(detected / scored_total, 4) if scored_total > 0 else 0.0
 
-    # Mutation score = (terminated mutants) / total
+    # Mutation score = (terminated mutants) / scored runs
     terminated = sum(1 for r in runs if r.get("mutation", {}) and
                      r["mutation"].get("terminated_mutant", False))
-    mutation_score = round(terminated / total, 4) if total > 0 else 0.0
+    mutation_score = round(terminated / scored_total, 4) if scored_total > 0 else 0.0
 
     # Classify overall result
-    if detection_rate == 1.0:
+    if scored_total == 0:
+        overall = "INFRA_ERROR"
+    elif detection_rate == 1.0:
         overall = "TP"
     elif detection_rate == 0.0 and inc_count == 0:
         overall = "FN"
-    elif inc_count == total:
+    elif inc_count == scored_total:
         overall = "INCONCLUSIVE"
     elif detection_rate > 0:
         overall = "PARTIAL_TP"
@@ -392,10 +432,13 @@ def aggregate_b3_runs(fault_mode: str, model_label: str, runs: list) -> dict:
         "fault_category":       FAULT_CATEGORIES.get(fault_mode, "unknown"),
         "model_label":          model_label,
         "total_runs":           total,
+        "scored_runs":          scored_total,
         "TP":                   tp_count,
         "PARTIAL_TP":           ptp_count,
         "FN":                   fn_count,
         "INCONCLUSIVE":         inc_count,
+        "INFRA_ERROR":          infra_count,
+        "infra_error_rate":     round(infra_count / total, 4) if total > 0 else 0.0,
         "detection_rate":       detection_rate,
         "mutation_score":       mutation_score,
         "overall_classification": overall,
@@ -563,10 +606,18 @@ def main():
         "killed_mutants": sum(1 for s in all_summaries if s["overall_classification"] in ("TP", "PARTIAL_TP")),
         "live_mutants":   sum(1 for s in all_summaries if s["overall_classification"] == "FN"),
         "inconclusive":   sum(1 for s in all_summaries if s["overall_classification"] == "INCONCLUSIVE"),
+        "infra_error":    sum(1 for s in all_summaries if s["overall_classification"] == "INFRA_ERROR"),
         "total_combos":   len(all_summaries),
+        "infra_error_runs": sum(s.get("INFRA_ERROR", 0) for s in all_summaries),
+        "total_runs":       sum(s.get("total_runs", 0) for s in all_summaries),
     }
+    # Combos whose detection was never evaluated are excluded from the score.
+    full_report["scored_combos"] = full_report["total_combos"] - full_report["infra_error"]
+    full_report["infra_error_run_rate"] = round(
+        full_report["infra_error_runs"] / max(full_report["total_runs"], 1), 4
+    )
     full_report["mutation_score"] = round(
-        full_report["killed_mutants"] / max(full_report["total_combos"], 1), 4
+        full_report["killed_mutants"] / max(full_report["scored_combos"], 1), 4
     )
 
     suffix = f"_{tag}" if tag else ""
@@ -577,9 +628,12 @@ def main():
     print("=" * 60)
     print("B3 Results Summary")
     print("=" * 60)
-    print(f"  Killed mutants  : {full_report['killed_mutants']} / {full_report['total_combos']}")
+    print(f"  Killed mutants  : {full_report['killed_mutants']} / {full_report['scored_combos']}")
     print(f"  Live mutants    : {full_report['live_mutants']}")
     print(f"  Inconclusive    : {full_report['inconclusive']}")
+    print(f"  Infra errors    : {full_report['infra_error']} combos, "
+          f"{full_report['infra_error_runs']}/{full_report['total_runs']} runs "
+          f"({full_report['infra_error_run_rate']:.1%}) — excluded from score")
     print(f"  Mutation score  : {full_report['mutation_score']:.1%}")
     print()
 

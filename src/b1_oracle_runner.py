@@ -271,7 +271,14 @@ def extract_oracle_entry(
             raw_checkpoints.append(None)
             continue
         value = _get_field(cp, field_entry["field"])
-        is_valid, reason = _validate(field_entry, value)
+        try:
+            is_valid, reason = _validate(field_entry, value)
+        except (TypeError, ValueError) as exc:
+            # Previously this propagated and aborted the entire run. A value the
+            # relation cannot evaluate (e.g. '' left by a crashed helper) is
+            # recorded rather than fatal.
+            is_valid = False
+            reason = f"uncomputable: {type(exc).__name__}: {exc}"
         observed_values.append(value)
         validation_results.append({"valid": is_valid, "reason": reason})
         raw_checkpoints.append(cp.get("data", {}))
@@ -609,7 +616,25 @@ def compare_to_oracle(agent: str, checkpoint: str, field: str,
     field_like["comparison_relation"] = entry.get("comparison_relation")
     field_like["field"] = field
 
-    is_valid, reason = _validate(field_like, observed_value)
+    try:
+        is_valid, reason = _validate(field_like, observed_value)
+    except (TypeError, ValueError) as exc:
+        # The relation could not be evaluated against this value at all -- e.g.
+        # int('') when a crashed helper wrote an empty field. This is NOT a
+        # deviation: treating it as one would score a harness failure as a
+        # successful mutation detection and inflate the true-positive count.
+        return {
+            "key":                key,
+            "deviation":          False,
+            "uncomputable":       True,
+            "deviation_severity": "uncomputable",
+            "b1_value":           entry.get("oracle_value"),
+            "observed_value":     observed_value,
+            "relation":           entry.get("comparison_relation"),
+            "faults_this_detects": entry.get("mutation_faults_detected", []),
+            "reason":             ("comparison could not be evaluated: "
+                                   f"{type(exc).__name__}: {exc}"),
+        }
 
     severity = "none" if is_valid else (
         "schema"  if entry.get("comparison_relation") == "schema_regex" else

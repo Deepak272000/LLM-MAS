@@ -1,3 +1,4 @@
+import os
 from typing import TypedDict, Optional, List
 from langgraph.graph import StateGraph, END
 from app.agent import ProductCatalogAgent
@@ -57,7 +58,7 @@ Return only one label.
     state["total_output_tokens"] = state.get("total_output_tokens", 0) + output_tokens
     state["total_llm_calls"] = state.get("total_llm_calls", 0) + 1
 
-    with open("token_log.txt", "a") as f:
+    with open(os.environ.get("TOKEN_LOG", "token_log.txt"), "a") as f:
         f.write(f"{total_tokens}\n")
 
     label = response.content.strip().lower() 

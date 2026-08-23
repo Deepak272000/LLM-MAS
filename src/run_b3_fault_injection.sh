@@ -105,6 +105,13 @@ if [[ -n "${MODEL_TAG}" && -z "${CFG}" ]]; then
     exit 1
 fi
 
+# ── Per-job token log ─────────────────────────────────────────────────────────
+# Every agent appends token counts to $TOKEN_LOG and all helpers run with
+# cwd=$SRCDIR, so without a per-job name concurrent campaign jobs interleave
+# their appends into one shared src/token_log.txt. Each writer falls back to
+# the original filename when TOKEN_LOG is unset, so local runs are unaffected.
+export TOKEN_LOG="${SRCDIR}/token_log_${MODEL_TAG:-default}_${SLURM_JOB_ID:-local}.txt"
+
 # ── Banner ────────────────────────────────────────────────────────────────────
 echo "========================================================================"
 echo "  LLM-MAS — B3 FAULT INJECTION CAMPAIGN"
@@ -116,6 +123,7 @@ echo "  Fault mode : ${FAULT_MODE_ARG:-ALL in scope}"
 echo "  Scope      : ${FAULT_SCOPE}"
 echo "  Config     : ${CFG:-ALL (4 configs)}"
 echo "  Job        : ${SLURM_JOB_ID:-local}   Node: ${SLURMD_NODENAME:-local}"
+echo "  Token log  : ${TOKEN_LOG}"
 echo "  Started    : $(date)"
 echo "========================================================================"
 

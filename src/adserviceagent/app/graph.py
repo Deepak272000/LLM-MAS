@@ -67,7 +67,7 @@ Only return categories.
 
         print(f"TOKEN_METRICS input={input_tokens} output={output_tokens} total={total_tokens}")
 
-        with open("token_log.txt", "a") as f:
+        with open(os.environ.get("TOKEN_LOG", "token_log.txt"), "a") as f:
             f.write(f"{total_tokens}\n")
 
         categories = [c.strip() for c in response.content.lower().split(",")]

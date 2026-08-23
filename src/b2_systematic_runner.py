@@ -601,7 +601,13 @@ def _run_helper(helper_path, payload_dict, env_extra=None, timeout=300):
         if line.startswith("{"):
             return json.loads(line)
 
-    raise ValueError(f"{helper_path.name} stdout not parseable: {stdout[:300]}")
+    # Same diagnostic gap as co_helper_checkout_orchestrator: no JSON line means
+    # the helper died before printing its result, and the reason is in stderr.
+    stderr_tail = proc.stderr[-800:] if proc.stderr else "(no stderr)"
+    raise ValueError(
+        f"{helper_path.name} stdout not parseable (no JSON line). "
+        f"exit={proc.returncode} stdout_tail={stdout[-200:]!r} stderr={stderr_tail}"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

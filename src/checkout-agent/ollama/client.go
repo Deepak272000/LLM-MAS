@@ -141,7 +141,11 @@ func (c *Client) Chat(ctx context.Context, messages []Message, tools []ToolDefin
 
 	fmt.Printf("TOKEN_METRICS input=%d output=%d total=%d\n", inputTokens, outputTokens, totalTokens)
 
-	f, err := os.OpenFile("token_log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	tokenLog := os.Getenv("TOKEN_LOG")
+	if tokenLog == "" {
+		tokenLog = "token_log.txt"
+	}
+	f, err := os.OpenFile(tokenLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err == nil {
 		defer f.Close()
 		fmt.Fprintf(f, "%d\n", totalTokens)

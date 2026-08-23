@@ -221,7 +221,7 @@ def _run_sub_helper(helper_name: str, payload: dict, timeout: int = 300) -> dict
 
     stdout = proc.stdout.strip()
     if not stdout:
-        stderr = proc.stderr[-400:] if proc.stderr else "(no stderr)"
+        stderr = proc.stderr[-800:] if proc.stderr else "(no stderr)"
         raise RuntimeError(f"{helper_name} produced no output. stderr={stderr}")
 
     for line in reversed(stdout.splitlines()):
@@ -229,7 +229,15 @@ def _run_sub_helper(helper_name: str, payload: dict, timeout: int = 300) -> dict
         if line.startswith("{"):
             return json.loads(line)
 
-    raise ValueError(f"{helper_name} output not parseable: {stdout[:200]}")
+    # Reaching here means the helper printed something but never printed its
+    # result JSON, i.e. it died mid-run. The cause is in stderr, which this
+    # branch previously discarded -- leaving only unrelated stdout chatter
+    # (TOKEN_METRICS lines) and no way to diagnose the actual failure.
+    stderr = proc.stderr[-800:] if proc.stderr else "(no stderr)"
+    raise ValueError(
+        f"{helper_name} output not parseable (no JSON line). "
+        f"exit={proc.returncode} stdout_tail={stdout[-200:]!r} stderr={stderr}"
+    )
 
 
 # ── Tool dispatcher functions ─────────────────────────────────────────────────

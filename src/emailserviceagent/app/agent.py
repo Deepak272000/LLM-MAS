@@ -1,3 +1,5 @@
+import os
+
 import requests
 from app.config import settings
 
@@ -100,7 +102,7 @@ BODY:
 
         print(f"TOKEN_METRICS input={input_tokens} output={output_tokens} total={total_tokens}")
 
-        with open("token_log.txt", "a") as f:
+        with open(os.environ.get("TOKEN_LOG", "token_log.txt"), "a") as f:
             f.write(f"{total_tokens}\n")
 
         print("Ollama JSON keys:", raw_json.keys())

@@ -32,6 +32,7 @@ import logging
 import math
 import os
 import re
+import sys
 import time
 import requests
 from datetime import datetime, timezone
@@ -277,9 +278,12 @@ class ShippingOrchestrator:
                 output_tokens = usage.get("completion_tokens", 0)
                 total_tokens  = usage.get("total_tokens", input_tokens + output_tokens)
 
-                print(f"TOKEN_METRICS input={input_tokens} output={output_tokens} total={total_tokens}")
+                # stderr, not stdout: this helper's stdout is a JSON-only
+                # channel read by the checkout orchestrator.
+                print(f"TOKEN_METRICS input={input_tokens} output={output_tokens} total={total_tokens}",
+                      file=sys.stderr)
 
-                with open("token_log.txt", "a") as f:
+                with open(os.environ.get("TOKEN_LOG", "token_log.txt"), "a") as f:
                     f.write(f"{total_tokens}\n")
 
                 return content

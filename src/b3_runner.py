@@ -320,9 +320,11 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
     orch_status = checkout_result.get("orchestrator_status", "ok")
     if orch_status == "error":
         # Orchestrator LLM call failed due to infrastructure (Ollama unreachable,
-        # connection refused, etc.) — NOT fault-induced. Mark INCONCLUSIVE so
-        # these runs are excluded from mutation score calculation.
-        status = "INCONCLUSIVE"
+        # connection refused, etc.) — NOT fault-induced. This is the same class
+        # of harness capability failure as an uncomputable comparison, so it is
+        # reported as INFRA_ERROR and excluded from the mutation-score
+        # denominator rather than being labelled a detection outcome.
+        status = "INFRA_ERROR"
     elif not checkout_result.get("success") and checkout_result.get("errors"):
         status = "INCONCLUSIVE"
     elif mutation.get("total_uncomputable_fields", 0) > 0:

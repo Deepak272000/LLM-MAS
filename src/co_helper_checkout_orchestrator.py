@@ -54,7 +54,7 @@ import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
-from helper_payload import coerce, repair_report
+from helper_payload import coerce, coerce_money, repair_report
 
 # ── HTTP helper (requests preferred, urllib fallback) ─────────────────────────
 try:
@@ -302,12 +302,15 @@ def _dispatch_get_product(
 def _dispatch_convert_currency(
     args: dict, base: dict, pal: dict, m: str, url: str, t: float, fm: str
 ) -> str:
+    units, nanos = coerce_money(
+        args.get("amount_units"), args.get("amount_nanos"), 19, 990000000
+    )
     payload = {
         "fault_mode":    fm,
         "query":         f"convert {args.get('amount_units', 19)} to {args.get('to_currency', 'USD')}",
         "from_currency": args.get("from_currency", "USD"),
-        "units":         coerce("units", args.get("amount_units"), int, 19),
-        "nanos":         coerce("nanos", args.get("amount_nanos"), int, 990000000),
+        "units":         units,
+        "nanos":         nanos,
         "to_currency":   args.get("to_currency", "USD"),
         "model":         m,
         "ollama_url":    url,
@@ -341,6 +344,7 @@ def _dispatch_quote_shipping(
 def _dispatch_charge_card(
     args: dict, base: dict, pal: dict, m: str, url: str, t: float, fm: str
 ) -> str:
+    units, nanos = coerce_money(args.get("units"), args.get("nanos"), 26, 990000000)
     payload = {
         "fault_mode":                   fm,
         "query":                        "charge card for checkout order",
@@ -351,8 +355,8 @@ def _dispatch_charge_card(
         "credit_card_expiration_year":  coerce("credit_card_expiration_year", args.get("credit_card_expiration_year"), int, base.get("credit_card_expiration_year")),
         "credit_card_expiration_month": coerce("credit_card_expiration_month", args.get("credit_card_expiration_month"), int, base.get("credit_card_expiration_month")),
         "currency_code":                args.get("currency_code", "USD"),
-        "units":                        coerce("units", args.get("units"), int, 26),
-        "nanos":                        coerce("nanos", args.get("nanos"), int, 990000000),
+        "units":                        units,
+        "nanos":                        nanos,
     }
     result = _run_sub_helper("co_helper_payment.py", payload)
     pal["payment"] = result.get("lkw", [])

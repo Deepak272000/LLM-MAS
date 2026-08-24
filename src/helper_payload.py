@@ -34,12 +34,15 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from decimal import Decimal, InvalidOperation
 
 # Keyed by "field:fromtype->totype" (a repair) or "field:fromtype->fallback"
 # (unrepairable; canonical value substituted).
 TYPE_REPAIRS: Counter = Counter()
 
 _UNREPAIRABLE = object()
+
+_NANOS_PER_UNIT = 1_000_000_000
 
 
 def repair_report() -> dict:
@@ -147,3 +150,55 @@ def coerce(key: str, value, expected: type, fallback, element: type | None = Non
 
     TYPE_REPAIRS[f"{key}:{type(value).__name__}->fallback"] += 1
     return fallback
+
+
+def _as_decimal(value):
+    """Exact ``Decimal`` for a numeric or numeric-string value, else ``None``."""
+    if isinstance(value, bool):
+        return None                       # bools masquerade as ints
+    if isinstance(value, int):
+        return Decimal(value)
+    if isinstance(value, float):
+        return Decimal(str(value))        # str() first: Decimal(27.49) is not 27.49
+    if isinstance(value, str):
+        try:
+            return Decimal(value.strip())
+        except InvalidOperation:
+            return None
+    return None
+
+
+def coerce_money(units_value, nanos_value, units_fallback, nanos_fallback):
+    """Return ``(units, nanos)`` for a protobuf-style Money pair.
+
+    A model that emits ``amount_units = 27.49`` has expressed the amount as one
+    decimal instead of the ``units``/``nanos`` split the API expects.  This is a
+    *semantic* mistake rather than a serialisation one, and ``coerce`` rightly
+    refuses it -- ``27.49`` is not losslessly an ``int``.  Redistributing the
+    fraction into ``nanos`` does preserve the value exactly, so it is a repair
+    and not an invention.
+
+    It matters because ``paymentagent.TASK_START.units`` and ``.nanos`` are
+    oracle-compared.  Substituting the canonical fallback hands the oracle a
+    clean amount the agent never produced, which masks precisely the tampering
+    the money faults exist to detect; preserving the agent's real amount lets
+    the oracle judge what the agent actually did.
+
+    Only applied when the fraction has nowhere else to live, i.e. ``nanos`` is
+    absent or zero.  A fractional ``units`` *and* a non-zero ``nanos`` is an
+    ambiguous intent, so each field then falls back independently, as before.
+    """
+    amount = _as_decimal(units_value)
+    if amount is not None and amount % 1 != 0:
+        supplied_nanos = _as_decimal(nanos_value)
+        if supplied_nanos is None or supplied_nanos == 0:
+            whole = int(amount)                    # truncates toward zero
+            frac = amount - whole                  # keeps the sign, as Money requires
+            nanos = int((frac * _NANOS_PER_UNIT).to_integral_value())
+            TYPE_REPAIRS[f"amount:{type(units_value).__name__}->units+nanos"] += 1
+            return whole, nanos
+
+    return (
+        coerce("units", units_value, int, units_fallback),
+        coerce("nanos", nanos_value, int, nanos_fallback),
+    )

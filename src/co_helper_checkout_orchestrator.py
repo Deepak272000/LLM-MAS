@@ -54,6 +54,8 @@ import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
+from helper_payload import coerce, repair_report
+
 # ── HTTP helper (requests preferred, urllib fallback) ─────────────────────────
 try:
     import requests as _requests
@@ -211,13 +213,24 @@ _TOOL_TO_STEP = {
 # data has no business being written to a log.
 _REDACTED_KEYS = {"credit_card_number", "credit_card_cvv"}
 
+# Fields the tool schema declares as structured or numeric -- i.e. the ones the
+# LLM actually gets wrong. They are described first because a flat dict order
+# plus a short limit previously truncated away the very field at fault.
+_DIAGNOSTIC_PRIORITY_KEYS = (
+    "address", "items", "shipping_address", "units", "nanos", "total",
+)
 
-def _describe_payload(payload: dict, limit: int = 400) -> str:
+
+def _describe_payload(payload: dict, limit: int = 1500) -> str:
     try:
+        ordered = sorted(
+            payload.items(),
+            key=lambda kv: kv[0] not in _DIAGNOSTIC_PRIORITY_KEYS,
+        )
         shown = {
             k: f"<redacted {type(v).__name__}>" if k in _REDACTED_KEYS
             else [type(v).__name__, v]
-            for k, v in payload.items()
+            for k, v in ordered
         }
         return json.dumps(shown, default=str)[:limit]
     except Exception as exc:      # diagnostics must never mask the real failure
@@ -293,8 +306,8 @@ def _dispatch_convert_currency(
         "fault_mode":    fm,
         "query":         f"convert {args.get('amount_units', 19)} to {args.get('to_currency', 'USD')}",
         "from_currency": args.get("from_currency", "USD"),
-        "units":         args.get("amount_units", 19),
-        "nanos":         args.get("amount_nanos", 990000000),
+        "units":         coerce("units", args.get("amount_units"), int, 19),
+        "nanos":         coerce("nanos", args.get("amount_nanos"), int, 990000000),
         "to_currency":   args.get("to_currency", "USD"),
         "model":         m,
         "ollama_url":    url,
@@ -317,8 +330,8 @@ def _dispatch_quote_shipping(
         "model":       m,
         "temperature": t,
         "ollama_url":  url,
-        "address":     args.get("address", base.get("address", {})),
-        "items":       args.get("items",   base.get("items", [])),
+        "address":     coerce("address", args.get("address"), dict, base.get("address", {})),
+        "items":       coerce("items", args.get("items"), list, base.get("items", []), element=dict),
     }
     result = _run_sub_helper("co_helper_shipping.py", payload, timeout=300)
     pal["shipping_quote"] = result.get("lkw", [])
@@ -333,13 +346,13 @@ def _dispatch_charge_card(
         "query":                        "charge card for checkout order",
         "model":                        m,
         "ollama_url":                   url,
-        "credit_card_number":           args.get("credit_card_number",           base.get("credit_card_number")),
-        "credit_card_cvv":              args.get("credit_card_cvv",              base.get("credit_card_cvv")),
-        "credit_card_expiration_year":  args.get("credit_card_expiration_year",  base.get("credit_card_expiration_year")),
-        "credit_card_expiration_month": args.get("credit_card_expiration_month", base.get("credit_card_expiration_month")),
+        "credit_card_number":           coerce("credit_card_number", args.get("credit_card_number"), str, base.get("credit_card_number")),
+        "credit_card_cvv":              coerce("credit_card_cvv", args.get("credit_card_cvv"), int, base.get("credit_card_cvv")),
+        "credit_card_expiration_year":  coerce("credit_card_expiration_year", args.get("credit_card_expiration_year"), int, base.get("credit_card_expiration_year")),
+        "credit_card_expiration_month": coerce("credit_card_expiration_month", args.get("credit_card_expiration_month"), int, base.get("credit_card_expiration_month")),
         "currency_code":                args.get("currency_code", "USD"),
-        "units":                        args.get("units", 26),
-        "nanos":                        args.get("nanos", 990000000),
+        "units":                        coerce("units", args.get("units"), int, 26),
+        "nanos":                        coerce("nanos", args.get("nanos"), int, 990000000),
     }
     result = _run_sub_helper("co_helper_payment.py", payload)
     pal["payment"] = result.get("lkw", [])
@@ -355,8 +368,8 @@ def _dispatch_ship_order(
         "model":       m,
         "temperature": t,
         "ollama_url":  url,
-        "address":     args.get("address", base.get("address", {})),
-        "items":       args.get("items",   base.get("items", [])),
+        "address":     coerce("address", args.get("address"), dict, base.get("address", {})),
+        "items":       coerce("items", args.get("items"), list, base.get("items", []), element=dict),
     }
     result = _run_sub_helper("co_helper_shipping.py", payload, timeout=300)
     pal["ship_order"] = result.get("lkw", [])
@@ -372,7 +385,7 @@ def _dispatch_send_confirmation(
         "order_id":         args.get("order_id",     base.get("order_id", "ORCH-001")),
         "user_name":        base.get("user_name",    "Test Customer"),
         "currency_code":    "USD",
-        "total":            args.get("total_amount", base.get("total", 27.49)),
+        "total":            coerce("total", args.get("total_amount"), float, base.get("total", 27.49)),
         "items":            base.get("items_desc",   [{"name": "Sunglasses", "quantity": 2, "price": "19.99"}]),
         "shipping_address": base.get("address",      {}),
         "model":            m,
@@ -605,6 +618,7 @@ def run_orchestrator(payload: dict) -> None:
         "temperature":    temp,
         "iterations":     iterations,
         "status":         status,
+        "type_repairs":   repair_report(),
     }))
 
 

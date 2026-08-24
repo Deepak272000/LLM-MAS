@@ -773,6 +773,7 @@ def _run_checkout_via_orchestrator(fault_mode: str, model_cfg: dict, run_idx: in
         "orchestrator_iterations": orch_result.get("iterations", 0),
         "orchestrator_status":     orch_status,
         "orchestrator_error":      error_detail,
+        "type_repairs":            orch_result.get("type_repairs", {}),
     }
 
 

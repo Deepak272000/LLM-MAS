@@ -355,6 +355,11 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
         # Full, untruncated orchestrator failure text. The console print is
         # abbreviated for readability, so this is the only durable copy.
         "orchestrator_error": checkout_result.get("orchestrator_error"),
+        # Tool-call arguments the LLM emitted with the wrong JSON type, keyed by
+        # "field:from->to" (repaired losslessly) or "field:from->fallback"
+        # (unrecoverable, canonical value substituted). An observed agent
+        # failure mode, recorded rather than discarded as an infra error.
+        "type_repairs":    checkout_result.get("type_repairs", {}),
         "steps_per_agent": {
             agent: [cp["step"] for cp in lkw]
             for agent, lkw in checkout_result.get("per_agent_lkw", {}).items()

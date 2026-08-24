@@ -35,6 +35,10 @@ CHECKOUT_AGENT_ORDER = [
     "payment", "ship_order", "email",
 ]
 
+# The orchestrator hosts the injection and therefore always executes; only the
+# agents it dispatches to carry evidence that a fault had a chance to manifest.
+DOWNSTREAM_AGENTS = [a for a in CHECKOUT_AGENT_ORDER if a != "checkout_orchestrator"]
+
 # Business-logic faults are injected into a single owning agent; general (FM_*)
 # faults go to every agent, so their "target" is the whole pipeline.
 FAULT_TARGET = {
@@ -100,9 +104,16 @@ def reclassify(run, reached):
         return "FN", None
 
     # General fault: injected into every agent, so nothing ran at all.
-    live = [a for a in CHECKOUT_AGENT_ORDER if reached.get(a)]
+    live = [a for a in DOWNSTREAM_AGENTS if reached.get(a)]
     if not live:
-        return "PATH_INFEASIBLE", "no agent executed (0/%d)" % len(CHECKOUT_AGENT_ORDER)
+        if fault_mode == "FM_3_1":
+            # Terminating before any downstream call is the fault succeeding
+            # outright; the field oracle is blind because no field is produced.
+            return ("TP_STRUCTURAL",
+                    "chain terminated before any downstream agent (0/%d)"
+                    % len(DOWNSTREAM_AGENTS))
+        return ("PATH_INFEASIBLE",
+                "no downstream agent executed (0/%d)" % len(DOWNSTREAM_AGENTS))
     return "FN", None
 
 

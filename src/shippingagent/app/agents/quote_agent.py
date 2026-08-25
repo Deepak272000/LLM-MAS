@@ -9,10 +9,39 @@ Algorithm mirrors the original Go implementation:
   - Returns a float USD amount
 """
 
+import json
 import logging
 import math
 
 log = logging.getLogger(__name__)
+
+
+def _as_items(items):
+    """Identity for a well-formed list of dicts; salvages anything else.
+
+    Normally helper_payload repairs these upstream, so this only covers a call
+    path that reaches the agent without passing through the orchestrator.
+    """
+    if isinstance(items, str):
+        try:
+            items = json.loads(items)
+        except ValueError:
+            log.warning("QuoteAgent: unparseable items %r; treating as empty", items)
+            return []
+    if isinstance(items, dict):
+        items = [items]
+    if not isinstance(items, list):
+        return []
+    return [i for i in items if isinstance(i, dict)]
+
+
+def _as_address(address):
+    if isinstance(address, str):
+        try:
+            address = json.loads(address)
+        except ValueError:
+            return {}
+    return address if isinstance(address, dict) else {}
 
 
 class QuoteAgent:
@@ -56,8 +85,8 @@ class QuoteAgent:
               - cost_usd: float
               - breakdown: dict with fee components
         """
-        total_items = sum(item.get("quantity", 1) for item in items)
-        country = (address.get("country") or "US").upper().strip()
+        total_items = sum(item.get("quantity", 1) for item in _as_items(items))
+        country = (_as_address(address).get("country") or "US").upper().strip()
 
         item_cost = total_items * self.COST_PER_ITEM
         country_surcharge = self.COUNTRY_SURCHARGES.get(country, 8.00)

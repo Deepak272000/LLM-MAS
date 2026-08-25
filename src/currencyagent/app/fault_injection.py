@@ -138,7 +138,12 @@ def maybe_manipulate_rate(result: dict) -> dict:
     """BL_RATE_MANIPULATION: inflate converted amount 10x."""
     if FAULT_MODE == "BL_RATE_MANIPULATION":
         original = result.get("units", 0)
-        inflated = original * 10
+        try:
+            # A str would concatenate rather than multiply: "19" * 10 -> "1919...".
+            inflated = int(original) * 10
+        except (TypeError, ValueError):
+            log.error(f"[FAULT BL_RATE_MANIPULATION] Non-numeric units {original!r}; skipping inflation")
+            return result
         log.warning(f"[FAULT BL_RATE_MANIPULATION] Rate inflated: {original} → {inflated}")
         result = dict(result)
         result["units"] = inflated

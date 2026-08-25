@@ -243,6 +243,43 @@
           "b1_oracle_expected": false,
           "comparison_relation": "exact_bool",
           "mutation_faults_detected": ["FM_1_2"]
+        },
+        {
+          "field": "rate_manipulated",
+          "type": "boolean",
+          "def_site": "fi.maybe_manipulate_rate() sets result['rate_manipulated'] when inflating units 10x",
+          "use_site": "FINAL_ANSWER.result (C-use); orchestrator.py:89 integrity check (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "CurrencyService: live rate applied unmodified → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_RATE_MANIPULATION"],
+          "notes": "Zero-variance indicator. units_out cannot serve as the BL_RATE oracle: it is units x rate, so it inherits the orchestrator's sampled units and deviates under every fault mode."
+        },
+        {
+          "field": "stale_rate",
+          "type": "boolean",
+          "def_site": "fi.maybe_inject_stale_rate() sets result['stale_rate'] when substituting a cached rate",
+          "use_site": "FINAL_ANSWER.result (C-use); orchestrator.py:89 integrity check (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "CurrencyService: live rate applied → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_STALE_RATE"]
+        },
+        {
+          "field": "overflow",
+          "type": "boolean",
+          "def_site": "fi conversion overflow guard sets result['overflow'] at 2^53 saturation",
+          "use_site": "FINAL_ANSWER.result (C-use); orchestrator.py:89 integrity check (P-use)",
+          "lkw_criterion": "All-Uses",
+          "use_type": ["P-use"],
+          "b1_oracle_source": "CurrencyService: conversion within float53 range → False",
+          "b1_oracle_expected": false,
+          "comparison_relation": "exact_bool",
+          "mutation_faults_detected": ["BL_CONVERSION_OVERFLOW"]
         }
       ]
     },

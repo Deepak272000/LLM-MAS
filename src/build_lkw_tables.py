@@ -66,14 +66,15 @@ def fields_for(runs, agent):
 def classify(runs, agent, fault, field):
     """Separate fault signal from orchestrator input variance.
 
-    B1 was recorded in the isolated harness (units=10) while B3 runs whatever
-    order the orchestrator LLM composed (units=19), so a numeric deviation alone
-    proves nothing. A field is only a usable oracle if its deviation cannot be
-    explained by that scenario gap: booleans are zero-variance fault indicators,
-    and a value landing identically on every model and run is an injected
-    constant rather than a sampled quantity.
+    Two independent conditions, both required. Attribution: the oracle's own
+    `detects` list must name this fault, so the field is a designated detector
+    and not incidental collateral. Discrimination: B1 was recorded in the
+    isolated harness while B3 runs whatever order the orchestrator LLM composed,
+    so a numeric deviation alone proves nothing -- the value must be a boolean
+    fault indicator or land identically on every model and run, which a sampled
+    quantity cannot do.
     """
-    b1s, obs = [], []
+    b1s, obs, attributed = [], [], False
     for r in runs:
         if r.get("fault_mode") != fault:
             continue
@@ -85,12 +86,41 @@ def classify(runs, agent, fault, field):
             continue
         b1s.append(f.get("b1"))
         obs.append(f.get("observed"))
+        if fault in (f.get("detects") or []):
+            attributed = True
     if not obs:
         return "clean"
+
     if b1s and all(isinstance(b, bool) for b in b1s):
-        return "DETECTOR (bool)"
-    if all(o == obs[0] for o in obs):
-        return "DETECTOR (invariant=%s)" % (obs[0],)
+        discriminates = "bool"
+    elif all(o == obs[0] for o in obs):
+        discriminates = "invariant=%s" % (obs[0],)
+    else:
+        discriminates = ""
+
+    # An invariant value proves nothing if the same value appears under faults the
+    # field is not a detector for -- that makes it a constant of the pipeline
+    # scenario (B1 was taken from the isolated harness) rather than injected signal.
+    elsewhere = set()
+    for r in runs:
+        if r.get("fault_mode") == fault:
+            continue
+        st = (r.get("agents") or {}).get(agent) or {}
+        if st.get("state") != "compared":
+            continue
+        f = (st.get("fields") or {}).get(field)
+        if f is None or r.get("fault_mode") in (f.get("detects") or []):
+            continue
+        elsewhere.add(repr(f.get("observed")))
+    specific = repr(obs[0]) not in elsewhere
+
+    if attributed and discriminates:
+        return "DETECTOR (%s)%s" % (discriminates,
+                                    "" if specific else "  <-- NON-SPECIFIC")
+    if not attributed and discriminates:
+        return "unattributed (%s)" % discriminates
+    if attributed:
+        return "attributed, varies across runs/models"
     return "evidence"
 
 

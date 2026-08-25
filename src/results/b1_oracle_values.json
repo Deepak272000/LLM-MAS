@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-03T22:04:03.382792+00:00",
-  "total_entries": 38,
-  "all_valid": true,
+  "generated_at": "2026-08-25T20:23:10.227980+00:00",
+  "total_entries": 41,
+  "all_valid": false,
   "b1_source": "b2_raw_runs (deterministic NONE) + b2_systematic 14b_temp0 (shipping)",
   "oracle": {
     "paymentagent.TASK_START.currency_code": {
@@ -58,12 +58,12 @@
       "def_site": "PaymentAgent.run() input parameter (may be mutated by maybe_tamper_amount before CARD_VALIDATED)",
       "use_site": "charge_payment() \u2192 amount.units (C-use)",
       "b1_oracle_source": "PaymentService.Charge() gRPC request \u2192 amount.units",
-      "oracle_value": 10,
+      "oracle_value": 34,
       "oracle_type": "consensus",
       "observed_values": [
-        10,
-        10,
-        10
+        34,
+        34,
+        34
       ],
       "validation_results": [
         {
@@ -87,7 +87,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 10
+        "b1_oracle_expected": 34
       }
     },
     "paymentagent.TASK_START.nanos": {
@@ -233,25 +233,25 @@
       "def_site": "charge_payment() return value, post fi.maybe_hallucinate_transaction()",
       "use_site": "save_transaction() \u2192 transaction_id (C-use); SAVE_DONE.transaction_id (C-use)",
       "b1_oracle_source": "PaymentService.Charge() gRPC response \u2192 transaction_id (UUID-v4)",
-      "oracle_value": "128d7085-7668-46c5-9e4c-a58fa15414b6",
+      "oracle_value": "879fc83f-54f2-4180-b049-0e6bf5572b5e",
       "oracle_type": "example_valid_value",
       "observed_values": [
-        "128d7085-7668-46c5-9e4c-a58fa15414b6",
-        "d49a7406-37d9-46c8-9f4e-c5956fb132fc",
-        "9d56fdc4-cbf9-4cb6-aa0e-01e73c112283"
+        "879fc83f-54f2-4180-b049-0e6bf5572b5e",
+        "6df80a04-94c9-47e2-a9c1-f717972ef0c3",
+        "c43739e9-7913-40f5-b3cb-46c43074d687"
       ],
       "validation_results": [
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='128d7085-7668-46c5-9e4c-a58fa15414b6'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='879fc83f-54f2-4180-b049-0e6bf5572b5e'"
         },
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='d49a7406-37d9-46c8-9f4e-c5956fb132fc'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='6df80a04-94c9-47e2-a9c1-f717972ef0c3'"
         },
         {
           "valid": true,
-          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='9d56fdc4-cbf9-4cb6-aa0e-01e73c112283'"
+          "reason": "pattern='^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' value='c43739e9-7913-40f5-b3cb-46c43074d687'"
         }
       ],
       "all_runs_valid": true,
@@ -276,12 +276,12 @@
       "def_site": "units variable after maybe_tamper_amount() \u2014 used in charge_payment() call",
       "use_site": "save_transaction() \u2192 units field (C-use)",
       "b1_oracle_source": "PaymentService.Charge(): charge amount = requested amount",
-      "oracle_value": 10,
+      "oracle_value": 34,
       "oracle_type": "consensus",
       "observed_values": [
-        10,
-        10,
-        10
+        34,
+        34,
+        34
       ],
       "validation_results": [
         {
@@ -305,7 +305,7 @@
       ],
       "notes": "BL_AMOUNT_TAMPERING inflates 3x; FM_2_5 inflates to fixed amount. Exact match vs B1 input detects both.",
       "comparison_params": {
-        "b1_oracle_expected": 10
+        "b1_oracle_expected": 34
       }
     },
     "paymentagent.CHARGE_DONE.hallucinated": {
@@ -449,12 +449,12 @@
       "def_site": "CurrencyAgent.run() input parameter",
       "use_site": "client.convert() \u2192 units arg (C-use), after maybe_tamper_amount()",
       "b1_oracle_source": "CurrencyService.Convert() gRPC request \u2192 units",
-      "oracle_value": 10,
+      "oracle_value": 19,
       "oracle_type": "consensus",
       "observed_values": [
-        10,
-        10,
-        10
+        19,
+        19,
+        19
       ],
       "validation_results": [
         {
@@ -477,7 +477,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 10
+        "b1_oracle_expected": 19
       }
     },
     "currencyagent.TASK_START.to_currency": {
@@ -492,35 +492,35 @@
       "def_site": "CurrencyAgent.run() input parameter",
       "use_site": "client.convert() \u2192 to_code arg (C-use), after maybe_swap_currency()",
       "b1_oracle_source": "CurrencyService.Convert() gRPC request \u2192 to_code",
-      "oracle_value": "EUR",
+      "oracle_value": "USD",
       "oracle_type": "consensus",
       "observed_values": [
-        "EUR",
-        "EUR",
-        "EUR"
+        "USD",
+        "USD",
+        "USD"
       ],
       "validation_results": [
         {
-          "valid": true,
-          "reason": "expected='EUR' got='EUR'"
+          "valid": false,
+          "reason": "expected='EUR' got='USD'"
         },
         {
-          "valid": true,
-          "reason": "expected='EUR' got='EUR'"
+          "valid": false,
+          "reason": "expected='EUR' got='USD'"
         },
         {
-          "valid": true,
-          "reason": "expected='EUR' got='EUR'"
+          "valid": false,
+          "reason": "expected='EUR' got='USD'"
         }
       ],
-      "all_runs_valid": true,
+      "all_runs_valid": false,
       "run_count": 3,
       "mutation_faults_detected": [
         "FM_1_2"
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": "EUR"
+        "b1_oracle_expected": "USD"
       }
     },
     "currencyagent.CONVERT_DONE.units_out": {
@@ -536,31 +536,31 @@
       "use_site": "PaymentAgent.run() \u2192 units parameter (inter-agent C-use); FINAL_ANSWER.result (C-use)",
       "b1_oracle_source": "CurrencyService.Convert() gRPC response \u2192 units",
       "oracle_value": {
-        "min": 9.0,
-        "max": 9.0,
-        "mean": 9.0
+        "min": 19.0,
+        "max": 19.0,
+        "mean": 19.0
       },
       "oracle_type": "numeric_range",
       "observed_values": [
-        9,
-        9,
-        9
+        19,
+        19,
+        19
       ],
       "validation_results": [
         {
-          "valid": true,
-          "reason": "expected=9 got=9 dev=0.00% tol=1.0%"
+          "valid": false,
+          "reason": "expected=9 got=19 dev=111.11% tol=1.0%"
         },
         {
-          "valid": true,
-          "reason": "expected=9 got=9 dev=0.00% tol=1.0%"
+          "valid": false,
+          "reason": "expected=9 got=19 dev=111.11% tol=1.0%"
         },
         {
-          "valid": true,
-          "reason": "expected=9 got=9 dev=0.00% tol=1.0%"
+          "valid": false,
+          "reason": "expected=9 got=19 dev=111.11% tol=1.0%"
         }
       ],
-      "all_runs_valid": true,
+      "all_runs_valid": false,
       "run_count": 3,
       "mutation_faults_detected": [
         "FM_2_2",
@@ -572,7 +572,7 @@
       "notes": "FM-2.2 produces 1337 (14755% deviation). BL_RATE_MANIPULATION 10x. Overflow = 2^53. All detectable against B1=9 with 1% tolerance.",
       "comparison_params": {
         "tolerance_pct": 1.0,
-        "b1_oracle_expected": 9.0
+        "b1_oracle_expected": 19.0
       }
     },
     "currencyagent.CONVERT_DONE.currency_swapped": {
@@ -612,6 +612,135 @@
       "run_count": 3,
       "mutation_faults_detected": [
         "FM_1_2"
+      ],
+      "notes": "",
+      "comparison_params": {
+        "b1_oracle_expected": false
+      }
+    },
+    "currencyagent.CONVERT_DONE.rate_manipulated": {
+      "agent": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "rate_manipulated",
+      "comparison_relation": "exact_bool",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "def_site": "fi.maybe_manipulate_rate() sets result['rate_manipulated'] when inflating units 10x",
+      "use_site": "FINAL_ANSWER.result (C-use); orchestrator.py:89 integrity check (P-use)",
+      "b1_oracle_source": "CurrencyService: live rate applied unmodified \u2192 False",
+      "oracle_value": false,
+      "oracle_type": "consensus",
+      "observed_values": [
+        false,
+        false,
+        false
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        }
+      ],
+      "all_runs_valid": true,
+      "run_count": 3,
+      "mutation_faults_detected": [
+        "BL_RATE_MANIPULATION"
+      ],
+      "notes": "Zero-variance indicator. units_out cannot serve as the BL_RATE oracle: it is units x rate, so it inherits the orchestrator's sampled units and deviates under every fault mode.",
+      "comparison_params": {
+        "b1_oracle_expected": false
+      }
+    },
+    "currencyagent.CONVERT_DONE.stale_rate": {
+      "agent": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "stale_rate",
+      "comparison_relation": "exact_bool",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "def_site": "fi.maybe_inject_stale_rate() sets result['stale_rate'] when substituting a cached rate",
+      "use_site": "FINAL_ANSWER.result (C-use); orchestrator.py:89 integrity check (P-use)",
+      "b1_oracle_source": "CurrencyService: live rate applied \u2192 False",
+      "oracle_value": false,
+      "oracle_type": "consensus",
+      "observed_values": [
+        false,
+        false,
+        false
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        }
+      ],
+      "all_runs_valid": true,
+      "run_count": 3,
+      "mutation_faults_detected": [
+        "BL_STALE_RATE"
+      ],
+      "notes": "",
+      "comparison_params": {
+        "b1_oracle_expected": false
+      }
+    },
+    "currencyagent.CONVERT_DONE.overflow": {
+      "agent": "currencyagent",
+      "checkpoint": "CONVERT_DONE",
+      "field": "overflow",
+      "comparison_relation": "exact_bool",
+      "lkw_criterion": "All-Uses",
+      "use_type": [
+        "P-use"
+      ],
+      "def_site": "fi conversion overflow guard sets result['overflow'] at 2^53 saturation",
+      "use_site": "FINAL_ANSWER.result (C-use); orchestrator.py:89 integrity check (P-use)",
+      "b1_oracle_source": "CurrencyService: conversion within float53 range \u2192 False",
+      "oracle_value": false,
+      "oracle_type": "consensus",
+      "observed_values": [
+        false,
+        false,
+        false
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        }
+      ],
+      "all_runs_valid": true,
+      "run_count": 3,
+      "mutation_faults_detected": [
+        "BL_CONVERSION_OVERFLOW"
       ],
       "notes": "",
       "comparison_params": {
@@ -940,38 +1069,35 @@
       "use_site": "RecommendationAgent._fetch() \u2192 product_ids (inter-agent C-use); caller product rendering",
       "b1_oracle_source": "ProductCatalogService.ListProducts() gRPC \u2192 product ids",
       "oracle_value": [
-        "['PROD-001', 'PROD-002']"
+        "['PROD-001']"
       ],
       "oracle_type": "observed_set",
       "observed_values": [
         [
-          "PROD-001",
-          "PROD-002"
+          "PROD-001"
         ],
         [
-          "PROD-001",
-          "PROD-002"
+          "PROD-001"
         ],
         [
-          "PROD-001",
-          "PROD-002"
+          "PROD-001"
         ]
       ],
       "validation_results": [
         {
-          "valid": true,
-          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
+          "valid": false,
+          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001'}"
         },
         {
-          "valid": true,
-          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
+          "valid": false,
+          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001'}"
         },
         {
-          "valid": true,
-          "reason": "expected_set={'PROD-002', 'PROD-001'} got_set={'PROD-002', 'PROD-001'}"
+          "valid": false,
+          "reason": "expected_set={'PROD-001', 'PROD-002'} got_set={'PROD-001'}"
         }
       ],
-      "all_runs_valid": true,
+      "all_runs_valid": false,
       "run_count": 3,
       "mutation_faults_detected": [
         "FM_2_2",
@@ -998,28 +1124,28 @@
       "def_site": "len(data) after all injections",
       "use_site": "Caller checks non-empty (P-use)",
       "b1_oracle_source": "ProductCatalogService.ListProducts() \u2192 len(products)",
-      "oracle_value": 2,
+      "oracle_value": 1,
       "oracle_type": "consensus",
       "observed_values": [
-        2,
-        2,
-        2
+        1,
+        1,
+        1
       ],
       "validation_results": [
         {
-          "valid": true,
-          "reason": "expected=2 got=2"
+          "valid": false,
+          "reason": "expected=2 got=1"
         },
         {
-          "valid": true,
-          "reason": "expected=2 got=2"
+          "valid": false,
+          "reason": "expected=2 got=1"
         },
         {
-          "valid": true,
-          "reason": "expected=2 got=2"
+          "valid": false,
+          "reason": "expected=2 got=1"
         }
       ],
-      "all_runs_valid": true,
+      "all_runs_valid": false,
       "run_count": 3,
       "mutation_faults_detected": [
         "BL_PRODUCT_MISSING",
@@ -1028,7 +1154,7 @@
       ],
       "notes": "",
       "comparison_params": {
-        "b1_oracle_expected": 2
+        "b1_oracle_expected": 1
       }
     },
     "productcatalogagent.CATALOG_DONE.price_manipulated": {
@@ -1415,12 +1541,29 @@
       "def_site": "len(items) \u2014 may be inflated by fi.maybe_corrupt_items() before TASK_START",
       "use_site": "LLM task prompt construction (C-use) \u2192 affects quoted cost",
       "b1_oracle_source": "ShippingService.GetQuote() gRPC request \u2192 len(items)",
-      "oracle_value": null,
-      "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
+      "oracle_value": 1,
+      "oracle_type": "consensus",
+      "observed_values": [
+        1,
+        1,
+        1
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "expected=1 got=1"
+        },
+        {
+          "valid": true,
+          "reason": "expected=1 got=1"
+        },
+        {
+          "valid": true,
+          "reason": "expected=1 got=1"
+        }
+      ],
       "all_runs_valid": true,
-      "run_count": 0,
+      "run_count": 3,
       "mutation_faults_detected": [
         "BL_INVENTORY_MISMATCH"
       ],
@@ -1442,12 +1585,33 @@
       "def_site": "ShippingOrchestrator._extract_json() from LLM Final Answer \u2192 cost_usd, post fi.maybe_corrupt_cost()",
       "use_site": "CARRIER_DONE decision (P-use: cost threshold); total order amount (C-use); Payment input (inter-agent C-use)",
       "b1_oracle_source": "ShippingService.GetQuote() gRPC \u2192 cost_usd (deterministic calculation)",
-      "oracle_value": null,
-      "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
+      "oracle_value": {
+        "min": 15.88,
+        "max": 15.88,
+        "mean": 15.88
+      },
+      "oracle_type": "numeric_range",
+      "observed_values": [
+        15.88,
+        15.88,
+        15.88
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "value=15.88 range=[0.0,50.0]"
+        },
+        {
+          "valid": true,
+          "reason": "value=15.88 range=[0.0,50.0]"
+        },
+        {
+          "valid": true,
+          "reason": "value=15.88 range=[0.0,50.0]"
+        }
+      ],
       "all_runs_valid": true,
-      "run_count": 0,
+      "run_count": 3,
       "mutation_faults_detected": [
         "BL_REFUND_REASONING",
         "BL_INVENTORY_MISMATCH",
@@ -1471,12 +1635,29 @@
       "def_site": "ShippingOrchestrator LLM output \u2192 carrier field, post FM-2.2 and BL-VENDOR_NEGOTIATION injection",
       "use_site": "TRACKING_DONE carrier parameter (C-use); SAVE_DONE record (C-use); email notification",
       "b1_oracle_source": "ShippingService.ShipOrder() \u2192 carrier from deterministic carrier selection",
-      "oracle_value": null,
-      "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
+      "oracle_value": "DHL",
+      "oracle_type": "consensus",
+      "observed_values": [
+        "DHL",
+        "DHL",
+        "DHL"
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "value='DHL' valid_set=['FedEx', 'UPS', 'USPS', 'DHL', 'PremiumExpress', 'SpeedyShip']"
+        },
+        {
+          "valid": true,
+          "reason": "value='DHL' valid_set=['FedEx', 'UPS', 'USPS', 'DHL', 'PremiumExpress', 'SpeedyShip']"
+        },
+        {
+          "valid": true,
+          "reason": "value='DHL' valid_set=['FedEx', 'UPS', 'USPS', 'DHL', 'PremiumExpress', 'SpeedyShip']"
+        }
+      ],
       "all_runs_valid": true,
-      "run_count": 0,
+      "run_count": 3,
       "mutation_faults_detected": [
         "FM_2_2",
         "BL_VENDOR_NEGOTIATION"
@@ -1513,10 +1694,27 @@
       "b1_oracle_source": "ShippingService: live quote always used \u2192 absent/False",
       "oracle_value": null,
       "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
-      "all_runs_valid": true,
-      "run_count": 0,
+      "observed_values": [
+        null,
+        null,
+        null
+      ],
+      "validation_results": [
+        {
+          "valid": false,
+          "reason": "value is None"
+        },
+        {
+          "valid": false,
+          "reason": "value is None"
+        },
+        {
+          "valid": false,
+          "reason": "value is None"
+        }
+      ],
+      "all_runs_valid": false,
+      "run_count": 3,
       "mutation_faults_detected": [
         "FM_2_5"
       ],
@@ -1537,20 +1735,36 @@
       "def_site": "ShippingOrchestrator LLM output \u2192 tracking_id field",
       "use_site": "SAVE_DONE \u2192 MongoDB record (C-use); email notification to customer (C-use)",
       "b1_oracle_source": "ShippingService.ShipOrder() \u2192 alphanumeric tracking ID",
-      "oracle_value": null,
-      "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
+      "oracle_value": "8434097984",
+      "oracle_type": "example_valid_value",
+      "observed_values": [
+        "8434097984",
+        "8434099738",
+        "8434101587"
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "pattern='^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\\\-]{2,}$' value='8434097984'"
+        },
+        {
+          "valid": true,
+          "reason": "pattern='^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\\\-]{2,}$' value='8434099738'"
+        },
+        {
+          "valid": true,
+          "reason": "pattern='^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\\\-]{2,}$' value='8434101587'"
+        }
+      ],
       "all_runs_valid": true,
-      "run_count": 0,
+      "run_count": 3,
       "mutation_faults_detected": [
         "FM_3_1",
         "FM_1_2"
       ],
       "notes": "FM-3.1 produces PREMATURE-0000. FM-1.2 produces INCOMPLETE-0000. Regex on forbidden prefixes catches both.",
       "comparison_params": {
-        "schema_pattern": "^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\-]{2,}$",
-        "b1_oracle_expected": "alphanumeric, not starting with reserved prefixes"
+        "schema_pattern": "^(?!PREMATURE|INCOMPLETE)[A-Za-z0-9\\-]{2,}$"
       }
     },
     "shippingagent_ship_order.ESCALATION_CHECK.escalation_required": {
@@ -1565,12 +1779,29 @@
       "def_site": "fi.maybe_inject_escalation_flag() on final metadata after LLM loop",
       "use_site": "HITL routing logic (P-use) \u2014 should halt workflow if True",
       "b1_oracle_source": "ShippingService: normal order \u2192 False",
-      "oracle_value": null,
-      "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
+      "oracle_value": false,
+      "oracle_type": "consensus",
+      "observed_values": [
+        false,
+        false,
+        false
+      ],
+      "validation_results": [
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        },
+        {
+          "valid": true,
+          "reason": "expected=False got=False"
+        }
+      ],
       "all_runs_valid": true,
-      "run_count": 0,
+      "run_count": 3,
       "mutation_faults_detected": [
         "BL_CUSTOMER_ESCALATION"
       ],
@@ -1592,18 +1823,35 @@
       "def_site": "save_shipment() call gate \u2014 skipped entirely for BL_SHIPMENT_LOST",
       "use_site": "Order fulfillment confirmation (P-use); MongoDB shipment record (C-use)",
       "b1_oracle_source": "ShippingService: always saves to DB \u2192 True (or benchmark_mode: False)",
-      "oracle_value": null,
-      "oracle_type": "absent",
-      "observed_values": [],
-      "validation_results": [],
-      "all_runs_valid": true,
-      "run_count": 0,
+      "oracle_value": false,
+      "oracle_type": "consensus",
+      "observed_values": [
+        false,
+        false,
+        false
+      ],
+      "validation_results": [
+        {
+          "valid": false,
+          "reason": "expected=True got=False"
+        },
+        {
+          "valid": false,
+          "reason": "expected=True got=False"
+        },
+        {
+          "valid": false,
+          "reason": "expected=True got=False"
+        }
+      ],
+      "all_runs_valid": false,
+      "run_count": 3,
       "mutation_faults_detected": [
         "BL_SHIPMENT_LOST"
       ],
       "notes": "BL_SHIPMENT_LOST = checkpoint ABSENT entirely (not just saved=False). Detection = SAVE_DONE in steps_lost list, not data comparison.",
       "comparison_params": {
-        "b1_oracle_expected": true
+        "b1_oracle_expected": false
       }
     }
   }

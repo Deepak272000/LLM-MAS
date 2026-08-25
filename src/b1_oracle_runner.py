@@ -43,9 +43,33 @@ SRC     = Path(__file__).parent
 RESULTS = SRC / "results"
 RAW_B2  = RESULTS / "b2_raw_runs"          # deterministic agent NONE runs
 RAW_SYS = RESULTS / "b2_systematic" / "raw"  # checkout NONE runs (shipping B1)
+# The 14b sweep was unpacked one level deeper, so RAW_SYS holds only the 3b runs
+# and the shipping B1 source silently resolved to nothing.
+RAW_SYS_ALT = RESULTS / "b2_systematic" / "b2_systematic" / "raw"
 MAP_FILE   = RESULTS / "checkpoint_variable_map.json"
 ORACLE_OUT = RESULTS / "b1_oracle_values.json"
 REPORT_OUT = RESULTS / "b1_validation_report.json"
+
+
+def sys_run_path(run_num: int) -> Path:
+    name = f"checkout_{SHIPPING_CFG}_{SHIPPING_FAULT}_run{run_num}.json"
+    primary = RAW_SYS / name
+    return primary if primary.exists() else RAW_SYS_ALT / name
+
+
+def usable_trace(lkw: list) -> bool:
+    """Reject a baseline trace that records a crash instead of a clean run.
+
+    In the 14b sweep the email agent aborted on a bad mock patch, emitting only
+    TASK_START and an error FINAL_ANSWER. Such a trace still looks non-empty, so
+    it would override a valid pilot baseline and calibrate every field to None.
+    """
+    for entry in lkw:
+        data = entry.get("data") or {}
+        if isinstance(data, dict) and data.get("error"):
+            return False
+    return any(e.get("step") not in ("TASK_START", "FINAL_ANSWER") for e in lkw)
+
 
 # ── Agent name mapping: raw_run filename prefix → map agent key ───────────────
 AGENT_KEY_MAP = {
@@ -191,7 +215,7 @@ def load_checkout_agent_runs() -> dict:
     runs = {k: [] for k in SYS_TO_ORACLE_AGENT.values()}
     found = 0
     for run_num in [1, 2, 3]:
-        fname = RAW_SYS / f"checkout_{SHIPPING_CFG}_{SHIPPING_FAULT}_run{run_num}.json"
+        fname = sys_run_path(run_num)
         if not fname.exists():
             continue
         with open(fname, encoding="utf-8") as f:
@@ -199,7 +223,7 @@ def load_checkout_agent_runs() -> dict:
         per_agent = data.get("per_agent_lkw", {})
         for sys_name, oracle_name in SYS_TO_ORACLE_AGENT.items():
             lkw = per_agent.get(sys_name, [])
-            if lkw:
+            if lkw and usable_trace(lkw):
                 runs[oracle_name].append(lkw)
                 found += 1
     # Return only agents that had data
@@ -236,7 +260,7 @@ def load_shipping_runs() -> dict:
     """
     sq_runs, so_runs = [], []
     for run_num in [1, 2, 3]:
-        fname = RAW_SYS / f"checkout_{SHIPPING_CFG}_{SHIPPING_FAULT}_run{run_num}.json"
+        fname = sys_run_path(run_num)
         if not fname.exists():
             continue
         with open(fname, encoding="utf-8") as f:

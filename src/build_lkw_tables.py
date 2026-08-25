@@ -9,7 +9,23 @@ import json
 import os
 
 MATRIX = os.path.join("results", "cross_model_lkw_matrix.json")
+MAP_FILE = os.path.join("results", "checkpoint_variable_map.json")
+ORACLE_FILE = os.path.join("results", "b1_oracle_values.json")
 MODEL_ORDER = ["3b", "llama32-3b", "qwen25-1.5b", "qwen3-1.7b"]
+
+CHECKOUT_AGENT_ORDER = [
+    "checkout_orchestrator", "productcatalog", "currency",
+    "shipping_quote", "payment", "ship_order", "email",
+]
+
+SYS_TO_ORACLE = {
+    "productcatalog": "productcatalogagent",
+    "currency":       "currencyagent",
+    "payment":        "paymentagent",
+    "email":          "emailserviceagent",
+    "shipping_quote": "shippingagent_get_quote",
+    "ship_order":     "shippingagent_ship_order",
+}
 
 STATE_LABEL = {
     "not_reached":  "PATH_INFEAS.",
@@ -131,11 +147,74 @@ def dump(runs, agent, fault, field, models, kind):
         print("        %-14s %s" % (m, cells(runs, agent, fault, field, m)))
 
 
+def table3(runs):
+    """Def-use coverage and Type 1 / Type 2 classification.
+
+    Type 1 = the fault moves a field that survives `classify` as a specific
+    detector, so an oracle decides it. Type 2 = the fault was exercised on a
+    reached agent but no field separates it, leaving only structural evidence.
+    Deliberately excludes mutation score and propagation depth: those are scored
+    against the pre-correction oracle and move when B3 is re-run.
+    """
+    cmap = json.load(open(MAP_FILE, encoding="utf-8"))
+    oracle = json.load(open(ORACLE_FILE, encoding="utf-8"))["oracle"]
+
+    du, valid = collections.Counter(), collections.Counter()
+    for cp in cmap["checkpoints"]:
+        key = cp["agent"]
+        for var in cp["observed_variables"]:
+            du[key] += 1
+            entry = oracle.get("%s.%s.%s" % (key, cp["checkpoint"], var["field"]), {})
+            if entry.get("oracle_type") != "absent" and entry.get("run_count"):
+                valid[key] += 1
+
+    rows, t1_tot, t2_tot = [], 0, 0
+    for agent in CHECKOUT_AGENT_ORDER:
+        okey = SYS_TO_ORACLE.get(agent, agent)
+        by_fault = fields_for(runs, agent)
+        t1, t2 = [], []
+        for fault in sorted(by_fault):
+            hit = any(
+                classify(runs, agent, fault, f).startswith("DETECTOR")
+                and "NON-SPECIFIC" not in classify(runs, agent, fault, f)
+                for f in by_fault[fault]
+            )
+            (t1 if hit else t2).append(fault)
+        t1_tot += len(t1)
+        t2_tot += len(t2)
+        rows.append((agent, du[okey], valid[okey], t1, t2))
+
+    print("Table 3. LKW def-use coverage and detector classification")
+    print("(oracle corrected at 7485d45; excludes mutation score and RIP depth)\n")
+    print("  %-22s %5s %6s %8s %7s %7s  %s" %
+          ("Agent", "DU", "B1ok", "Cells", "Type1", "Type2", "Type 1 faults"))
+    for agent, d, v, t1, t2 in rows:
+        print("  %-22s %5d %6d %8d %7d %7d  %s" %
+              (agent, d, v, len(t1) + len(t2), len(t1), len(t2),
+               ", ".join(f.replace("_", "-").replace("FM-", "FM ") for f in t1) or "-"))
+    tot_du, tot_v = sum(r[1] for r in rows), sum(r[2] for r in rows)
+    print("  %-22s %5d %6d %8d %7d %7d" %
+          ("TOTAL", tot_du, tot_v, t1_tot + t2_tot, t1_tot, t2_tot))
+    print("\n  DU    = def-use pairs instrumented in checkpoint_variable_map.json")
+    print("  B1ok  = pairs with a non-vacuous B1 baseline (run_count > 0)")
+    print("  Cells = (agent, fault) pairs exercised, i.e. agent reached and compared")
+    if tot_du:
+        print("  B1 coverage: %d/%d = %.0f%%" % (tot_v, tot_du, 100.0 * tot_v / tot_du))
+    if t1_tot + t2_tot:
+        print("  Type 1: %d/%d = %.0f%% of exercised cells oracle-detectable"
+              % (t1_tot, t1_tot + t2_tot, 100.0 * t1_tot / (t1_tot + t2_tot)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--agent", default="currency")
     ap.add_argument("--matrix", default=MATRIX)
+    ap.add_argument("--table3", action="store_true")
     args = ap.parse_args()
+
+    if args.table3:
+        table3(load(args.matrix))
+        return
 
     runs = load(args.matrix)
     models = [m for m in MODEL_ORDER if any(r.get("model_tag") == m for r in runs)]

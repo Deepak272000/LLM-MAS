@@ -520,7 +520,14 @@ def main():
                       f"absent from TARGETED_FAULT_MATRIX: {sorted(missing)}")
                 sys.exit(1)
     else:
-        fault_campaign = [(args.fault_mode, args.fault_agent)]
+        # An unset --fault-agent must not downgrade a targeted fault to "all":
+        # that compares untargeted agents against the cross-model oracle baseline
+        # and scores model variance as detection.
+        fault_agent = args.fault_agent
+        if fault_agent == "all":
+            fault_agent = next((fa for fm, fa, _ in TARGETED_FAULT_MATRIX
+                                if fm == args.fault_mode), "all")
+        fault_campaign = [(args.fault_mode, fault_agent)]
 
     model_configs = build_model_configs()
     if args.cfg:

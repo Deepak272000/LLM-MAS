@@ -60,7 +60,7 @@ PAPER8_FAULT_MODES = [
 ]
 
 
-def agent_state(per_agent, agent):
+def agent_state(per_agent, agent, fault_mode=None):
     """Collapse one agent's mutation entry into a table-ready verdict."""
     entry = (per_agent or {}).get(agent)
     if entry is None:
@@ -68,6 +68,14 @@ def agent_state(per_agent, agent):
     if entry.get("not_reached"):
         return {"state": "not_reached", "fields": {}}
     if entry.get("not_targeted"):
+        return {"state": "not_targeted", "fields": {}}
+
+    # Some runs were produced by a build lacking b3_runner's is_targeted skip, so
+    # they compared untargeted agents against the cross-model oracle and scored
+    # model variance as fault signal. Re-apply the skip so every model is judged
+    # by one policy.
+    target = FAULT_TARGET.get(fault_mode)
+    if target and agent not in (target, "checkout_orchestrator"):
         return {"state": "not_targeted", "fields": {}}
 
     fields = {}
@@ -173,7 +181,7 @@ def main():
             "status_corrected":  corrected,
             "reclass_reason":    reason,
             "reached":           reached,
-            "agents":            {a: agent_state(per_agent, a)
+            "agents":            {a: agent_state(per_agent, a, fault_mode)
                                   for a in CHECKOUT_AGENT_ORDER},
             "orchestrator_error": data.get("orchestrator_error"),
             "type_repairs":      data.get("type_repairs") or {},

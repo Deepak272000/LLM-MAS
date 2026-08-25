@@ -142,7 +142,11 @@ def maybe_manipulate_rate(result: dict) -> dict:
             # A str would concatenate rather than multiply: "19" * 10 -> "1919...".
             inflated = int(original) * 10
         except (TypeError, ValueError):
-            log.error(f"[FAULT BL_RATE_MANIPULATION] Non-numeric units {original!r}; skipping inflation")
+            # Flag it rather than return silently, so a skipped injection is not
+            # scored as the detector missing a fault that was really applied.
+            log.error(f"[FAULT BL_RATE_MANIPULATION] Non-numeric units {original!r}; injection skipped")
+            result = dict(result)
+            result["rate_injection_failed"] = True
             return result
         log.warning(f"[FAULT BL_RATE_MANIPULATION] Rate inflated: {original} → {inflated}")
         result = dict(result)

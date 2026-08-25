@@ -128,6 +128,7 @@ class CurrencyAgent:
                 "units_out": data.get("units"),
                 "hallucinated": data.get("hallucinated", False),
                 "rate_manipulated": data.get("rate_manipulated", False),
+                "rate_injection_failed": data.get("rate_injection_failed", False),
                 "stale_rate": data.get("stale_rate", False),
                 "overflow": data.get("overflow", False),
                 "amount_tampered": fi.FAULT_MODE == "FM_2_5",

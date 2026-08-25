@@ -145,6 +145,17 @@ CHECKOUT_AGENT_ORDER = [
 
 # ── Mutation detection ─────────────────────────────────────────────────────────
 
+def injection_failures(per_agent_lkw: dict) -> list:
+    """Injection points that reported themselves unable to fire."""
+    found = []
+    for agent, lkw in (per_agent_lkw or {}).items():
+        for cp in lkw or []:
+            for field, value in (cp.get("data") or {}).items():
+                if field.endswith("_injection_failed") and value:
+                    found.append("%s.%s.%s" % (agent, cp.get("step"), field))
+    return found
+
+
 def detect_mutation(per_agent_lkw: dict, oracle: dict, fault_mode: str,
                     fault_agent: str = "all") -> dict:
     """
@@ -360,6 +371,10 @@ def run_b3_once(fault_mode: str, model_cfg: dict, run_idx: int,
         # (unrecoverable, canonical value substituted). An observed agent
         # failure mode, recorded rather than discarded as an infra error.
         "type_repairs":    checkout_result.get("type_repairs", {}),
+        # Injections the harness could not apply (e.g. BL_RATE on non-numeric
+        # units). Without this an unfired injection is indistinguishable from a
+        # detector that missed a fault which really was applied.
+        "injection_failures": injection_failures(checkout_result.get("per_agent_lkw", {})),
         "steps_per_agent": {
             agent: [cp["step"] for cp in lkw]
             for agent, lkw in checkout_result.get("per_agent_lkw", {}).items()

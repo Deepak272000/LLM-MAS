@@ -185,6 +185,7 @@ def main():
                                   for a in CHECKOUT_AGENT_ORDER},
             "orchestrator_error": data.get("orchestrator_error"),
             "type_repairs":      data.get("type_repairs") or {},
+            "injection_failures": data.get("injection_failures") or [],
         })
 
     tags = sorted({r["model_tag"] for r in runs})

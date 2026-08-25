@@ -1448,198 +1448,24 @@
           "fields": {}
         },
         "productcatalog": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "action": {
-              "b1": "list_products",
-              "observed": "get_product",
-              "severity": "data",
-              "detects": [
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "product_ids": {
-              "b1": [
-                "['PROD-001', 'PROD-002']"
-              ],
-              "observed": [
-                "PROD-001"
-              ],
-              "severity": "data",
-              "detects": [
-                "FM_2_2",
-                "BL_PRODUCT_MISSING",
-                "BL_DUPLICATE_PRODUCT"
-              ],
-              "verdict": "FAIL"
-            },
-            "count": {
-              "b1": 2,
-              "observed": 1,
-              "severity": "data",
-              "detects": [
-                "BL_PRODUCT_MISSING",
-                "BL_DUPLICATE_PRODUCT",
-                "FM_2_2"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "currency": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "units": {
-              "b1": 10,
-              "observed": 2,
-              "severity": "data",
-              "detects": [
-                "FM_2_5"
-              ],
-              "verdict": "FAIL"
-            },
-            "to_currency": {
-              "b1": "EUR",
-              "observed": "USD",
-              "severity": "data",
-              "detects": [
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "units_out": {
-              "b1": {
-                "min": 9.0,
-                "max": 9.0,
-                "mean": 9.0
-              },
-              "observed": 2,
-              "severity": "data",
-              "detects": [
-                "FM_2_2",
-                "FM_2_5",
-                "BL_RATE_MANIPULATION",
-                "BL_STALE_RATE",
-                "BL_CONVERSION_OVERFLOW"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "shipping_quote": {
-          "state": "compared",
-          "verdict": "PASS",
+          "state": "not_targeted",
           "fields": {}
         },
         "payment": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "units": {
-              "b1": 10,
-              "observed": 6,
-              "severity": "data",
-              "detects": [
-                "FM_2_5",
-                "BL_AMOUNT_TAMPERING"
-              ],
-              "verdict": "FAIL"
-            },
-            "nanos": {
-              "b1": 990000000,
-              "observed": 0,
-              "severity": "data",
-              "detects": [
-                "FM_2_5",
-                "BL_AMOUNT_TAMPERING"
-              ],
-              "verdict": "FAIL"
-            },
-            "validation_bypassed": {
-              "b1": false,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "amount_tampered": {
-              "b1": false,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "transaction_id": {
-              "b1": "128d7085-7668-46c5-9e4c-a58fa15414b6",
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "units_charged": {
-              "b1": 10,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "hallucinated": {
-              "b1": false,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "saved": {
-              "b1": true,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "double_charge": {
-              "b1": false,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "ship_order": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "ignored_downstream_quote": {
-              "b1": null,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "tracking_id": {
-              "b1": null,
-              "observed": "{\"cost_usd\":10.9,\"service_level\":\"\",\"item_weight\":{\"total_kg\":3}",
-              "severity": "schema",
-              "detects": [
-                "FM_3_1",
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "saved": {
-              "b1": null,
-              "observed": false,
-              "severity": "data",
-              "detects": [
-                "BL_SHIPMENT_LOST"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "email": {
           "state": "compared",
@@ -1695,156 +1521,24 @@
           "fields": {}
         },
         "productcatalog": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "action": {
-              "b1": "list_products",
-              "observed": "get_product",
-              "severity": "data",
-              "detects": [
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "product_ids": {
-              "b1": [
-                "['PROD-001', 'PROD-002']"
-              ],
-              "observed": [
-                "PROD-001"
-              ],
-              "severity": "data",
-              "detects": [
-                "FM_2_2",
-                "BL_PRODUCT_MISSING",
-                "BL_DUPLICATE_PRODUCT"
-              ],
-              "verdict": "FAIL"
-            },
-            "count": {
-              "b1": 2,
-              "observed": 1,
-              "severity": "data",
-              "detects": [
-                "BL_PRODUCT_MISSING",
-                "BL_DUPLICATE_PRODUCT",
-                "FM_2_2"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "currency": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "units": {
-              "b1": 10,
-              "observed": 2,
-              "severity": "data",
-              "detects": [
-                "FM_2_5"
-              ],
-              "verdict": "FAIL"
-            },
-            "to_currency": {
-              "b1": "EUR",
-              "observed": "CAD",
-              "severity": "data",
-              "detects": [
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "units_out": {
-              "b1": {
-                "min": 9.0,
-                "max": 9.0,
-                "mean": 9.0
-              },
-              "observed": 2,
-              "severity": "data",
-              "detects": [
-                "FM_2_2",
-                "FM_2_5",
-                "BL_RATE_MANIPULATION",
-                "BL_STALE_RATE",
-                "BL_CONVERSION_OVERFLOW"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "shipping_quote": {
-          "state": "compared",
-          "verdict": "PASS",
+          "state": "not_targeted",
           "fields": {}
         },
         "payment": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "currency_code": {
-              "b1": "USD",
-              "observed": "CAD",
-              "severity": "data",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "units": {
-              "b1": 10,
-              "observed": 26,
-              "severity": "data",
-              "detects": [
-                "FM_2_5",
-                "BL_AMOUNT_TAMPERING"
-              ],
-              "verdict": "FAIL"
-            },
-            "units_charged": {
-              "b1": 10,
-              "observed": 26,
-              "severity": "data",
-              "detects": [
-                "FM_2_5",
-                "BL_AMOUNT_TAMPERING"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "ship_order": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "ignored_downstream_quote": {
-              "b1": null,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "tracking_id": {
-              "b1": null,
-              "observed": "<id>",
-              "severity": "schema",
-              "detects": [
-                "FM_3_1",
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "saved": {
-              "b1": null,
-              "observed": false,
-              "severity": "data",
-              "detects": [
-                "BL_SHIPMENT_LOST"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "email": {
           "state": "compared",
@@ -1903,149 +1597,24 @@
           "fields": {}
         },
         "productcatalog": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "action": {
-              "b1": "list_products",
-              "observed": "get_product",
-              "severity": "data",
-              "detects": [
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "product_ids": {
-              "b1": [
-                "['PROD-001', 'PROD-002']"
-              ],
-              "observed": [
-                "PROD-001"
-              ],
-              "severity": "data",
-              "detects": [
-                "FM_2_2",
-                "BL_PRODUCT_MISSING",
-                "BL_DUPLICATE_PRODUCT"
-              ],
-              "verdict": "FAIL"
-            },
-            "count": {
-              "b1": 2,
-              "observed": 1,
-              "severity": "data",
-              "detects": [
-                "BL_PRODUCT_MISSING",
-                "BL_DUPLICATE_PRODUCT",
-                "FM_2_2"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "currency": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "units": {
-              "b1": 10,
-              "observed": 0,
-              "severity": "data",
-              "detects": [
-                "FM_2_5"
-              ],
-              "verdict": "FAIL"
-            },
-            "to_currency": {
-              "b1": "EUR",
-              "observed": "USD",
-              "severity": "data",
-              "detects": [
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "units_out": {
-              "b1": {
-                "min": 9.0,
-                "max": 9.0,
-                "mean": 9.0
-              },
-              "observed": 0,
-              "severity": "data",
-              "detects": [
-                "FM_2_2",
-                "FM_2_5",
-                "BL_RATE_MANIPULATION",
-                "BL_STALE_RATE",
-                "BL_CONVERSION_OVERFLOW"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "shipping_quote": {
-          "state": "compared",
-          "verdict": "PASS",
+          "state": "not_targeted",
           "fields": {}
         },
         "payment": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "units": {
-              "b1": 10,
-              "observed": 26,
-              "severity": "data",
-              "detects": [
-                "FM_2_5",
-                "BL_AMOUNT_TAMPERING"
-              ],
-              "verdict": "FAIL"
-            },
-            "units_charged": {
-              "b1": 10,
-              "observed": 26,
-              "severity": "data",
-              "detects": [
-                "FM_2_5",
-                "BL_AMOUNT_TAMPERING"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "ship_order": {
-          "state": "compared",
-          "verdict": "FAIL",
-          "fields": {
-            "ignored_downstream_quote": {
-              "b1": null,
-              "observed": null,
-              "severity": "missing",
-              "detects": [],
-              "verdict": "FAIL"
-            },
-            "tracking_id": {
-              "b1": null,
-              "observed": "#UPSDJX4567890",
-              "severity": "schema",
-              "detects": [
-                "FM_3_1",
-                "FM_1_2"
-              ],
-              "verdict": "FAIL"
-            },
-            "saved": {
-              "b1": null,
-              "observed": false,
-              "severity": "data",
-              "detects": [
-                "BL_SHIPMENT_LOST"
-              ],
-              "verdict": "FAIL"
-            }
-          }
+          "state": "not_targeted",
+          "fields": {}
         },
         "email": {
           "state": "compared",
